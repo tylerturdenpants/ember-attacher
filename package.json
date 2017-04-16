@@ -1,24 +1,32 @@
 {
   "name": "ember-attacher",
   "version": "0.0.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "Tooltips and popovers for Ember.js apps",
   "keywords": [
-    "ember-addon"
+    "ember-addon",
+    "tooltips",
+    "popovers"
   ],
   "license": "MIT",
-  "author": "",
+  "author": {
+    "name" : "Kyle Bishop",
+    "email" : "kybishop@gmail.com",
+    "url" : "http://kybishop.com"
+  },
   "directories": {
     "doc": "doc",
     "test": "tests"
   },
-  "repository": "",
+  "repository": "https://github.com/kybishop/ember-attacher",
   "scripts": {
     "build": "ember build",
     "start": "ember server",
     "test": "ember try:each"
   },
   "dependencies": {
-    "ember-cli-babel": "^5.1.7"
+    "ember-cli-babel": "^5.1.7",
+    "ember-cli-htmlbars": "^1.2.0",
+    "ember-popper": "0.0.1"
   },
   "devDependencies": {
     "broccoli-asset-rev": "^2.4.5",

@@ -1,5 +1,23 @@
-{{!-- The following component displays Ember's default welcome message. --}}
-{{welcome-page}}
-{{!-- Feel free to remove this! --}}
+<div class="row">
+  <div class="left">
+    {{#ember-attacher arrow=true class="popper" interactive=true}}
+      Hello from the left! I have no explicit target.
+    {{/ember-attacher}}
+  </div>
+  <div class="right"></div>
+</div>
+<div class="row">
+  <div class="left">
+    {{#ember-attacher arrow=true class="popper" interactive=true showOn="click" hideOn="click"}}
+      Attachment shown and hidden via click
+    {{/ember-attacher}}
+  </div>
+</div>
 
-{{outlet}}
+{{#ember-attacher class="popper" target=".right" interactive=true options=popperOptions}}
+  Hello from the right!
+  <br>
+  I explicitly target the right div
+{{/ember-attacher}}
+
+

@@ -1,0 +1,118 @@
+body {
+  height: 100vh;
+}
+
+.row {
+  display: flex;
+}
+
+.box {
+  display: flex;
+  flex-grow: 1;
+}
+
+.left {
+  background-color: red;
+  width: 80%;
+}
+
+.right {
+  background-color: blue;
+  width: 20%;
+}
+
+.left, .right, .box {
+  height: 100px;
+}
+
+.popper {
+    position: absolute;
+    background: #FFC107;
+    color: black;
+    border-radius: 3px;
+    box-shadow: 0 0 2px rgba(0,0,0,0.5);
+    padding: 10px;
+    text-align: center;
+}
+
+.popper .popper-arrow {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    position: absolute;
+    margin: 5px;
+}
+
+.popper .popper-arrow {
+    border-color: #FFC107;
+}
+
+.popper[x-placement^="top"] {
+    margin-bottom: 5px;
+}
+
+.popper[x-placement^="top"] .popper-arrow {
+    border-width: 5px 5px 0 5px;
+    border-left-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    bottom: -5px;
+    left: calc(50% - 5px);
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.popper[x-placement^="bottom"] {
+    margin-top: 5px;
+}
+
+.popper[x-placement^="bottom"] .popper-arrow {
+    border-width: 0 5px 5px 5px;
+    border-left-color: transparent;
+    border-right-color: transparent;
+    border-top-color: transparent;
+    top: -5px;
+    left: calc(50% - 5px);
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.popper[x-placement^="right"] {
+    margin-left: 5px;
+}
+
+.popper[x-placement^="right"] .popper-arrow {
+    border-width: 5px 5px 5px 0;
+    border-left-color: transparent;
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+    left: -5px;
+    top: calc(50% - 5px);
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.popper[x-placement^="left"] {
+    margin-right: 5px;
+}
+
+.popper[x-placement^="left"] .popper-arrow {
+    border-width: 5px 0 5px 5px;
+    border-top-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    right: -5px;
+    top: calc(50% - 5px);
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.ember-attacher-visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+.ember-attacher-hidden {
+  visibility: hidden;
+  opacity: 0;
+}

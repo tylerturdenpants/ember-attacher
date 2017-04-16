@@ -1,0 +1,1 @@
+export { default } from 'ember-attacher/components/ember-attacher';
