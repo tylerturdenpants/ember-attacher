@@ -107,12 +107,10 @@ body {
     margin-right: 0;
 }
 
-.ember-attacher-visible {
-  visibility: visible;
-  opacity: 1;
+.ember-attacher-fade-in {
+  opacity: 0;
 }
 
-.ember-attacher-hidden {
-  visibility: hidden;
-  opacity: 0;
+.ember-attacher-fade-in.ember-attacher-visible {
+  opacity: 1;
 }

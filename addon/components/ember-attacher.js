@@ -3,37 +3,50 @@ import EmberPopper from 'ember-popper/components/ember-popper';
 import layout from '../templates/components/ember-attacher';
 
 export default EmberPopper.extend({
-  classNameBindings: ['_isVisible:ember-attacher-visible:ember-attacher-hidden'],
-  layout,
 
-  animation: 'shift',
+  /**
+   * ================== PUBLIC CONFIG OPTIONS ==================
+   */
+
+  animation: 'fade-in',
   // TODO(kjb) figure out how to pass this into the options.
   arrow: false,
   hideDelay: 0,
   hideDuration: 400,
   interactive: false,
   hideOn: 'mouseleave blur',
-  _hideOn: Ember.computed('hideOn', function() {
-    return this.get('hideOn').split(' ');
-  }),
   showDelay: 0,
   showDuration: 400,
   showOn: 'mouseenter focus',
+
+  /**
+   * ================== PRIVATE IMPLEMENTATION DETAILS ==================
+   */
+
+  classNameBindings: ['_animation', 'isVisibleAnimation:ember-attacher-visible'],
+  layout,
+
+  _animation: Ember.computed('animation', function() {
+    return `ember-attacher-${this.get('animation')}`;
+  }),
+  _hideOn: Ember.computed('hideOn', function() {
+    return this.get('hideOn').split(' ');
+  }),
   _showOn: Ember.computed('showOn', function() {
     return this.get('showOn').split(' ');
   }),
 
-  // Holds the current popper target so event listeners can be removed if the target changes
-  _currentTarget: null,
+  _setIsVisibleAfterDelay(isVisible, delay) {
+    if (delay) {
+      this._isVisibleTimeout = Ember.run.later(this, this._setIsVisible, isVisible, delay);
+    } else {
+      this.set('isVisible', isVisible);
+    }
+  },
 
-  // The debounced _hide() is stored here so it can be cancelled
-  // if a _show() is triggered before the _hide() is executed
-  _delayedHide: null,
-  // The debounced _show() is stored here so it can be cancelled
-  // if a _hide() is triggered before the _show() is executed
-  _delayedShow: null,
-
-  _isVisible: false,
+  _setIsVisible(isVisible) {
+    this.set('isVisible', isVisible);
+  },
 
   /**
    * ================== COMPONENT LIFECYCLE HOOKS ==================
@@ -42,17 +55,37 @@ export default EmberPopper.extend({
   init() {
     this._super(...arguments);
 
+    // Holds the current popper target so event listeners can be removed if the target changes
+    this._currentTarget = null;
+
+    // The debounced _hide() is stored here so it can be cancelled
+    // if a _show() is triggered before the _hide() is executed
+    this._delayedHide = null;
+
+    // The debounced _show() is stored here so it can be cancelled
+    // if a _hide() is triggered before the _show() is executed
+    this._delayedShow = null;
+
+    // TODO(kjb) Describe
+    this._isVisibleTimeout = null;
+
+    // Part of the Component superclass. isVisible == false sets 'display: none'
+    this.isVisible = false;
+
     this._showListenersOnTargetByEvent = {};
     this._hideListenersOnTargetByEvent = {};
 
     // Hacks to make sure event listeners have the right context and are still cancellable later
-    this._hideIfMouseOutsideTargetOrAttachment = this._hideIfMouseOutsideTargetOrAttachment.bind(this);
+    this._hideIfMouseOutsideTargetOrAttachment =
+      this._hideIfMouseOutsideTargetOrAttachment.bind(this);
     this._debouncedHideIfMouseOutsideTargetOrAttachment =
       this._debouncedHideIfMouseOutsideTargetOrAttachment.bind(this);
     this._hideOnBlur = this._hideOnBlur.bind(this);
     this._hideOnMouseLeaveTarget = this._hideOnMouseLeaveTarget.bind(this);
     this._hideAfterDelay = this._hideAfterDelay.bind(this);
     this._showAfterDelay = this._showAfterDelay.bind(this);
+    this._show = this._show.bind(this);
+    this._hide = this._hide.bind(this);
   },
 
   didInsertElement() {
@@ -103,17 +136,16 @@ export default EmberPopper.extend({
 
   _showAfterDelay() {
     Ember.run.cancel(this._delayedHide);
+    Ember.run.cancel(this._isVisibleTimeout);
 
-    this._delayedShow = Ember.run.debounce(this,
-                                           () => Ember.run.scheduleOnce('render', this, this._show),
-                                           this.get('showDelay'));
+    this._delayedShow = Ember.run.debounce(this, this._show, this.get('showDelay'));
   },
 
   _show() {
     let target = this.get('_popperTarget');
 
     // The attachment is already visible or the target has been destroyed
-    if (this.get('_isVisible') || !target) {
+    if ((this.isVisible && this.isVisibleAnimation) || !target) {
       return;
     }
 
@@ -127,14 +159,19 @@ export default EmberPopper.extend({
     this._popper.enableEventListeners()
     this._popper.update()
 
-    let attachment = this.element;
+    let showDuration = this.get('showDuration');
 
     // TODO(kjb) this is suspect. Is there a more "Ember way" of doing this?
-    let showDurationCss = `${this.get('showDuration')}ms`
-    attachment.style.WebkitTransitionDuration = showDurationCss
-    attachment.style.transitionDuration = showDurationCss
+    // TODO(kjb) For some reason, isVisible clears the element's styles, making this borked.
+    // - could just roll our own _isVisible property, with a simple CSS class to match
+    let showDurationCss = `${showDuration}ms`;
+    this.element.style.WebkitTransitionDuration = showDurationCss;
+    this.element.style.transitionDuration = showDurationCss;
 
-    this.set('_isVisible', true);
+    // Make the attachment visible immediately so transition animations can take place
+    this._setIsVisibleAfterDelay(true, 0);
+
+    this.set('isVisibleAnimation', true);
   },
 
   _addListenersforHideEvents() {
@@ -258,28 +295,32 @@ export default EmberPopper.extend({
 
   _hideAfterDelay() {
     Ember.run.cancel(this._delayedShow);
+    Ember.run.cancel(this._isVisibleTimeout);
 
-    this._delayedHide = Ember.run.debounce(this,
-                                           () => Ember.run.scheduleOnce('render', this, this._hide),
-                                           this.get('hideDelay'));
+    this._delayedHide = Ember.run.debounce(this, this._hide, this.get('hideDelay'));
   },
 
   _hide() {
     let target = this.get('_popperTarget');
 
     // The attachment is already hidden or the target was destroyed
-    if (!this.get('_isVisible') || !target) {
+    if (!this.isVisible || !target) {
       return;
     }
 
     this._removeListenersForHideEvents();
 
+    let hideDuration = this.get('hideDuration');
+
     // TODO(kjb) Fix this to do it "the Ember way"
-    let hideDuratioCss = `${this.get('hideDuration')}ms`;
+    let hideDuratioCss = `${hideDuration}ms`;
     this.element.style.WebkitTransitionDuration = hideDuratioCss;
     this.element.style.transitionDuration = hideDuratioCss;
 
-    this.set('_isVisible', false);
+    this.set('isVisibleAnimation', false);
+
+    // Wait for any animations to complete before hiding the attachment
+    this._setIsVisibleAfterDelay(false, hideDuration);
 
     this._popper.disableEventListeners();
   },
@@ -326,7 +367,7 @@ export default EmberPopper.extend({
       // Regardless of whether or not the attachment is hidden, we want to add the show listeners
       this._addListenersForShowEvents();
 
-      if (!this.get('_isVisible')) {
+      if (!this.isVisible) {
         this._addListenersforHideEvents();
       }
     }
