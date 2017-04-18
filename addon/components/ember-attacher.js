@@ -38,15 +38,31 @@ export default EmberPopper.extend({
 
   _setIsVisibleAfterDelay(isVisible, delay) {
     if (delay) {
-      this._isVisibleTimeout = Ember.run.later(this, this._setIsVisible, isVisible, delay);
+      Ember.run.cancel(this._isVisibleTimeout);
+
+      this._isVisibleTimeout =
+        Ember.run.later(this, () => { this.set('isVisible', isVisible) }, delay);
     } else {
       this.set('isVisible', isVisible);
     }
   },
 
-  _setIsVisible(isVisible) {
-    this.set('isVisible', isVisible);
-  },
+  _targetOrTriggersChanged: Ember.observer(
+    'target',
+    'showOn',
+    'hideOn',
+    function() {
+      this._removeEventListeners();
+
+      // Regardless of whether or not the attachment is hidden, we want to add the show listeners
+      this._addListenersForShowEvents();
+
+      if (!this.isVisible) {
+        this._addListenersforHideEvents();
+      }
+    }
+  ),
+
 
   /**
    * ================== COMPONENT LIFECYCLE HOOKS ==================
@@ -66,7 +82,8 @@ export default EmberPopper.extend({
     // if a _hide() is triggered before the _show() is executed
     this._delayedShow = null;
 
-    // TODO(kjb) Describe
+    // Holds a delayed function to toggle the visibility of the attachment.
+    // Used to make sure animations can complete before the attachment is hidden.
     this._isVisibleTimeout = null;
 
     // Part of the Component superclass. isVisible == false sets 'display: none'
@@ -356,20 +373,4 @@ export default EmberPopper.extend({
       delete this._hideListenersOnTargetByEvent['blur'];
     }
   },
-
-  targetOrTriggersChanged: Ember.observer(
-    'target',
-    'showOn',
-    'hideOn',
-    function() {
-      this._removeEventListeners();
-
-      // Regardless of whether or not the attachment is hidden, we want to add the show listeners
-      this._addListenersForShowEvents();
-
-      if (!this.isVisible) {
-        this._addListenersforHideEvents();
-      }
-    }
-  )
 });
