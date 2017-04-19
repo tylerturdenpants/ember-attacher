@@ -23,7 +23,9 @@ export default EmberPopper.extend({
    * ================== PRIVATE IMPLEMENTATION DETAILS ==================
    */
 
-  classNameBindings: ['_animation', 'isVisibleAnimation:ember-attacher-visible'],
+  classNameBindings: ['_animation', 'isStartingAnimation:ember-attacher-show:ember-attacher-hide'],
+  // Part of the Component superclass. isVisible == false sets 'display: none'
+  isVisible: false,
   layout,
 
   _animation: Ember.computed('animation', function() {
@@ -37,10 +39,10 @@ export default EmberPopper.extend({
   }),
 
   _setIsVisibleAfterDelay(isVisible, delay) {
-    if (delay) {
-      Ember.run.cancel(this._isVisibleTimeout);
+    Ember.run.cancel(this.isVisibleTimeout);
 
-      this._isVisibleTimeout =
+    if (delay) {
+      this.isVisibleTimeout =
         Ember.run.later(this, () => { this.set('isVisible', isVisible) }, delay);
     } else {
       this.set('isVisible', isVisible);
@@ -63,7 +65,6 @@ export default EmberPopper.extend({
     }
   ),
 
-
   /**
    * ================== COMPONENT LIFECYCLE HOOKS ==================
    */
@@ -84,10 +85,7 @@ export default EmberPopper.extend({
 
     // Holds a delayed function to toggle the visibility of the attachment.
     // Used to make sure animations can complete before the attachment is hidden.
-    this._isVisibleTimeout = null;
-
-    // Part of the Component superclass. isVisible == false sets 'display: none'
-    this.isVisible = false;
+    this.isVisibleTimeout = null;
 
     this._showListenersOnTargetByEvent = {};
     this._hideListenersOnTargetByEvent = {};
@@ -153,7 +151,7 @@ export default EmberPopper.extend({
 
   _showAfterDelay() {
     Ember.run.cancel(this._delayedHide);
-    Ember.run.cancel(this._isVisibleTimeout);
+    Ember.run.cancel(this.isVisibleTimeout);
 
     this._delayedShow = Ember.run.debounce(this, this._show, this.get('showDelay'));
   },
@@ -162,7 +160,7 @@ export default EmberPopper.extend({
     let target = this.get('_popperTarget');
 
     // The attachment is already visible or the target has been destroyed
-    if ((this.isVisible && this.isVisibleAnimation) || !target) {
+    if ((this.isVisible && this.isStartingAnimation) || !target) {
       return;
     }
 
@@ -173,22 +171,20 @@ export default EmberPopper.extend({
 
     this._addListenersforHideEvents();
 
-    this._popper.enableEventListeners()
-    this._popper.update()
-
-    let showDuration = this.get('showDuration');
-
-    // TODO(kjb) this is suspect. Is there a more "Ember way" of doing this?
-    // TODO(kjb) For some reason, isVisible clears the element's styles, making this borked.
-    // - could just roll our own _isVisible property, with a simple CSS class to match
-    let showDurationCss = `${showDuration}ms`;
-    this.element.style.WebkitTransitionDuration = showDurationCss;
-    this.element.style.transitionDuration = showDurationCss;
-
     // Make the attachment visible immediately so transition animations can take place
     this._setIsVisibleAfterDelay(true, 0);
 
-    this.set('isVisibleAnimation', true);
+    this._popper.update();
+    this._popper.enableEventListeners();
+
+    // Have to start the animation on the next cycle so CSS transitions can have an effect
+    Ember.run.next(this, () => {
+      let showDurationCss = `${this.get('showDuration')}ms`;
+      this.element.style.WebkitTransitionDuration = showDurationCss;
+      this.element.style.transitionDuration = showDurationCss;
+
+      this.set('isStartingAnimation', true);
+    });
   },
 
   _addListenersforHideEvents() {
@@ -312,7 +308,7 @@ export default EmberPopper.extend({
 
   _hideAfterDelay() {
     Ember.run.cancel(this._delayedShow);
-    Ember.run.cancel(this._isVisibleTimeout);
+    Ember.run.cancel(this.isVisibleTimeout);
 
     this._delayedHide = Ember.run.debounce(this, this._hide, this.get('hideDelay'));
   },
@@ -329,12 +325,11 @@ export default EmberPopper.extend({
 
     let hideDuration = this.get('hideDuration');
 
-    // TODO(kjb) Fix this to do it "the Ember way"
     let hideDuratioCss = `${hideDuration}ms`;
     this.element.style.WebkitTransitionDuration = hideDuratioCss;
     this.element.style.transitionDuration = hideDuratioCss;
 
-    this.set('isVisibleAnimation', false);
+    this.set('isStartingAnimation', false);
 
     // Wait for any animations to complete before hiding the attachment
     this._setIsVisibleAfterDelay(false, hideDuration);

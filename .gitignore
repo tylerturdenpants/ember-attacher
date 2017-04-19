@@ -9,6 +9,7 @@
 /bower_components
 
 # misc
+.tern-project
 /.sass-cache
 /connect.lock
 /coverage/*
