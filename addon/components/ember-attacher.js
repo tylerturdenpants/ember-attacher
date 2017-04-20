@@ -15,55 +15,11 @@ export default EmberPopper.extend({
   hideDuration: 400,
   interactive: false,
   hideOn: 'mouseleave blur',
+  placement: 'top',
+  popperOptions: null,
   showDelay: 0,
   showDuration: 400,
   showOn: 'mouseenter focus',
-
-  /**
-   * ================== PRIVATE IMPLEMENTATION DETAILS ==================
-   */
-
-  classNameBindings: ['_animation', 'isStartingAnimation:ember-attacher-show:ember-attacher-hide'],
-  // Part of the Component superclass. isVisible == false sets 'display: none'
-  isVisible: false,
-  layout,
-
-  _animation: Ember.computed('animation', function() {
-    return `ember-attacher-${this.get('animation')}`;
-  }),
-  _hideOn: Ember.computed('hideOn', function() {
-    return this.get('hideOn').split(' ');
-  }),
-  _showOn: Ember.computed('showOn', function() {
-    return this.get('showOn').split(' ');
-  }),
-
-  _setIsVisibleAfterDelay(isVisible, delay) {
-    Ember.run.cancel(this.isVisibleTimeout);
-
-    if (delay) {
-      this.isVisibleTimeout =
-        Ember.run.later(this, () => { this.set('isVisible', isVisible) }, delay);
-    } else {
-      this.set('isVisible', isVisible);
-    }
-  },
-
-  _targetOrTriggersChanged: Ember.observer(
-    'target',
-    'showOn',
-    'hideOn',
-    function() {
-      this._removeEventListeners();
-
-      // Regardless of whether or not the attachment is hidden, we want to add the show listeners
-      this._addListenersForShowEvents();
-
-      if (!this.isVisible) {
-        this._addListenersforHideEvents();
-      }
-    }
-  ),
 
   /**
    * ================== COMPONENT LIFECYCLE HOOKS ==================
@@ -83,9 +39,12 @@ export default EmberPopper.extend({
     // if a _hide() is triggered before the _show() is executed
     this._delayedShow = null;
 
+    // The final source of truth on whether or not all _hide() or _show() actions have completed
+    this._isHidden = true;
+
     // Holds a delayed function to toggle the visibility of the attachment.
     // Used to make sure animations can complete before the attachment is hidden.
-    this.isVisibleTimeout = null;
+    this._isVisibleTimeout = null;
 
     this._showListenersOnTargetByEvent = {};
     this._hideListenersOnTargetByEvent = {};
@@ -105,6 +64,8 @@ export default EmberPopper.extend({
 
   didInsertElement() {
     this._super(...arguments);
+
+    this._popper.disableEventListeners();
 
     this._addListenersForShowEvents();
   },
@@ -146,12 +107,76 @@ export default EmberPopper.extend({
   },
 
   /**
+   * ================== PRIVATE IMPLEMENTATION DETAILS ==================
+   */
+
+  classNameBindings: ['_animation', '_isStartingAnimation:ember-attacher-show:ember-attacher-hide'],
+  // Part of the Component superclass. isVisible == false sets 'display: none'
+  isVisible: false,
+  layout,
+
+  _animation: Ember.computed('animation', function() {
+    return `ember-attacher-${this.get('animation')}`;
+  }),
+  _hideOn: Ember.computed('hideOn', function() {
+    return this.get('hideOn').split(' ');
+  }),
+  _showOn: Ember.computed('showOn', function() {
+    return this.get('showOn').split(' ');
+  }),
+
+  options: Ember.computed('arrow', 'placement', 'popperOptions', function() {
+    let options = this.get('popperOptions') || {};
+
+    // Deep copy the options
+    options = JSON.parse(JSON.stringify(options))
+
+    let modifiers = options.modifiers || {};
+    modifiers.arrow = modifiers.arrow || {};
+    modifiers.arrow.enabled = this.get('arrow');
+
+    options.modifiers = modifiers;
+
+    options.placement = this.get('placement');
+
+    return options;
+  }),
+
+  _setIsVisibleAfterDelay(isVisible, delay) {
+    Ember.run.cancel(this._isVisibleTimeout);
+
+    if (delay) {
+      this._isVisibleTimeout =
+        Ember.run.later(this, () => { this.set('isVisible', isVisible) }, delay);
+    } else {
+      this.set('isVisible', isVisible);
+    }
+  },
+
+  _targetOrTriggersChanged: Ember.observer(
+    'arrow',
+    'target',
+    'showOn',
+    'hideOn',
+    function() {
+      this._removeEventListeners();
+
+      // Regardless of whether or not the attachment is hidden, we want to add the show listeners
+      this._addListenersForShowEvents();
+
+      if (!this.isVisible) {
+        this._addListenersforHideEvents();
+      }
+    }
+  ),
+
+  /**
    * ================== SHOW ATTACHMENT LOGIC ==================
    */
 
   _showAfterDelay() {
     Ember.run.cancel(this._delayedHide);
-    Ember.run.cancel(this.isVisibleTimeout);
+    Ember.run.cancel(this._isVisibleTimeout);
 
     this._delayedShow = Ember.run.debounce(this, this._show, this.get('showDelay'));
   },
@@ -160,11 +185,11 @@ export default EmberPopper.extend({
     let target = this.get('_popperTarget');
 
     // The attachment is already visible or the target has been destroyed
-    if ((this.isVisible && this.isStartingAnimation) || !target) {
+    if (!this._isHidden || !target) {
       return;
     }
 
-    // Interactive tooltips receive a class of 'active'
+    // The target of interactive tooltips receive the 'active' class
     if (this.get('interactive')) {
       target.classList.add('active')
     }
@@ -177,14 +202,9 @@ export default EmberPopper.extend({
     this._popper.update();
     this._popper.enableEventListeners();
 
-    // Have to start the animation on the next cycle so CSS transitions can have an effect
-    Ember.run.next(this, () => {
-      let showDurationCss = `${this.get('showDuration')}ms`;
-      this.element.style.WebkitTransitionDuration = showDurationCss;
-      this.element.style.transitionDuration = showDurationCss;
+    this._startShowAnimation();
 
-      this.set('isStartingAnimation', true);
-    });
+    this._isHidden = false;
   },
 
   _addListenersforHideEvents() {
@@ -302,13 +322,27 @@ export default EmberPopper.extend({
     }
   },
 
+  _startShowAnimation() {
+    // Start the show animation on the next cycle so CSS transitions can have an effect
+    // If we start the animation immediately, the transition won't work because isVisible will
+    // turn on the same time as our show animation, and `isplay: none` => `display: anythingElse`
+    // is not transition-able
+    Ember.run.next(this, () => {
+      let showDurationCss = `${this.get('showDuration')}ms`;
+      this.element.style.WebkitTransitionDuration = showDurationCss;
+      this.element.style.transitionDuration = showDurationCss;
+
+      this.set('_isStartingAnimation', true);
+    });
+  },
+
   /**
    * ================== HIDE ATTACHMENT LOGIC ==================
    */
 
   _hideAfterDelay() {
     Ember.run.cancel(this._delayedShow);
-    Ember.run.cancel(this.isVisibleTimeout);
+    Ember.run.cancel(this._isVisibleTimeout);
 
     this._delayedHide = Ember.run.debounce(this, this._hide, this.get('hideDelay'));
   },
@@ -317,7 +351,7 @@ export default EmberPopper.extend({
     let target = this.get('_popperTarget');
 
     // The attachment is already hidden or the target was destroyed
-    if (!this.isVisible || !target) {
+    if (this._isHidden || !target) {
       return;
     }
 
@@ -329,12 +363,14 @@ export default EmberPopper.extend({
     this.element.style.WebkitTransitionDuration = hideDuratioCss;
     this.element.style.transitionDuration = hideDuratioCss;
 
-    this.set('isStartingAnimation', false);
+    this.set('_isStartingAnimation', false);
 
     // Wait for any animations to complete before hiding the attachment
     this._setIsVisibleAfterDelay(false, hideDuration);
 
     this._popper.disableEventListeners();
+
+    this._isHidden = true;
   },
 
   _removeListenersForHideEvents() {
