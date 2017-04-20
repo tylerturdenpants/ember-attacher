@@ -9,9 +9,9 @@
   ],
   "license": "MIT",
   "author": {
-    "name" : "Kyle Bishop",
-    "email" : "kybishop@gmail.com",
-    "url" : "http://kybishop.com"
+    "name": "Kyle Bishop",
+    "email": "kybishop@gmail.com",
+    "url": "http://kybishop.com"
   },
   "directories": {
     "doc": "doc",
@@ -26,8 +26,8 @@
   "dependencies": {
     "ember-cli-babel": "^5.1.7",
     "ember-cli-htmlbars": "^1.2.0",
-    "ember-popper": "0.0.1",
-    "popper.js": "1.8.1"
+    "ember-cli-sass": "^6.1.2",
+    "ember-popper": "^0.0.2"
   },
   "devDependencies": {
     "broccoli-asset-rev": "^2.4.5",

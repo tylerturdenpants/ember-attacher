@@ -1,6 +1,6 @@
 <div class="row">
   <div class="left">
-    {{#ember-attacher arrow=true class="popper" interactive=true}}
+    {{#ember-attacher animation="shift" arrow=true class="popper tooltip" interactive=true}}
       Hello from the left! I have no explicit target.
     {{/ember-attacher}}
   </div>
@@ -8,16 +8,14 @@
 </div>
 <div class="row">
   <div class="left">
-    {{#ember-attacher arrow=true class="popper" interactive=true showOn="click" hideOn="click"}}
+    {{#ember-attacher animation="scale" arrow=true class="popper tooltip" interactive=true showOn="click" hideOn="click"}}
       Attachment shown and hidden via click
     {{/ember-attacher}}
   </div>
 </div>
 
-{{#ember-attacher class="popper" target=".right" interactive=true options=popperOptions}}
+{{#ember-attacher class="popper tooltip light-theme" animation="perspective" target=".right" interactive=true options=popperOptions}}
   Hello from the right!
   <br>
   I explicitly target the right div
 {{/ember-attacher}}
-
-

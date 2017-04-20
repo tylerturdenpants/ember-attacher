@@ -8,7 +8,7 @@ export default EmberPopper.extend({
    * ================== PUBLIC CONFIG OPTIONS ==================
    */
 
-  animation: 'fade-in',
+  animation: 'fade',
   // TODO(kjb) figure out how to pass this into the options.
   arrow: false,
   hideDelay: 0,
@@ -323,17 +323,13 @@ export default EmberPopper.extend({
   },
 
   _startShowAnimation() {
+    this.set('transitionDuration', this.get('showDuration'));
+
     // Start the show animation on the next cycle so CSS transitions can have an effect
     // If we start the animation immediately, the transition won't work because isVisible will
-    // turn on the same time as our show animation, and `isplay: none` => `display: anythingElse`
+    // turn on the same time as our show animation, and `display: none` => `display: anythingElse`
     // is not transition-able
-    Ember.run.next(this, () => {
-      let showDurationCss = `${this.get('showDuration')}ms`;
-      this.element.style.WebkitTransitionDuration = showDurationCss;
-      this.element.style.transitionDuration = showDurationCss;
-
-      this.set('_isStartingAnimation', true);
-    });
+    Ember.run.next(this, () => this.set('_isStartingAnimation', true));
   },
 
   /**
@@ -359,9 +355,7 @@ export default EmberPopper.extend({
 
     let hideDuration = this.get('hideDuration');
 
-    let hideDuratioCss = `${hideDuration}ms`;
-    this.element.style.WebkitTransitionDuration = hideDuratioCss;
-    this.element.style.transitionDuration = hideDuratioCss;
+    this.set('transitionDuration', hideDuration);
 
     this.set('_isStartingAnimation', false);
 

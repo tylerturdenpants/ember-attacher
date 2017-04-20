@@ -1,4 +1,6 @@
-{{yield}}
-{{#if arrow}}
-  <div x-arrow></div>
-{{/if}}
+<div class="inner" style="transition-duration: {{transitionDuration}}ms">
+  {{yield}}
+  {{#if arrow}}
+    <div x-arrow></div>
+  {{/if}}
+</div>
