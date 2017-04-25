@@ -9,12 +9,11 @@ export default EmberPopper.extend({
    */
 
   animation: 'fade',
-  // TODO(kjb) figure out how to pass this into the options.
   arrow: false,
   hideDelay: 0,
   hideDuration: 400,
-  interactive: false,
   hideOn: 'mouseleave blur',
+  interactive: false,
   placement: 'top',
   popperOptions: null,
   showDelay: 0,
@@ -98,10 +97,8 @@ export default EmberPopper.extend({
 
     [this._hideListenersOnTargetByEvent, this._showListenersOnTargetByEvent]
       .forEach(eventToListener => {
-        Object.keys(eventToListener).forEach(event =>  {
-          eventToListener[event].forEach(listener => {
-            target.removeEventListener(event, listener);
-          });
+        Object.keys(eventToListener).forEach(event => {
+          target.removeEventListener(event, eventToListener[event]);
         });
       });
   },
@@ -114,6 +111,10 @@ export default EmberPopper.extend({
   // Part of the Component superclass. isVisible == false sets 'display: none'
   isVisible: false,
   layout,
+  _transitionDuration: 0,
+  transitionDurationCss: Ember.computed('_transitionDuration', function() {
+    return Ember.String.htmlSafe(`transition-duration: ${this.get('_transitionDuration')}ms`);
+  }),
 
   _animation: Ember.computed('animation', function() {
     return `ember-attacher-${this.get('animation')}`;
@@ -125,7 +126,7 @@ export default EmberPopper.extend({
     return this.get('showOn').split(' ');
   }),
 
-  options: Ember.computed('arrow', 'placement', 'popperOptions', function() {
+  options: Ember.computed('animation', 'arrow', 'placement', 'popperOptions', function() {
     let options = this.get('popperOptions') || {};
 
     // Deep copy the options
@@ -154,10 +155,9 @@ export default EmberPopper.extend({
   },
 
   _targetOrTriggersChanged: Ember.observer(
-    'arrow',
-    'target',
-    'showOn',
     'hideOn',
+    'showOn',
+    'target',
     function() {
       this._removeEventListeners();
 
@@ -178,23 +178,23 @@ export default EmberPopper.extend({
     Ember.run.cancel(this._delayedHide);
     Ember.run.cancel(this._isVisibleTimeout);
 
-    this._delayedShow = Ember.run.debounce(this, this._show, this.get('showDelay'));
-  },
-
-  _show() {
-    let target = this.get('_popperTarget');
-
     // The attachment is already visible or the target has been destroyed
-    if (!this._isHidden || !target) {
+    if (!this._isHidden || !this.get('_popperTarget')) {
       return;
     }
 
+    this._addListenersforHideEvents();
+
+    let showDelay = this.get('showDelay');
+
+    this._delayedShow = Ember.run.debounce(this, this._show, showDelay, !showDelay);
+  },
+
+  _show() {
     // The target of interactive tooltips receive the 'active' class
     if (this.get('interactive')) {
-      target.classList.add('active')
+      this.get('_popperTarget').classList.add('active')
     }
-
-    this._addListenersforHideEvents();
 
     // Make the attachment visible immediately so transition animations can take place
     this._setIsVisibleAfterDelay(true, 0);
@@ -262,6 +262,8 @@ export default EmberPopper.extend({
     // If cursor is not on the attachment or target, hide the element
     if (!this.element.contains(event.target)
         && !target.contains(event.target)
+        // TODO(kjb) this should be optional since it is rather expensive.
+        //   Maybe call it isOffsetFromTarget
         && !this._isCursorBetweenTargetAndAttachment(event)) {
       // Remove this listener before hiding the attachment
       document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
@@ -313,17 +315,15 @@ export default EmberPopper.extend({
     return false;
   },
 
-  // TODO(kjb) fix this for touch users
+  // TODO(kjb) What is the difference between blur, focusoff, and focusout
   _hideOnBlur(event) {
-    if (event.relatedTarget) {
-      if (!this._isWithinElement(this.element, event.relatedTarget)) {
-        this._hideAfterDelay();
-      }
+    if (!event.relatedTarget || !this.element.contains(event.relatedTarget)) {
+      this._hideAfterDelay();
     }
   },
 
   _startShowAnimation() {
-    this.set('transitionDuration', this.get('showDuration'));
+    this.set('_transitionDuration', this.get('showDuration'));
 
     // Start the show animation on the next cycle so CSS transitions can have an effect
     // If we start the animation immediately, the transition won't work because isVisible will
@@ -340,22 +340,22 @@ export default EmberPopper.extend({
     Ember.run.cancel(this._delayedShow);
     Ember.run.cancel(this._isVisibleTimeout);
 
-    this._delayedHide = Ember.run.debounce(this, this._hide, this.get('hideDelay'));
-  },
-
-  _hide() {
-    let target = this.get('_popperTarget');
-
     // The attachment is already hidden or the target was destroyed
-    if (this._isHidden || !target) {
+    if (this._isHidden || !this.get('_popperTarget')) {
       return;
     }
 
+    let hideDelay = this.get('hideDelay');
+
+    this._delayedHide = Ember.run.debounce(this, this._hide, hideDelay, !hideDelay);
+  },
+
+  _hide() {
     this._removeListenersForHideEvents();
 
     let hideDuration = this.get('hideDuration');
 
-    this.set('transitionDuration', hideDuration);
+    this.set('_transitionDuration', hideDuration);
 
     this.set('_isStartingAnimation', false);
 
