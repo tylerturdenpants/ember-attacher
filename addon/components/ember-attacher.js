@@ -164,7 +164,7 @@ export default EmberPopper.extend({
       // Regardless of whether or not the attachment is hidden, we want to add the show listeners
       this._addListenersForShowEvents();
 
-      if (!this.isVisible) {
+      if (!this._isHidden) {
         this._addListenersforHideEvents();
       }
     }
@@ -315,7 +315,6 @@ export default EmberPopper.extend({
     return false;
   },
 
-  // TODO(kjb) What is the difference between blur, focusoff, and focusout
   _hideOnBlur(event) {
     if (!event.relatedTarget || !this.element.contains(event.relatedTarget)) {
       this._hideAfterDelay();
