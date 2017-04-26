@@ -8,6 +8,7 @@ module.exports = {
   // `begin` is the pixel value at which this breakpoint becomes active
   breakpoints: [
     { name: 'mobile', prefix: 'xs', begin: 0 },
+    { name: 'largemobile', prefix: 'lm', begin: 512 },
     { name: 'tablet', prefix: 'sm', begin: 768 },
     { name: 'desktop', prefix: 'md', begin: 992 },
     { name: 'huge', prefix: 'lg', begin: 1200 }

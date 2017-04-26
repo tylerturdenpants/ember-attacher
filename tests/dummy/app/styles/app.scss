@@ -13,21 +13,38 @@ h2 {
   margin: 5px;
 }
 
-.header {
-  color: #333;
+p {
+  margin: 0;
+  padding: 6px;
+  text-align: center;
 }
 
-.title {
-  font-size: 34px;
+.header {
+  color: #333;
+  padding: 6px;
+
+  .title {
+    font-size: 34px;
+  }
+}
+
+.github-link {
+  color: inherit;
+  cursor: pointer;
+  padding-right: 6px;
+  text-decoration: none;
 }
 
 .content {
   background-color: #2e3842;
 }
 
-.section {
-  overflow-x: scroll;
-  padding: 12px;
+.edit-section, .section {
+  padding: 18px;
+}
+
+.edit-section {
+  padding-top: 0;
 }
 
 .button {
@@ -68,18 +85,15 @@ h2 {
   font-family: monospace;
   font-size: 16px;
   padding: 8px;
-}
 
-.hover-area {
-  background-color: #aaa;
-  min-height: 200px;
+  hbox {
+    min-height: 26px;
+  }
 }
 
 .hover-me {
-  border-color: white;
-  border-style: dotted;
-  border-width: medium;
   color: #111;
+  font: inherit;
   padding: 10px;
 }
 
@@ -92,7 +106,23 @@ h2 {
 }
 
 @media(max-width: 400px) {
+  .button.xlarge {
+    min-width: 160px;
+    width: 160px;
+  }
+
   .edit-me {
     font-size: 15px;
+  }
+
+  .edit-section {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+@media(max-width: 330px) {
+  .edit-me {
+    font-size: 14px;
   }
 }

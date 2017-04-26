@@ -27,8 +27,7 @@
     "ember-cli-babel": "^5.1.7",
     "ember-cli-htmlbars": "^1.2.0",
     "ember-cli-sass": "^6.1.2",
-    "ember-popper": "^0.0.2",
-    "popper.js": "1.8.4"
+    "ember-popper": "^0.0.2"
   },
   "devDependencies": {
     "@html-next/flexi-config": "^2.0.0-rc.1",
