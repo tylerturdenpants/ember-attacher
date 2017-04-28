@@ -1,7 +1,7 @@
 @import 'ember-power-select';
 
 body {
-  color: #efefef;
+  color: #fcfcfc;
   margin: 0;
   font-family: helvetica;
   font-size: 18px;
@@ -36,7 +36,7 @@ p {
 }
 
 .content {
-  background-color: #2e3842;
+  background-color: #3a6a9a;
 }
 
 .edit-section, .section {
@@ -91,10 +91,17 @@ p {
   }
 }
 
-.hover-me {
+.draggable-area {
+  background-color: #ddd;
+  min-height: 100px;
+}
+
+.hover-me, .hover-me-2 {
   color: #111;
+  cursor: inherit;
   font: inherit;
   padding: 10px;
+  transform: translate(0);
 }
 
 .no-wrap {
