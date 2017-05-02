@@ -2,14 +2,7 @@
 const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 
 module.exports = function(defaults) {
-  var app = new EmberAddon(defaults, {
-    nodeAssets: {
-      'interactjs': {
-        srcDir: 'dist',
-        import: ['interact.js']
-      }
-    },
-  });
+  var app = new EmberAddon(defaults, {});
 
   /*
     This build file specifies the options for the dummy test app of this

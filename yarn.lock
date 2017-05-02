@@ -2116,7 +2116,7 @@ ember-cli-babel@^5.1.10, ember-cli-babel@^5.1.3, ember-cli-babel@^5.1.5, ember-c
     ember-cli-version-checker "^1.0.2"
     resolve "^1.1.2"
 
-ember-cli-babel@^6.0.0, ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.0.0-beta.5:
+ember-cli-babel@^6.0.0, ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.0.0-beta.5, ember-cli-babel@^6.0.0-beta.9:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/ember-cli-babel/-/ember-cli-babel-6.0.0.tgz#caab075780dca3759982c9f54ea70a9adb1f3550"
   dependencies:
@@ -2130,7 +2130,7 @@ ember-cli-babel@^6.0.0, ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.0.0-be
     clone "^2.0.0"
     ember-cli-version-checker "^1.2.0"
 
-ember-cli-babel@^6.0.0-beta.7, ember-cli-babel@^6.0.0-beta.9:
+ember-cli-babel@^6.0.0-beta.7:
   version "6.0.0-beta.9"
   resolved "https://registry.yarnpkg.com/ember-cli-babel/-/ember-cli-babel-6.0.0-beta.9.tgz#b597d52f12d4429cd5716b55f749ebf6144b7b16"
   dependencies:
@@ -2188,7 +2188,7 @@ ember-cli-htmlbars-inline-precompile@^0.3.6:
     ember-cli-htmlbars "^1.0.0"
     hash-for-dep "^1.0.2"
 
-ember-cli-htmlbars@^1.0.0, ember-cli-htmlbars@^1.0.3, ember-cli-htmlbars@^1.1.1, ember-cli-htmlbars@^1.2.0:
+ember-cli-htmlbars@^1.0.0, ember-cli-htmlbars@^1.0.3, ember-cli-htmlbars@^1.1.1, ember-cli-htmlbars@^1.2.0, ember-cli-htmlbars@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/ember-cli-htmlbars/-/ember-cli-htmlbars-1.3.0.tgz#e090f011239153bf45dab29625f94a46fce205af"
   dependencies:
@@ -2239,6 +2239,17 @@ ember-cli-node-assets@^0.1.6:
     broccoli-funnel "^1.0.1"
     broccoli-merge-trees "^1.1.1"
     broccoli-unwatched-tree "^0.1.1"
+    debug "^2.2.0"
+    lodash "^4.5.1"
+    resolve "^1.1.7"
+
+ember-cli-node-assets@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/ember-cli-node-assets/-/ember-cli-node-assets-0.2.2.tgz#d2d55626e7cc6619f882d7fe55751f9266022708"
+  dependencies:
+    broccoli-funnel "^1.0.1"
+    broccoli-merge-trees "^1.1.1"
+    broccoli-source "^1.1.0"
     debug "^2.2.0"
     lodash "^4.5.1"
     resolve "^1.1.7"
@@ -2498,16 +2509,17 @@ ember-native-dom-helpers@^0.3.9:
     broccoli-funnel "^1.1.0"
     ember-cli-babel "^6.0.0-beta.9"
 
-ember-popper@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/ember-popper/-/ember-popper-0.0.2.tgz#d69eb35c625f634f511aa41be2013391939aa8aa"
+ember-popper@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/ember-popper/-/ember-popper-0.0.3.tgz#a48100247574cd66fc952ccfcc6a9b3ae85210ff"
   dependencies:
     babel-plugin-filter-imports "^0.3.1"
     babel6-plugin-strip-class-callcheck "^6.0.0"
     broccoli-funnel "^1.0.7"
     ember-cli-babel "^6.0.0-beta.9"
+    ember-cli-htmlbars "^1.3.0"
     ember-cli-node-assets "^0.1.6"
-    popper.js "^1.8.2"
+    popper.js "^1.9.1"
 
 ember-power-select@^1.7.2:
   version "1.8.0"
@@ -3707,6 +3719,10 @@ insert-module-globals@~6.0.0:
     process "~0.6.0"
     through "~2.3.4"
     xtend "^3.0.0"
+
+interactjs@^1.2.8:
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/interactjs/-/interactjs-1.2.8.tgz#f28d9c6b083013daae3c77f026204f9dd1983ed9"
 
 interpret@^1.0.0:
   version "1.0.3"
@@ -4959,9 +4975,9 @@ pluralize@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-1.2.1.tgz#d1a21483fd22bb41e58a12fa3421823140897c45"
 
-popper.js@^1.8.2:
-  version "1.8.2"
-  resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.8.2.tgz#c6256b39dc20b3da58f0f2231407b126da017d40"
+popper.js@^1.9.1:
+  version "1.9.1"
+  resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.9.1.tgz#aedce56910172595e30aa7f33a1ede72e00d172c"
 
 portfinder@^1.0.7:
   version "1.0.13"

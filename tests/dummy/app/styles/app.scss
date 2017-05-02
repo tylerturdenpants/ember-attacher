@@ -39,12 +39,16 @@ p {
   background-color: #3a6a9a;
 }
 
+.nav {
+  padding: 8px;
+}
+
 .edit-section, .section {
   padding: 18px;
 }
 
 .edit-section {
-  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .button {
@@ -91,12 +95,14 @@ p {
   }
 }
 
-.draggable-area {
+.popper-area {
   background-color: #ddd;
   min-height: 100px;
+  // TODO(kjb) Re-enable once scroll stuff is fixed for popper.js
+  //overflow: scroll;
 }
 
-.hover-me, .hover-me-2 {
+.hover-me {
   color: #111;
   cursor: inherit;
   font: inherit;

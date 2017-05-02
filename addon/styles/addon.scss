@@ -112,27 +112,26 @@ $arrow-width: 10px;
 
 .popper {
   min-height: 10px;
-  position: absolute;
 
-  .inner {
+  > .inner {
     max-width: 400px;
     perspective: 800px;
     z-index: 9999;
   }
 
   @each $position in $positions {
-    &[x-placement=#{$position}] {
-      .inner > div[x-arrow] {
+    &[x-placement=#{$position}] > .inner {
+      > div[x-arrow] {
         @include arrow($position, $arrow-width);
       }
 
       &.ember-attacher-none {
-        &.ember-attacher-show > .inner {
+        &.ember-attacher-show {
           opacity: 1;
           @include ember-attacher-show-transform($position, 'fade');
         }
 
-        &.ember-attacher-hide > .inner {
+        &.ember-attacher-hide {
           opacity: 1;
           @include ember-attacher-hide-transform($position, 'none');
         }
@@ -141,45 +140,45 @@ $arrow-width: 10px;
       &.ember-attacher-perspective {
         transform-origin: nth($origins, index($positions, $position));
 
-        &.ember-attacher-show > .inner {
+        &.ember-attacher-show {
           opacity: 1;
           @include ember-attacher-show-transform($position, 'perspective');
         }
 
-        &.ember-attacher-hide > .inner {
+        &.ember-attacher-hide {
           opacity: 0;
           @include ember-attacher-hide-transform($position, 'perspective');
         }
       }
 
       &.ember-attacher-fade {
-        &.ember-attacher-show > .inner {
+        &.ember-attacher-show {
           opacity: 1;
           @include ember-attacher-show-transform($position, 'fade')
         }
-        &.ember-attacher-hide > .inner {
+        &.ember-attacher-hide {
           opacity: 0;
           @include ember-attacher-show-transform($position, 'fade')
         }
       }
 
       &.ember-attacher-shift {
-        &.ember-attacher-show > .inner {
+        &.ember-attacher-show {
           opacity: 1;
           @include ember-attacher-show-transform($position, 'fade')
         }
-        &.ember-attacher-hide > .inner {
+        &.ember-attacher-hide {
           opacity: 0;
           @include ember-attacher-hide-transform($position, 'shift')
         }
       }
 
       &.ember-attacher-scale {
-        &.ember-attacher-show > .inner {
+        &.ember-attacher-show {
           opacity: 1;
           @include ember-attacher-show-transform($position, 'scale')
         }
-        &.ember-attacher-hide > .inner {
+        &.ember-attacher-hide {
           opacity: 0;
           @include ember-attacher-hide-transform($position, 'scale')
         }
@@ -188,7 +187,7 @@ $arrow-width: 10px;
   }
 }
 
-.tooltip > .inner {
+.tooltip > .inner, .popover > .inner {
   position: relative;
   color: white;
   border-radius: 4px;
@@ -199,7 +198,7 @@ $arrow-width: 10px;
   -moz-osx-font-smoothing: grayscale;
   background-color: #333;
 
-  div[x-arrow] {
+  > div[x-arrow] {
     z-index: -1;
     position: absolute;
     width: $arrow-width;
@@ -207,6 +206,16 @@ $arrow-width: 10px;
     background-color: #333;
     border: 1px solid;
     border-color: transparent transparent #333 #333;
+  }
+}
+
+.popover > .inner {
+  color: black;
+  background-color: #fff;
+
+  > div[x-arrow] {
+    background-color: #fff;
+    border: none;
   }
 }
 
