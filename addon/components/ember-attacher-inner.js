@@ -123,6 +123,10 @@ export default Ember.Component.extend({
     return this.get('showOn').split(' ');
   }),
 
+  transitionDuration: Ember.computed('_transitionDuration', function() {
+    return Ember.String.htmlSafe(`transition-duration: ${this.get('_transitionDuration')}ms`);
+  }),
+
   _setIsVisibleAfterDelay(isVisible, delay) {
     Ember.run.cancel(this._isVisibleTimeout);
 
@@ -188,7 +192,11 @@ export default Ember.Component.extend({
     // turn on the same time as our show animation, and `display: none` => `display: anythingElse`
     // is not transition-able
     Ember.run.next(this, () => {
-      this.element.style.transitionDuration = `${this.get('showDuration')}ms`;
+      let showDuration = parseInt(this.get('showDuration'));
+
+      this.element.style.transitionDuration = `${showDuration}ms`;
+      this.set('_transitionDuration', showDuration);
+
       this.set('_isStartingAnimation', true);
     })
 
@@ -344,6 +352,7 @@ export default Ember.Component.extend({
     let hideDuration = parseInt(this.get('hideDuration'));
 
     this.element.style.transitionDuration = `${hideDuration}ms`;
+    this.set('_transitionDuration', hideDuration);
 
     this.set('_isStartingAnimation', false);
 

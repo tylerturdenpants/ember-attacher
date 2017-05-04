@@ -8,7 +8,7 @@ export default Ember.Component.extend({
    * ================== PUBLIC CONFIG OPTIONS ==================
    */
 
-  animation: 'fade',
+  animation: 'fill',
   arrow: false,
   hideDelay: 0,
   hideDuration: 400,
