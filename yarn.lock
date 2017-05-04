@@ -2116,23 +2116,9 @@ ember-cli-babel@^5.1.10, ember-cli-babel@^5.1.3, ember-cli-babel@^5.1.5, ember-c
     ember-cli-version-checker "^1.0.2"
     resolve "^1.1.2"
 
-ember-cli-babel@^6.0.0, ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.0.0-beta.5, ember-cli-babel@^6.0.0-beta.9:
+ember-cli-babel@^6.0.0, ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.0.0-beta.5, ember-cli-babel@^6.0.0-beta.7, ember-cli-babel@^6.0.0-beta.9:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/ember-cli-babel/-/ember-cli-babel-6.0.0.tgz#caab075780dca3759982c9f54ea70a9adb1f3550"
-  dependencies:
-    amd-name-resolver "0.0.6"
-    babel-plugin-transform-es2015-modules-amd "^6.24.0"
-    babel-polyfill "^6.16.0"
-    babel-preset-env "^1.2.0"
-    broccoli-babel-transpiler "^6.0.0"
-    broccoli-funnel "^1.0.0"
-    broccoli-source "^1.1.0"
-    clone "^2.0.0"
-    ember-cli-version-checker "^1.2.0"
-
-ember-cli-babel@^6.0.0-beta.7:
-  version "6.0.0-beta.9"
-  resolved "https://registry.yarnpkg.com/ember-cli-babel/-/ember-cli-babel-6.0.0-beta.9.tgz#b597d52f12d4429cd5716b55f749ebf6144b7b16"
   dependencies:
     amd-name-resolver "0.0.6"
     babel-plugin-transform-es2015-modules-amd "^6.24.0"
@@ -3719,10 +3705,6 @@ insert-module-globals@~6.0.0:
     process "~0.6.0"
     through "~2.3.4"
     xtend "^3.0.0"
-
-interactjs@^1.2.8:
-  version "1.2.8"
-  resolved "https://registry.yarnpkg.com/interactjs/-/interactjs-1.2.8.tgz#f28d9c6b083013daae3c77f026204f9dd1983ed9"
 
 interpret@^1.0.0:
   version "1.0.3"
