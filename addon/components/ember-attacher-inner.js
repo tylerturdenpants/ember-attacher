@@ -57,6 +57,16 @@ export default Ember.Component.extend({
       this._addListenersForShowEvents();
 
       this.get('popper').disableEventListeners();
+
+      // When we first render the popper, it has no width if isVisible is false. This can cause
+      // the popper to be positioned too far to the right, such that when it expands, it will become
+      // larger than its parent. This, in turn, causes the parent to expand to accommodate the
+      // popper, which may now be off screen. To get around this, we just remove the positioning
+      // from the element to the safest position available: 0x0. The popper will then update its
+      // position from this._show()
+      if (!this.get('isVisible')) {
+        this.get('popperElement').style.transform = null;
+      }
     });
   },
 

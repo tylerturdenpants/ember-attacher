@@ -14,6 +14,7 @@ export default Ember.Component.extend({
   hideDuration: 400,
   hideOn: 'mouseleave blur',
   interactive: false,
+  isVisible: Ember.computed.alias('renderInPlace'),
   placement: 'top',
   popperClass: null,
   popperOptions: null,
