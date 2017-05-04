@@ -120,6 +120,48 @@ p {
   transform: translate(0);
 }
 
+.custom-popover-css > .inner {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  color: #333;
+  padding: 0.5rem 1rem;
+  position: relative;
+
+  &.ember-attacher-fill {
+    overflow: hidden;
+    background-color: transparent;
+  }
+
+  > div[x-circle] {
+    background-color: #fff;
+    position: absolute;
+    will-change: transform;
+    border-radius: 50%;
+    width: 120%;
+    width: calc(100% + 2rem);
+    left: 50%;
+    transition: all ease-out;
+    z-index: -1;
+    opacity: 0;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      padding-top: 100%;
+      padding-top: calc(75% + 2rem);
+      float: left;
+    }
+  }
+
+  > div[x-arrow] {
+    background-color: #fff;
+    height: 10px;
+    position: absolute;
+    width: 10px;
+    z-index: -1;
+  }
+}
+
 .no-wrap {
   white-space: nowrap;
 }

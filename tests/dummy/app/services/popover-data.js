@@ -1,16 +1,16 @@
 import Ember from 'ember';
 
 export default Ember.Service.extend({
-  animation: 'fill',
+  animation: 'shift',
   arrow: false,
   hideDelay: 0,
   hideDuration: 400,
-  hideOn: 'mouseleave blur',
+  hideOn: 'click',
   interactive: false,
   placement: 'top',
   renderInPlace: false,
   showDelay: 0,
   showDuration: 400,
-  showOn: 'mouseenter focus',
+  showOn: 'click',
   target: '.target-plz',
 });

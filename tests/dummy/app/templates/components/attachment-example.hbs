@@ -22,7 +22,7 @@
     </button>
 
     <button class="hover-me target-plz">
-      Popover me, captain!
+      Click me, captain!
     </button>
 
     {{#ember-attacher animation=popoverData.animation
@@ -37,7 +37,7 @@
                       showDuration=popoverData.showDuration
                       showOn=popoverData.showOn
                       target=popoverData.target
-                      popperClass="popper popover"}}
+                      popperClass="popper custom-popover-css"}}
       Popovers and tooltips, oh my!
     {{/ember-attacher}}
   </centered>
@@ -184,7 +184,7 @@
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
-        popperClass="popper {{if isConfiguringTooltip 'tooltip' 'popover'}}"}}
+        popperClass="popper {{if isConfiguringTooltip 'tooltip' 'custom-popover-css'}}"}}
       </centered>
     </hbox>
     <hbox>

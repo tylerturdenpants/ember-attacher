@@ -108,7 +108,6 @@
 
 $positions: 'top', 'bottom', 'left', 'right';
 $origins: bottom, top, right, left;
-$arrow-width: 10px;
 
 .popper {
   min-height: 10px;
@@ -122,7 +121,7 @@ $arrow-width: 10px;
   @each $position in $positions {
     &[x-placement=#{$position}] > .inner {
       > div[x-arrow] {
-        @include arrow($position, $arrow-width);
+        @include arrow($position, 10px);
       }
 
       $circle-origins: 0% 50%, 0% -50%, 50% 5%, -50% 5%;
@@ -205,7 +204,7 @@ $arrow-width: 10px;
   }
 }
 
-.tooltip > .inner, .popover > .inner {
+.tooltip > .inner {
   position: relative;
   color: white;
   border-radius: 4px;
@@ -224,8 +223,8 @@ $arrow-width: 10px;
   > div[x-arrow] {
     z-index: -1;
     position: absolute;
-    width: $arrow-width;
-    height: $arrow-width;
+    width: 10px;
+    height: 10px;
     background-color: #333;
     border: 1px solid;
     border-color: transparent transparent #333 #333;
@@ -250,21 +249,6 @@ $arrow-width: 10px;
       padding-top: calc(75% + 2rem);
       float: left;
     }
-  }
-}
-
-.popover > .inner {
-  color: black;
-  background-color: #fff;
-  border-radius: 0;
-
-  > div[x-arrow] {
-    background-color: #fff;
-    border: none;
-  }
-
-  > div[x-circle] {
-    background-color: #fff;
   }
 }
 
