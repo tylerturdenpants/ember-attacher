@@ -7,6 +7,8 @@ body {
   font-size: 18px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  max-height:100vh;
+  overflow: auto;
 }
 
 h2 {
@@ -40,7 +42,15 @@ p {
 }
 
 .nav {
+  background-color: #eee;
+  color: #333;
+  font-size: 16px;
   padding: 8px;
+}
+
+.nav.active {
+  background-color: #ddd;
+  font-weight: bold;
 }
 
 .edit-section, .section {
@@ -124,7 +134,7 @@ p {
     width: 160px;
   }
 
-  .edit-me {
+  .edit-me, .nav {
     font-size: 15px;
   }
 
@@ -135,7 +145,7 @@ p {
 }
 
 @media(max-width: 330px) {
-  .edit-me {
+  .edit-me, .nav {
     font-size: 14px;
   }
 }

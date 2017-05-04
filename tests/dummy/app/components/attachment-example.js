@@ -3,48 +3,41 @@ import layout from '../templates/components/attachment-example';
 
 export default Ember.Component.extend({
   layout,
+  popoverData: Ember.inject.service(),
+  tooltipData: Ember.inject.service(),
 
-  animation: 'perspective',
   animationOptions: [
     'fade',
+    'fill',
     'none',
     'perspective',
     'scale',
     'shift'
   ],
 
-  arrow: false,
-
-  hideDelay: 0,
-
-  hideDuration: 400,
-
-  hideOn: 'mouseleave blur',
   hideOnOptions: ['click', 'mouseleave blur'],
 
-  interactive: false,
+  isConfiguringTooltip: true,
 
-  placement: 'top',
   placementOptions: ['bottom', 'left', 'right', 'top'],
 
-  renderInPlace: false,
+  service: Ember.computed('isConfiguringTooltip', function() {
+    return this.get('isConfiguringTooltip') ? this.get('tooltipData') : this.get('popoverData');
+  }),
 
-  showDelay: 0,
-
-  showDuration: 400,
-
-  showOn: 'mouseenter focus',
   showOnOptions: ['click', 'mouseenter focus'],
-
-  target: '.target-plz',
 
   actions: {
     toggleArrow() {
-      this.toggleProperty('arrow');
+      this.get('service').toggleProperty('arrow');
     },
 
     toggleInteractive() {
-      this.toggleProperty('interactive');
+      this.get('service').toggleProperty('interactive');
+    },
+
+    setIsConfiguringTooltip(bool) {
+      this.set('isConfiguringTooltip', bool);
     }
   }
 });

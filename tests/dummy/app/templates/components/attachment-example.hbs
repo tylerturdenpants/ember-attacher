@@ -1,22 +1,22 @@
 <centered class="section">
-  <p>Drop an \{{ember-attacher}} in any element or component to get started.</p>
+  <p>Drop an \{{#ember-attacher}} in any element or component to get started.</p>
 </centered>
 <centered>
-  <centered xs="12" md="6" justify="around" class="popper-area">
+  <centered xs="12" lm="10" sm="8" md="6" lg="5" justify="around" class="popper-area">
     <button class="hover-me">
       Tooltip me, captain!
-      {{#ember-attacher animation=animation
-                        arrow=arrow
-                        hideDelay=hideDelay
-                        hideDuration=hideDuration
-                        hideOn=hideOn
-                        interactive=interactive
-                        placement=placement
-                        renderInPlace=renderInPlace
-                        showDelay=showDelay
-                        showDuration=showDuration
-                        showOn=showOn
-                        popperClass="popper tooltip" as |emberPopper|}}
+      {{#ember-attacher animation=tooltipData.animation
+                        arrow=tooltipData.arrow
+                        hideDelay=tooltipData.hideDelay
+                        hideDuration=tooltipData.hideDuration
+                        hideOn=tooltipData.hideOn
+                        interactive=tooltipData.interactive
+                        placement=tooltipData.placement
+                        renderInPlace=tooltipData.renderInPlace
+                        showDelay=tooltipData.showDelay
+                        showDuration=tooltipData.showDuration
+                        showOn=tooltipData.showOn
+                        popperClass="popper tooltip"}}
         Hello world!
       {{/ember-attacher}}
     </button>
@@ -25,34 +25,37 @@
       Popover me, captain!
     </button>
 
-    {{#ember-attacher animation=animation
-                      arrow=arrow
-                      hideDelay=hideDelay
-                      hideDuration=hideDuration
-                      hideOn=hideOn
-                      interactive=interactive
-                      isVisible=false
-                      placement=placement
-                      renderInPlace=renderInPlace
-                      showDelay=showDelay
-                      showDuration=showDuration
-                      showOn=showOn
-                      target=target
-                      popperClass="popper popover" as |emberPopper|}}
+    {{#ember-attacher animation=popoverData.animation
+                      arrow=popoverData.arrow
+                      hideDelay=popoverData.hideDelay
+                      hideDuration=popoverData.hideDuration
+                      hideOn=popoverData.hideOn
+                      interactive=popoverData.interactive
+                      placement=popoverData.placement
+                      renderInPlace=popoverData.renderInPlace
+                      showDelay=popoverData.showDelay
+                      showDuration=popoverData.showDuration
+                      showOn=popoverData.showOn
+                      target=popoverData.target
+                      popperClass="popper popover"}}
       Popovers and tooltips, oh my!
     {{/ember-attacher}}
   </centered>
 </centered>
-<centered fit class="edit-section">
+<centered class="edit-section">
   <vbox lm="fit">
     <hbox class="nav-bar">
-      <centered fit class="nav">In a parent</centered>
-      <centered fit class="nav">With a target</centered>
+      <centered fit class="nav{{if isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' true}}>
+        In a parent
+      </centered>
+      <centered fit class="nav{{unless isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' false}}>
+        With a target
+      </centered>
     </hbox>
 
   <vbox class="edit-me">
     <hbox><centered fit>&lt;button class="hover-me"></centered></hbox>
-    <hbox><centered fit>&nbsp;&nbsp;Tooltip me, captain!</centered></hbox>
+    <hbox><centered fit>&nbsp;&nbsp;{{if isConfiguringTooltip 'Tooltip me, captain!' 'Popover me, captain!'}}</centered></hbox>
     <box lm="horizontal" fit>
       <hbox fit class="no-wrap">
         <centered fit>&nbsp;&nbsp;\{{#ember-attacher&nbsp;</centered>
@@ -60,10 +63,10 @@
       <hbox fit>
         <box xs="fit" lm="hidden">&nbsp;&nbsp;&nbsp;&nbsp;</box>
         <centered fit>
-          animation="{{#power-select onchange=(action (mut animation))
+          animation="{{#power-select onchange=(action (mut service.animation))
                                      options=animationOptions
                                      searchEnabled=false
-                                     selected=animation
+                                     selected=service.animation
                                      triggerClass="button large"
                                      as |animationOption|}}
                                        {{animationOption}}
@@ -74,7 +77,7 @@
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
-        arrow=<div class="button medium" {{action "toggleArrow"}}>{{arrow}}</div>
+        arrow=<div class="button medium" {{action "toggleArrow"}}>{{service.arrow}}</div>
       </centered>
     </hbox>
     <hbox>
@@ -86,16 +89,16 @@
                           placeholder="0"
                           step="100"
                           type="number"
-                          value=hideDelay}}
+                          value=service.hideDelay}}
       </centered>
     </hbox>
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
-        hideOn="{{#power-select onchange=(action (mut hideOn))
+        hideOn="{{#power-select onchange=(action (mut service.hideOn))
                                 options=hideOnOptions
                                 searchEnabled=false
-                                selected=hideOn
+                                selected=service.hideOn
                                 triggerClass="button xlarge"
                                 as |hideOnOption|}}
                                   {{hideOnOption}}
@@ -111,22 +114,22 @@
                              placeholder="0"
                              step="100"
                              type="number"
-                             value=hideDuration}}
+                             value=service.hideDuration}}
       </centered>
     </hbox>
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
-        interactive=<div class="button medium" {{action "toggleInteractive"}}>{{interactive}}</div>
+        interactive=<div class="button medium" {{action "toggleInteractive"}}>{{service.interactive}}</div>
       </centered>
     </hbox>
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
-        placement="{{#power-select onchange=(action (mut placement))
+        placement="{{#power-select onchange=(action (mut service.placement))
                                    options=placementOptions
                                    searchEnabled=false
-                                   selected=placement
+                                   selected=service.placement
                                    triggerClass="button medium"
                                    as |placementOption|}}
                                      {{placementOption}}
@@ -142,7 +145,7 @@
                           placeholder="0"
                           step="100"
                           type="number"
-                          value=showDelay}}
+                          value=service.showDelay}}
       </centered>
     </hbox>
     <hbox>
@@ -154,26 +157,34 @@
                              placeholder="0"
                              step="100"
                              type="number"
-                             value=showDuration}}
+                             value=service.showDuration}}
       </centered>
     </hbox>
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
-        showOn="{{#power-select onchange=(action (mut showOn))
+        showOn="{{#power-select onchange=(action (mut service.showOn))
                                 options=showOnOptions
                                 searchEnabled=false
-                                selected=showOn
+                                selected=service.showOn
                                 triggerClass="button xlarge"
                                 as |showOnOption|}}
                                   {{showOnOption}}
                                 {{/power-select}}"
       </centered>
     </hbox>
+    {{#unless isConfiguringTooltip}}
+      <hbox>
+        &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
+        <centered fit>
+          target=".target-plz"
+        </centered>
+      </hbox>
+    {{/unless}}
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
-        popperClass="popper tooltip"}}
+        popperClass="popper {{if isConfiguringTooltip 'tooltip' 'popover'}}"}}
       </centered>
     </hbox>
     <hbox>
@@ -188,10 +199,10 @@
   </vbox>
   </vbox>
 </centered>
-<centered vertical fit class="section">
+<vbox align="center" class="section">
   <h2>Credits</h2>
-  <vbox xs="12" lm="10" sm="8" md="6">
+  <vbox fit xs="12" lm="10" sm="8" md="6">
     <p>Ember-attacher was inspired by tippy.js and ember-tooltips.</p>
     <p>It was built with love to provide a tooltip and popover addon based on popper.js, a modern replacement to tether.js, while taking advantage of everything Ember.js has to offer.</p>
   </vbox>
-</centered>
+</vbox>
