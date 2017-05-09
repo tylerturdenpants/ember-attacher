@@ -26,7 +26,7 @@ export default Ember.Component.extend({
     }
   }),
   hideDelay: 0,
-  hideDuration: 400,
+  hideDuration: 300,
   hideOn: 'mouseleave blur',
   interactive: false,
   placement: 'top',
@@ -34,7 +34,7 @@ export default Ember.Component.extend({
   popperOptions: null,
   renderInPlace: false,
   showDelay: 0,
-  showDuration: 400,
+  showDuration: 300,
   showOn: 'mouseenter focus',
   target: Ember.computed(function() {
     return this.element.parentNode;
