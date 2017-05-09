@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import layout from '../templates/components/ember-attacher';
+import { stripInProduction, warn } from '../-debug/helpers';
 
 export default Ember.Component.extend({
   layout,
@@ -9,12 +10,25 @@ export default Ember.Component.extend({
    */
 
   animation: 'fill',
-  arrow: false,
+  arrow: Ember.computed('animation', {
+    get() {
+      return false;
+    },
+
+    set(_, val) {
+      stripInProduction(() => {
+        if (this.get('animation') === 'fill' && val) {
+          warn('Animation: \'fill\' is not compatible with arrow: true', {id: 70015});
+        }
+      });
+
+      return val;
+    }
+  }),
   hideDelay: 0,
   hideDuration: 400,
   hideOn: 'mouseleave blur',
   interactive: false,
-  isVisible: Ember.computed.alias('renderInPlace'),
   placement: 'top',
   popperClass: null,
   popperOptions: null,
@@ -26,7 +40,14 @@ export default Ember.Component.extend({
     return this.element.parentNode;
   }),
 
-  options: Ember.computed('animation', 'arrow', 'placement', 'popperOptions', function() {
+  /**
+   * ================== PRIVATE IMPLEMENTATION DETAILS ==================
+   */
+
+  // Part of the Component superclass. isVisible == false sets 'display: none'
+  isVisible: Ember.computed.alias('renderInPlace'),
+
+  _options: Ember.computed('animation', 'arrow', 'placement', 'popperOptions', function() {
     let options = this.get('popperOptions') || {};
 
     // Deep copy the options
