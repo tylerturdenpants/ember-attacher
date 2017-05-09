@@ -1,7 +1,7 @@
 <centered class="section">
   <p>Drop an \{{#ember-attacher}} in any element or component to get started.</p>
 </centered>
-<centered>
+<centered class="section">
   <centered xs="12" lm="10" sm="8" md="6" lg="5" justify="around" class="popper-area">
     <button class="hover-me">
       Tooltip me, captain!
@@ -37,11 +37,17 @@
                       showDuration=popoverData.showDuration
                       showOn=popoverData.showOn
                       target=popoverData.target
-                      popperClass="popper custom-popover-css"}}
+                      popperClass=
+                        "popper custom-popover-css"}}
       Popovers and tooltips, oh my!
     {{/ember-attacher}}
   </centered>
 </centered>
+{{#if (and service.arrow (eq service.animation "fill"))}}
+  <centered class="section">
+    <h2>Warning: `animation: "fill"` is not compatible with `arrow: true`</h2>
+  </centered>
+{{/if}}
 <centered class="edit-section">
   <vbox lm="fit">
     <hbox class="nav-bar">
@@ -184,7 +190,14 @@
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
-        popperClass="popper {{if isConfiguringTooltip 'tooltip' 'custom-popover-css'}}"}}
+        {{#if isConfiguringTooltip}}
+          popperClass="popper tooltip"}}
+        {{else}}
+          <vbox>
+            <hbox><centered fit>popperClass=</centered></hbox>
+            <hbox><centered fit>&nbsp;&nbsp;"popper custom-popover-css"}}</centered></hbox>
+          </vbox>
+        {{/if}}
       </centered>
     </hbox>
     <hbox>
