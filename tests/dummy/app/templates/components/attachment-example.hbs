@@ -38,8 +38,10 @@
                       showOn=popoverData.showOn
                       target=popoverData.target
                       popperClass=
-                        "popper custom-popover-css"}}
-      Popovers and tooltips, oh my!
+                        "popper custom-popover-css" as |emberAttacher|}}
+      <p>Popovers and tooltips, oh my!</p>
+
+      <button {{action emberAttacher.hide}}>Close</button>
     {{/ember-attacher}}
   </centered>
 </centered>
@@ -61,10 +63,24 @@
 
   <vbox class="edit-me">
     <hbox><centered fit>&lt;button class="hover-me"></centered></hbox>
-    <hbox><centered fit>&nbsp;&nbsp;{{if isConfiguringTooltip 'Tooltip me, captain!' 'Popover me, captain!'}}</centered></hbox>
+    <hbox><centered fit>&nbsp;&nbsp;{{if isConfiguringTooltip 'Tooltip me, captain!' 'Click me, captain!'}}</centered></hbox>
     <box lm="horizontal" fit>
       <hbox fit class="no-wrap">
-        <centered fit>&nbsp;&nbsp;\{{#ember-attacher&nbsp;</centered>
+        <centered fit>
+          &nbsp;&nbsp;\{{<span class="underlined">
+            #ember-attacher
+              {{#ember-attacher popperClass="popper tooltip"}}
+                {{#if isConfiguringTooltip}}
+                  The "In a parent" tooltip ember-attacher is initially set to the default settings.
+                  Twiddle some knobs to see what ember-attacher can do!
+                {{else}}
+                  The "With a target" popover ember-attacher is triggered by clicking, and also has
+                  a custom hide action.
+                {{/if}}
+              {{/ember-attacher}}
+          </span>
+          &nbsp;
+        </centered>
       </hbox>
       <hbox fit>
         <box xs="fit" lm="hidden">&nbsp;&nbsp;&nbsp;&nbsp;</box>
@@ -101,14 +117,21 @@
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
-        hideOn="{{#power-select onchange=(action (mut service.hideOn))
-                                options=hideOnOptions
-                                searchEnabled=false
-                                selected=service.hideOn
-                                triggerClass="button xlarge"
-                                as |hideOnOption|}}
-                                  {{hideOnOption}}
-                                {{/power-select}}"
+        <span class="underlined">
+          hideOn
+
+          {{#ember-attacher popperClass="popper tooltip"}}
+            Any combination of "mouseleave", "blur", and "click".
+          {{/ember-attacher}}
+        </span>
+        ="{{#power-select onchange=(action (mut service.hideOn))
+                          options=hideOnOptions
+                          searchEnabled=false
+                          selected=service.hideOn
+                          triggerClass="button xlarge"
+                          as |hideOnOption|}}
+                            {{hideOnOption}}
+                          {{/power-select}}"
       </centered>
     </hbox>
     <hbox>
@@ -169,14 +192,22 @@
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
-        showOn="{{#power-select onchange=(action (mut service.showOn))
-                                options=showOnOptions
-                                searchEnabled=false
-                                selected=service.showOn
-                                triggerClass="button xlarge"
-                                as |showOnOption|}}
-                                  {{showOnOption}}
-                                {{/power-select}}"
+        <span class="underlined">
+          showOn
+
+          {{#ember-attacher popperClass="popper tooltip"}}
+            For performance reasons, we recommend using some combination of "mouseenter", "focus",
+            and "click", though you can use any event listener you want.
+          {{/ember-attacher}}
+        </span>
+        ="{{#power-select onchange=(action (mut service.showOn))
+                          options=showOnOptions
+                          searchEnabled=false
+                          selected=service.showOn
+                          triggerClass="button xlarge"
+                          as |showOnOption|}}
+                            {{showOnOption}}
+                          {{/power-select}}"
       </centered>
     </hbox>
     {{#unless isConfiguringTooltip}}
@@ -195,14 +226,39 @@
         {{else}}
           <vbox>
             <hbox><centered fit>popperClass=</centered></hbox>
-            <hbox><centered fit>&nbsp;&nbsp;"popper custom-popover-css"}}</centered></hbox>
+            <hbox><centered fit>&nbsp;&nbsp;"popper custom-popover-css"</centered></hbox>
+            <hbox><centered fit>as |emberAttacher|}}</centered></hbox>
           </vbox>
         {{/if}}
       </centered>
     </hbox>
-    <hbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;...
-    </hbox>
+    {{#if isConfiguringTooltip}}
+      <hbox>&nbsp;&nbsp;&nbsp;&nbsp;...</hbox>
+    {{else}}
+      <vbox>
+        <hbox>
+          &nbsp;&nbsp;&nbsp;&nbsp;<centered fit>&lt;p>Popovers and tooltips, oh my!&lt;/p></centered>
+        </hbox>
+        <hbox>
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <centered fit>
+            &lt;button \{{action emberAttacher.hide}}>
+          </centered>
+        </hbox>
+        <hbox>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <centered fit>
+            Close
+          </centered>
+        </hbox>
+        <hbox>
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <centered fit>
+            &lt;\button>
+          </centered>
+        </hbox>
+      </vbox>
+    {{/if}}
     <hbox>
       &nbsp;&nbsp;\{{/ember-attacher}}
     </hbox>
