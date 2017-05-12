@@ -16,7 +16,10 @@
                           showDelay=showDelay
                           showDuration=showDuration
                           showOn=showOn
-                          target=emberPopper.popperTarget}}
-    {{yield emberPopper}}
+                          target=emberPopper.popperTarget as |inner|}}
+    {{yield (hash
+      emberPopper=emberPopper
+      hide=inner.hide
+    )}}
   {{/ember-attacher-inner}}
 {{/ember-popper}}
