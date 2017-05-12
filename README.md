@@ -19,7 +19,7 @@ give it a target, and your popper is ready to go!
 {{/ember-attacher}}
 ```
 
-See [the example site](https://kybishop.github.io/ember-attacher/) a list of all
+See [the example site](https://kybishop.github.io/ember-attacher/) for a list of all
 available options.
 
 ## Installation
