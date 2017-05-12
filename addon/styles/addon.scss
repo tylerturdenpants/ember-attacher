@@ -167,7 +167,7 @@ $origins: bottom, top, right, left;
       &.ember-attacher-show {
         > div[x-circle] {
           opacity: 1;
-          transform: scale(1) translate(-50%, -50%);
+          transform: scale(1.2) translate(-50%, -50%);
         }
 
         &.ember-attacher-fill {
@@ -270,7 +270,7 @@ $origins: bottom, top, right, left;
 
 @media (max-width: 500px) {
   .tooltip > .inner, .popover > .inner {
-    max-width: 96%;
-    max-width: calc(100% - 20px);
+    max-width: 94%;
+    max-width: calc(100% - (2rem + 4px));
   }
 }
