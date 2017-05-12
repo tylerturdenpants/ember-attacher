@@ -21,7 +21,8 @@
   "scripts": {
     "build": "ember build",
     "start": "ember server",
-    "test": "ember try:each"
+    "test": "ember try:each",
+    "deploy": "ember github-pages:commit --message \"Deploy gh-pages from commit $(git rev-parse HEAD)\"; git push; git checkout -"
   },
   "dependencies": {
     "ember-cli-babel": "^6.0.0",
@@ -58,7 +59,8 @@
     "node": ">= 4"
   },
   "ember-addon": {
-    "configPath": "tests/dummy/config"
+    "configPath": "tests/dummy/config",
+    "demoURL": "https://kybishop.github.io/ember-attacher/"
   },
   "peerDependencies": {
     "ember-popper": "^0.0.3"
