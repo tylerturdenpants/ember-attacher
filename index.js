@@ -24,7 +24,7 @@ module.exports = {
 
     if (/production/.test(env) || /test/.test(env)) {
       var strippedImports = {
-        'ember-popper/-debug/helpers': [
+        'ember-attacher/-debug/helpers': [
           'assert',
           'warn',
           'debug',
@@ -37,7 +37,7 @@ module.exports = {
       this.options.babel = {
         plugins: [
           [FilterImports, strippedImports],
-          [RemoveImports, 'ember-popper/-debug/helpers']
+          [RemoveImports, 'ember-attacher/-debug/helpers']
         ],
         postTransformPlugins: [StripClassCallCheck]
       };
