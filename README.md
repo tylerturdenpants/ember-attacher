@@ -1,26 +1,62 @@
 # ember-attacher
 
-This README outlines the details of collaborating on this Ember addon.
+Tooltips and popovers made easy. Just drop an ember-attacher in a parent, or
+give it a target, and your popper is ready to go!
+
+```html
+<button>
+  Click me
+
+  {{#ember-attacher popperClass="popper tooltip"}}
+    I'm a tooltip!
+  {{/ember-attacher}}
+</button>
+
+<button class="other-button">No click me!</button>
+
+{{#ember-attacher target=".other-button" popperClass="popper tooltip"}}
+  I'm also a tooltip!
+{{/ember-attacher}}
+```
+
+See [the example site](https://kybishop.github.io/ember-attacher/) a list of all
+available options.
 
 ## Installation
 
-* `git clone <repository-url>` this repository
-* `cd ember-attacher`
-* `npm install`
+```bash
+ember install ember-attacher
+```
 
-## Running
+# Development setup
 
-* `ember serve`
-* Visit your app at [http://localhost:4200](http://localhost:4200).
+### Installation
 
-## Running Tests
+* `git clone` this repository
+* `yarn install`
 
-* `npm test` (Runs `ember try:each` to test your addon against multiple Ember versions)
+### Running Tests
+
 * `ember test`
-* `ember test --server`
+* `ember test --serve`
 
-## Building
+This addon uses ember-try to test against multiple versions of Ember:
 
-* `ember build`
+* `ember try:each`
+* `ember try:one ember-release --- ember test --serve`
 
-For more information on using ember-cli, visit [https://ember-cli.com/](https://ember-cli.com/).
+### Running the dummy app
+
+* `ember server`
+* Visit your app at http://localhost:4200.
+
+For more information on using ember-cli, visit [http://www.ember-cli.com/](http://www.ember-cli.com/).
+
+# Credits
+
+- [tippy.js](https://github.com/atomiks/tippyjs), the library that inspired
+  ember-attacher.
+- [popper.js](https://github.com/FezVrasta/popper.js), the library that powers
+  positioning (via [ember-popper](https://github.com/kybishop/ember-popper))
+- [ember-tooltips](https://github.com/yapplabs/ember-tether), the addon that
+  influenced much of ember-attacher's API.
