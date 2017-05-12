@@ -123,8 +123,12 @@ export default Ember.Component.extend({
     return this.get('showOn').split(' ');
   }),
 
-  transitionDuration: Ember.computed('_transitionDuration', function() {
-    return Ember.String.htmlSafe(`transition-duration: ${this.get('_transitionDuration')}ms`);
+  // The circle element needs a special duration that is slightly faster than the popper's
+  // transition, this prevents text from appearing outside the circle as it fills the background
+  circleTransitionDuration: Ember.computed('_transitionDuration', function() {
+    return Ember.String.htmlSafe(
+      `transition-duration: ${Math.round(this.get('_transitionDuration')/1.25)}ms`
+    );
   }),
 
   _setIsVisibleAfterDelay(isVisible, delay) {
@@ -198,7 +202,7 @@ export default Ember.Component.extend({
       this.set('_transitionDuration', showDuration);
 
       this.set('_isStartingAnimation', true);
-    })
+    });
 
     this._isHidden = false;
   },
@@ -312,20 +316,11 @@ export default Ember.Component.extend({
   },
 
   _hideOnBlur(event) {
-    if (!event.relatedTarget || !this.element.contains(event.relatedTarget)) {
+    if (event.relatedTarget
+        && !this.element.contains(event.relatedTarget)
+        && !this.get('popperElement').contains(event.relatedTarget)) {
       this._hideAfterDelay();
     }
-  },
-
-  _startShowAnimation() {
-    // Start the show animation on the next cycle so CSS transitions can have an effect
-    // If we start the animation immediately, the transition won't work because isVisible will
-    // turn on the same time as our show animation, and `display: none` => `display: anythingElse`
-    // is not transition-able
-    Ember.run.next(this, () => {
-      this.element.style.transitionDuration = `${this.get('showDuration')}ms`;
-      this.set('_isStartingAnimation', true);
-    })
   },
 
   /**
@@ -395,4 +390,11 @@ export default Ember.Component.extend({
       delete this._hideListenersOnTargetByEvent['blur'];
     }
   },
+
+  actions: {
+    // Exposed via the named yield to enable custom hide events
+    hide() {
+      this._hide();
+    }
+  }
 });
