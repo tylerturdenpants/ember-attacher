@@ -4,7 +4,7 @@ module.exports = {
 
   afterInstall(options) {
     return this.addAddonToProject({
-      name: 'kybishop/ember-popper',
+      name: 'ember-popper',
       target: '^0.0.3',
       blueprintOptions: {
         save: options.save
