@@ -28,7 +28,7 @@
     "ember-cli-babel": "^6.0.0",
     "ember-cli-htmlbars": "^1.2.0",
     "ember-cli-sass": "^6.1.2",
-    "ember-popper": "^0.0.3",
+    "ember-popper": "^0.1.0",
     "ember-truth-helpers": "^1.3.0"
   },
   "devDependencies": {
@@ -62,8 +62,5 @@
   "ember-addon": {
     "configPath": "tests/dummy/config",
     "demoURL": "https://kybishop.github.io/ember-attacher/"
-  },
-  "peerDependencies": {
-    "ember-popper": "^0.0.3"
   }
 }
