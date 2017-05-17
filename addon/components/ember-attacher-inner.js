@@ -94,6 +94,8 @@ export default Ember.Component.extend({
   },
 
   _removeEventListeners() {
+    document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
+
     let target = this._currentTarget;
 
     [this._hideListenersOnTargetByEvent, this._showListenersOnTargetByEvent]
@@ -240,13 +242,12 @@ export default Ember.Component.extend({
 
   _hideOnMouseLeaveTarget() {
     if (this.get('interactive')) {
-      // TODO(kjb) Consider storing this somewhere and removing it if onHide or target changes
       // TODO(kjb) Should debounce this, but hiding appears sluggish if you debounce.
       //   - If you debounce with immediate fire, you get a bug where you can move out of the
       //   attachment and not trigger the hide because the hide check was debounced
       //   - Ideally we would debounce with an immediate run, then instead of debouncing, we would
       //   queue another fire at the end of the debounce period
-      document.addEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment)
+      document.addEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
     } else {
       this._hideAfterDelay();
     }
