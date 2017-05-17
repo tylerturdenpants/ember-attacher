@@ -2,6 +2,24 @@ import Ember from 'ember';
 import layout from '../templates/components/ember-attacher';
 import { stripInProduction, warn } from '../-debug/helpers';
 
+const { get, set, getOwner } = Ember;
+
+const DEFAULTS =  {
+  animation: 'fade',
+  arrow: false,
+  hideDelay: 0,
+  hideDuration: 300,
+  hideOn: 'mouseleave blur',
+  interactive: false,
+  placement: 'top',
+  popperClass: null,
+  popperOptions: null,
+  renderInPlace: false,
+  showDelay: 0,
+  showDuration: 300,
+  showOn: 'mouseenter focus',
+}
+
 export default Ember.Component.extend({
   layout,
 
@@ -9,10 +27,10 @@ export default Ember.Component.extend({
    * ================== PUBLIC CONFIG OPTIONS ==================
    */
 
-  animation: 'fill',
+  animation: DEFAULTS.animation,
   arrow: Ember.computed('animation', {
     get() {
-      return false;
+      return DEFAULTS.arrow;
     },
 
     set(_, val) {
@@ -25,17 +43,17 @@ export default Ember.Component.extend({
       return val;
     }
   }),
-  hideDelay: 0,
-  hideDuration: 300,
-  hideOn: 'mouseleave blur',
-  interactive: false,
-  placement: 'top',
-  popperClass: null,
-  popperOptions: null,
-  renderInPlace: false,
-  showDelay: 0,
-  showDuration: 300,
-  showOn: 'mouseenter focus',
+  hideDelay: DEFAULTS.hideDelay,
+  hideDuration:  DEFAULTS.hideDuration,
+  hideOn:  DEFAULTS.hideOn,
+  interactive: DEFAULTS.interactive,
+  placement: DEFAULTS.placement,
+  popperClass: DEFAULTS.popperClass,
+  popperOptions: DEFAULTS.popperOptions,
+  renderInPlace: DEFAULTS.renderInPlace,
+  showDelay: DEFAULTS.showDelay,
+  showDuration: DEFAULTS.showDuration,
+  showOn: DEFAULTS.showOn,
   target: Ember.computed(function() {
     return this.element.parentNode;
   }),
@@ -63,4 +81,28 @@ export default Ember.Component.extend({
 
     return options;
   }),
+
+  init() {
+    this._super(...arguments);
+
+    let config = getOwner(this).resolveRegistration('config:environment')
+    let options = config.emberAttacher;
+
+    // If no emberAttacher hash was found, do nothing
+    if (options) {
+      let attrs = get(this, 'attrs');
+      
+      for(let key in options) {
+        
+        // Only known properties are allowed, ignore otherwise
+        if (DEFAULTS.hasOwnProperty(key)) {
+          
+          // Only use option from environment, if not given as component attribute
+          if (attrs[key] === undefined) {
+            set(this, key, options[key]);
+          }
+        }
+      }
+    }
+  }
 });
