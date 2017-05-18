@@ -28,6 +28,23 @@ available options.
 ember install ember-attacher
 ```
 
+## User-defined defaults
+
+User-defined defaults can be set in the consuming app or addon's config/environment.js. These defaults will be applied to every `{{#ember-attacher}}`
+
+```javascript
+// config/environment/js
+
+module.exports = function(environment) {
+  var ENV = {
+    emberAttacher: {
+      animation: 'shift',
+      arrow: true
+    }
+  };
+}
+```
+
 # Development setup
 
 ### Installation
