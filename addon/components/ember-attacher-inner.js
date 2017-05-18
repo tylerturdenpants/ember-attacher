@@ -261,11 +261,10 @@ export default Ember.Component.extend({
     let target = this.get('target');
 
     // If cursor is not on the attachment or target, hide the element
-    if (!this.element.contains(event.target)
-        && !target.contains(event.target)
-        // TODO(kjb) this should be optional since it is rather expensive.
-        //   Maybe call it isOffsetFromTarget
-        && !this._isCursorBetweenTargetAndAttachment(event)) {
+     if (!target.contains(event.target)
+         && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
+         // The ember-attacher-inner element is wrapped in the ember-attacher element
+         && !this.element.parentNode.contains(event.target)) {
       // Remove this listener before hiding the attachment
       document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
 
