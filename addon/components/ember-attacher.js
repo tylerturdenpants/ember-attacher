@@ -53,7 +53,6 @@ export default Ember.Component.extend({
   placement: DEFAULTS.placement,
   popperClass: DEFAULTS.popperClass,
   popperOptions: DEFAULTS.popperOptions,
-  popperContainer: DEFAULTS.popperContainer,
   renderInPlace: DEFAULTS.renderInPlace,
   showDelay: DEFAULTS.showDelay,
   showDuration: DEFAULTS.showDuration,
