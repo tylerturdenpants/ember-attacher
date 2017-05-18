@@ -2368,9 +2368,9 @@ ember-native-dom-helpers@^0.4.0:
     broccoli-funnel "^1.1.0"
     ember-cli-babel "^6.0.0-beta.9"
 
-ember-popper@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/ember-popper/-/ember-popper-0.1.0.tgz#0d5f70f9c97a7dedce07d17bf064d393f6e83953"
+ember-popper@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/ember-popper/-/ember-popper-0.1.1.tgz#a6503870282ef990f1507953d40ae8160ad5ea82"
   dependencies:
     babel-plugin-filter-imports "^0.3.1"
     babel6-plugin-strip-class-callcheck "^6.0.0"
