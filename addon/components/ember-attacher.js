@@ -32,6 +32,7 @@ export default Ember.Component.extend({
   isOffset: false,
   placement: 'top',
   popperClass: null,
+  popperContainer: document.body,
   popperOptions: null,
   renderInPlace: false,
   showDelay: 0,
