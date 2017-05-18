@@ -95,12 +95,12 @@ export default Ember.Component.extend({
     // If no emberAttacher hash was found, do nothing
     if (options) {
       let attrs = get(this, 'attrs');
-      
+
       for(let key in options) {
-        
+
         // Only known properties are allowed, ignore otherwise
         if (DEFAULTS.hasOwnProperty(key)) {
-          
+
           // Use option from environment, but only if not given as component attribute
           if (attrs[key] === undefined) {
             set(this, key, options[key]);
