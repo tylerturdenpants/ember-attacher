@@ -11,6 +11,7 @@ const DEFAULTS =  {
   hideDuration: 300,
   hideOn: 'mouseleave blur',
   interactive: false,
+  isOffset: false,
   placement: 'top',
   popperClass: null,
   popperOptions: null,
@@ -47,6 +48,7 @@ export default Ember.Component.extend({
   hideDuration:  DEFAULTS.hideDuration,
   hideOn:  DEFAULTS.hideOn,
   interactive: DEFAULTS.interactive,
+  isOffset: DEFAULTS.isOffset,
   placement: DEFAULTS.placement,
   popperClass: DEFAULTS.popperClass,
   popperOptions: DEFAULTS.popperOptions,
@@ -97,7 +99,7 @@ export default Ember.Component.extend({
         // Only known properties are allowed, ignore otherwise
         if (DEFAULTS.hasOwnProperty(key)) {
           
-          // Only use option from environment, if not given as component attribute
+          // Use option from environment, but only if not given as component attribute
           if (attrs[key] === undefined) {
             set(this, key, options[key]);
           }

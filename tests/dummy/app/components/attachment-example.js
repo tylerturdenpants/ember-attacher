@@ -36,6 +36,10 @@ export default Ember.Component.extend({
       this.get('service').toggleProperty('interactive');
     },
 
+    toggleRenderInPlace() {
+      this.get('service').toggleProperty('renderInPlace');
+    },
+
     setIsConfiguringTooltip(bool) {
       this.set('isConfiguringTooltip', bool);
     }

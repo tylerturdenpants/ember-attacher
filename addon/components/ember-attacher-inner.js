@@ -94,6 +94,8 @@ export default Ember.Component.extend({
   },
 
   _removeEventListeners() {
+    document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
+
     let target = this._currentTarget;
 
     [this._hideListenersOnTargetByEvent, this._showListenersOnTargetByEvent]
@@ -240,13 +242,12 @@ export default Ember.Component.extend({
 
   _hideOnMouseLeaveTarget() {
     if (this.get('interactive')) {
-      // TODO(kjb) Consider storing this somewhere and removing it if onHide or target changes
       // TODO(kjb) Should debounce this, but hiding appears sluggish if you debounce.
       //   - If you debounce with immediate fire, you get a bug where you can move out of the
       //   attachment and not trigger the hide because the hide check was debounced
       //   - Ideally we would debounce with an immediate run, then instead of debouncing, we would
       //   queue another fire at the end of the debounce period
-      document.addEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment)
+      document.addEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
     } else {
       this._hideAfterDelay();
     }
@@ -260,11 +261,10 @@ export default Ember.Component.extend({
     let target = this.get('target');
 
     // If cursor is not on the attachment or target, hide the element
-    if (!this.element.contains(event.target)
-        && !target.contains(event.target)
-        // TODO(kjb) this should be optional since it is rather expensive.
-        //   Maybe call it isOffsetFromTarget
-        && !this._isCursorBetweenTargetAndAttachment(event)) {
+     if (!target.contains(event.target)
+         && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
+         // The ember-attacher-inner element is wrapped in the ember-attacher element
+         && !this.element.parentNode.contains(event.target)) {
       // Remove this listener before hiding the attachment
       document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
 

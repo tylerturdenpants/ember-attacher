@@ -50,14 +50,25 @@
     <h2>Warning: `animation: "fill"` is not compatible with `arrow: true`</h2>
   </centered>
 {{/if}}
+
+{{#if (and (not isConfiguringTooltip) service.renderInPlace)}}
+  <centered class="section">
+    <h2>
+      Note: the \{{#ember-attacher}} for the popover is declared in the same section as the buttons.
+      When combined with renderInPlace, this causes an empty ghost element in the section where the
+      popover would be if it weren't repositioned. Be careful of gotchas like this when using
+      renderInPlace!
+    </h2>
+  </centered>
+{{/if}}
 <centered class="edit-section">
   <vbox lm="fit">
     <hbox class="nav-bar">
       <centered fit class="nav{{if isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' true}}>
-        In a parent
+        Tooltip in a parent
       </centered>
       <centered fit class="nav{{unless isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' false}}>
-        With a target
+        Popover with a target
       </centered>
     </hbox>
 
@@ -67,14 +78,15 @@
     <box lm="horizontal" fit>
       <hbox fit class="no-wrap">
         <centered fit>
-          &nbsp;&nbsp;\{{<span class="underlined">
+          &nbsp;&nbsp;\{{
+          <span class="underlined">
             #ember-attacher
               {{#ember-attacher popperClass="popper tooltip"}}
                 {{#if isConfiguringTooltip}}
-                  The "In a parent" tooltip ember-attacher is initially set to the default settings.
+                  The "Tooltip in a parent" ember-attacher is initially set to the default settings.
                   Twiddle some knobs to see what ember-attacher can do!
                 {{else}}
-                  The "With a target" popover ember-attacher is triggered by clicking, and also has
+                  The "Popover with a target" ember-attacher is triggered by clicking, and also has
                   a custom hide action.
                 {{/if}}
               {{/ember-attacher}}
@@ -99,7 +111,7 @@
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
-        arrow=<div class="button medium" {{action "toggleArrow"}}>{{service.arrow}}</div>
+        arrow=<button class="button medium" {{action "toggleArrow"}}>{{service.arrow}}</button>
       </centered>
     </hbox>
     <hbox>
@@ -137,19 +149,36 @@
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
-        hideDuration={{input class="button medium"
-                             min="0"
-                             pattern="[0-9]"
-                             placeholder="0"
-                             step="100"
-                             type="number"
-                             value=service.hideDuration}}
+        <span class="underlined">
+          hideDuration
+
+          {{#ember-attacher popperClass="popper tooltip"}}
+            How long the hide animation will take.
+          {{/ember-attacher}}
+        </span>
+        ={{input class="button medium"
+                 min="0"
+                 pattern="[0-9]"
+                 placeholder="0"
+                 step="100"
+                 type="number"
+                 value=service.hideDuration}}
       </centered>
     </hbox>
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
-        interactive=<div class="button medium" {{action "toggleInteractive"}}>{{service.interactive}}</div>
+        <span class="underlined">
+          interactive
+
+          {{#ember-attacher popperClass="popper tooltip"}}
+            Interactive tooltips will not close when clicked or hovered over.
+          {{/ember-attacher}}
+        </span>
+        =
+        <button class="button medium" {{action "toggleInteractive"}}>
+          {{service.interactive}}
+        </button>
       </centered>
     </hbox>
     <hbox>
@@ -168,6 +197,28 @@
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
+        <span class="underlined">
+          renderInPlace
+
+          {{#ember-attacher animation="shift" popperClass="popper tooltip"}}
+            Elements that exist deep within the document tree are given an implicitly lower z-index
+            value than elements that aren't as deep in the tree; this has the effect of hiding our
+            popper behind less-nested elements. Due to the way z-indexing works, we cannot simply
+            add a higher z-index value to our popper. To avoid this issue, we render the element
+            on the document body, giving it the highest default z-index value. Toggling
+            renderInPlace will prevent the popper from being rendered elsewhere, but may cause the
+            aforementioned z-index issues.
+          {{/ember-attacher}}
+        </span>
+        =
+        <button class="button medium" {{action "toggleRenderInPlace"}}>
+          {{service.renderInPlace}}
+        </button>
+      </centered>
+    </hbox>
+    <hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
+      <centered fit>
         showDelay={{input class="button medium"
                           min="0"
                           pattern="[0-9]"
@@ -180,13 +231,20 @@
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
-        showDuration={{input class="button medium"
-                             min="0"
-                             pattern="[0-9]"
-                             placeholder="0"
-                             step="100"
-                             type="number"
-                             value=service.showDuration}}
+        <span class="underlined">
+          showDuration
+
+          {{#ember-attacher popperClass="popper tooltip"}}
+            How long the show animation will take.
+          {{/ember-attacher}}
+        </span>
+        ={{input class="button medium"
+                 min="0"
+                 pattern="[0-9]"
+                 placeholder="0"
+                 step="100"
+                 type="number"
+                 value=service.showDuration}}
       </centered>
     </hbox>
     <hbox>
@@ -226,14 +284,20 @@
         {{else}}
           <vbox>
             <hbox><centered fit>popperClass=</centered></hbox>
-            <hbox><centered fit>&nbsp;&nbsp;"popper custom-popover-css"</centered></hbox>
+            <hbox>
+              <centered fit>
+                &nbsp;&nbsp;"popper&nbsp;<a href="https://github.com/kybishop/ember-attacher"
+                                         target="_blank"
+                                         rel="noopener">custom-popover-css</a>"
+              </centered>
+            </hbox>
             <hbox><centered fit>as |emberAttacher|}}</centered></hbox>
           </vbox>
         {{/if}}
       </centered>
     </hbox>
     {{#if isConfiguringTooltip}}
-      <hbox>&nbsp;&nbsp;&nbsp;&nbsp;...</hbox>
+      <hbox>&nbsp;&nbsp;&nbsp;&nbsp;Hello world!</hbox>
     {{else}}
       <vbox>
         <hbox>

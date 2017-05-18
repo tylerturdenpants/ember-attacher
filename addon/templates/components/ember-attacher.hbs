@@ -1,5 +1,6 @@
 {{#ember-popper options=_options
                 popperClass=popperClass
+                popperContainer=popperContainer
                 renderInPlace=renderInPlace
                 target=target as |emberPopper|}}
   {{#ember-attacher-inner animation=animation
@@ -9,6 +10,7 @@
                           hideDuration=hideDuration
                           hideOn=hideOn
                           interactive=interactive
+                          isOffset=isOffset
                           placement=placement
                           popper=emberPopper.popper
                           popperElement=emberPopper.popperElement
