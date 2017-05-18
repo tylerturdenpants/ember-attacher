@@ -2,29 +2,11 @@ import Ember from 'ember';
 import layout from '../templates/components/ember-attacher';
 import { stripInProduction, warn } from '../-debug/helpers';
 
-export default Ember.Component.extend({
-  layout,
+const { get, set, getOwner } = Ember;
 
-  /**
-   * ================== PUBLIC CONFIG OPTIONS ==================
-   */
-
+const DEFAULTS =  {
   animation: 'fill',
-  arrow: Ember.computed('animation', {
-    get() {
-      return false;
-    },
-
-    set(_, val) {
-      stripInProduction(() => {
-        if (this.get('animation') === 'fill' && val) {
-          warn('Animation: \'fill\' is not compatible with arrow: true', {id: 70015});
-        }
-      });
-
-      return val;
-    }
-  }),
+  arrow: false,
   hideDelay: 0,
   hideDuration: 300,
   hideOn: 'mouseleave blur',
@@ -38,6 +20,44 @@ export default Ember.Component.extend({
   showDelay: 0,
   showDuration: 300,
   showOn: 'mouseenter focus',
+}
+
+export default Ember.Component.extend({
+  layout,
+
+  /**
+   * ================== PUBLIC CONFIG OPTIONS ==================
+   */
+
+  animation: DEFAULTS.animation,
+  arrow: Ember.computed('animation', {
+    get() {
+      return DEFAULTS.arrow;
+    },
+
+    set(_, val) {
+      stripInProduction(() => {
+        if (this.get('animation') === 'fill' && val) {
+          warn('Animation: \'fill\' is not compatible with arrow: true', {id: 70015});
+        }
+      });
+
+      return val;
+    }
+  }),
+  hideDelay: DEFAULTS.hideDelay,
+  hideDuration:  DEFAULTS.hideDuration,
+  hideOn:  DEFAULTS.hideOn,
+  interactive: DEFAULTS.interactive,
+  isOffset: DEFAULTS.isOffset,
+  placement: DEFAULTS.placement,
+  popperClass: DEFAULTS.popperClass,
+  popperContainer: DEFAULTS.popperContainer,
+  popperOptions: DEFAULTS.popperOptions,
+  renderInPlace: DEFAULTS.renderInPlace,
+  showDelay: DEFAULTS.showDelay,
+  showDuration: DEFAULTS.showDuration,
+  showOn: DEFAULTS.showOn,
   target: Ember.computed(function() {
     return this.element.parentNode;
   }),
@@ -65,4 +85,28 @@ export default Ember.Component.extend({
 
     return options;
   }),
+
+  init() {
+    this._super(...arguments);
+
+    let config = getOwner(this).resolveRegistration('config:environment')
+    let options = config.emberAttacher;
+
+    // If no emberAttacher hash was found, do nothing
+    if (options) {
+      let attrs = get(this, 'attrs');
+      
+      for(let key in options) {
+        
+        // Only known properties are allowed, ignore otherwise
+        if (DEFAULTS.hasOwnProperty(key)) {
+          
+          // Use option from environment, but only if not given as component attribute
+          if (attrs[key] === undefined) {
+            set(this, key, options[key]);
+          }
+        }
+      }
+    }
+  }
 });
