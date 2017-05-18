@@ -5,7 +5,7 @@ import { stripInProduction, warn } from '../-debug/helpers';
 const { get, set, getOwner } = Ember;
 
 const DEFAULTS =  {
-  animation: 'fade',
+  animation: 'fill',
   arrow: false,
   hideDelay: 0,
   hideDuration: 300,
@@ -14,8 +14,8 @@ const DEFAULTS =  {
   isOffset: false,
   placement: 'top',
   popperClass: null,
+  popperContainer: document.body,
   popperOptions: null,
-  popperContainer: null,
   renderInPlace: false,
   showDelay: 0,
   showDuration: 300,
@@ -52,6 +52,7 @@ export default Ember.Component.extend({
   isOffset: DEFAULTS.isOffset,
   placement: DEFAULTS.placement,
   popperClass: DEFAULTS.popperClass,
+  popperContainer: DEFAULTS.popperContainer,
   popperOptions: DEFAULTS.popperOptions,
   renderInPlace: DEFAULTS.renderInPlace,
   showDelay: DEFAULTS.showDelay,
