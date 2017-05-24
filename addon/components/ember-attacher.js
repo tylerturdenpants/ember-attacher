@@ -7,6 +7,7 @@ const { get, set, getOwner } = Ember;
 const DEFAULTS =  {
   animation: 'fill',
   arrow: false,
+  flip: null,
   hideDelay: 0,
   hideDuration: 300,
   hideOn: 'mouseleave blur',
@@ -69,23 +70,6 @@ export default Ember.Component.extend({
   // Part of the Component superclass. isVisible == false sets 'display: none'
   isVisible: Ember.computed.alias('renderInPlace'),
 
-  _options: Ember.computed('animation', 'arrow', 'placement', 'popperOptions', function() {
-    let options = this.get('popperOptions') || {};
-
-    // Deep copy the options
-    options = JSON.parse(JSON.stringify(options))
-
-    let modifiers = options.modifiers || {};
-    modifiers.arrow = modifiers.arrow || {};
-    modifiers.arrow.enabled = this.get('arrow');
-
-    options.modifiers = modifiers;
-
-    options.placement = this.get('placement');
-
-    return options;
-  }),
-
   init() {
     this._super(...arguments);
 
@@ -108,5 +92,30 @@ export default Ember.Component.extend({
         }
       }
     }
-  }
+  },
+
+  _modifiers: Ember.computed('arrow', 'flip', 'modifiers', function() {
+    // Deep copy the modifiers since we might write to the provided hash
+    let modifiers = this.get('modifiers') ? JSON.parse(JSON.stringify(this.get('modifiers'))) : {};
+
+    let arrow = this.get('arrow');
+    if (typeof(arrow) === 'boolean') {
+      if (!modifiers.arrow) {
+        modifiers.arrow = {enabled: arrow};
+      } else if (typeof(modifiers.arrow.enbabled) !== 'boolean') {
+        modifiers.arrow.enabled = arrow;
+      }
+    }
+
+    let flipString = this.get('flip');
+    if (flipString) {
+      if (!modifiers.flip) {
+        modifiers.flip = {behavior: flipString.split(' ')};
+      } else if (!modifiers.flip.behavior) {
+        modifiers.flip.behavior = flipString.split(' ');
+      }
+    }
+
+    return modifiers;
+  })
 });
