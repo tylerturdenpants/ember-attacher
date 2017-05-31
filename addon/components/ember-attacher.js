@@ -2,8 +2,6 @@ import Ember from 'ember';
 import layout from '../templates/components/ember-attacher';
 import { stripInProduction, warn } from '../-debug/helpers';
 
-const { get, set, getOwner } = Ember;
-
 const DEFAULTS =  {
   animation: 'fill',
   arrow: false,
@@ -39,7 +37,7 @@ export default Ember.Component.extend({
     set(_, val) {
       stripInProduction(() => {
         if (this.get('animation') === 'fill' && val) {
-          warn('Animation: \'fill\' is not compatible with arrow: true', {id: 70015});
+          warn('Animation: \'fill\' is not compatible with arrow: true', { id: 70015 });
         }
       });
 
@@ -73,22 +71,22 @@ export default Ember.Component.extend({
   init() {
     this._super(...arguments);
 
-    let config = getOwner(this).resolveRegistration('config:environment')
-    let options = config.emberAttacher;
+    let options = Ember.getOwner(this).resolveRegistration('config:environment').emberAttacher;
 
     // If no emberAttacher hash was found, do nothing
     if (options) {
-      let attrs = get(this, 'attrs');
+      let attrs = this.get('attrs') || {};
 
-      for(let key in options) {
-
-        // Only known properties are allowed, ignore otherwise
-        if (DEFAULTS.hasOwnProperty(key)) {
-
-          // Use option from environment, but only if not given as component attribute
-          if (attrs[key] === undefined) {
-            set(this, key, options[key]);
+      for (let key in options) {
+        stripInProduction(() => {
+          if (!DEFAULTS.hasOwnProperty(key)) {
+            warn(`Unknown property given as an ember-attacher default: ${key}`, { id: 700152 });
           }
+        });
+
+        // Don't override attrs manually passed into the component
+        if (attrs[key] === undefined) {
+          this[key] = options[key];
         }
       }
     }
@@ -101,7 +99,7 @@ export default Ember.Component.extend({
     let arrow = this.get('arrow');
     if (typeof(arrow) === 'boolean') {
       if (!modifiers.arrow) {
-        modifiers.arrow = {enabled: arrow};
+        modifiers.arrow = { enabled: arrow };
       } else if (typeof(modifiers.arrow.enbabled) !== 'boolean') {
         modifiers.arrow.enabled = arrow;
       }
@@ -110,7 +108,7 @@ export default Ember.Component.extend({
     let flipString = this.get('flip');
     if (flipString) {
       if (!modifiers.flip) {
-        modifiers.flip = {behavior: flipString.split(' ')};
+        modifiers.flip = { behavior: flipString.split(' ') };
       } else if (!modifiers.flip.behavior) {
         modifiers.flip.behavior = flipString.split(' ');
       }
