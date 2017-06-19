@@ -33,7 +33,8 @@ module.exports = {
           'stripInProduction'
         ]
       };
-
+      this.options = this.options || {};
+      this.options.babel = this.options.babel || {};
       this.options.babel = {
         plugins: [
           [FilterImports, strippedImports],
