@@ -22,27 +22,27 @@ module.exports = {
       return;
     }
 
-    if (/production/.test(env) || /test/.test(env)) {
-      var strippedImports = {
-        'ember-attacher/-debug/helpers': [
-          'assert',
-          'warn',
-          'debug',
-          'debugOnError',
-          'deprecate',
-          'stripInProduction'
-        ]
-      };
-      this.options = this.options || {};
-      this.options.babel = this.options.babel || {};
-      this.options.babel = {
-        plugins: [
-          [FilterImports, strippedImports],
-          [RemoveImports, 'ember-attacher/-debug/helpers']
-        ],
-        postTransformPlugins: [StripClassCallCheck]
-      };
-    }
+    // if (/production/.test(env) || /test/.test(env)) {
+    //   var strippedImports = {
+    //     'ember-attacher/-debug/helpers': [
+    //       'assert',
+    //       'warn',
+    //       'debug',
+    //       'debugOnError',
+    //       'deprecate',
+    //       'stripInProduction'
+    //     ]
+    //   };
+    //   this.options = this.options || {};
+    //   this.options.babel = this.options.babel || {};
+    //   this.options.babel = {
+    //     plugins: [
+    //       [FilterImports, strippedImports],
+    //       [RemoveImports, 'ember-attacher/-debug/helpers']
+    //     ],
+    //     postTransformPlugins: [StripClassCallCheck]
+    //   };
+    // }
 
     this._hasSetupBabelOptions = true;
   },
@@ -50,9 +50,9 @@ module.exports = {
   treeForAddon: function() {
     var tree = this._super.treeForAddon.apply(this, arguments);
 
-    if (/production/.test(this._env) || /test/.test(this._env)) {
-      tree = new Funnel(tree, { exclude: [ /-debug/ ] });
-    }
+    // if (/production/.test(this._env) || /test/.test(this._env)) {
+    //   tree = new Funnel(tree, { exclude: [ /-debug/ ] });
+    // }
 
     return tree;
   }
