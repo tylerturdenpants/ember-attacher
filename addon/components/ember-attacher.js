@@ -13,7 +13,7 @@ const DEFAULTS =  {
   isOffset: false,
   placement: 'top',
   popperClass: null,
-  popperContainer: document.body,
+  popperContainer: self.document ? self.document.body : '',
   popperOptions: null,
   renderInPlace: false,
   showDelay: 0,
@@ -58,7 +58,7 @@ export default Ember.Component.extend({
   showDuration: DEFAULTS.showDuration,
   showOn: DEFAULTS.showOn,
   target: Ember.computed(function() {
-    return this.element.parentNode;
+    return (typeof FastBoot === 'undefined') ? this.element.parentNode : null;
   }),
 
   /**
