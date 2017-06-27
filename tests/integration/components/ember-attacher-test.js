@@ -6,20 +6,23 @@ moduleForComponent('ember-attacher', 'Integration | Component | ember attacher',
 });
 
 test('it renders', function(assert) {
-
-  // Set any properties with this.set('myProperty', 'value');
-  // Handle any actions with this.on('myAction', function(val) { ... });
-
-  this.render(hbs`{{ember-attacher}}`);
-
-  assert.equal(this.$().text().trim(), '');
-
   // Template block usage:
   this.render(hbs`
-    {{#ember-attacher}}
-      template block text
-    {{/ember-attacher}}
+    <div>
+      {{#ember-attacher popperClass="hello"}}
+        popper text
+      {{/ember-attacher}}
+    </div>
   `);
 
-  assert.equal(this.$().text().trim(), 'template block text');
+  let popper = document.querySelector('.hello');
+  let innerAttacher = popper.querySelector('.inner');
+
+  assert.ok(innerAttacher);
+
+  assert.ok(innerAttacher.querySelector('div[x-circle]'));
+
+  let innerHTML = innerAttacher.innerHTML.trim();
+
+  assert.equal(innerHTML.indexOf('popper text'), 0);
 });
