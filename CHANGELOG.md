@@ -1,7 +1,7 @@
 # Change Log
 
 ## [v0.5.0](https://github.com/kybishop/ember-attacher/tree/v0.5.0) (2017-06-27)
-[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.4.0...0.5.0)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.4.0...v0.5.0)
 
 **Closed issues:**
 
