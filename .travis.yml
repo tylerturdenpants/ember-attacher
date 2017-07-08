@@ -1,7 +1,7 @@
 ---
 language: node_js
 node_js:
-  - "6"
+  - "4"
 
 sudo: false
 
@@ -29,7 +29,7 @@ before_install:
   - phantomjs --version
 
 install:
-  - yarn install --no-lockfile
+  - yarn install --no-lockfile --non-interactive
 
 script:
   # Usually, it's ok to finish the test scenario without reverting
