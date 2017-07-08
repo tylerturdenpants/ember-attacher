@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import layout from '../templates/components/ember-attacher';
-import { stripInProduction, warn } from '../-debug/helpers';
+import { stripInProduction, warn } from 'ember-attacher/-debug/helpers';
 
 const DEFAULTS =  {
   animation: 'fill',
