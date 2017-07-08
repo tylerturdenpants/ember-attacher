@@ -34,13 +34,17 @@ module.exports = {
         ]
       };
 
-      this.options.babel = {
-        plugins: [
-          [FilterImports, strippedImports],
-          [RemoveImports, 'ember-attacher/-debug/helpers']
-        ],
-        postTransformPlugins: [StripClassCallCheck]
-      };
+      // In some versions of Ember, this.options is undefined during tests
+      this.options = this.options || {};
+
+      // Make sure the babel options are accessible
+      let babelOptions = this.options.babel = this.options.babel || {};
+      babelOptions.plugins = babelOptions.plugins || [];
+      babelOptions.postTransformPlugins = babelOptions.postTransformPlugins || [];
+
+      babelOptions.plugins.push([FilterImports, strippedImports]);
+      babelOptions.plugins.push([RemoveImports, 'ember-attacher/-debug/helpers']);
+      babelOptions.postTransformPlugins.push(StripClassCallCheck);
     }
 
     this._hasSetupBabelOptions = true;
