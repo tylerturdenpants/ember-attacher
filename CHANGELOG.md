@@ -1,5 +1,18 @@
 # Change Log
 
+## [v0.5.1](https://github.com/kybishop/ember-attacher/tree/v0.5.1) (2017-07-08)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.5.0...v0.5.1)
+
+**Closed issues:**
+
+- compatibility with babel 5 [\#13](https://github.com/kybishop/ember-attacher/issues/13)
+
+**Merged pull requests:**
+
+- fix\[imports\] absolute path for dev-only import [\#20](https://github.com/kybishop/ember-attacher/pull/20) ([kybishop](https://github.com/kybishop))
+- fix\[babel options\] don't overwrite existing babel options [\#19](https://github.com/kybishop/ember-attacher/pull/19) ([kybishop](https://github.com/kybishop))
+- chore\[bump deps\] ember-popper v0.3.1 and more [\#18](https://github.com/kybishop/ember-attacher/pull/18) ([kybishop](https://github.com/kybishop))
+
 ## [v0.5.0](https://github.com/kybishop/ember-attacher/tree/v0.5.0) (2017-06-27)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.4.0...v0.5.0)
 
