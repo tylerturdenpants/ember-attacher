@@ -1,5 +1,12 @@
 # Change Log
 
+## [v0.6.0](https://github.com/kybishop/ember-attacher/tree/v0.6.0) (2017-07-25)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.5.1...v0.6.0)
+
+**Merged pull requests:**
+
+- chore\(bump deps\) ember popper v0.5 and more [\#21](https://github.com/kybishop/ember-attacher/pull/21) ([kybishop](https://github.com/kybishop))
+
 ## [v0.5.1](https://github.com/kybishop/ember-attacher/tree/v0.5.1) (2017-07-08)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.5.0...v0.5.1)
 
