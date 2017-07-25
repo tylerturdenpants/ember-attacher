@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import layout from '../templates/components/ember-attacher-inner';
+import { assert } from '@ember/debug';
 
 export default Ember.Component.extend({
   /**
@@ -63,13 +64,13 @@ export default Ember.Component.extend({
       // from the element to the safest position available: 0x0. The popper will then update its
       // position from this._show()
       if (!this.get('isVisible')) {
-        this.get('popperElement').style.transform = null;
+        this.element.parentNode.style.transform = null;
       }
     });
   },
 
   _addListenersForShowEvents() {
-    let target = this.get('target');
+    let target = this.get('_target');
     let showOn = this.get('_showOn');
 
     if (!target) {
@@ -122,6 +123,27 @@ export default Ember.Component.extend({
   _showOn: Ember.computed('showOn', function() {
     return this.get('showOn').split(' ');
   }),
+  _target: Ember.computed('target', function() {
+    const target = this.get('target');
+
+    let popperTarget;
+
+    // If there is no target, set the target to the parent element
+    if (!target) {
+      popperTarget = this._initialParentNode;
+    } else if (target instanceof Element) {
+      popperTarget = target;
+    } else {
+      const nodes = document.querySelectorAll(target);
+
+      assert(`ember-attacher with target selector "${target}" found ${nodes.length}`
+             + 'possible targets when there should be exactly 1', nodes.length === 1);
+
+      popperTarget = nodes[0];
+    }
+
+    return popperTarget;
+  }),
 
   // The circle element needs a special duration that is slightly faster than the popper's
   // transition, this prevents text from appearing outside the circle as it fills the background
@@ -167,7 +189,7 @@ export default Ember.Component.extend({
     Ember.run.cancel(this._isVisibleTimeout);
 
     // The attachment is already visible or the target has been destroyed
-    if (!this._isHidden || !this.get('target')) {
+    if (!this._isHidden || !this.get('_target')) {
       return;
     }
 
@@ -181,15 +203,14 @@ export default Ember.Component.extend({
   _show() {
     // The target of interactive tooltips receive the 'active' class
     if (this.get('interactive')) {
-      this.get('target').classList.add('active')
+      this.get('_target').classList.add('active')
     }
 
     // Make the attachment visible immediately so transition animations can take place
     this._setIsVisibleAfterDelay(true, 0);
 
-    let popper = this.get('popper');
-    popper.update();
-    popper.enableEventListeners();
+    this.get('scheduleUpdate')();
+    this.get('enableEventListeners')();
 
     // Start the show animation on the next cycle so CSS transitions can have an effect
     // If we start the animation immediately, the transition won't work because isVisible will
@@ -209,7 +230,7 @@ export default Ember.Component.extend({
 
   _addListenersforHideEvents() {
     let hideOn = this.get('_hideOn');
-    let target = this.get('target');
+    let target = this.get('_target');
 
     if (hideOn.indexOf('click') !== -1) {
       let showOnClickListener = this._showListenersOnTargetByEvent['click'];
@@ -256,7 +277,7 @@ export default Ember.Component.extend({
   },
 
   _hideIfMouseOutsideTargetOrAttachment(event) {
-    let target = this.get('target');
+    let target = this.get('_target');
 
     // If cursor is not on the attachment or target, hide the element
      if (!target.contains(event.target)
@@ -276,7 +297,7 @@ export default Ember.Component.extend({
     let {clientX, clientY} = event;
 
     let attachmentPosition = this.element.getBoundingClientRect();
-    let targetPosition = this.get('target').getBoundingClientRect();
+    let targetPosition = this.get('_target').getBoundingClientRect();
 
     // Check if cursor is between a left-flipped attachment
     if (attachmentPosition.right < targetPosition.left
@@ -316,7 +337,7 @@ export default Ember.Component.extend({
   _hideOnBlur(event) {
     if (event.relatedTarget
         && !this.element.contains(event.relatedTarget)
-        && !this.get('popperElement').contains(event.relatedTarget)) {
+        && !this.element.parentNode.contains(event.relatedTarget)) {
       this._hideAfterDelay();
     }
   },
@@ -330,7 +351,7 @@ export default Ember.Component.extend({
     Ember.run.cancel(this._isVisibleTimeout);
 
     // The attachment is already hidden or the target was destroyed
-    if (this._isHidden || !this.get('target')) {
+    if (this._isHidden || !this.get('_target')) {
       return;
     }
 
@@ -352,13 +373,13 @@ export default Ember.Component.extend({
     // Wait for any animations to complete before hiding the attachment
     this._setIsVisibleAfterDelay(false, hideDuration);
 
-    this.get('popper').disableEventListeners();
+    this.get('disableEventListeners')();
 
     this._isHidden = true;
   },
 
   _removeListenersForHideEvents() {
-    let target = this.get('target');
+    let target = this.get('_target');
     let showOn = this.get('_showOn');
 
     // Switch clicking back to a show event
