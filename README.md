@@ -28,10 +28,6 @@ available options.
 ember install ember-attacher
 ```
 
-### Compatibility
-
-Ember-attacher currently requires Ember >= 2.10 due to [a reliance on `{{#-in-element}}`](https://github.com/kybishop/ember-popper/blob/v0.1.1/addon/templates/components/ember-popper.hbs#L10).
-
 ## User-defined defaults
 
 User-defined defaults can be set in the consuming app or addon's config/environment.js. These defaults will be applied to every `{{#ember-attacher}}`
