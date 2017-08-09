@@ -42,7 +42,7 @@ export default Ember.Component.extend({
       this._hideIfMouseOutsideTargetOrAttachment.bind(this);
     this._debouncedHideIfMouseOutsideTargetOrAttachment =
       this._debouncedHideIfMouseOutsideTargetOrAttachment.bind(this);
-    this._hideOnBlur = this._hideOnBlur.bind(this);
+    this._hideOnLostFocus = this._hideOnLostFocus.bind(this);
     this._hideOnMouseLeaveTarget = this._hideOnMouseLeaveTarget.bind(this);
     this._hideAfterDelay = this._hideAfterDelay.bind(this);
     this._showAfterDelay = this._showAfterDelay.bind(this);
@@ -70,8 +70,8 @@ export default Ember.Component.extend({
   },
 
   _addListenersForShowEvents() {
-    let target = this.get('_target');
-    let showOn = this.get('_showOn');
+    const target = this.get('_target');
+    const showOn = this.get('_showOn');
 
     if (!target) {
       return;
@@ -95,7 +95,7 @@ export default Ember.Component.extend({
   _removeEventListeners() {
     document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
 
-    let target = this._currentTarget;
+    const target = this._currentTarget;
 
     [this._hideListenersOnTargetByEvent, this._showListenersOnTargetByEvent]
       .forEach(eventToListener => {
@@ -195,7 +195,7 @@ export default Ember.Component.extend({
 
     this._addListenersforHideEvents();
 
-    let showDelay = parseInt(this.get('showDelay'));
+    const showDelay = parseInt(this.get('showDelay'));
 
     this._delayedShow = Ember.run.debounce(this, this._show, showDelay, !showDelay);
   },
@@ -217,7 +217,7 @@ export default Ember.Component.extend({
     // turn on the same time as our show animation, and `display: none` => `display: anythingElse`
     // is not transition-able
     Ember.run.next(this, () => {
-      let showDuration = parseInt(this.get('showDuration'));
+      const showDuration = parseInt(this.get('showDuration'));
 
       this.element.style.transitionDuration = `${showDuration}ms`;
       this.set('_transitionDuration', showDuration);
@@ -229,11 +229,11 @@ export default Ember.Component.extend({
   },
 
   _addListenersforHideEvents() {
-    let hideOn = this.get('_hideOn');
-    let target = this.get('_target');
+    const hideOn = this.get('_hideOn');
+    const target = this.get('_target');
 
     if (hideOn.indexOf('click') !== -1) {
-      let showOnClickListener = this._showListenersOnTargetByEvent['click'];
+      const showOnClickListener = this._showListenersOnTargetByEvent['click'];
 
       if (showOnClickListener) {
         target.removeEventListener('click', showOnClickListener);
@@ -254,8 +254,13 @@ export default Ember.Component.extend({
 
     // Hides the attachment when focus is lost on the target
     if (hideOn.indexOf('blur') !== -1) {
-      this._hideListenersOnTargetByEvent['blur'] = this._hideOnBlur;
-      target.addEventListener('blur', this._hideOnBlur);
+      this._hideListenersOnTargetByEvent['blur'] = this._hideOnLostFocus;
+      target.addEventListener('blur', this._hideOnLostFocus);
+    }
+
+    if (hideOn.indexOf('focusout') !== -1) {
+      this._hideListenersOnTargetByEvent['focusout'] = this._hideOnLostFocus;
+      target.addEventListener('focusout', this._hideOnLostFocus);
     }
   },
 
@@ -277,7 +282,7 @@ export default Ember.Component.extend({
   },
 
   _hideIfMouseOutsideTargetOrAttachment(event) {
-    let target = this.get('_target');
+    const target = this.get('_target');
 
     // If cursor is not on the attachment or target, hide the element
      if (!target.contains(event.target)
@@ -294,10 +299,10 @@ export default Ember.Component.extend({
   },
 
   _isCursorBetweenTargetAndAttachment(event) {
-    let {clientX, clientY} = event;
+    const {clientX, clientY} = event;
 
-    let attachmentPosition = this.element.getBoundingClientRect();
-    let targetPosition = this.get('_target').getBoundingClientRect();
+    const attachmentPosition = this.element.getBoundingClientRect();
+    const targetPosition = this.get('_target').getBoundingClientRect();
 
     // Check if cursor is between a left-flipped attachment
     if (attachmentPosition.right < targetPosition.left
@@ -334,10 +339,10 @@ export default Ember.Component.extend({
     return false;
   },
 
-  _hideOnBlur(event) {
-    if (event.relatedTarget
-        && !this.element.contains(event.relatedTarget)
-        && !this.element.parentNode.contains(event.relatedTarget)) {
+  _hideOnLostFocus(event) {
+    if (event.relatedTarget === null
+        || (!this.get('_target').contains(event.relatedTarget)
+            && !this.element.contains(event.relatedTarget))) {
       this._hideAfterDelay();
     }
   },
@@ -355,7 +360,7 @@ export default Ember.Component.extend({
       return;
     }
 
-    let hideDelay = parseInt(this.get('hideDelay'));
+    const hideDelay = parseInt(this.get('hideDelay'));
 
     this._delayedHide = Ember.run.debounce(this, this._hide, hideDelay, !hideDelay);
   },
@@ -363,7 +368,7 @@ export default Ember.Component.extend({
   _hide() {
     this._removeListenersForHideEvents();
 
-    let hideDuration = parseInt(this.get('hideDuration'));
+    const hideDuration = parseInt(this.get('hideDuration'));
 
     this.element.style.transitionDuration = `${hideDuration}ms`;
     this.set('_transitionDuration', hideDuration);
@@ -379,12 +384,12 @@ export default Ember.Component.extend({
   },
 
   _removeListenersForHideEvents() {
-    let target = this.get('_target');
-    let showOn = this.get('_showOn');
+    const target = this.get('_target');
+    const showOn = this.get('_showOn');
 
     // Switch clicking back to a show event
     if (showOn.indexOf('click') !== -1) {
-      let hideOnClickListener = this._hideListenersOnTargetByEvent['click'];
+      const hideOnClickListener = this._hideListenersOnTargetByEvent['click'];
 
       if (hideOnClickListener) {
         target.removeEventListener('click', hideOnClickListener);
@@ -395,18 +400,25 @@ export default Ember.Component.extend({
       target.addEventListener('click', this._showAfterDelay);
     }
 
-    let hideOnMouseleaveListener = this._hideListenersOnTargetByEvent['mouseleave'];
+    const hideOnMouseleaveListener = this._hideListenersOnTargetByEvent['mouseleave'];
 
     if (hideOnMouseleaveListener) {
       target.removeEventListener('mouseleave', hideOnMouseleaveListener);
       delete this._hideListenersOnTargetByEvent['mouseleave'];
     }
 
-    let hideOnBlurListener = this._hideListenersOnTargetByEvent['blur'];
+    const hideOnBlurListener = this._hideListenersOnTargetByEvent['blur'];
 
     if (hideOnBlurListener) {
       target.removeEventListener('blur', hideOnBlurListener);
       delete this._hideListenersOnTargetByEvent['blur'];
+    }
+
+    const hideOnFocusOutListener = this._hideListenersOnTargetByEvent['focusout'];
+
+    if (hideOnFocusOutListener) {
+      target.removeEventListener('focusout', hideOnFocusOutListener);
+      delete this._hideListenersOnTargetByEvent['focusout'];
     }
   },
 
