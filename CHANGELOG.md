@@ -1,5 +1,12 @@
 # Change Log
 
+## [v0.7.0](https://github.com/kybishop/ember-attacher/tree/v0.7.0) (2017-08-09)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.6.0...v0.7.0)
+
+**Merged pull requests:**
+
+- feat\(hide on focus-out\) also fix bugs with hideOnBlur [\#22](https://github.com/kybishop/ember-attacher/pull/22) ([kybishop](https://github.com/kybishop))
+
 ## [v0.6.0](https://github.com/kybishop/ember-attacher/tree/v0.6.0) (2017-07-25)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.5.1...v0.6.0)
 
