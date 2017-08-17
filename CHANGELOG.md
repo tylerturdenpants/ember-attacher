@@ -1,5 +1,12 @@
 # Change Log
 
+## [v0.8.0](https://github.com/kybishop/ember-attacher/tree/v0.8.0) (2017-08-17)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.7.0...v0.8.0)
+
+**Merged pull requests:**
+
+- feat\(isShown\) add support for initial isShown state [\#23](https://github.com/kybishop/ember-attacher/pull/23) ([kybishop](https://github.com/kybishop))
+
 ## [v0.7.0](https://github.com/kybishop/ember-attacher/tree/v0.7.0) (2017-08-09)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.6.0...v0.7.0)
 
