@@ -70,6 +70,10 @@ export default Ember.Component.extend({
   // Part of the Component superclass. isVisible == false sets 'display: none'
   isVisible: Ember.computed.alias('renderInPlace'),
 
+  _isShown: Ember.computed('isShown', function() {
+    return !!this.get('isShown');
+  }),
+
   init() {
     this._super(...arguments);
 
