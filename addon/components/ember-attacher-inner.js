@@ -162,7 +162,11 @@ export default Ember.Component.extend({
 
     if (delay) {
       this._isVisibleTimeout =
-        Ember.run.later(this, () => { this.set('isVisible', isVisible) }, delay);
+        Ember.run.later(this, () => {
+          if (!this.isDestroyed && !this.isDestroying) {
+            this.set('isVisible', isVisible);
+          }
+        }, delay);
     } else {
       this.set('isVisible', isVisible);
     }
