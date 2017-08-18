@@ -11,6 +11,7 @@
                         hideDuration=tooltipData.hideDuration
                         hideOn=tooltipData.hideOn
                         interactive=tooltipData.interactive
+                        isShown=tooltipData.isShown
                         placement=tooltipData.placement
                         renderInPlace=tooltipData.renderInPlace
                         showDelay=tooltipData.showDelay
@@ -31,6 +32,7 @@
                       hideDuration=popoverData.hideDuration
                       hideOn=popoverData.hideOn
                       interactive=popoverData.interactive
+                      isShown=popoverData.isShown
                       placement=popoverData.placement
                       renderInPlace=popoverData.renderInPlace
                       showDelay=popoverData.showDelay
@@ -179,6 +181,20 @@
         <button class="button medium" {{action "toggleInteractive"}}>
           {{service.interactive}}
         </button>
+      </centered>
+    </hbox>
+    <hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
+      <centered fit>
+        <span class="underlined">
+          isShown
+
+          {{#ember-attacher popperClass="popper tooltip"}}
+            Manually controls whether or not the attacher should be open or closed.
+          {{/ember-attacher}}
+        </span>
+        =
+        <button class="button medium" {{action "toggleIsShown"}}>{{service.isShown}}</button>
       </centered>
     </hbox>
     <hbox>

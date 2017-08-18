@@ -7,6 +7,7 @@ export default Ember.Service.extend({
   hideDuration: 300,
   hideOn: 'mouseleave blur',
   interactive: false,
+  isShown: false,
   placement: 'top',
   renderInPlace: false,
   showDelay: 0,
