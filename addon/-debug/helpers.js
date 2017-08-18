@@ -1,8 +1,8 @@
 import Ember from 'ember';
+import { deprecate as emberDeprecate } from '@ember/application/deprecations';
+import { warn as emberWarn } from '@ember/debug';
 
 const {
-  warn: emberWarn,
-  deprecate: emberDeprecate,
   Logger
 } = Ember;
 

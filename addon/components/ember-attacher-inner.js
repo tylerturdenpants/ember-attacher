@@ -1,8 +1,11 @@
-import Ember from 'ember';
-import layout from '../templates/components/ember-attacher-inner';
+import { cancel, debounce, later, next } from '@ember/runloop';
+import { computed, observer } from '@ember/object';
+import Component from '@ember/component';
 import { assert } from '@ember/debug';
+import { htmlSafe } from '@ember/string';
+import layout from '../templates/components/ember-attacher-inner';
 
-export default Ember.Component.extend({
+export default Component.extend({
   /**
    * ================== PUBLIC CONFIG OPTIONS ==================
    */
@@ -54,7 +57,7 @@ export default Ember.Component.extend({
     this._super(...arguments);
 
     // The Popper does not exist until after the element has been inserted
-    Ember.run.next(() => {
+    next(() => {
       this._addListenersForShowEvents();
 
       if (this.get('isVisible') && this.get('_target')) {
@@ -118,16 +121,16 @@ export default Ember.Component.extend({
   isVisible: false,
   layout,
 
-  _animation: Ember.computed('animation', function() {
+  _animation: computed('animation', function() {
     return `ember-attacher-${this.get('animation')}`;
   }),
-  _hideOn: Ember.computed('hideOn', function() {
+  _hideOn: computed('hideOn', function() {
     return this.get('hideOn').split(' ');
   }),
-  _showOn: Ember.computed('showOn', function() {
+  _showOn: computed('showOn', function() {
     return this.get('showOn').split(' ');
   }),
-  _target: Ember.computed('target', function() {
+  _target: computed('target', function() {
     const target = this.get('target');
 
     let popperTarget;
@@ -141,7 +144,7 @@ export default Ember.Component.extend({
       const nodes = document.querySelectorAll(target);
 
       assert(`ember-attacher with target selector "${target}" found ${nodes.length}`
-             + 'possible targets when there should be exactly 1', nodes.length === 1);
+        + 'possible targets when there should be exactly 1', nodes.length === 1);
 
       popperTarget = nodes[0];
     }
@@ -151,18 +154,18 @@ export default Ember.Component.extend({
 
   // The circle element needs a special duration that is slightly faster than the popper's
   // transition, this prevents text from appearing outside the circle as it fills the background
-  circleTransitionDuration: Ember.computed('_transitionDuration', function() {
-    return Ember.String.htmlSafe(
-      `transition-duration: ${Math.round(this.get('_transitionDuration')/1.25)}ms`
+  circleTransitionDuration: computed('_transitionDuration', function() {
+    return htmlSafe(
+      `transition-duration: ${Math.round(this.get('_transitionDuration') / 1.25)}ms`
     );
   }),
 
   _setIsVisibleAfterDelay(isVisible, delay) {
-    Ember.run.cancel(this._isVisibleTimeout);
+    cancel(this._isVisibleTimeout);
 
     if (delay) {
       this._isVisibleTimeout =
-        Ember.run.later(this, () => {
+        later(this, () => {
           if (!this.isDestroyed && !this.isDestroying) {
             this.set('isVisible', isVisible);
           }
@@ -172,7 +175,7 @@ export default Ember.Component.extend({
     }
   },
 
-  _targetOrTriggersChanged: Ember.observer(
+  _targetOrTriggersChanged: observer(
     'hideOn',
     'showOn',
     'target',
@@ -193,8 +196,8 @@ export default Ember.Component.extend({
    */
 
   _showAfterDelay() {
-    Ember.run.cancel(this._delayedHide);
-    Ember.run.cancel(this._isVisibleTimeout);
+    cancel(this._delayedHide);
+    cancel(this._isVisibleTimeout);
 
     // The attachment is already visible or the target has been destroyed
     if (!this._isHidden || !this.get('_target')) {
@@ -205,13 +208,13 @@ export default Ember.Component.extend({
 
     const showDelay = parseInt(this.get('showDelay'));
 
-    this._delayedShow = Ember.run.debounce(this, this._show, showDelay, !showDelay);
+    this._delayedShow = debounce(this, this._show, showDelay, !showDelay);
   },
 
   _show() {
     // The target of interactive tooltips receive the 'active' class
     if (this.get('interactive')) {
-      this.get('_target').classList.add('active')
+      this.get('_target').classList.add('active');
     }
 
     // Make the attachment visible immediately so transition animations can take place
@@ -224,7 +227,7 @@ export default Ember.Component.extend({
     // If we start the animation immediately, the transition won't work because isVisible will
     // turn on the same time as our show animation, and `display: none` => `display: anythingElse`
     // is not transition-able
-    Ember.run.next(this, () => {
+    next(this, () => {
       const showDuration = parseInt(this.get('showDuration'));
 
       this.element.style.transitionDuration = `${showDuration}ms`;
@@ -286,17 +289,17 @@ export default Ember.Component.extend({
   },
 
   _debouncedHideIfMouseOutsideTargetOrAttachment(event) {
-    Ember.run.debounce(this, this._hideIfMouseOutsideTargetOrAttachment, event, 10)
+    debounce(this, this._hideIfMouseOutsideTargetOrAttachment, event, 10);
   },
 
   _hideIfMouseOutsideTargetOrAttachment(event) {
     const target = this.get('_target');
 
     // If cursor is not on the attachment or target, hide the element
-     if (!target.contains(event.target)
-         && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
-         // The ember-attacher-inner element is wrapped in the ember-attacher element
-         && !this.element.parentNode.contains(event.target)) {
+    if (!target.contains(event.target)
+      && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
+      // The ember-attacher-inner element is wrapped in the ember-attacher element
+      && !this.element.parentNode.contains(event.target)) {
       // Remove this listener before hiding the attachment
       document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
 
@@ -307,40 +310,40 @@ export default Ember.Component.extend({
   },
 
   _isCursorBetweenTargetAndAttachment(event) {
-    const {clientX, clientY} = event;
+    const { clientX, clientY } = event;
 
     const attachmentPosition = this.element.getBoundingClientRect();
     const targetPosition = this.get('_target').getBoundingClientRect();
 
     // Check if cursor is between a left-flipped attachment
     if (attachmentPosition.right < targetPosition.left
-        && clientX >= attachmentPosition.right && clientX <= targetPosition.left
-        && clientY > Math.min(attachmentPosition.top, targetPosition.top)
-        && clientY < Math.max(attachmentPosition.bottom, targetPosition.bottom)) {
+      && clientX >= attachmentPosition.right && clientX <= targetPosition.left
+      && clientY > Math.min(attachmentPosition.top, targetPosition.top)
+      && clientY < Math.max(attachmentPosition.bottom, targetPosition.bottom)) {
       return true;
     }
 
     // Check if cursor is between a right-flipped attachment
     if (attachmentPosition.left > targetPosition.right
-        && clientX <= attachmentPosition.left && clientX >= targetPosition.right
-        && clientY > Math.min(attachmentPosition.top, targetPosition.top)
-        && clientY < Math.max(attachmentPosition.bottom, targetPosition.bottom)) {
+      && clientX <= attachmentPosition.left && clientX >= targetPosition.right
+      && clientY > Math.min(attachmentPosition.top, targetPosition.top)
+      && clientY < Math.max(attachmentPosition.bottom, targetPosition.bottom)) {
       return true;
     }
 
     // Check if cursor is between a bottom-flipped attachment
     if (attachmentPosition.top > targetPosition.bottom
-        && clientY <= attachmentPosition.top && clientY >= targetPosition.bottom
-        && clientX > Math.min(attachmentPosition.left, targetPosition.left)
-        && clientX < Math.max(attachmentPosition.right, targetPosition.right)) {
+      && clientY <= attachmentPosition.top && clientY >= targetPosition.bottom
+      && clientX > Math.min(attachmentPosition.left, targetPosition.left)
+      && clientX < Math.max(attachmentPosition.right, targetPosition.right)) {
       return true;
     }
 
     // Check if cursor is between a top-flipped attachment
     if (attachmentPosition.bottom < targetPosition.top
-        && clientY >= attachmentPosition.bottom && clientY <= targetPosition.top
-        && clientX > Math.min(attachmentPosition.left, targetPosition.left)
-        && clientX < Math.max(attachmentPosition.right, targetPosition.right)) {
+      && clientY >= attachmentPosition.bottom && clientY <= targetPosition.top
+      && clientX > Math.min(attachmentPosition.left, targetPosition.left)
+      && clientX < Math.max(attachmentPosition.right, targetPosition.right)) {
       return true;
     }
 
@@ -349,8 +352,8 @@ export default Ember.Component.extend({
 
   _hideOnLostFocus(event) {
     if (event.relatedTarget === null
-        || (!this.get('_target').contains(event.relatedTarget)
-            && !this.element.contains(event.relatedTarget))) {
+      || (!this.get('_target').contains(event.relatedTarget)
+      && !this.element.contains(event.relatedTarget))) {
       this._hideAfterDelay();
     }
   },
@@ -360,8 +363,8 @@ export default Ember.Component.extend({
    */
 
   _hideAfterDelay() {
-    Ember.run.cancel(this._delayedShow);
-    Ember.run.cancel(this._isVisibleTimeout);
+    cancel(this._delayedShow);
+    cancel(this._isVisibleTimeout);
 
     // The attachment is already hidden or the target was destroyed
     if (this._isHidden || !this.get('_target')) {
@@ -370,7 +373,7 @@ export default Ember.Component.extend({
 
     const hideDelay = parseInt(this.get('hideDelay'));
 
-    this._delayedHide = Ember.run.debounce(this, this._hide, hideDelay, !hideDelay);
+    this._delayedHide = debounce(this, this._hide, hideDelay, !hideDelay);
   },
 
   _hide() {
