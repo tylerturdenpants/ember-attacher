@@ -297,9 +297,9 @@ export default Component.extend({
 
     // If cursor is not on the attachment or target, hide the element
     if (!target.contains(event.target)
-      && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
-      // The ember-attacher-inner element is wrapped in the ember-attacher element
-      && !this.element.parentNode.contains(event.target)) {
+        && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
+        // The ember-attacher-inner element is wrapped in the ember-attacher element
+        && !this.element.parentNode.contains(event.target)) {
       // Remove this listener before hiding the attachment
       document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
 
@@ -317,33 +317,33 @@ export default Component.extend({
 
     // Check if cursor is between a left-flipped attachment
     if (attachmentPosition.right < targetPosition.left
-      && clientX >= attachmentPosition.right && clientX <= targetPosition.left
-      && clientY > Math.min(attachmentPosition.top, targetPosition.top)
-      && clientY < Math.max(attachmentPosition.bottom, targetPosition.bottom)) {
+        && clientX >= attachmentPosition.right && clientX <= targetPosition.left
+        && clientY > Math.min(attachmentPosition.top, targetPosition.top)
+        && clientY < Math.max(attachmentPosition.bottom, targetPosition.bottom)) {
       return true;
     }
 
     // Check if cursor is between a right-flipped attachment
     if (attachmentPosition.left > targetPosition.right
-      && clientX <= attachmentPosition.left && clientX >= targetPosition.right
-      && clientY > Math.min(attachmentPosition.top, targetPosition.top)
-      && clientY < Math.max(attachmentPosition.bottom, targetPosition.bottom)) {
+        && clientX <= attachmentPosition.left && clientX >= targetPosition.right
+        && clientY > Math.min(attachmentPosition.top, targetPosition.top)
+        && clientY < Math.max(attachmentPosition.bottom, targetPosition.bottom)) {
       return true;
     }
 
     // Check if cursor is between a bottom-flipped attachment
     if (attachmentPosition.top > targetPosition.bottom
-      && clientY <= attachmentPosition.top && clientY >= targetPosition.bottom
-      && clientX > Math.min(attachmentPosition.left, targetPosition.left)
-      && clientX < Math.max(attachmentPosition.right, targetPosition.right)) {
+        && clientY <= attachmentPosition.top && clientY >= targetPosition.bottom
+        && clientX > Math.min(attachmentPosition.left, targetPosition.left)
+        && clientX < Math.max(attachmentPosition.right, targetPosition.right)) {
       return true;
     }
 
     // Check if cursor is between a top-flipped attachment
     if (attachmentPosition.bottom < targetPosition.top
-      && clientY >= attachmentPosition.bottom && clientY <= targetPosition.top
-      && clientX > Math.min(attachmentPosition.left, targetPosition.left)
-      && clientX < Math.max(attachmentPosition.right, targetPosition.right)) {
+        && clientY >= attachmentPosition.bottom && clientY <= targetPosition.top
+        && clientX > Math.min(attachmentPosition.left, targetPosition.left)
+        && clientX < Math.max(attachmentPosition.right, targetPosition.right)) {
       return true;
     }
 
@@ -352,8 +352,8 @@ export default Component.extend({
 
   _hideOnLostFocus(event) {
     if (event.relatedTarget === null
-      || (!this.get('_target').contains(event.relatedTarget)
-      && !this.element.contains(event.relatedTarget))) {
+        || (!this.get('_target').contains(event.relatedTarget)
+        && !this.element.contains(event.relatedTarget))) {
       this._hideAfterDelay();
     }
   },
