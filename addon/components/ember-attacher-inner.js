@@ -191,7 +191,7 @@ export default Component.extend({
     }
   ),
 
-  _isShownChanged: Ember.observer('isShown', function() {
+  _isShownChanged: observer('isShown', function() {
     if (this.get('isShown')) {
       if (this._isHidden) {
         this._addListenersforHideEvents();
@@ -309,9 +309,9 @@ export default Component.extend({
 
     // If cursor is not on the attachment or target, hide the element
     if (!target.contains(event.target)
-        && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
-        // The ember-attacher-inner element is wrapped in the ember-attacher element
-        && !this.element.parentNode.contains(event.target)) {
+      && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
+      // The ember-attacher-inner element is wrapped in the ember-attacher element
+      && !this.element.parentNode.contains(event.target)) {
       // Remove this listener before hiding the attachment
       document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
 
@@ -327,35 +327,37 @@ export default Component.extend({
     const attachmentPosition = this.element.getBoundingClientRect();
     const targetPosition = this.get('_target').getBoundingClientRect();
 
+    const isBetweenLeftAndRight = clientX > Math.min(attachmentPosition.left, targetPosition.left)
+      && clientX < Math.max(attachmentPosition.right, targetPosition.right);
+
+    const isBetweenTopAndBottom = clientY > Math.min(attachmentPosition.top, targetPosition.top)
+      && clientY < Math.max(attachmentPosition.bottom, targetPosition.bottom);
+
     // Check if cursor is between a left-flipped attachment
     if (attachmentPosition.right < targetPosition.left
         && clientX >= attachmentPosition.right && clientX <= targetPosition.left
-        && clientY > Math.min(attachmentPosition.top, targetPosition.top)
-        && clientY < Math.max(attachmentPosition.bottom, targetPosition.bottom)) {
+        && isBetweenTopAndBottom) {
       return true;
     }
 
     // Check if cursor is between a right-flipped attachment
     if (attachmentPosition.left > targetPosition.right
         && clientX <= attachmentPosition.left && clientX >= targetPosition.right
-        && clientY > Math.min(attachmentPosition.top, targetPosition.top)
-        && clientY < Math.max(attachmentPosition.bottom, targetPosition.bottom)) {
+        && isBetweenTopAndBottom) {
       return true;
     }
 
     // Check if cursor is between a bottom-flipped attachment
     if (attachmentPosition.top > targetPosition.bottom
         && clientY <= attachmentPosition.top && clientY >= targetPosition.bottom
-        && clientX > Math.min(attachmentPosition.left, targetPosition.left)
-        && clientX < Math.max(attachmentPosition.right, targetPosition.right)) {
+        && isBetweenLeftAndRight) {
       return true;
     }
 
     // Check if cursor is between a top-flipped attachment
     if (attachmentPosition.bottom < targetPosition.top
         && clientY >= attachmentPosition.bottom && clientY <= targetPosition.top
-        && clientX > Math.min(attachmentPosition.left, targetPosition.left)
-        && clientX < Math.max(attachmentPosition.right, targetPosition.right)) {
+        && isBetweenLeftAndRight) {
       return true;
     }
 
@@ -364,8 +366,8 @@ export default Component.extend({
 
   _hideOnLostFocus(event) {
     if (event.relatedTarget === null
-        || (!this.get('_target').contains(event.relatedTarget)
-            && !this.element.contains(event.relatedTarget))) {
+      || (!this.get('_target').contains(event.relatedTarget)
+      && !this.element.contains(event.relatedTarget))) {
       this._hideAfterDelay();
     }
   },
@@ -423,26 +425,14 @@ export default Component.extend({
       target.addEventListener('click', this._showAfterDelay);
     }
 
-    const hideOnMouseleaveListener = this._hideListenersOnTargetByEvent['mouseleave'];
+    ['blur', 'focusout', 'mouseleave'].forEach((eventType) => {
+      const listener = this._hideListenersOnTargetByEvent[eventType];
 
-    if (hideOnMouseleaveListener) {
-      target.removeEventListener('mouseleave', hideOnMouseleaveListener);
-      delete this._hideListenersOnTargetByEvent['mouseleave'];
-    }
-
-    const hideOnBlurListener = this._hideListenersOnTargetByEvent['blur'];
-
-    if (hideOnBlurListener) {
-      target.removeEventListener('blur', hideOnBlurListener);
-      delete this._hideListenersOnTargetByEvent['blur'];
-    }
-
-    const hideOnFocusOutListener = this._hideListenersOnTargetByEvent['focusout'];
-
-    if (hideOnFocusOutListener) {
-      target.removeEventListener('focusout', hideOnFocusOutListener);
-      delete this._hideListenersOnTargetByEvent['focusout'];
-    }
+      if (listener) {
+        target.removeEventListener(eventType, listener);
+        delete this._hideListenersOnTargetByEvent[eventType];
+      }
+    });
   },
 
   actions: {
