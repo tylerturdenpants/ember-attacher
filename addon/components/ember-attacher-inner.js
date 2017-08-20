@@ -240,6 +240,10 @@ export default Component.extend({
     // turn on the same time as our show animation, and `display: none` => `display: anythingElse`
     // is not transition-able
     next(this, () => {
+      if (this.isDestroyed || this.isDestroying) {
+        return;
+      }
+
       const showDuration = parseInt(this.get('showDuration'));
 
       this.element.style.transitionDuration = `${showDuration}ms`;
