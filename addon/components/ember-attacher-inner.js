@@ -353,7 +353,7 @@ export default Component.extend({
   _hideOnLostFocus(event) {
     if (event.relatedTarget === null
         || (!this.get('_target').contains(event.relatedTarget)
-        && !this.element.contains(event.relatedTarget))) {
+            && !this.element.contains(event.relatedTarget))) {
       this._hideAfterDelay();
     }
   },
