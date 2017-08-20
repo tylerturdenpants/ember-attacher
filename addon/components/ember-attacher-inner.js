@@ -60,7 +60,7 @@ export default Component.extend({
     next(() => {
       this._addListenersForShowEvents();
 
-      if (this.get('isVisible') && this.get('_target')) {
+      if (this.get('isShown') && this.get('_target')) {
         this._addListenersforHideEvents();
 
         this._show();
@@ -190,6 +190,18 @@ export default Component.extend({
       }
     }
   ),
+
+  _isShownChanged: Ember.observer('isShown', function() {
+    if (this.get('isShown')) {
+      if (this._isHidden) {
+        this._addListenersforHideEvents();
+
+        this._show();
+      }
+    } else if (!this._isHidden) {
+      this._hide();
+    }
+  }),
 
   /**
    * ================== SHOW ATTACHMENT LOGIC ==================

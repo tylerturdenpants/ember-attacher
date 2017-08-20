@@ -34,6 +34,10 @@ export default Component.extend({
       this.get('service').toggleProperty('interactive');
     },
 
+    toggleIsShown() {
+      this.get('service').toggleProperty('isShown');
+    },
+
     toggleRenderInPlace() {
       this.get('service').toggleProperty('renderInPlace');
     },
