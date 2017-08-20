@@ -1,10 +1,12 @@
-import Ember from 'ember';
+import Component from '@ember/component';
+import { computed } from '@ember/object';
 import layout from '../templates/components/attachment-example';
+import { inject as service } from '@ember/service';
 
-export default Ember.Component.extend({
+export default Component.extend({
   layout,
-  popoverData: Ember.inject.service(),
-  tooltipData: Ember.inject.service(),
+  popoverData: service(),
+  tooltipData: service(),
 
   animationOptions: [
     'fade',
@@ -14,18 +16,14 @@ export default Ember.Component.extend({
     'scale',
     'shift'
   ],
-
   hideOnOptions: ['click', 'mouseleave blur'],
-
   isConfiguringTooltip: true,
-
   placementOptions: ['bottom', 'left', 'right', 'top'],
+  showOnOptions: ['click', 'mouseenter focus'],
 
-  service: Ember.computed('isConfiguringTooltip', function() {
+  service: computed('isConfiguringTooltip', function() {
     return this.get('isConfiguringTooltip') ? this.get('tooltipData') : this.get('popoverData');
   }),
-
-  showOnOptions: ['click', 'mouseenter focus'],
 
   actions: {
     toggleArrow() {
