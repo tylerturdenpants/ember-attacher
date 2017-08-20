@@ -1,8 +1,11 @@
-import Ember from 'ember';
+import Component from '@ember/component';
+import { alias } from '@ember/object/computed';
+import { computed } from '@ember/object';
+import { getOwner } from '@ember/application';
 import layout from '../templates/components/ember-attacher';
 import { stripInProduction, warn } from 'ember-attacher/-debug/helpers';
 
-const DEFAULTS =  {
+const DEFAULTS = {
   animation: 'fill',
   arrow: false,
   flip: null,
@@ -19,10 +22,10 @@ const DEFAULTS =  {
   renderInPlace: false,
   showDelay: 0,
   showDuration: 300,
-  showOn: 'mouseenter focus',
-}
+  showOn: 'mouseenter focus'
+};
 
-export default Ember.Component.extend({
+export default Component.extend({
   layout,
 
   /**
@@ -30,7 +33,7 @@ export default Ember.Component.extend({
    */
 
   animation: DEFAULTS.animation,
-  arrow: Ember.computed('animation', {
+  arrow: computed('animation', {
     get() {
       return DEFAULTS.arrow;
     },
@@ -46,8 +49,8 @@ export default Ember.Component.extend({
     }
   }),
   hideDelay: DEFAULTS.hideDelay,
-  hideDuration:  DEFAULTS.hideDuration,
-  hideOn:  DEFAULTS.hideOn,
+  hideDuration: DEFAULTS.hideDuration,
+  hideOn: DEFAULTS.hideOn,
   interactive: DEFAULTS.interactive,
   isOffset: DEFAULTS.isOffset,
   isShown: DEFAULTS.isShown,
@@ -59,7 +62,7 @@ export default Ember.Component.extend({
   showDelay: DEFAULTS.showDelay,
   showDuration: DEFAULTS.showDuration,
   showOn: DEFAULTS.showOn,
-  target: Ember.computed(function() {
+  target: computed(function() {
     return (typeof FastBoot === 'undefined') ? this.element.parentNode : null;
   }),
 
@@ -68,12 +71,12 @@ export default Ember.Component.extend({
    */
 
   // Part of the Component superclass. isVisible == false sets 'display: none'
-  isVisible: Ember.computed.alias('renderInPlace'),
+  isVisible: alias('renderInPlace'),
 
   init() {
     this._super(...arguments);
 
-    let options = Ember.getOwner(this).resolveRegistration('config:environment').emberAttacher;
+    let options = getOwner(this).resolveRegistration('config:environment').emberAttacher;
 
     // If no emberAttacher hash was found, do nothing
     if (options) {
@@ -94,7 +97,7 @@ export default Ember.Component.extend({
     }
   },
 
-  _modifiers: Ember.computed('arrow', 'flip', 'modifiers', function() {
+  _modifiers: computed('arrow', 'flip', 'modifiers', function() {
     // Deep copy the modifiers since we might write to the provided hash
     let modifiers = this.get('modifiers') ? JSON.parse(JSON.stringify(this.get('modifiers'))) : {};
 
