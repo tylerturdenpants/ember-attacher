@@ -109,7 +109,7 @@
 $positions: 'top', 'bottom', 'left', 'right';
 $origins: bottom, top, right, left;
 
-.popper {
+.ember-attacher-popper {
   min-height: 10px;
 
   > .inner {
@@ -204,7 +204,7 @@ $origins: bottom, top, right, left;
   }
 }
 
-.tooltip > .inner {
+.ember-attacher-tooltip > .inner {
   position: relative;
   color: white;
   border-radius: 4px;
@@ -252,7 +252,7 @@ $origins: bottom, top, right, left;
   }
 }
 
-.light-theme > .inner {
+.ember-attacher-light-theme > .inner {
   color: #203d5d;
   box-shadow: 0 0 16px -4px rgba(0,20,40,0.2), 0 0 80px -10px rgba(0,20,40,0.3);
   background-color: #f3f6f9;
@@ -269,7 +269,7 @@ $origins: bottom, top, right, left;
 }
 
 @media (max-width: 500px) {
-  .tooltip > .inner, .popover > .inner {
+  .ember-attacher-tooltip > .inner, .ember-attacher-popover > .inner {
     max-width: 94%;
     max-width: calc(100% - (2rem + 4px));
   }

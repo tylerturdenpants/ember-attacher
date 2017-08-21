@@ -17,7 +17,7 @@
                         showDelay=tooltipData.showDelay
                         showDuration=tooltipData.showDuration
                         showOn=tooltipData.showOn
-                        popperClass="popper tooltip"}}
+                        popperClass="ember-attacher-popper ember-attacher-tooltip"}}
         Hello world!
       {{/ember-attacher}}
     </button>
@@ -40,7 +40,7 @@
                       showOn=popoverData.showOn
                       target=popoverData.target
                       popperClass=
-                        "popper custom-popover-css" as |emberAttacher|}}
+                        "ember-attacher-popper custom-popover-css" as |emberAttacher|}}
       <p>Popovers and tooltips, oh my!</p>
 
       <button {{action emberAttacher.hide}}>Close</button>
@@ -83,7 +83,7 @@
           &nbsp;&nbsp;\{{
           <span class="underlined">
             #ember-attacher
-              {{#ember-attacher popperClass="popper tooltip"}}
+              {{#ember-attacher popperClass="ember-attacher-popper tooltip"}}
                 {{#if isConfiguringTooltip}}
                   The "Tooltip in a parent" ember-attacher is initially set to the default settings.
                   Twiddle some knobs to see what ember-attacher can do!
@@ -134,7 +134,7 @@
         <span class="underlined">
           hideOn
 
-          {{#ember-attacher popperClass="popper tooltip"}}
+          {{#ember-attacher popperClass="ember-attacher-popper ember-attacher-tooltip"}}
             Any combination of "mouseleave", "blur", and "click".
           {{/ember-attacher}}
         </span>
@@ -154,7 +154,7 @@
         <span class="underlined">
           hideDuration
 
-          {{#ember-attacher popperClass="popper tooltip"}}
+          {{#ember-attacher popperClass="ember-attacher-popper ember-attacher-tooltip"}}
             How long the hide animation will take.
           {{/ember-attacher}}
         </span>
@@ -173,7 +173,7 @@
         <span class="underlined">
           interactive
 
-          {{#ember-attacher popperClass="popper tooltip"}}
+          {{#ember-attacher popperClass="ember-attacher-popper ember-attacher-tooltip"}}
             Interactive tooltips will not close when clicked or hovered over.
           {{/ember-attacher}}
         </span>
@@ -189,7 +189,7 @@
         <span class="underlined">
           isShown
 
-          {{#ember-attacher popperClass="popper tooltip"}}
+          {{#ember-attacher popperClass="ember-attacher-popper ember-attacher-tooltip"}}
             Manually controls whether or not the attacher should be open or closed.
           {{/ember-attacher}}
         </span>
@@ -216,7 +216,7 @@
         <span class="underlined">
           renderInPlace
 
-          {{#ember-attacher animation="shift" popperClass="popper tooltip"}}
+          {{#ember-attacher animation="shift" popperClass="ember-attacher-popper ember-attacher-tooltip"}}
             Elements that exist deep within the document tree are given an implicitly lower z-index
             value than elements that aren't as deep in the tree; this has the effect of hiding our
             popper behind less-nested elements. Due to the way z-indexing works, we cannot simply
@@ -250,7 +250,7 @@
         <span class="underlined">
           showDuration
 
-          {{#ember-attacher popperClass="popper tooltip"}}
+          {{#ember-attacher popperClass="ember-attacher-popper ember-attacher-tooltip"}}
             How long the show animation will take.
           {{/ember-attacher}}
         </span>
@@ -269,7 +269,7 @@
         <span class="underlined">
           showOn
 
-          {{#ember-attacher popperClass="popper tooltip"}}
+          {{#ember-attacher popperClass="ember-attacher-popper ember-attacher-tooltip"}}
             For performance reasons, we recommend using some combination of "mouseenter", "focus",
             and "click", though you can use any event listener you want.
           {{/ember-attacher}}
@@ -296,7 +296,7 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
         {{#if isConfiguringTooltip}}
-          popperClass="popper tooltip"}}
+          popperClass="ember-attacher-popper ember-attacher-tooltip"}}
         {{else}}
           <vbox>
             <hbox><centered fit>popperClass=</centered></hbox>
