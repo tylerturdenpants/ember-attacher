@@ -280,15 +280,12 @@ export default Component.extend({
     }
 
     // Hides the attachment when focus is lost on the target
-    if (hideOn.indexOf('blur') !== -1) {
-      this._hideListenersOnTargetByEvent['blur'] = this._hideOnLostFocus;
-      target.addEventListener('blur', this._hideOnLostFocus);
-    }
-
-    if (hideOn.indexOf('focusout') !== -1) {
-      this._hideListenersOnTargetByEvent['focusout'] = this._hideOnLostFocus;
-      target.addEventListener('focusout', this._hideOnLostFocus);
-    }
+    ['blur', 'focusout'].forEach((eventType) => {
+      if (hideOn.indexOf(eventType) !== -1) {
+        this._hideListenersOnTargetByEvent[eventType] = this._hideOnLostFocus;
+        target.addEventListener(eventType, this._hideOnLostFocus);
+      }
+    });
   },
 
   _hideOnMouseLeaveTarget() {
@@ -313,9 +310,9 @@ export default Component.extend({
 
     // If cursor is not on the attachment or target, hide the element
     if (!target.contains(event.target)
-      && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
-      // The ember-attacher-inner element is wrapped in the ember-attacher element
-      && !this.element.parentNode.contains(event.target)) {
+        && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
+        // The ember-attacher-inner element is wrapped in the ember-attacher element
+        && !this.element.parentNode.contains(event.target)) {
       // Remove this listener before hiding the attachment
       document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
 
