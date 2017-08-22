@@ -280,15 +280,12 @@ export default Component.extend({
     }
 
     // Hides the attachment when focus is lost on the target
-    if (hideOn.indexOf('blur') !== -1) {
-      this._hideListenersOnTargetByEvent['blur'] = this._hideOnLostFocus;
-      target.addEventListener('blur', this._hideOnLostFocus);
-    }
-
-    if (hideOn.indexOf('focusout') !== -1) {
-      this._hideListenersOnTargetByEvent['focusout'] = this._hideOnLostFocus;
-      target.addEventListener('focusout', this._hideOnLostFocus);
-    }
+    ['blur', 'focusout'].forEach((eventType) => {
+      if (hideOn.indexOf(eventType) !== -1) {
+        this._hideListenersOnTargetByEvent[eventType] = this._hideOnLostFocus;
+        target.addEventListener(eventType, this._hideOnLostFocus);
+      }
+    });
   },
 
   _hideOnMouseLeaveTarget() {
@@ -331,35 +328,37 @@ export default Component.extend({
     const attachmentPosition = this.element.getBoundingClientRect();
     const targetPosition = this.get('_target').getBoundingClientRect();
 
+    const isBetweenLeftAndRight = clientX > Math.min(attachmentPosition.left, targetPosition.left)
+      && clientX < Math.max(attachmentPosition.right, targetPosition.right);
+
+    const isBetweenTopAndBottom = clientY > Math.min(attachmentPosition.top, targetPosition.top)
+      && clientY < Math.max(attachmentPosition.bottom, targetPosition.bottom);
+
     // Check if cursor is between a left-flipped attachment
     if (attachmentPosition.right < targetPosition.left
         && clientX >= attachmentPosition.right && clientX <= targetPosition.left
-        && clientY > Math.min(attachmentPosition.top, targetPosition.top)
-        && clientY < Math.max(attachmentPosition.bottom, targetPosition.bottom)) {
+        && isBetweenTopAndBottom) {
       return true;
     }
 
     // Check if cursor is between a right-flipped attachment
     if (attachmentPosition.left > targetPosition.right
         && clientX <= attachmentPosition.left && clientX >= targetPosition.right
-        && clientY > Math.min(attachmentPosition.top, targetPosition.top)
-        && clientY < Math.max(attachmentPosition.bottom, targetPosition.bottom)) {
+        && isBetweenTopAndBottom) {
       return true;
     }
 
     // Check if cursor is between a bottom-flipped attachment
     if (attachmentPosition.top > targetPosition.bottom
         && clientY <= attachmentPosition.top && clientY >= targetPosition.bottom
-        && clientX > Math.min(attachmentPosition.left, targetPosition.left)
-        && clientX < Math.max(attachmentPosition.right, targetPosition.right)) {
+        && isBetweenLeftAndRight) {
       return true;
     }
 
     // Check if cursor is between a top-flipped attachment
     if (attachmentPosition.bottom < targetPosition.top
         && clientY >= attachmentPosition.bottom && clientY <= targetPosition.top
-        && clientX > Math.min(attachmentPosition.left, targetPosition.left)
-        && clientX < Math.max(attachmentPosition.right, targetPosition.right)) {
+        && isBetweenLeftAndRight) {
       return true;
     }
 
@@ -427,26 +426,14 @@ export default Component.extend({
       target.addEventListener('click', this._showAfterDelay);
     }
 
-    const hideOnMouseleaveListener = this._hideListenersOnTargetByEvent['mouseleave'];
+    ['blur', 'focusout', 'mouseleave'].forEach((eventType) => {
+      const listener = this._hideListenersOnTargetByEvent[eventType];
 
-    if (hideOnMouseleaveListener) {
-      target.removeEventListener('mouseleave', hideOnMouseleaveListener);
-      delete this._hideListenersOnTargetByEvent['mouseleave'];
-    }
-
-    const hideOnBlurListener = this._hideListenersOnTargetByEvent['blur'];
-
-    if (hideOnBlurListener) {
-      target.removeEventListener('blur', hideOnBlurListener);
-      delete this._hideListenersOnTargetByEvent['blur'];
-    }
-
-    const hideOnFocusOutListener = this._hideListenersOnTargetByEvent['focusout'];
-
-    if (hideOnFocusOutListener) {
-      target.removeEventListener('focusout', hideOnFocusOutListener);
-      delete this._hideListenersOnTargetByEvent['focusout'];
-    }
+      if (listener) {
+        target.removeEventListener(eventType, listener);
+        delete this._hideListenersOnTargetByEvent[eventType];
+      }
+    });
   },
 
   actions: {
