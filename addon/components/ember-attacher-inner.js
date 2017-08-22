@@ -191,7 +191,7 @@ export default Component.extend({
     }
   ),
 
-  _isShownChanged: Ember.observer('isShown', function() {
+  _isShownChanged: observer('isShown', function() {
     if (this.get('isShown')) {
       if (this._isHidden) {
         this._addListenersforHideEvents();
