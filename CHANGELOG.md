@@ -1,5 +1,37 @@
 # Change Log
 
+## [v0.8.4](https://github.com/kybishop/ember-attacher/tree/v0.8.4) (2017-08-23)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.8.3...v0.8.4)
+
+**Closed issues:**
+
+- Generic CSS selectors conflicts with other CSS libs [\#28](https://github.com/kybishop/ember-attacher/issues/28)
+
+**Merged pull requests:**
+
+- Cleanup and fixes for non-default app container [\#32](https://github.com/kybishop/ember-attacher/pull/32) ([kybishop](https://github.com/kybishop))
+- Renaming .popper and .tooltip [\#31](https://github.com/kybishop/ember-attacher/pull/31) ([GCheung55](https://github.com/GCheung55))
+- Tests and code cleanup [\#30](https://github.com/kybishop/ember-attacher/pull/30) ([rwwagner90](https://github.com/rwwagner90))
+
+## [v0.8.3](https://github.com/kybishop/ember-attacher/tree/v0.8.3) (2017-08-21)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.8.2...v0.8.3)
+
+**Merged pull requests:**
+
+- Check whether component is not destroyed inside `next` [\#29](https://github.com/kybishop/ember-attacher/pull/29) ([krasnoukhov](https://github.com/krasnoukhov))
+- feat\(make isShown toggleable\) [\#27](https://github.com/kybishop/ember-attacher/pull/27) ([kybishop](https://github.com/kybishop))
+- Module syntax [\#26](https://github.com/kybishop/ember-attacher/pull/26) ([rwwagner90](https://github.com/rwwagner90))
+
+## [v0.8.2](https://github.com/kybishop/ember-attacher/tree/v0.8.2) (2017-08-18)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.8.1...v0.8.2)
+
+**Merged pull requests:**
+
+- fix\(destruction\) don't set isVisible when being destroyed [\#24](https://github.com/kybishop/ember-attacher/pull/24) ([kybishop](https://github.com/kybishop))
+
+## [v0.8.1](https://github.com/kybishop/ember-attacher/tree/v0.8.1) (2017-08-17)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.8.0...v0.8.1)
+
 ## [v0.8.0](https://github.com/kybishop/ember-attacher/tree/v0.8.0) (2017-08-17)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.7.0...v0.8.0)
 
