@@ -1,9 +1,10 @@
 import Component from '@ember/component';
+import layout from '../templates/components/ember-attacher';
 import { alias } from '@ember/object/computed';
 import { computed } from '@ember/object';
 import { getOwner } from '@ember/application';
-import layout from '../templates/components/ember-attacher';
-import { stripInProduction, warn } from 'ember-attacher/-debug/helpers';
+import { stripInProduction } from 'ember-attacher/-debug/helpers';
+import { warn } from '@ember/debug';
 
 const DEFAULTS = {
   animation: 'fill',
@@ -17,7 +18,7 @@ const DEFAULTS = {
   isShown: false,
   placement: 'top',
   popperClass: null,
-  popperContainer: self.document ? self.document.body : '',
+  popperContainer: '.ember-application',
   popperOptions: null,
   renderInPlace: false,
   showDelay: 0,
