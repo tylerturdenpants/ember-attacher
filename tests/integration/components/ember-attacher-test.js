@@ -19,7 +19,7 @@ test('it renders', function(assert) {
 
   this.render(hbs`
     <div>
-      {{#ember-attacher 
+      {{#ember-attacher
         hideOn=hideOn
         isShown=isShown
         popperClass="hello"
@@ -44,20 +44,16 @@ test('it renders', function(assert) {
 todo('nested attachers open and close as expected', async function(assert) {
   assert.expect(6);
 
+  this.on('openParentPopover', () => {
+    this.set('parentIsShown', true);
+  });
+
   this.on('closeChildPopover', () => {
     this.set('childIsShown', false);
   });
 
   this.on('openChildPopover', () => {
     this.set('childIsShown', true);
-  });
-
-  this.on('closeParentPopover', () => {
-    this.set('parentIsShown', false);
-  });
-
-  this.on('openParentPopover', () => {
-    this.set('parentIsShown', true);
   });
 
   this.setProperties({
@@ -71,31 +67,31 @@ todo('nested attachers open and close as expected', async function(assert) {
   this.render(hbs`
     <button id="openParent" {{action 'openParentPopover'}}>
       Open parent
-      
+
       {{#ember-attacher
         hideOn=hideOn
         interactive=interactive
         isShown=parentIsShown
         popperClass="parent"
         showOn=showOn}}
-        
+
         <button id="openChild" {{action 'openChildPopover'}}>
           Open child
-    
+
           {{#ember-attacher
             hideOn=hideOn
             interactive=interactive
             isShown=childIsShown
             popperClass="child"
             showOn=showOn}}
-            
+
             <button id="closeChild" {{action 'closeChildPopover'}}>
               Close child
             </button>
-    
+
           {{/ember-attacher}}
         </button>
-        
+
       {{/ember-attacher}}
     </button>
   `);
@@ -135,19 +131,19 @@ todo('isShown works with showOn/hideOn set to "click"', async function(assert) {
   this.render(hbs`
     <button id="open" {{action 'openPopover'}}>
       Click me, captain!
-      
+
       {{#ember-attacher
         hideOn=hideOn
         isShown=isShown
         popperClass="hello"
         showOn=showOn}}
-        
+
         isShown w/ hideOn/ShowOn of 'none'
-        
+
         <button id="close" {{action 'closePopover'}}>
           Close
         </button>
-        
+
       {{/ember-attacher}}
     </button>
   `);
@@ -184,19 +180,19 @@ todo('isShown works with showOn/hideOn set to "none"', async function(assert) {
   this.render(hbs`
     <button id="open" {{action 'openPopover'}}>
       Click me, captain!
-      
+
       {{#ember-attacher
         hideOn=hideOn
         isShown=isShown
         popperClass="hello"
         showOn=showOn}}
-        
+
         isShown w/ hideOn/ShowOn of 'none'
-        
+
         <button id="close" {{action 'closePopover'}}>
           Close
         </button>
-        
+
       {{/ember-attacher}}
     </button>
   `);
@@ -226,14 +222,14 @@ todo('showOn/hideOn set to "click"', async function(assert) {
   this.render(hbs`
     <button id="click">
       Click me, captain!
-      
+
       {{#ember-attacher
         hideOn=hideOn
         popperClass="hello"
         showOn=showOn}}
-        
+
         showOn/hideOn "click"
-        
+
       {{/ember-attacher}}
     </button>
   `);

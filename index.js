@@ -26,10 +26,8 @@ module.exports = {
       var strippedImports = {
         'ember-attacher/-debug/helpers': [
           'assert',
-          'warn',
           'debug',
           'debugOnError',
-          'deprecate',
           'stripInProduction'
         ]
       };
