@@ -1,5 +1,5 @@
 import { click, find } from 'ember-native-dom-helpers';
-import { moduleForComponent, test, todo } from 'ember-qunit';
+import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
 
 moduleForComponent('ember-attacher', 'Integration | Component | ember attacher', {
@@ -41,7 +41,7 @@ test('it renders', function(assert) {
   assert.equal(innerHTML.indexOf('popper text'), 0);
 });
 
-todo('nested attachers open and close as expected', async function(assert) {
+test('nested attachers open and close as expected', async function(assert) {
   assert.expect(6);
 
   this.on('openParentPopover', () => {
@@ -63,7 +63,6 @@ todo('nested attachers open and close as expected', async function(assert) {
     showOn: 'none'
   });
 
-  //TODO: figure out how to fire actions from inside components
   this.render(hbs`
     <button id="openParent" {{action 'openParentPopover'}}>
       Open parent
@@ -118,7 +117,7 @@ todo('nested attachers open and close as expected', async function(assert) {
   assert.equal(innerParentAttacher.style.display, '', 'parent still shown');
 });
 
-todo('isShown works with showOn/hideOn set to "click"', async function(assert) {
+test('isShown works with showOn/hideOn set to "click"', async function(assert) {
   assert.expect(3);
   this.on('closePopover', () => {
     this.set('isShown', false);
@@ -162,7 +161,7 @@ todo('isShown works with showOn/hideOn set to "click"', async function(assert) {
   assert.equal(innerAttacher.style.display, 'none', 'Hidden again');
 });
 
-todo('isShown works with showOn/hideOn set to "none"', async function(assert) {
+test('isShown works with showOn/hideOn set to "none"', async function(assert) {
   assert.expect(3);
   this.on('closePopover', () => {
     this.set('isShown', false);
@@ -211,7 +210,7 @@ todo('isShown works with showOn/hideOn set to "none"', async function(assert) {
   assert.equal(innerAttacher.style.display, 'none', 'Hidden again');
 });
 
-todo('showOn/hideOn set to "click"', async function(assert) {
+test('showOn/hideOn set to "click"', async function(assert) {
   assert.expect(3);
 
   this.setProperties({

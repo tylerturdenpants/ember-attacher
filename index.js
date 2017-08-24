@@ -1,10 +1,10 @@
 /* eslint-env node */
 'use strict';
 
-const StripClassCallCheck = require('babel6-plugin-strip-class-callcheck');
 const FilterImports = require('babel-plugin-filter-imports');
-const RemoveImports = require('./lib/babel-plugin-remove-imports');
 const Funnel = require('broccoli-funnel');
+const RemoveImports = require('./lib/babel-plugin-remove-imports');
+const StripClassCallCheck = require('babel6-plugin-strip-class-callcheck');
 
 module.exports = {
   name: 'ember-attacher',
@@ -22,8 +22,17 @@ module.exports = {
       return;
     }
 
-    if (/production/.test(env) || /test/.test(env)) {
-      var strippedImports = {
+    if (/production/.test(env)) {
+      // In some versions of Ember, this.options is undefined during tests
+      this.options = this.options || {};
+
+      // Make sure the babel options are accessible
+      const babelOptions = this.options.babel = this.options.babel || {};
+
+      babelOptions.plugins = babelOptions.plugins || [];
+      babelOptions.postTransformPlugins = babelOptions.postTransformPlugins || [];
+
+      const strippedImports = {
         'ember-attacher/-debug/helpers': [
           'assert',
           'debug',
@@ -31,15 +40,6 @@ module.exports = {
           'stripInProduction'
         ]
       };
-
-      // In some versions of Ember, this.options is undefined during tests
-      this.options = this.options || {};
-
-      // Make sure the babel options are accessible
-      let babelOptions = this.options.babel = this.options.babel || {};
-      babelOptions.plugins = babelOptions.plugins || [];
-      babelOptions.postTransformPlugins = babelOptions.postTransformPlugins || [];
-
       babelOptions.plugins.push([FilterImports, strippedImports]);
       babelOptions.plugins.push([RemoveImports, 'ember-attacher/-debug/helpers']);
       babelOptions.postTransformPlugins.push(StripClassCallCheck);
@@ -48,13 +48,11 @@ module.exports = {
     this._hasSetupBabelOptions = true;
   },
 
-  treeForAddon: function() {
-    var tree = this._super.treeForAddon.apply(this, arguments);
-
-    if (/production/.test(this._env) || /test/.test(this._env)) {
+  treeForAddon: function(tree) {
+    if (/production/.test(this._env)) {
       tree = new Funnel(tree, { exclude: [ /-debug/ ] });
     }
 
-    return tree;
+    return this._super.treeForAddon.call(this, tree);
   }
 };
