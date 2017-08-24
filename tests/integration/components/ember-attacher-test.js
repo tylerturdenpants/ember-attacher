@@ -1,17 +1,10 @@
+import hbs from 'htmlbars-inline-precompile';
+import wait from 'ember-test-helpers/wait';
 import { click, find } from 'ember-native-dom-helpers';
 import { moduleForComponent, test } from 'ember-qunit';
-import hbs from 'htmlbars-inline-precompile';
 
 moduleForComponent('ember-attacher', 'Integration | Component | ember attacher', {
-  integration: true,
-  beforeEach(){
-    this.setProperties({
-      hideOn: 'click',
-      interactive: true,
-      isShown: false,
-      showOn: 'click'
-    });
-  }
+  integration: true
 });
 
 test('it renders', function(assert) {
@@ -19,11 +12,7 @@ test('it renders', function(assert) {
 
   this.render(hbs`
     <div>
-      {{#ember-attacher
-        hideOn=hideOn
-        isShown=isShown
-        popperClass="hello"
-        showOn=showOn}}
+      {{#ember-attacher popperClass="hello"}}
         popper text
       {{/ember-attacher}}
     </div>
@@ -67,33 +56,28 @@ test('nested attachers open and close as expected', async function(assert) {
     <button id="openParent" {{action 'openParentPopover'}}>
       Open parent
 
-      {{#ember-attacher
-        hideOn=hideOn
-        interactive=interactive
-        isShown=parentIsShown
-        popperClass="parent"
-        showOn=showOn}}
-
+      {{#ember-attacher hideOn=hideOn
+                        isShown=parentIsShown
+                        popperClass="parent"
+                        showOn=showOn}}
         <button id="openChild" {{action 'openChildPopover'}}>
           Open child
 
-          {{#ember-attacher
-            hideOn=hideOn
-            interactive=interactive
-            isShown=childIsShown
-            popperClass="child"
-            showOn=showOn}}
-
+          {{#ember-attacher hideOn=hideOn
+                            isShown=childIsShown
+                            popperClass="child"
+                            showOn=showOn}}
             <button id="closeChild" {{action 'closeChildPopover'}}>
               Close child
             </button>
-
           {{/ember-attacher}}
         </button>
-
       {{/ember-attacher}}
     </button>
   `);
+
+  // Need to wait for didInsertElement to process
+  await wait();
 
   let child = find('.child', document.documentElement);
   let innerChildAttacher = find('.inner', child);
@@ -119,50 +103,48 @@ test('nested attachers open and close as expected', async function(assert) {
 
 test('isShown works with showOn/hideOn set to "click"', async function(assert) {
   assert.expect(3);
-  this.on('closePopover', () => {
-    this.set('isShown', false);
-  });
 
-  this.on('openPopover', () => {
-    this.set('isShown', true);
+  this.setProperties({
+    hideOn: 'click',
+    isShown: true,
+    showOn: 'click'
   });
 
   this.render(hbs`
-    <button id="open" {{action 'openPopover'}}>
+    <button id="toggle-show">
       Click me, captain!
 
-      {{#ember-attacher
-        hideOn=hideOn
-        isShown=isShown
-        popperClass="hello"
-        showOn=showOn}}
-
-        isShown w/ hideOn/ShowOn of 'none'
-
-        <button id="close" {{action 'closePopover'}}>
-          Close
-        </button>
-
+      {{#ember-attacher hideOn=hideOn
+                        isShown=isShown
+                        popperClass="hello"
+                        showOn=showOn}}
+        isShown w/ hideOn/ShowOn of 'click'
       {{/ember-attacher}}
     </button>
   `);
 
+  // Need to wait for didInsertElement to process
+  await wait();
+
   let popper = find('.hello', document.documentElement);
   let innerAttacher = find('.inner', popper);
 
-  assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
+  assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
-  await click(find('#open', document.documentElement));
+  await click(find('#toggle-show', document.documentElement));
 
-  assert.equal(innerAttacher.style.display, '', 'Now shown');
+  await wait();
 
-  await click(find('#close', document.documentElement));
+  assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
 
-  assert.equal(innerAttacher.style.display, 'none', 'Hidden again');
+  await click(find('#toggle-show', document.documentElement));
+
+  assert.equal(innerAttacher.style.display, '', 'Shown again after click');
 });
 
 test('isShown works with showOn/hideOn set to "none"', async function(assert) {
   assert.expect(3);
+
   this.on('closePopover', () => {
     this.set('isShown', false);
   });
@@ -172,6 +154,7 @@ test('isShown works with showOn/hideOn set to "none"', async function(assert) {
   });
 
   this.setProperties({
+    isShown: false,
     hideOn: 'none',
     showOn: 'none'
   });
@@ -180,12 +163,10 @@ test('isShown works with showOn/hideOn set to "none"', async function(assert) {
     <button id="open" {{action 'openPopover'}}>
       Click me, captain!
 
-      {{#ember-attacher
-        hideOn=hideOn
-        isShown=isShown
-        popperClass="hello"
-        showOn=showOn}}
-
+      {{#ember-attacher hideOn=hideOn
+                        isShown=isShown
+                        popperClass="hello"
+                        showOn=showOn}}
         isShown w/ hideOn/ShowOn of 'none'
 
         <button id="close" {{action 'closePopover'}}>
@@ -219,32 +200,32 @@ test('showOn/hideOn set to "click"', async function(assert) {
   });
 
   this.render(hbs`
-    <button id="click">
+    <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher
-        hideOn=hideOn
-        popperClass="hello"
-        showOn=showOn}}
-
+      {{#ember-attacher hideOn=hideOn
+                        popperClass="hello"
+                        showOn=showOn}}
         showOn/hideOn "click"
-
       {{/ember-attacher}}
     </button>
   `);
+
+  // Need to wait for didInsertElement to add the click listener
+  await wait();
 
   let popper = find('.hello', document.documentElement);
   let innerAttacher = find('.inner', popper);
 
   assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
 
-  //TODO: should not need to click twice here, something is up!
-  await click(find('#click', document.documentElement));
-  await click(find('#click', document.documentElement));
+  await click(find('#click-toggle', document.documentElement));
+
+  await wait();
 
   assert.equal(innerAttacher.style.display, '', 'Now shown');
 
-  await click(find('#click', document.documentElement));
+  await click(find('#click-toggle', document.documentElement));
 
   assert.equal(innerAttacher.style.display, 'none', 'Hidden again');
 });

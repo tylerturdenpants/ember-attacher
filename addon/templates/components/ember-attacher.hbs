@@ -23,9 +23,7 @@
                           showDuration=showDuration
                           showOn=showOn
                           target=target as |inner|}}
-    {{yield (hash
-      emberPopper=emberPopper
-      hide=inner.hide
-    )}}
+    {{yield (hash emberPopper=emberPopper
+                  hide=inner.hide)}}
   {{/ember-attacher-inner}}
 {{/ember-popper}}
