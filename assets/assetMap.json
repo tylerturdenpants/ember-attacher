@@ -1,0 +1,11 @@
+{
+  "assets": {
+    "assets/assetMap.json": "assets/assetMap.json",
+    "assets/dummy-fastboot.js": "assets/dummy-fastboot-5bad6a103a3f7783d3db00e9f1787319.js",
+    "assets/dummy.css": "assets/dummy-10f4665c0224bc98e1f4bae599ae8594.css",
+    "assets/dummy.js": "assets/dummy-7172ce9b4494300ac60b0ffb284972af.js",
+    "assets/vendor.css": "assets/vendor-4934ea673a50ba8ea1bb9a8e5426ddea.css",
+    "assets/vendor.js": "assets/vendor-8a822f4ca4093fbed3e94410ea4f62a7.js"
+  },
+  "prepend": ""
+}
