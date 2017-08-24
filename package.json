@@ -25,6 +25,10 @@
     "deploy": "ember github-pages:commit --message \"Deploy gh-pages from commit $(git rev-parse HEAD)\"; git push; git checkout -"
   },
   "dependencies": {
+    "babel-eslint": "^7.2.3",
+    "babel-plugin-filter-imports": "^0.3.1",
+    "babel6-plugin-strip-class-callcheck": "^6.0.0",
+    "broccoli-funnel": "^1.0.7",
     "ember-cli-babel": "^6.8.1",
     "ember-cli-htmlbars": "^2.0.2",
     "ember-cli-sass": "^7.0.0",
