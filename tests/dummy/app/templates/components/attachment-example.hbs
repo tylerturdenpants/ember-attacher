@@ -295,21 +295,22 @@
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
-        {{#if isConfiguringTooltip}}
-          popperClass="ember-attacher-popper ember-attacher-tooltip"}}
-        {{else}}
-          <vbox>
+        <vbox>
+          {{#if isConfiguringTooltip}}
             <hbox><centered fit>popperClass=</centered></hbox>
-            <hbox>
-              <centered fit>
-                &nbsp;&nbsp;"popper&nbsp;<a href="https://github.com/kybishop/ember-attacher"
+            <hbox><centered fit>&nbsp;&nbsp;"ember-attacher-popper</centered></hbox>
+            <hbox><centered fit>&nbsp;&nbsp;&nbsp;ember-attacher-tooltip"}}</centered></hbox>
+          {{else}}
+            <hbox><centered fit>popperClass=</centered></hbox>
+            <hbox><centered fit>&nbsp;&nbsp;"ember-attacher-popper</centered></hbox>
+            <hbox><centered fit>
+              &nbsp;&nbsp;&nbsp;<a href="https://github.com/kybishop/ember-attacher/blob/master/tests/dummy/app/styles/app.scss#L120"
                                          target="_blank"
                                          rel="noopener">custom-popover-css</a>"
-              </centered>
-            </hbox>
+            </centered></hbox>
             <hbox><centered fit>as |emberAttacher|}}</centered></hbox>
-          </vbox>
-        {{/if}}
+          {{/if}}
+        </vbox>
       </centered>
     </hbox>
     {{#if isConfiguringTooltip}}
