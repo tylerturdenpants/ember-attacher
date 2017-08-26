@@ -1,5 +1,4 @@
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import { click, find } from 'ember-native-dom-helpers';
 import { moduleForComponent, test } from 'ember-qunit';
 
@@ -12,7 +11,7 @@ test('it renders', function(assert) {
 
   this.render(hbs`
     <div>
-      {{#ember-attacher popperClass="hello"}}
+      {{#ember-attacher class='hello'}}
         popper text
       {{/ember-attacher}}
     </div>
@@ -58,14 +57,15 @@ test('nested attachers open and close as expected', async function(assert) {
 
       {{#ember-attacher hideOn=hideOn
                         isShown=parentIsShown
-                        popperClass="parent"
+                        class='parent'
                         showOn=showOn}}
         <button id="openChild" {{action 'openChildPopover'}}>
           Open child
 
-          {{#ember-attacher hideOn=hideOn
+          {{#ember-attacher hideDuration=0
+                            hideOn=hideOn
                             isShown=childIsShown
-                            popperClass="child"
+                            class='child'
                             showOn=showOn}}
             <button id="closeChild" {{action 'closeChildPopover'}}>
               Close child
@@ -75,9 +75,6 @@ test('nested attachers open and close as expected', async function(assert) {
       {{/ember-attacher}}
     </button>
   `);
-
-  // Need to wait for didInsertElement to process
-  await wait();
 
   let child = find('.child', document.documentElement);
   let innerChildAttacher = find('.inner', child);
@@ -116,15 +113,12 @@ test('isShown works with showOn/hideOn set to "click"', async function(assert) {
 
       {{#ember-attacher hideOn=hideOn
                         isShown=isShown
-                        popperClass="hello"
+                        class='hello'
                         showOn=showOn}}
         isShown w/ hideOn/ShowOn of 'click'
       {{/ember-attacher}}
     </button>
   `);
-
-  // Need to wait for didInsertElement to process
-  await wait();
 
   let popper = find('.hello', document.documentElement);
   let innerAttacher = find('.inner', popper);
@@ -132,8 +126,6 @@ test('isShown works with showOn/hideOn set to "click"', async function(assert) {
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
   await click(find('#toggle-show', document.documentElement));
-
-  await wait();
 
   assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
 
@@ -165,7 +157,7 @@ test('isShown works with showOn/hideOn set to "none"', async function(assert) {
 
       {{#ember-attacher hideOn=hideOn
                         isShown=isShown
-                        popperClass="hello"
+                        class='hello'
                         showOn=showOn}}
         isShown w/ hideOn/ShowOn of 'none'
 
@@ -204,15 +196,12 @@ test('showOn/hideOn set to "click"', async function(assert) {
       Click me, captain!
 
       {{#ember-attacher hideOn=hideOn
-                        popperClass="hello"
+                        class='hello'
                         showOn=showOn}}
         showOn/hideOn "click"
       {{/ember-attacher}}
     </button>
   `);
-
-  // Need to wait for didInsertElement to add the click listener
-  await wait();
 
   let popper = find('.hello', document.documentElement);
   let innerAttacher = find('.inner', popper);
@@ -220,8 +209,6 @@ test('showOn/hideOn set to "click"', async function(assert) {
   assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
 
   await click(find('#click-toggle', document.documentElement));
-
-  await wait();
 
   assert.equal(innerAttacher.style.display, '', 'Now shown');
 
