@@ -1,7 +1,9 @@
-{{#ember-popper eventsEnabled=false
+{{#ember-popper class=class
+                eventsEnabled=false
+                id=id
                 modifiers=_modifiers
+                onFoundTarget=(action 'onFoundTarget')
                 placement=placement
-                class=popperClass
                 popperContainer=popperContainer
                 renderInPlace=renderInPlace
                 target=target as |emberPopper|}}
@@ -22,7 +24,7 @@
                           showDelay=showDelay
                           showDuration=showDuration
                           showOn=showOn
-                          target=target as |inner|}}
+                          target=_target as |inner|}}
     {{yield (hash emberPopper=emberPopper
                   hide=inner.hide)}}
   {{/ember-attacher-inner}}

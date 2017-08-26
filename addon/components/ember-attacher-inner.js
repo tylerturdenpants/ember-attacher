@@ -1,7 +1,6 @@
 import { cancel, debounce, later, next } from '@ember/runloop';
 import { computed, observer } from '@ember/object';
 import Component from '@ember/component';
-import { assert } from '@ember/debug';
 import { htmlSafe } from '@ember/string';
 import layout from '../templates/components/ember-attacher-inner';
 
@@ -53,31 +52,8 @@ export default Component.extend({
     this._hide = this._hide.bind(this);
   },
 
-  didInsertElement() {
-    this._super(...arguments);
-
-    // The Popper does not exist until after the element has been inserted
-    next(() => {
-      this._addListenersForShowEvents();
-
-      if (this.get('isShown') && this.get('_target')) {
-        this._addListenersforHideEvents();
-
-        this._show();
-      } else {
-        // When we first render the popper, it has no width if isVisible is false. This can cause
-        // the popper to be positioned too far to the right, such that when it expands, it will
-        // become larger than its parent. This, in turn, causes the parent to expand to accommodate
-        // the popper, which may now be off screen. To get around this, we just remove the
-        // positioning from the element to the safest position available: 0x0. The popper will then
-        // update its position from this._show()
-        this.element.parentNode.style.transform = null;
-      }
-    });
-  },
-
   _addListenersForShowEvents() {
-    const target = this.get('_target');
+    const target = this.get('target');
     const showOn = this.get('_showOn');
 
     if (!target) {
@@ -104,6 +80,10 @@ export default Component.extend({
 
     const target = this._currentTarget;
 
+    if (target === null) {
+      return;
+    }
+
     [this._hideListenersOnTargetByEvent, this._showListenersOnTargetByEvent]
       .forEach(eventToListener => {
         Object.keys(eventToListener).forEach(event => {
@@ -129,27 +109,6 @@ export default Component.extend({
   }),
   _showOn: computed('showOn', function() {
     return this.get('showOn').split(' ');
-  }),
-  _target: computed('target', function() {
-    const target = this.get('target');
-
-    let popperTarget;
-
-    // If there is no target, set the target to the parent element
-    if (!target) {
-      popperTarget = this._initialParentNode;
-    } else if (target instanceof Element) {
-      popperTarget = target;
-    } else {
-      const nodes = document.querySelectorAll(target);
-
-      assert(`ember-attacher with target selector "${target}" found ${nodes.length}`
-        + 'possible targets when there should be exactly 1', nodes.length === 1);
-
-      popperTarget = nodes[0];
-    }
-
-    return popperTarget;
   }),
 
   // The circle element needs a special duration that is slightly faster than the popper's
@@ -182,23 +141,41 @@ export default Component.extend({
     function() {
       this._removeEventListeners();
 
-      // Regardless of whether or not the attachment is hidden, we want to add the show listeners
+      if (!this.get('target')) {
+        return;
+      }
+
+      const isInitialTarget = this._currentTarget === null;
+
       this._addListenersForShowEvents();
 
       if (!this._isHidden) {
-        this._addListenersforHideEvents();
+        this._addListenersForHideEvents();
+
+      } else if (isInitialTarget && this.get('isShown')) {
+        this._addListenersForHideEvents();
+
+        this._show();
+      } else {
+        // When we first render the popper, it has no width if isVisible is false. This can cause
+        // the popper to be positioned too far to the right, such that when it expands, it will
+        // become larger than its parent. This, in turn, causes the parent to expand to accommodate
+        // the popper, which may now be off screen. To get around this, we just remove the
+        // positioning from the element to the safest position available: 0x0. The popper will then
+        // update its position from this._show()
+        this.element.parentNode.style.transform = null;
       }
     }
   ),
 
   _isShownChanged: observer('isShown', function() {
-    if (this.get('isShown')) {
-      if (this._isHidden) {
-        this._addListenersforHideEvents();
+    const isShown = this.get('isShown');
 
-        this._show();
-      }
-    } else if (!this._isHidden) {
+    if (isShown === true && this._isHidden) {
+      this._addListenersForHideEvents();
+
+      this._show();
+    } else if (isShown === false && !this._isHidden) {
       this._hide();
     }
   }),
@@ -212,11 +189,11 @@ export default Component.extend({
     cancel(this._isVisibleTimeout);
 
     // The attachment is already visible or the target has been destroyed
-    if (!this._isHidden || !this.get('_target')) {
+    if (!this._isHidden || !this.get('target')) {
       return;
     }
 
-    this._addListenersforHideEvents();
+    this._addListenersForHideEvents();
 
     const showDelay = parseInt(this.get('showDelay'));
 
@@ -226,7 +203,7 @@ export default Component.extend({
   _show() {
     // The target of interactive tooltips receive the 'active' class
     if (this.get('interactive')) {
-      this.get('_target').classList.add('active');
+      this.get('target').classList.add('active');
     }
 
     // Make the attachment visible immediately so transition animations can take place
@@ -255,9 +232,9 @@ export default Component.extend({
     this._isHidden = false;
   },
 
-  _addListenersforHideEvents() {
+  _addListenersForHideEvents() {
     const hideOn = this.get('_hideOn');
-    const target = this.get('_target');
+    const target = this.get('target');
 
     if (hideOn.indexOf('click') !== -1) {
       const showOnClickListener = this._showListenersOnTargetByEvent['click'];
@@ -306,7 +283,7 @@ export default Component.extend({
   },
 
   _hideIfMouseOutsideTargetOrAttachment(event) {
-    const target = this.get('_target');
+    const target = this.get('target');
 
     // If cursor is not on the attachment or target, hide the element
     if (!target.contains(event.target)
@@ -326,7 +303,7 @@ export default Component.extend({
     const { clientX, clientY } = event;
 
     const attachmentPosition = this.element.getBoundingClientRect();
-    const targetPosition = this.get('_target').getBoundingClientRect();
+    const targetPosition = this.get('target').getBoundingClientRect();
 
     const isBetweenLeftAndRight = clientX > Math.min(attachmentPosition.left, targetPosition.left)
       && clientX < Math.max(attachmentPosition.right, targetPosition.right);
@@ -367,7 +344,7 @@ export default Component.extend({
 
   _hideOnLostFocus(event) {
     if (event.relatedTarget === null
-        || (!this.get('_target').contains(event.relatedTarget)
+        || (!this.get('target').contains(event.relatedTarget)
             && !this.element.contains(event.relatedTarget))) {
       this._hideAfterDelay();
     }
@@ -382,7 +359,7 @@ export default Component.extend({
     cancel(this._isVisibleTimeout);
 
     // The attachment is already hidden or the target was destroyed
-    if (this._isHidden || !this.get('_target')) {
+    if (this._isHidden || !this.get('target')) {
       return;
     }
 
@@ -410,7 +387,7 @@ export default Component.extend({
   },
 
   _removeListenersForHideEvents() {
-    const target = this.get('_target');
+    const target = this.get('target');
     const showOn = this.get('_showOn');
 
     // Switch clicking back to a show event

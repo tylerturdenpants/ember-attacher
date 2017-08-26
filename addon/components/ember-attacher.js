@@ -26,8 +26,14 @@ const DEFAULTS = {
   showOn: 'mouseenter focus'
 };
 
+// TODO(kjb) see if there is a way to only pull generateGuid
+import Ember from 'ember';
+const { generateGuid } = Ember;
+
 export default Component.extend({
   layout,
+
+  tagName: '',
 
   /**
    * ================== PUBLIC CONFIG OPTIONS ==================
@@ -63,19 +69,25 @@ export default Component.extend({
   showDelay: DEFAULTS.showDelay,
   showDuration: DEFAULTS.showDuration,
   showOn: DEFAULTS.showOn,
-  target: computed(function() {
-    return (typeof FastBoot === 'undefined') ? this.element.parentNode : null;
-  }),
+  target: null,
 
   /**
    * ================== PRIVATE IMPLEMENTATION DETAILS ==================
    */
+
+  actions: {
+    onFoundTarget(target) {
+      this.set('_target', target);
+    }
+  },
 
   // Part of the Component superclass. isVisible == false sets 'display: none'
   isVisible: alias('renderInPlace'),
 
   init() {
     this._super(...arguments);
+
+    this.id = this.id || generateGuid();
 
     let options = getOwner(this).resolveRegistration('config:environment').emberAttacher;
 
