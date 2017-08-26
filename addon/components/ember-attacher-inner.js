@@ -351,9 +351,17 @@ export default Component.extend({
   },
 
   _hideOnLostFocus(event) {
-    if (event.relatedTarget === null
-        || (!this.get('target').contains(event.relatedTarget)
-            && !this.element.contains(event.relatedTarget))) {
+    if (event.relatedTarget === null) {
+      this._hideAfterDelay();
+    }
+
+    const targetContainsFocus = this.get('target').contains(event.relatedTarget);
+
+    if (this.get('interactive')) {
+      if (!targetContainsFocus && !this.element.contains(event.relatedTarget)) {
+        this._hideAfterDelay();
+      }
+    } else if (!targetContainsFocus) {
       this._hideAfterDelay();
     }
   },
