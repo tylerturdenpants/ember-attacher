@@ -30,6 +30,10 @@ export default Component.extend({
     // if a _hide() is triggered before the _show() is executed
     this._delayedShow = null;
 
+    // Used to prevent memory leaks where we'd keep adding a
+    // mouseleave listener for interactive tooltips.
+    this._hasInteractiveMouseLeaveListener = false;
+
     // The final source of truth on whether or not all _hide() or _show() actions have completed
     this._isHidden = true;
 
@@ -295,7 +299,10 @@ export default Component.extend({
       //   attachment and not trigger the hide because the hide check was debounced
       //   - Ideally we would debounce with an immediate run, then instead of debouncing, we would
       //   queue another fire at the end of the debounce period
-      document.addEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
+      if (!this._hasInteractiveMouseLeaveListener) {
+        this._hasInteractiveMouseLeaveListener = true;
+        document.addEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
+      }
     } else {
       this._hideAfterDelay();
     }
@@ -314,6 +321,7 @@ export default Component.extend({
         // The ember-attacher-inner element is wrapped in the ember-attacher element
         && !this.element.parentNode.contains(event.target)) {
       // Remove this listener before hiding the attachment
+      this._hasInteractiveMouseLeaveListener = false;
       document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
 
       target.classList.remove('active');
