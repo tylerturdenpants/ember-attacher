@@ -89,13 +89,13 @@ export default Component.extend({
 
     this.id = this.id || generateGuid();
 
-    let options = getOwner(this).resolveRegistration('config:environment').emberAttacher;
+    const options = getOwner(this).resolveRegistration('config:environment').emberAttacher;
 
     // If no emberAttacher hash was found, do nothing
     if (options) {
-      let attrs = this.get('attrs') || {};
+      const attrs = this.get('attrs') || {};
 
-      for (let key in options) {
+      for (const key in options) {
         stripInProduction(() => {
           if (!DEFAULTS.hasOwnProperty(key)) {
             warn(`Unknown property given as an ember-attacher default: ${key}`, { id: 700152 });
@@ -112,9 +112,9 @@ export default Component.extend({
 
   _modifiers: computed('arrow', 'flip', 'modifiers', function() {
     // Deep copy the modifiers since we might write to the provided hash
-    let modifiers = this.get('modifiers') ? JSON.parse(JSON.stringify(this.get('modifiers'))) : {};
+    const modifiers = this.get('modifiers') ? JSON.parse(JSON.stringify(this.get('modifiers'))) : {};
 
-    let arrow = this.get('arrow');
+    const arrow = this.get('arrow');
     if (typeof(arrow) === 'boolean') {
       if (!modifiers.arrow) {
         modifiers.arrow = { enabled: arrow };
@@ -123,7 +123,7 @@ export default Component.extend({
       }
     }
 
-    let flipString = this.get('flip');
+    const flipString = this.get('flip');
     if (flipString) {
       if (!modifiers.flip) {
         modifiers.flip = { behavior: flipString.split(' ') };

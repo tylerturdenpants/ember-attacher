@@ -96,7 +96,7 @@ test('nested attachers open and close as expected', function(assert) {
 
   this.setProperties({
     childIsShown: false,
-    parentIsShown: false,
+    parentIsShown: false
   });
 
   this.render(hbs`

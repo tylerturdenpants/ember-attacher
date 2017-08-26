@@ -1,4 +1,5 @@
 import Ember from 'ember';
+const { Logger } = Ember;
 
 export function assert(msg, conditional) {
   if (!conditional) {
@@ -7,7 +8,7 @@ export function assert(msg, conditional) {
 }
 
 export function debug() {
-  Ember.Logger.debug(...arguments);
+  Logger.debug(...arguments);
 }
 
 export function debugOnError(msg, conditional) {

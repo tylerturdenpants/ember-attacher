@@ -31,7 +31,7 @@ test('hides when the target loses focus', function(assert) {
   return click(find('#click-toggle')).then(() => {
     assert.equal(innerAttacher.style.display, '', 'Now shown');
 
-    document.getElementById("focus-me").focus();
+    document.getElementById('focus-me').focus();
 
     return wait().then(() => {
       assert.equal(innerAttacher.style.display, 'none', 'hidden again');
@@ -63,7 +63,7 @@ test('with interactive=false: hides when the attachment gains focus', function(a
   return click(find('#click-toggle')).then(() => {
     assert.equal(innerAttacher.style.display, '', 'Now shown');
 
-    document.getElementById("attachment-focus-me").focus();
+    document.getElementById('attachment-focus-me').focus();
 
     return wait().then(() => {
       assert.equal(innerAttacher.style.display, 'none', 'hidden again');
@@ -96,12 +96,12 @@ test("with interactive=true: doesn't hide when the attachment gains focus", func
   return click(find('#click-toggle')).then(() => {
     assert.equal(innerAttacher.style.display, '', 'Now shown');
 
-    document.getElementById("attachment-focus-me").focus();
+    document.getElementById('attachment-focus-me').focus();
 
     return wait().then(() => {
       assert.equal(innerAttacher.style.display, '', 'Still shown');
 
-      document.getElementById("outer-focus-me").focus();
+      document.getElementById('outer-focus-me').focus();
 
       return wait().then(() => {
         assert.equal(innerAttacher.style.display, '', 'Hidden again');
