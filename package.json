@@ -33,7 +33,8 @@
     "ember-cli-htmlbars": "^2.0.2",
     "ember-cli-sass": "^7.0.0",
     "ember-popper": "^0.6.0",
-    "ember-truth-helpers": "^1.3.0"
+    "ember-truth-helpers": "^1.3.0",
+    "eslint-plugin-ember-suave": "^1.0.0"
   },
   "devDependencies": {
     "@html-next/flexi-config": "^2.0.0",

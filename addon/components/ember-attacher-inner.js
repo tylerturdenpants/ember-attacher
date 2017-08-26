@@ -44,10 +44,10 @@ export default Component.extend({
     this._hideListenersOnTargetByEvent = {};
 
     // Hacks to make sure event listeners have the right context and are still cancellable later
-    this._hideIfMouseOutsideTargetOrAttachment =
-      this._hideIfMouseOutsideTargetOrAttachment.bind(this);
-    this._debouncedHideIfMouseOutsideTargetOrAttachment =
-      this._debouncedHideIfMouseOutsideTargetOrAttachment.bind(this);
+    this._hideIfMouseOutsideTargetOrAttachment
+      = this._hideIfMouseOutsideTargetOrAttachment.bind(this);
+    this._debouncedHideIfMouseOutsideTargetOrAttachment
+      = this._debouncedHideIfMouseOutsideTargetOrAttachment.bind(this);
     this._hideOnLostFocus = this._hideOnLostFocus.bind(this);
     this._hideOnMouseLeaveTarget = this._hideOnMouseLeaveTarget.bind(this);
     this._hideAfterDelay = this._hideAfterDelay.bind(this);
@@ -66,7 +66,7 @@ export default Component.extend({
 
     this._currentTarget = target;
 
-    showOn.forEach(event => {
+    showOn.forEach((event) => {
       this._showListenersOnTargetByEvent[event] = this._showAfterDelay;
 
       target.addEventListener(event, this._showAfterDelay);
@@ -89,8 +89,8 @@ export default Component.extend({
     }
 
     [this._hideListenersOnTargetByEvent, this._showListenersOnTargetByEvent]
-      .forEach(eventToListener => {
-        Object.keys(eventToListener).forEach(event => {
+      .forEach((eventToListener) => {
+        Object.keys(eventToListener).forEach((event) => {
           target.removeEventListener(event, eventToListener[event]);
         });
       });
@@ -127,12 +127,11 @@ export default Component.extend({
     cancel(this._isVisibleTimeout);
 
     if (delay) {
-      this._isVisibleTimeout =
-        later(this, () => {
-          if (!this.isDestroyed && !this.isDestroying) {
-            this.set('isVisible', isVisible);
-          }
-        }, delay);
+      this._isVisibleTimeout = later(this, () => {
+        if (!this.isDestroyed && !this.isDestroying) {
+          this.set('isVisible', isVisible);
+        }
+      }, delay);
     } else {
       this.set('isVisible', isVisible);
     }
@@ -241,22 +240,22 @@ export default Component.extend({
     const target = this.get('target');
 
     if (hideOn.indexOf('click') !== -1) {
-      const showOnClickListener = this._showListenersOnTargetByEvent['click'];
+      const showOnClickListener = this._showListenersOnTargetByEvent.click;
 
       if (showOnClickListener) {
         target.removeEventListener('click', showOnClickListener);
 
-        delete this._showListenersOnTargetByEvent['click'];
+        delete this._showListenersOnTargetByEvent.click;
       }
 
-      this._hideListenersOnTargetByEvent['click'] = this._hideAfterDelay;
+      this._hideListenersOnTargetByEvent.click = this._hideAfterDelay;
       target.addEventListener('click', this._hideAfterDelay);
     }
 
     // Hides the attachment when the mouse leaves the target
     // (or leaves both target and attachment for interactive attachments)
     if (hideOn.indexOf('mouseleave') !== -1) {
-      this._hideListenersOnTargetByEvent['mouseleave'] = this._hideOnMouseLeaveTarget;
+      this._hideListenersOnTargetByEvent.mouseleave = this._hideOnMouseLeaveTarget;
       target.addEventListener('mouseleave', this._hideOnMouseLeaveTarget);
     }
 
@@ -408,14 +407,14 @@ export default Component.extend({
 
     // Switch clicking back to a show event
     if (showOn.indexOf('click') !== -1) {
-      const hideOnClickListener = this._hideListenersOnTargetByEvent['click'];
+      const hideOnClickListener = this._hideListenersOnTargetByEvent.click;
 
       if (hideOnClickListener) {
         target.removeEventListener('click', hideOnClickListener);
-        delete this._hideListenersOnTargetByEvent['click'];
+        delete this._hideListenersOnTargetByEvent.click;
       }
 
-      this._showListenersOnTargetByEvent['click'] = this._showAfterDelay;
+      this._showListenersOnTargetByEvent.click = this._showAfterDelay;
       target.addEventListener('click', this._showAfterDelay);
     }
 
