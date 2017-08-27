@@ -1,5 +1,26 @@
 # Change Log
 
+## [v0.10.0](https://github.com/kybishop/ember-attacher/tree/v0.10.0) (2017-08-27)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.9.0...v0.10.0)
+
+**Closed issues:**
+
+- Bug? mouseleave event adds mousemove event when interactive is true. [\#42](https://github.com/kybishop/ember-attacher/issues/42)
+- use class instead of popperClass [\#41](https://github.com/kybishop/ember-attacher/issues/41)
+- Tests should demonstrate testing other events. [\#38](https://github.com/kybishop/ember-attacher/issues/38)
+
+**Merged pull requests:**
+
+- chore\(follow eslint with ember-suave\) [\#47](https://github.com/kybishop/ember-attacher/pull/47) ([kybishop](https://github.com/kybishop))
+- fix\(focus-out events should respect interactive\) [\#46](https://github.com/kybishop/ember-attacher/pull/46) ([kybishop](https://github.com/kybishop))
+- feat\(tagless component\) popperClass is now class and id is passed to attachment [\#45](https://github.com/kybishop/ember-attacher/pull/45) ([kybishop](https://github.com/kybishop))
+- fix\(interactive hideOn mouseleave\) only add listener once [\#44](https://github.com/kybishop/ember-attacher/pull/44) ([kybishop](https://github.com/kybishop))
+- fix\(tests\) add waits for didInsertElement and show delay after clicking [\#35](https://github.com/kybishop/ember-attacher/pull/35) ([kybishop](https://github.com/kybishop))
+- feat\(warnings in tests\) don't strip warnings in tests [\#33](https://github.com/kybishop/ember-attacher/pull/33) ([kybishop](https://github.com/kybishop))
+
+## [v0.9.0](https://github.com/kybishop/ember-attacher/tree/v0.9.0) (2017-08-23)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.8.4...v0.9.0)
+
 ## [v0.8.4](https://github.com/kybishop/ember-attacher/tree/v0.8.4) (2017-08-23)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.8.3...v0.8.4)
 
