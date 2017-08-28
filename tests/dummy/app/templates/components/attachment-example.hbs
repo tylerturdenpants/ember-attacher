@@ -7,17 +7,18 @@
       Tooltip me, captain!
       {{#ember-attacher animation=tooltipData.animation
                         arrow=tooltipData.arrow
+                        class="ember-attacher-popper ember-attacher-tooltip"
                         hideDelay=tooltipData.hideDelay
                         hideDuration=tooltipData.hideDuration
                         hideOn=tooltipData.hideOn
                         interactive=tooltipData.interactive
                         isShown=tooltipData.isShown
+                        onChange=(action (mut tooltipData.isShown))
                         placement=tooltipData.placement
                         renderInPlace=tooltipData.renderInPlace
                         showDelay=tooltipData.showDelay
                         showDuration=tooltipData.showDuration
-                        showOn=tooltipData.showOn
-                        popperClass="ember-attacher-popper ember-attacher-tooltip"}}
+                        showOn=tooltipData.showOn}}
         Hello world!
       {{/ember-attacher}}
     </button>
@@ -28,19 +29,19 @@
 
     {{#ember-attacher animation=popoverData.animation
                       arrow=popoverData.arrow
+                      class="ember-attacher-popper custom-popover-css"
                       hideDelay=popoverData.hideDelay
                       hideDuration=popoverData.hideDuration
                       hideOn=popoverData.hideOn
                       interactive=popoverData.interactive
                       isShown=popoverData.isShown
+                      onChange=(action (mut popoverData.isShown))
                       placement=popoverData.placement
                       renderInPlace=popoverData.renderInPlace
                       showDelay=popoverData.showDelay
                       showDuration=popoverData.showDuration
                       showOn=popoverData.showOn
-                      target=popoverData.target
-                      popperClass=
-                        "ember-attacher-popper custom-popover-css" as |emberAttacher|}}
+                      target=popoverData.target as |emberAttacher|}}
       <p>Popovers and tooltips, oh my!</p>
 
       <button {{action emberAttacher.hide}}>Close</button>
@@ -53,14 +54,10 @@
   </centered>
 {{/if}}
 
-{{#if (and (not isConfiguringTooltip) service.renderInPlace)}}
-  <centered class="section">
-    <h2>
-      Note: the \{{#ember-attacher}} for the popover is declared in the same section as the buttons.
-      When combined with renderInPlace, this causes an empty ghost element in the section where the
-      popover would be if it weren't repositioned. Be careful of gotchas like this when using
-      renderInPlace!
-    </h2>
+{{#if service.renderInPlace}}
+  <centered class="section" vertical fit>
+    <h3>Note: renderInPlace can cause z-index issues.</h3>
+    <h3>Hover over the renderInPlace attr for more details.</h3>
   </centered>
 {{/if}}
 <centered class="edit-section">
@@ -83,12 +80,12 @@
           &nbsp;&nbsp;\{{
           <span class="underlined">
             #ember-attacher
-              {{#ember-attacher popperClass="ember-attacher-popper ember-attacher-tooltip"}}
+              {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
                 {{#if isConfiguringTooltip}}
                   The "Tooltip in a parent" ember-attacher is initially set to the default settings.
                   Twiddle some knobs to see what ember-attacher can do!
                 {{else}}
-                  The "Popover with a target" ember-attacher is triggered by clicking, and also has
+                  The "Popover with a target" ember-attacher is triggered by clicking, and has
                   a custom hide action.
                 {{/if}}
               {{/ember-attacher}}
@@ -134,7 +131,7 @@
         <span class="underlined">
           hideOn
 
-          {{#ember-attacher popperClass="ember-attacher-popper ember-attacher-tooltip"}}
+          {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
             Any combination of "mouseleave", "blur", and "click".
           {{/ember-attacher}}
         </span>
@@ -154,7 +151,7 @@
         <span class="underlined">
           hideDuration
 
-          {{#ember-attacher popperClass="ember-attacher-popper ember-attacher-tooltip"}}
+          {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
             How long the hide animation will take.
           {{/ember-attacher}}
         </span>
@@ -173,7 +170,7 @@
         <span class="underlined">
           interactive
 
-          {{#ember-attacher popperClass="ember-attacher-popper ember-attacher-tooltip"}}
+          {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
             Interactive tooltips will not close when clicked or hovered over.
           {{/ember-attacher}}
         </span>
@@ -189,12 +186,25 @@
         <span class="underlined">
           isShown
 
-          {{#ember-attacher popperClass="ember-attacher-popper ember-attacher-tooltip"}}
+          {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
             Manually controls whether or not the attacher should be open or closed.
           {{/ember-attacher}}
         </span>
         =
         <button class="button medium" {{action "toggleIsShown"}}>{{service.isShown}}</button>
+      </centered>
+    </hbox>
+    <hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
+      <centered fit>
+        <span class="underlined">
+          onChange
+
+          {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
+            An action to be fired when the attachment's visibility changes.
+          {{/ember-attacher}}
+        </span>
+        =(action (mut service.isShown))
       </centered>
     </hbox>
     <hbox>
@@ -216,7 +226,7 @@
         <span class="underlined">
           renderInPlace
 
-          {{#ember-attacher animation="shift" popperClass="ember-attacher-popper ember-attacher-tooltip"}}
+          {{#ember-attacher animation="shift" class="ember-attacher-popper ember-attacher-tooltip"}}
             Elements that exist deep within the document tree are given an implicitly lower z-index
             value than elements that aren't as deep in the tree; this has the effect of hiding our
             popper behind less-nested elements. Due to the way z-indexing works, we cannot simply
@@ -250,7 +260,7 @@
         <span class="underlined">
           showDuration
 
-          {{#ember-attacher popperClass="ember-attacher-popper ember-attacher-tooltip"}}
+          {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
             How long the show animation will take.
           {{/ember-attacher}}
         </span>
@@ -269,7 +279,7 @@
         <span class="underlined">
           showOn
 
-          {{#ember-attacher popperClass="ember-attacher-popper ember-attacher-tooltip"}}
+          {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
             For performance reasons, we recommend using some combination of "mouseenter", "focus",
             and "click", though you can use any event listener you want.
           {{/ember-attacher}}
@@ -297,11 +307,11 @@
       <centered fit>
         <vbox>
           {{#if isConfiguringTooltip}}
-            <hbox><centered fit>popperClass=</centered></hbox>
+            <hbox><centered fit>class=</centered></hbox>
             <hbox><centered fit>&nbsp;&nbsp;"ember-attacher-popper</centered></hbox>
             <hbox><centered fit>&nbsp;&nbsp;&nbsp;ember-attacher-tooltip"}}</centered></hbox>
           {{else}}
-            <hbox><centered fit>popperClass=</centered></hbox>
+            <hbox><centered fit>class=</centered></hbox>
             <hbox><centered fit>&nbsp;&nbsp;"ember-attacher-popper</centered></hbox>
             <hbox><centered fit>
               &nbsp;&nbsp;&nbsp;<a href="https://github.com/kybishop/ember-attacher/blob/master/tests/dummy/app/styles/app.scss#L120"
