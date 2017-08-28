@@ -29,10 +29,6 @@ export default Component.extend({
     // if a _hide() is triggered before the _show() is executed
     this._delayedShow = null;
 
-    // Used to prevent memory leaks where we'd keep adding a
-    // mouseleave listener for interactive tooltips.
-    this._hasInteractiveMouseLeaveListener = false;
-
     // The final source of truth on whether or not all _hide() or _show() actions have completed
     this._isHidden = true;
 
@@ -41,6 +37,7 @@ export default Component.extend({
     this._isVisibleTimeout = null;
 
     // Used to store event listeners so they can be removed when necessary.
+    this._hideListenersOnDocumentByEvent = {};
     this._hideListenersOnTargetByEvent = {};
     this._showListenersOnTargetByEvent = {};
 
@@ -52,6 +49,7 @@ export default Component.extend({
     this._hideIfMouseOutsideTargetOrAttachment
       = this._hideIfMouseOutsideTargetOrAttachment.bind(this);
     this._hideOnClickOut = this._hideOnClickOut.bind(this);
+    this._hideOnEscapeKey = this._hideOnEscapeKey.bind(this);
     this._hideOnLostFocus = this._hideOnLostFocus.bind(this);
     this._hideOnMouseLeaveTarget = this._hideOnMouseLeaveTarget.bind(this);
     this._show = this._show.bind(this);
@@ -115,8 +113,11 @@ export default Component.extend({
   },
 
   _removeEventListeners() {
-    document.removeEventListener('click', this._hideOnClickOut);
-    document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
+    Object.keys(this._hideListenersOnDocumentByEvent).forEach((eventType) => {
+
+      document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType]);
+      delete this._hideListenersOnDocumentByEvent[eventType];
+    });
 
     if (!this._currentTarget) {
       return;
@@ -281,7 +282,13 @@ export default Component.extend({
     }
 
     if (hideOn.indexOf('clickout') !== -1) {
+      this._hideListenersOnDocumentByEvent.click = this._hideOnClickOut;
       document.addEventListener('click', this._hideOnClickOut);
+    }
+
+    if (hideOn.indexOf('escapekey') !== -1) {
+      this._hideListenersOnDocumentByEvent.keydown = this._hideOnEscapeKey;
+      document.addEventListener('keydown', this._hideOnEscapeKey);
     }
 
     // Hides the attachment when the mouse leaves the target
@@ -307,8 +314,8 @@ export default Component.extend({
       //   attachment and not trigger the hide because the hide check was debounced
       //   - Ideally we would debounce with an immediate run, then instead of debouncing, we would
       //   queue another fire at the end of the debounce period
-      if (!this._hasInteractiveMouseLeaveListener) {
-        this._hasInteractiveMouseLeaveListener = true;
+      if (!this._hideListenersOnDocumentByEvent.mousemove) {
+        this._hideListenersOnDocumentByEvent.mousemove = this._hideIfMouseOutsideTargetOrAttachment;
         document.addEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
       }
     } else {
@@ -329,7 +336,7 @@ export default Component.extend({
         // The ember-attacher-inner element is wrapped in the ember-attacher element
         && !this.element.parentNode.contains(event.target)) {
       // Remove this listener before hiding the attachment
-      this._hasInteractiveMouseLeaveListener = false;
+      delete this._hideListenersOnDocumentByEvent.mousemove;
       document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
 
       this._hideAfterDelay();
@@ -391,6 +398,12 @@ export default Component.extend({
     }
   },
 
+  _hideOnEscapeKey(event) {
+    if (event.keyCode === 27) {
+      return this._hideAfterDelay();
+    }
+  },
+
   _hideOnLostFocus(event) {
     if (event.relatedTarget === null) {
       this._hideAfterDelay();
@@ -445,11 +458,14 @@ export default Component.extend({
   },
 
   _removeListenersForHideEvents() {
+    Object.keys(this._hideListenersOnDocumentByEvent).forEach((eventType) => {
+
+      document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType]);
+      delete this._hideListenersOnDocumentByEvent[eventType];
+    });
+
     const showOn = this.get('_showOn');
     const target = this._currentTarget;
-
-    document.removeEventListener('click', this._hideOnClickOut);
-    document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
 
     // The target was destroyed, nothing to remove listeners from
     if (!target) {
