@@ -51,6 +51,7 @@ export default Component.extend({
     this._hideAfterDelay = this._hideAfterDelay.bind(this);
     this._hideIfMouseOutsideTargetOrAttachment
       = this._hideIfMouseOutsideTargetOrAttachment.bind(this);
+    this._hideOnClickOut = this._hideOnClickOut.bind(this);
     this._hideOnLostFocus = this._hideOnLostFocus.bind(this);
     this._hideOnMouseLeaveTarget = this._hideOnMouseLeaveTarget.bind(this);
     this._show = this._show.bind(this);
@@ -75,9 +76,7 @@ export default Component.extend({
   },
 
   _initializeAttacher() {
-    if (this._currentTarget) {
-      this._removeEventListeners();
-    }
+    this._removeEventListeners();
 
     this._currentTarget = this.get('target');
 
@@ -112,14 +111,16 @@ export default Component.extend({
   willDestroyElement() {
     this._super(...arguments);
 
-    // Check if current target was already destroyed
-    if (this._currentTarget) {
-      this._removeEventListeners();
-    }
+    this._removeEventListeners();
   },
 
   _removeEventListeners() {
+    document.removeEventListener('click', this._hideOnClickOut);
     document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
+
+    if (!this._currentTarget) {
+      return;
+    }
 
     [this._hideListenersOnTargetByEvent, this._showListenersOnTargetByEvent]
       .forEach((eventToListener) => {
@@ -137,7 +138,9 @@ export default Component.extend({
     const isShown = this.get('isShown');
 
     if (isShown === true && this._isHidden) {
-      this._addListenersForHideEvents();
+      // Add the hide listeners in the next run loop to avoid conflicts
+      // where clicking triggers both an isShown toggle and a clickout.
+      next(this, () => this._addListenersForHideEvents());
 
       this._show();
     } else if (isShown === false && !this._isHidden) {
@@ -277,6 +280,10 @@ export default Component.extend({
       target.addEventListener('click', this._hideAfterDelay);
     }
 
+    if (hideOn.indexOf('clickout') !== -1) {
+      document.addEventListener('click', this._hideOnClickOut);
+    }
+
     // Hides the attachment when the mouse leaves the target
     // (or leaves both target and attachment for interactive attachments)
     if (hideOn.indexOf('mouseleave') !== -1) {
@@ -372,6 +379,18 @@ export default Component.extend({
     return false;
   },
 
+  _hideOnClickOut(event) {
+    const targetReceivedClick = this._currentTarget.contains(event.target);
+
+    if (this.get('interactive')) {
+      if (!targetReceivedClick && !this.element.contains(event.target)) {
+        this._hideAfterDelay();
+      }
+    } else if (!targetReceivedClick) {
+      this._hideAfterDelay();
+    }
+  },
+
   _hideOnLostFocus(event) {
     if (event.relatedTarget === null) {
       this._hideAfterDelay();
@@ -428,6 +447,9 @@ export default Component.extend({
   _removeListenersForHideEvents() {
     const showOn = this.get('_showOn');
     const target = this._currentTarget;
+
+    document.removeEventListener('click', this._hideOnClickOut);
+    document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
 
     // The target was destroyed, nothing to remove listeners from
     if (!target) {

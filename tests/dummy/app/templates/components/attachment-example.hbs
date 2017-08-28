@@ -132,7 +132,10 @@
           hideOn
 
           {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
-            Any combination of "mouseleave", "blur", and "click".
+            Any combination of "blur", "click", "clickout", and "mouseleave".
+            "clickout" is a custom event that will hide the attachment when the user clicks
+            outside the target. When interactive=true, clicking the attachment will not trigger
+            a hide event
           {{/ember-attacher}}
         </span>
         ="{{#power-select onchange=(action (mut service.hideOn))

@@ -16,7 +16,7 @@ export default Component.extend({
     'scale',
     'shift'
   ],
-  hideOnOptions: ['click', 'mouseleave blur'],
+  hideOnOptions: ['click', 'clickout', 'mouseleave blur'],
   isConfiguringTooltip: true,
   placementOptions: ['bottom', 'left', 'right', 'top'],
   showOnOptions: ['click', 'mouseenter focus'],
