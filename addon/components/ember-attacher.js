@@ -9,6 +9,7 @@ import { warn } from '@ember/debug';
 const DEFAULTS = {
   animation: 'fill',
   arrow: false,
+  class: null,
   flip: null,
   hideDelay: 0,
   hideDuration: 300,
@@ -17,7 +18,6 @@ const DEFAULTS = {
   isOffset: false,
   isShown: false,
   placement: 'top',
-  popperClass: null,
   popperContainer: '.ember-application',
   popperOptions: null,
   renderInPlace: false,
@@ -55,6 +55,7 @@ export default Component.extend({
       return val;
     }
   }),
+  class: DEFAULTS.class,
   hideDelay: DEFAULTS.hideDelay,
   hideDuration: DEFAULTS.hideDuration,
   hideOn: DEFAULTS.hideOn,
@@ -62,7 +63,6 @@ export default Component.extend({
   isOffset: DEFAULTS.isOffset,
   isShown: DEFAULTS.isShown,
   placement: DEFAULTS.placement,
-  popperClass: DEFAULTS.popperClass,
   popperContainer: DEFAULTS.popperContainer,
   popperOptions: DEFAULTS.popperOptions,
   renderInPlace: DEFAULTS.renderInPlace,
@@ -91,28 +91,31 @@ export default Component.extend({
 
     const options = getOwner(this).resolveRegistration('config:environment').emberAttacher;
 
-    // If no emberAttacher hash was found, do nothing
-    if (options) {
-      const attrs = this.get('attrs') || {};
+    // Exit early if no custom defaults are found
+    if (!options) {
+      return;
+    }
 
-      for (const key in options) {
-        stripInProduction(() => {
-          if (!DEFAULTS.hasOwnProperty(key)) {
-            warn(`Unknown property given as an ember-attacher default: ${key}`, { id: 700152 });
-          }
-        });
+    const attrs = this.get('attrs') || {};
 
-        // Don't override attrs manually passed into the component
-        if (attrs[key] === undefined) {
-          this[key] = options[key];
+    for (const key in options) {
+      stripInProduction(() => {
+        if (!DEFAULTS.hasOwnProperty(key)) {
+          warn(`Unknown property given as an ember-attacher default: ${key}`, { id: 700152 });
         }
+      });
+
+      // Don't override attrs manually passed into the component
+      if (attrs[key] === undefined) {
+        this[key] = options[key];
       }
     }
   },
 
   _modifiers: computed('arrow', 'flip', 'modifiers', function() {
     // Deep copy the modifiers since we might write to the provided hash
-    const modifiers = this.get('modifiers') ? JSON.parse(JSON.stringify(this.get('modifiers'))) : {};
+    const modifiers
+      = this.get('modifiers') ? JSON.parse(JSON.stringify(this.get('modifiers'))) : {};
 
     const arrow = this.get('arrow');
     if (typeof(arrow) === 'boolean') {

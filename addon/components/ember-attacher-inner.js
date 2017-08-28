@@ -1,8 +1,8 @@
+import Component from '@ember/component';
+import layout from '../templates/components/ember-attacher-inner';
 import { cancel, debounce, later, next } from '@ember/runloop';
 import { computed, observer } from '@ember/object';
-import Component from '@ember/component';
 import { htmlSafe } from '@ember/string';
-import layout from '../templates/components/ember-attacher-inner';
 
 export default Component.extend({
   /**
@@ -40,61 +40,110 @@ export default Component.extend({
     // Used to make sure animations can complete before the attachment is hidden.
     this._isVisibleTimeout = null;
 
-    this._showListenersOnTargetByEvent = {};
+    // Used to store event listeners so they can be removed when necessary.
     this._hideListenersOnTargetByEvent = {};
+    this._showListenersOnTargetByEvent = {};
 
-    // Hacks to make sure event listeners have the right context and are still cancellable later
-    this._hideIfMouseOutsideTargetOrAttachment
-      = this._hideIfMouseOutsideTargetOrAttachment.bind(this);
+    // Hacks to make sure event listeners have the right context and are still removable
     this._debouncedHideIfMouseOutsideTargetOrAttachment
       = this._debouncedHideIfMouseOutsideTargetOrAttachment.bind(this);
+    this._hide = this._hide.bind(this);
+    this._hideAfterDelay = this._hideAfterDelay.bind(this);
+    this._hideIfMouseOutsideTargetOrAttachment
+      = this._hideIfMouseOutsideTargetOrAttachment.bind(this);
     this._hideOnLostFocus = this._hideOnLostFocus.bind(this);
     this._hideOnMouseLeaveTarget = this._hideOnMouseLeaveTarget.bind(this);
-    this._hideAfterDelay = this._hideAfterDelay.bind(this);
-    this._showAfterDelay = this._showAfterDelay.bind(this);
     this._show = this._show.bind(this);
-    this._hide = this._hide.bind(this);
+    this._showAfterDelay = this._showAfterDelay.bind(this);
   },
 
-  _addListenersForShowEvents() {
-    const target = this.get('target');
-    const showOn = this.get('_showOn');
+  didInsertElement() {
+    this._super(...arguments);
 
-    if (!target) {
+    next(() => {
+      // If the attachment is initially hidden it has no width when positioned for the first time.
+      // This can cause it to be positioned too far to the right, such that it overflows the screen
+      // when shown for the first time.
+      // We avoid this issue by removing the initial positioning of attachments which are initially
+      // hidden. The attachment will then correctly update its position from this._show()
+      if (this._isHidden) {
+        this.element.parentNode.style.transform = null;
+      }
+    });
+
+    this._initializeAttacher();
+  },
+
+  _initializeAttacher() {
+    if (this._currentTarget) {
+      this._removeEventListeners();
+    }
+
+    this._currentTarget = this.get('target');
+
+    if (!this._currentTarget) {
+      // Hide the attachment until a valid target is found
+      if (!this._isHidden) {
+        this._hide();
+      }
+
       return;
     }
 
-    this._currentTarget = target;
+    this._addListenersForShowEvents();
 
-    showOn.forEach((event) => {
+    if (!this._isHidden || this.get('isShown')) {
+      this._addListenersForHideEvents();
+
+      // Even if the attachment is already shown, we still want to
+      // call this._show() to make sure its position is updated for a potentially new target.
+      this._show();
+    }
+  },
+
+  _addListenersForShowEvents() {
+    this.get('_showOn').forEach((event) => {
       this._showListenersOnTargetByEvent[event] = this._showAfterDelay;
 
-      target.addEventListener(event, this._showAfterDelay);
+      this._currentTarget.addEventListener(event, this._showAfterDelay);
     });
   },
 
   willDestroyElement() {
     this._super(...arguments);
 
-    this._removeEventListeners();
+    // Check if current target was already destroyed
+    if (this._currentTarget) {
+      this._removeEventListeners();
+    }
   },
 
   _removeEventListeners() {
     document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
 
-    const target = this._currentTarget;
-
-    if (target === null) {
-      return;
-    }
-
     [this._hideListenersOnTargetByEvent, this._showListenersOnTargetByEvent]
       .forEach((eventToListener) => {
         Object.keys(eventToListener).forEach((event) => {
-          target.removeEventListener(event, eventToListener[event]);
+          this._currentTarget.removeEventListener(event, eventToListener[event]);
         });
       });
   },
+
+  _targetOrTriggersChanged: observer('hideOn', 'showOn', 'target', function() {
+    this._initializeAttacher();
+  }),
+
+  _isShownChanged: observer('isShown', function() {
+    const isShown = this.get('isShown');
+
+    if (isShown === true && this._isHidden) {
+      this._addListenersForHideEvents();
+
+      this._show();
+    } else if (isShown === false && !this._isHidden) {
+      this._hide();
+    }
+  }),
 
   /**
    * ================== PRIVATE IMPLEMENTATION DETAILS ==================
@@ -137,62 +186,15 @@ export default Component.extend({
     }
   },
 
-  _targetOrTriggersChanged: observer(
-    'hideOn',
-    'showOn',
-    'target',
-    function() {
-      this._removeEventListeners();
-
-      if (!this.get('target')) {
-        return;
-      }
-
-      const isInitialTarget = this._currentTarget === null;
-
-      this._addListenersForShowEvents();
-
-      if (!this._isHidden) {
-        this._addListenersForHideEvents();
-
-      } else if (isInitialTarget && this.get('isShown')) {
-        this._addListenersForHideEvents();
-
-        this._show();
-      } else {
-        // When we first render the popper, it has no width if isVisible is false. This can cause
-        // the popper to be positioned too far to the right, such that when it expands, it will
-        // become larger than its parent. This, in turn, causes the parent to expand to accommodate
-        // the popper, which may now be off screen. To get around this, we just remove the
-        // positioning from the element to the safest position available: 0x0. The popper will then
-        // update its position from this._show()
-        this.element.parentNode.style.transform = null;
-      }
-    }
-  ),
-
-  _isShownChanged: observer('isShown', function() {
-    const isShown = this.get('isShown');
-
-    if (isShown === true && this._isHidden) {
-      this._addListenersForHideEvents();
-
-      this._show();
-    } else if (isShown === false && !this._isHidden) {
-      this._hide();
-    }
-  }),
-
   /**
    * ================== SHOW ATTACHMENT LOGIC ==================
    */
 
   _showAfterDelay() {
     cancel(this._delayedHide);
-    cancel(this._isVisibleTimeout);
 
-    // The attachment is already visible or the target has been destroyed
-    if (!this._isHidden || !this.get('target')) {
+    // The attachment is already visible
+    if (!this._isHidden) {
       return;
     }
 
@@ -204,9 +206,13 @@ export default Component.extend({
   },
 
   _show() {
-    // The target of interactive tooltips receive the 'active' class
-    if (this.get('interactive')) {
-      this.get('target').classList.add('active');
+    cancel(this._isVisibleTimeout);
+
+    const target = this._currentTarget;
+
+    // The target was destroyed
+    if (!target) {
+      return;
     }
 
     // Make the attachment visible immediately so transition animations can take place
@@ -235,9 +241,18 @@ export default Component.extend({
     this._isHidden = false;
   },
 
+  /**
+   * ================== HIDE LISTENERS ==================
+   */
+
   _addListenersForHideEvents() {
     const hideOn = this.get('_hideOn');
-    const target = this.get('target');
+    const target = this._currentTarget;
+
+    // Target was destroyed
+    if (!target) {
+      return;
+    }
 
     if (hideOn.indexOf('click') !== -1) {
       const showOnClickListener = this._showListenersOnTargetByEvent.click;
@@ -289,7 +304,7 @@ export default Component.extend({
   },
 
   _hideIfMouseOutsideTargetOrAttachment(event) {
-    const target = this.get('target');
+    const target = this._currentTarget;
 
     // If cursor is not on the attachment or target, hide the element
     if (!target.contains(event.target)
@@ -300,8 +315,6 @@ export default Component.extend({
       this._hasInteractiveMouseLeaveListener = false;
       document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
 
-      target.classList.remove('active');
-
       this._hideAfterDelay();
     }
   },
@@ -310,7 +323,7 @@ export default Component.extend({
     const { clientX, clientY } = event;
 
     const attachmentPosition = this.element.getBoundingClientRect();
-    const targetPosition = this.get('target').getBoundingClientRect();
+    const targetPosition = this._currentTarget.getBoundingClientRect();
 
     const isBetweenLeftAndRight = clientX > Math.min(attachmentPosition.left, targetPosition.left)
       && clientX < Math.max(attachmentPosition.right, targetPosition.right);
@@ -354,7 +367,7 @@ export default Component.extend({
       this._hideAfterDelay();
     }
 
-    const targetContainsFocus = this.get('target').contains(event.relatedTarget);
+    const targetContainsFocus = this._currentTarget.contains(event.relatedTarget);
 
     if (this.get('interactive')) {
       if (!targetContainsFocus && !this.element.contains(event.relatedTarget)) {
@@ -371,10 +384,9 @@ export default Component.extend({
 
   _hideAfterDelay() {
     cancel(this._delayedShow);
-    cancel(this._isVisibleTimeout);
 
-    // The attachment is already hidden or the target was destroyed
-    if (this._isHidden || !this.get('target')) {
+    // The attachment is already hidden
+    if (this._isHidden) {
       return;
     }
 
@@ -384,6 +396,8 @@ export default Component.extend({
   },
 
   _hide() {
+    cancel(this._isVisibleTimeout);
+
     this._removeListenersForHideEvents();
 
     const hideDuration = parseInt(this.get('hideDuration'));
@@ -402,8 +416,13 @@ export default Component.extend({
   },
 
   _removeListenersForHideEvents() {
-    const target = this.get('target');
     const showOn = this.get('_showOn');
+    const target = this._currentTarget;
+
+    // The target was destroyed, nothing to remove listeners from
+    if (!target) {
+      return;
+    }
 
     // Switch clicking back to a show event
     if (showOn.indexOf('click') !== -1) {
