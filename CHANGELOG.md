@@ -1,5 +1,17 @@
 # Change Log
 
+## [v0.10.1](https://github.com/kybishop/ember-attacher/tree/v0.10.1) (2017-08-28)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.10.0...v0.10.1)
+
+**Closed issues:**
+
+- isShown, showOn, and hideOn do not work together [\#25](https://github.com/kybishop/ember-attacher/issues/25)
+
+**Merged pull requests:**
+
+- feat\(onchange hook on visibility change\) [\#49](https://github.com/kybishop/ember-attacher/pull/49) ([kybishop](https://github.com/kybishop))
+- fix\(isShown and initial positioning + multi-hide bugs\) [\#48](https://github.com/kybishop/ember-attacher/pull/48) ([kybishop](https://github.com/kybishop))
+
 ## [v0.10.0](https://github.com/kybishop/ember-attacher/tree/v0.10.0) (2017-08-27)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.9.0...v0.10.0)
 
