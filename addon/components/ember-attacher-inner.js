@@ -126,14 +126,24 @@ export default Component.extend({
   _setIsVisibleAfterDelay(isVisible, delay) {
     cancel(this._isVisibleTimeout);
 
+    const onChange = this.get('onChange');
+
     if (delay) {
       this._isVisibleTimeout = later(this, () => {
         if (!this.isDestroyed && !this.isDestroying) {
           this.set('isVisible', isVisible);
+
+          if (onChange) {
+            onChange(isVisible);
+          }
         }
       }, delay);
     } else {
       this.set('isVisible', isVisible);
+
+      if (onChange) {
+        onChange(isVisible);
+      }
     }
   },
 
