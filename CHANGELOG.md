@@ -1,5 +1,16 @@
 # Change Log
 
+## [v0.10.2](https://github.com/kybishop/ember-attacher/tree/v0.10.2) (2017-08-28)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.10.1...v0.10.2)
+
+**Closed issues:**
+
+- Add hideOn support for clickout [\#39](https://github.com/kybishop/ember-attacher/issues/39)
+
+**Merged pull requests:**
+
+- feat\(hideOn clickout\) [\#50](https://github.com/kybishop/ember-attacher/pull/50) ([kybishop](https://github.com/kybishop))
+
 ## [v0.10.1](https://github.com/kybishop/ember-attacher/tree/v0.10.1) (2017-08-28)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.10.0...v0.10.1)
 
