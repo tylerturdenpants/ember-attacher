@@ -1,5 +1,18 @@
 # Change Log
 
+## [v0.10.3](https://github.com/kybishop/ember-attacher/tree/v0.10.3) (2017-08-29)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.10.2...v0.10.3)
+
+**Closed issues:**
+
+- Regression? attacher's hide action does not hide on subsequent interaction [\#53](https://github.com/kybishop/ember-attacher/issues/53)
+- hideOn support for pressing the escape key [\#36](https://github.com/kybishop/ember-attacher/issues/36)
+
+**Merged pull requests:**
+
+- Update README.md examples [\#52](https://github.com/kybishop/ember-attacher/pull/52) ([GCheung55](https://github.com/GCheung55))
+- feat\(hideOn escapekey\) [\#51](https://github.com/kybishop/ember-attacher/pull/51) ([kybishop](https://github.com/kybishop))
+
 ## [v0.10.2](https://github.com/kybishop/ember-attacher/tree/v0.10.2) (2017-08-28)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.10.1...v0.10.2)
 
