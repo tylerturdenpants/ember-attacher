@@ -13,14 +13,14 @@ give it a target, and your popper is ready to go!
 <button>
   Click me
 
-  {{#ember-attacher popperClass="ember-attacher-popper ember-attacher-tooltip"}}
+  {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
     I'm a tooltip!
   {{/ember-attacher}}
 </button>
 
 <button class="other-button">No click me!</button>
 
-{{#ember-attacher target=".other-button" popperClass="ember-attacher-popper ember-attacher-tooltip"}}
+{{#ember-attacher target=".other-button" class="ember-attacher-popper ember-attacher-tooltip"}}
   I'm also a tooltip!
 {{/ember-attacher}}
 ```
