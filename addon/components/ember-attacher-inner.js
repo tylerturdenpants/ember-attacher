@@ -114,7 +114,6 @@ export default Component.extend({
 
   _removeEventListeners() {
     Object.keys(this._hideListenersOnDocumentByEvent).forEach((eventType) => {
-
       document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType]);
       delete this._hideListenersOnDocumentByEvent[eventType];
     });
@@ -459,7 +458,6 @@ export default Component.extend({
 
   _removeListenersForHideEvents() {
     Object.keys(this._hideListenersOnDocumentByEvent).forEach((eventType) => {
-
       document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType]);
       delete this._hideListenersOnDocumentByEvent[eventType];
     });
