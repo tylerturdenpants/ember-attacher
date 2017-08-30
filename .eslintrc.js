@@ -17,5 +17,10 @@ module.exports = {
     'ember-suave/no-direct-property-access': 1,
     'ember-suave/require-access-in-comments': 0,
     'prefer-const': 2,
+    'indent': ['error', 2, {
+      "CallExpression": { 'arguments': 'first' },
+      'FunctionDeclaration': { 'parameters': 'first' },
+      'FunctionExpression': { 'parameters': 'first' }
+    }],
   }
 };
