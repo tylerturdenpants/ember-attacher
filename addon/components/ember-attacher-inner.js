@@ -65,7 +65,7 @@ export default Component.extend({
       // when shown for the first time.
       // We avoid this issue by removing the initial positioning of attachments which are initially
       // hidden. The attachment will then correctly update its position from this._show()
-      if (this._isHidden) {
+      if (this._isHidden && !this.isDestroying && !this.isDestroyed) {
         this.element.parentNode.style.transform = null;
       }
     });

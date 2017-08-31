@@ -1,30 +1,11 @@
 import Component from '@ember/component';
+import DEFAULTS from '../defaults';
 import layout from '../templates/components/ember-attacher';
 import { alias } from '@ember/object/computed';
 import { computed } from '@ember/object';
 import { getOwner } from '@ember/application';
 import { stripInProduction } from 'ember-attacher/-debug/helpers';
 import { warn } from '@ember/debug';
-
-const DEFAULTS = {
-  animation: 'fill',
-  arrow: false,
-  class: null,
-  flip: null,
-  hideDelay: 0,
-  hideDuration: 300,
-  hideOn: 'mouseleave blur',
-  interactive: false,
-  isOffset: false,
-  isShown: false,
-  placement: 'top',
-  popperContainer: '.ember-application',
-  popperOptions: null,
-  renderInPlace: false,
-  showDelay: 0,
-  showDuration: 300,
-  showOn: 'mouseenter focus'
-};
 
 // TODO(kjb) see if there is a way to only pull generateGuid
 import Ember from 'ember';
@@ -62,6 +43,7 @@ export default Component.extend({
   interactive: DEFAULTS.interactive,
   isOffset: DEFAULTS.isOffset,
   isShown: DEFAULTS.isShown,
+  onChange: null,
   placement: DEFAULTS.placement,
   popperContainer: DEFAULTS.popperContainer,
   popperOptions: DEFAULTS.popperOptions,
@@ -81,6 +63,10 @@ export default Component.extend({
     }
   },
 
+  config: computed(function() {
+    return getOwner(this).resolveRegistration('config:environment').emberAttacher || {};
+  }),
+
   // Part of the Component superclass. isVisible == false sets 'display: none'
   isVisible: alias('renderInPlace'),
 
@@ -89,16 +75,16 @@ export default Component.extend({
 
     this.id = this.id || generateGuid();
 
-    const options = getOwner(this).resolveRegistration('config:environment').emberAttacher;
+    const defaults = this.get('config');
 
     // Exit early if no custom defaults are found
-    if (!options) {
+    if (!defaults) {
       return;
     }
 
     const attrs = this.get('attrs') || {};
 
-    for (const key in options) {
+    for (const key in defaults) {
       stripInProduction(() => {
         if (!DEFAULTS.hasOwnProperty(key)) {
           warn(`Unknown property given as an ember-attacher default: ${key}`, { id: 700152 });
@@ -107,7 +93,7 @@ export default Component.extend({
 
       // Don't override attrs manually passed into the component
       if (attrs[key] === undefined) {
-        this[key] = options[key];
+        this[key] = defaults[key];
       }
     }
   },

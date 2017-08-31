@@ -1,13 +1,12 @@
 <centered class="section">
-  <p>Drop an \{{#ember-attacher}} in any element or component to get started.</p>
+  <p>Drop an <span class="no-wrap">\{{#attach-tooltip}}</span> or <span class="no-wrap">\{{#ember-attacher}}</span> in any element or component to get started.</p>
 </centered>
 <centered class="section">
   <centered xs="12" lm="10" sm="8" md="6" lg="5" justify="around" class="popper-area">
     <button class="hover-me">
       Tooltip me, captain!
-      {{#ember-attacher animation=tooltipData.animation
+      {{#attach-tooltip animation=tooltipData.animation
                         arrow=tooltipData.arrow
-                        class="ember-attacher-popper ember-attacher-tooltip"
                         hideDelay=tooltipData.hideDelay
                         hideDuration=tooltipData.hideDuration
                         hideOn=tooltipData.hideOn
@@ -20,7 +19,7 @@
                         showDuration=tooltipData.showDuration
                         showOn=tooltipData.showOn}}
         Hello world!
-      {{/ember-attacher}}
+      {{/attach-tooltip}}
     </button>
 
     <button class="hover-me target-plz">
@@ -64,31 +63,40 @@
   <vbox lm="fit">
     <hbox class="nav-bar">
       <centered fit class="nav{{if isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' true}}>
-        Tooltip in a parent
+        \{{#attach-tooltip}}
       </centered>
       <centered fit class="nav{{unless isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' false}}>
-        Popover with a target
+        \{{#ember-attacher}}
       </centered>
     </hbox>
 
   <vbox class="edit-me">
     <hbox><centered fit>&lt;button class="hover-me"></centered></hbox>
-    <hbox><centered fit>&nbsp;&nbsp;{{if isConfiguringTooltip 'Tooltip me, captain!' 'Click me, captain!'}}</centered></hbox>
+    <hbox>
+      <centered fit>
+        &nbsp;&nbsp;
+        {{if isConfiguringTooltip 'Tooltip me, captain!' 'Click me, captain!'}}
+      </centered>
+    </hbox>
+    <hbox>&nbsp;</hbox>
     <box lm="horizontal" fit>
       <hbox fit class="no-wrap">
         <centered fit>
           &nbsp;&nbsp;\{{
           <span class="underlined">
-            #ember-attacher
-              {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
-                {{#if isConfiguringTooltip}}
-                  The "Tooltip in a parent" ember-attacher is initially set to the default settings.
-                  Twiddle some knobs to see what ember-attacher can do!
-                {{else}}
-                  The "Popover with a target" ember-attacher is triggered by clicking, and has
-                  a custom hide action.
-                {{/if}}
-              {{/ember-attacher}}
+            {{if isConfiguringTooltip '#attach-tooltip' '#ember-attacher'}}
+
+            {{#attach-tooltip animation='shift'}}
+              {{#if isConfiguringTooltip}}
+                This component has the default settings. The \{{attach-tooltip}} component
+                automatically gains the ember-attacher-popper and ember-attacher-tooltip classes.
+                It also modifies the target element's aria-describedby to point to the tooltip.
+                For manual control, use \{{ember-attacher}} instead.
+              {{else}}
+                This is a click-triggered \{{ember-attacher}}. Unlike \{{attach-tooltip}}, it does
+                not modify the target's aria-describedby, or have any default classes.
+              {{/if}}
+            {{/attach-tooltip}}
           </span>
           &nbsp;
         </centered>
@@ -131,11 +139,11 @@
         <span class="underlined">
           hideOn
 
-          {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
+          {{#attach-tooltip animation='shift'}}
             Any combination of "blur", "click", "clickout", "escapekey", and "mouseleave".
             <p>clickout: hides the attachment when the user clicks outside the target. When interactive=true, clicking the attachment will not trigger a hide event.</p>
             <p>escapekey: hides the attachment when the user presses the escape key</p>
-          {{/ember-attacher}}
+          {{/attach-tooltip}}
         </span>
         ="{{#power-select onchange=(action (mut service.hideOn))
                           options=hideOnOptions
@@ -153,9 +161,9 @@
         <span class="underlined">
           hideDuration
 
-          {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
+          {{#attach-tooltip}}
             How long the hide animation will take.
-          {{/ember-attacher}}
+          {{/attach-tooltip}}
         </span>
         ={{input class="button medium"
                  min="0"
@@ -172,9 +180,9 @@
         <span class="underlined">
           interactive
 
-          {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
+          {{#attach-tooltip}}
             Interactive tooltips will not close when clicked or hovered over.
-          {{/ember-attacher}}
+          {{/attach-tooltip}}
         </span>
         =
         <button class="button medium" {{action "toggleInteractive"}}>
@@ -188,9 +196,9 @@
         <span class="underlined">
           isShown
 
-          {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
+          {{#attach-tooltip}}
             Manually controls whether or not the attacher should be open or closed.
-          {{/ember-attacher}}
+          {{/attach-tooltip}}
         </span>
         =
         <button class="button medium" {{action "toggleIsShown"}}>{{service.isShown}}</button>
@@ -202,11 +210,11 @@
         <span class="underlined">
           onChange
 
-          {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
+          {{#attach-tooltip}}
             An action to be fired when the attachment's visibility changes.
-          {{/ember-attacher}}
+          {{/attach-tooltip}}
         </span>
-        =(action (mut service.isShown))
+        =(action (mut isShown))
       </centered>
     </hbox>
     <hbox>
@@ -228,7 +236,7 @@
         <span class="underlined">
           renderInPlace
 
-          {{#ember-attacher animation="shift" class="ember-attacher-popper ember-attacher-tooltip"}}
+          {{#attach-tooltip animation="shift"}}
             Elements that exist deep within the document tree are given an implicitly lower z-index
             value than elements that aren't as deep in the tree; this has the effect of hiding our
             popper behind less-nested elements. Due to the way z-indexing works, we cannot simply
@@ -236,7 +244,7 @@
             on the document body, giving it the highest default z-index value. Toggling
             renderInPlace will prevent the popper from being rendered elsewhere, but may cause the
             aforementioned z-index issues.
-          {{/ember-attacher}}
+          {{/attach-tooltip}}
         </span>
         =
         <button class="button medium" {{action "toggleRenderInPlace"}}>
@@ -262,9 +270,9 @@
         <span class="underlined">
           showDuration
 
-          {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
+          {{#attach-tooltip}}
             How long the show animation will take.
-          {{/ember-attacher}}
+          {{/attach-tooltip}}
         </span>
         ={{input class="button medium"
                  min="0"
@@ -281,10 +289,10 @@
         <span class="underlined">
           showOn
 
-          {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
+          {{#attach-tooltip}}
             For performance reasons, we recommend using some combination of "mouseenter", "focus",
             and "click", though you can use any event listener you want.
-          {{/ember-attacher}}
+          {{/attach-tooltip}}
         </span>
         ="{{#power-select onchange=(action (mut service.showOn))
                           options=showOnOptions
@@ -296,31 +304,33 @@
                           {{/power-select}}"
       </centered>
     </hbox>
-    {{#unless isConfiguringTooltip}}
-      <hbox>
-        &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-        <centered fit>
-          target=".target-plz"
-        </centered>
-      </hbox>
-    {{/unless}}
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
         <vbox>
           {{#if isConfiguringTooltip}}
-            <hbox><centered fit>class=</centered></hbox>
-            <hbox><centered fit>&nbsp;&nbsp;"ember-attacher-popper</centered></hbox>
-            <hbox><centered fit>&nbsp;&nbsp;&nbsp;ember-attacher-tooltip"}}</centered></hbox>
+            <hbox>
+              <centered fit>
+                <span class="underlined">
+                  class
+
+                  {{#attach-tooltip}}
+                    The \{{attach-tooltip}} component automatically adds
+                    ember-attacher-popper and ember-attacher-tooltip to the class string.
+                  {{/attach-tooltip}}
+                </span>
+                ='optional-class-here'}}
+              </centered>
+            </hbox>
           {{else}}
             <hbox><centered fit>class=</centered></hbox>
             <hbox><centered fit>&nbsp;&nbsp;"ember-attacher-popper</centered></hbox>
             <hbox><centered fit>
-              &nbsp;&nbsp;&nbsp;<a href="https://github.com/kybishop/ember-attacher/blob/master/tests/dummy/app/styles/app.scss#L120"
+              &nbsp;&nbsp;&nbsp;<a href="https://github.com/kybishop/ember-attacher/blob/master/tests/dummy/app/styles/app.scss"
                                          target="_blank"
                                          rel="noopener">custom-popover-css</a>"
             </centered></hbox>
-            <hbox><centered fit>as |emberAttacher|}}</centered></hbox>
+            <hbox><centered fit>as |attacher|}}</centered></hbox>
           {{/if}}
         </vbox>
       </centered>
@@ -329,13 +339,15 @@
       <hbox>&nbsp;&nbsp;&nbsp;&nbsp;Hello world!</hbox>
     {{else}}
       <vbox>
-        <hbox>
-          &nbsp;&nbsp;&nbsp;&nbsp;<centered fit>&lt;p>Popovers and tooltips, oh my!&lt;/p></centered>
-        </hbox>
+        <hbox fit><centered fit>&nbsp;&nbsp;&nbsp;&nbsp;&lt;p></centered></hbox>
+        <hbox fit><centered fit>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Popovers and tooltips, oh my!
+        </centered></hbox>
+        <hbox fit><centered fit>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/p></centered></hbox>
         <hbox>
           &nbsp;&nbsp;&nbsp;&nbsp;
           <centered fit>
-            &lt;button \{{action emberAttacher.hide}}>
+            &lt;button \{{action attacher.hide}}>
           </centered>
         </hbox>
         <hbox>
@@ -353,7 +365,7 @@
       </vbox>
     {{/if}}
     <hbox>
-      &nbsp;&nbsp;\{{/ember-attacher}}
+      &nbsp;&nbsp;\{{/{{if isConfiguringTooltip 'attach-tooltip}}' 'ember-attacher}}'}}
     </hbox>
     <hbox>
       <centered fit>&lt;\button></centered>

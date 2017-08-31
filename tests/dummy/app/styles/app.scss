@@ -2,12 +2,12 @@
 
 body {
   color: #fcfcfc;
-  margin: 0;
   font-family: helvetica;
   font-size: 18px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  max-height:100vh;
+  margin: 0;
+  max-height: 100vh;
   overflow: auto;
 }
 
@@ -45,50 +45,51 @@ p {
 .nav {
   background-color: #eee;
   color: #333;
+  cursor: pointer;
   font-size: 16px;
   padding: 8px;
+
+  &.active {
+    background-color: #ddd;
+    font-weight: bold;
+  }
 }
 
-.nav.active {
-  background-color: #ddd;
-  font-weight: bold;
-}
-
-.edit-section, .section {
+.edit-section,
+.section {
   padding: 18px;
   padding-bottom: 0;
 }
 
 .button {
-  position: relative;
-  border-top: 1px solid #aaaaaa;
+  background-color: #fff;
   border-bottom: 1px solid #aaaaaa;
-  border-right: 1px solid #aaaaaa;
   border-left: 1px solid #aaaaaa;
   border-radius: 4px;
-  background-color: #ffffff;
-  line-height: 1.75;
+  border-right: 1px solid #aaaaaa;
+  border-top: 1px solid #aaaaaa;
   color: #333;
-  background-color: #fff;
-  font-size: inherit;
   font-family: monospace;
+  font-size: inherit;
+  line-height: 1.75;
   margin: 1px;
+  position: relative;
   text-align: center;
-}
 
-.button.medium {
-  min-width: 80px;
-  width: 80px;
-}
+  &.medium {
+    min-width: 80px;
+    width: 80px;
+  }
 
-.button.large {
-  min-width: 145px;
-  width: 145px;
-}
+  &.large {
+    min-width: 145px;
+    width: 145px;
+  }
 
-.button.xlarge {
-  min-width: 185px;
-  width: 185px;
+  &.xlarge {
+    min-width: 185px;
+    width: 185px;
+  }
 }
 
 .edit-me {
@@ -122,26 +123,26 @@ p {
   background-color: #fff;
   border: 1px solid #ddd;
   color: #333;
-  padding: 0.5rem 1rem;
+  padding: .5rem 1rem;
   position: relative;
 
   &.ember-attacher-fill {
-    overflow: hidden;
     background-color: transparent;
+    overflow: hidden;
   }
 
   > div[x-circle] {
     background-color: #fff;
-    position: absolute;
-    will-change: transform;
     border-radius: 50%;
-    width: 120%;
-    width: calc(100% + 2rem);
     left: 50%;
-    transition: all ease-out;
-    z-index: -1;
     opacity: 0;
     overflow: hidden;
+    position: absolute;
+    transition: all ease-out;
+    width: 120%;
+    width: calc(100% + 2rem);
+    will-change: transform;
+    z-index: -1;
 
     &::before {
       content: '';
@@ -178,7 +179,8 @@ p {
     width: 160px;
   }
 
-  .edit-me, .nav {
+  .edit-me,
+  .nav {
     font-size: 15px;
   }
 
@@ -188,8 +190,9 @@ p {
   }
 }
 
-@media(max-width: 330px) {
-  .edit-me, .nav {
+@media(max-width: 331px) {
+  .edit-me,
+  .nav {
     font-size: 14px;
   }
 }
