@@ -7,7 +7,7 @@ moduleForComponent('ember-attacher', 'Integration | Component | hideOn "blur"', 
   integration: true
 });
 
-test('hides when the target loses focus', function(assert) {
+test('hides when the target loses focus', async function(assert) {
   assert.expect(3);
 
   this.render(hbs`
@@ -16,7 +16,7 @@ test('hides when the target loses focus', function(assert) {
     <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher class='hello'
+      {{#ember-attacher id='attachment'
                         hideOn='blur'
                         showOn='click'}}
         hideOn click
@@ -24,22 +24,22 @@ test('hides when the target loses focus', function(assert) {
     </button>
   `);
 
-  const innerAttacher = find('.hello > .inner');
+  const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
 
-  return click(find('#click-toggle')).then(() => {
-    assert.equal(innerAttacher.style.display, '', 'Now shown');
+  await click(find('#click-toggle'));
 
-    document.getElementById('focus-me').focus();
+  assert.equal(innerAttacher.style.display, '', 'Now shown');
 
-    return wait().then(() => {
-      assert.equal(innerAttacher.style.display, 'none', 'hidden again');
-    });
-  });
+  document.getElementById('focus-me').focus();
+
+  await wait();
+
+  assert.equal(innerAttacher.style.display, 'none', 'hidden again');
 });
 
-test('with interactive=false: hides when the attachment gains focus', function(assert) {
+test('with interactive=false: hides when the attachment gains focus', async function(assert) {
   assert.expect(3);
 
   this.render(hbs`
@@ -48,7 +48,7 @@ test('with interactive=false: hides when the attachment gains focus', function(a
     <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher class='hello'
+      {{#ember-attacher id='attachment'
                         hideOn='blur'
                         showOn='click'}}
         <input type="text" id="attachment-focus-me"/>
@@ -56,22 +56,22 @@ test('with interactive=false: hides when the attachment gains focus', function(a
     </button>
   `);
 
-  const innerAttacher = find('.hello > .inner');
+  const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
 
-  return click(find('#click-toggle')).then(() => {
-    assert.equal(innerAttacher.style.display, '', 'Now shown');
+  await click(find('#click-toggle'));
 
-    document.getElementById('attachment-focus-me').focus();
+  assert.equal(innerAttacher.style.display, '', 'Now shown');
 
-    return wait().then(() => {
-      assert.equal(innerAttacher.style.display, 'none', 'hidden again');
-    });
-  });
+  document.getElementById('attachment-focus-me').focus();
+
+  await wait();
+
+  assert.equal(innerAttacher.style.display, 'none', 'hidden again');
 });
 
-test("with interactive=true: doesn't hide when the attachment gains focus", function(assert) {
+test("with interactive=true: doesn't hide when attachment gains focus", async function(assert) {
   assert.expect(4);
 
   this.render(hbs`
@@ -80,7 +80,7 @@ test("with interactive=true: doesn't hide when the attachment gains focus", func
     <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher class='hello'
+      {{#ember-attacher id='attachment'
                         hideOn='blur'
                         interactive=true
                         showOn='click'}}
@@ -89,23 +89,23 @@ test("with interactive=true: doesn't hide when the attachment gains focus", func
     </button>
   `);
 
-  const innerAttacher = find('.hello > .inner');
+  const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
 
-  return click(find('#click-toggle')).then(() => {
-    assert.equal(innerAttacher.style.display, '', 'Now shown');
+  await click(find('#click-toggle'));
 
-    document.getElementById('attachment-focus-me').focus();
+  assert.equal(innerAttacher.style.display, '', 'Now shown');
 
-    return wait().then(() => {
-      assert.equal(innerAttacher.style.display, '', 'Still shown');
+  document.getElementById('attachment-focus-me').focus();
 
-      document.getElementById('outer-focus-me').focus();
+  await wait();
 
-      return wait().then(() => {
-        assert.equal(innerAttacher.style.display, '', 'Hidden again');
-      });
-    });
-  });
+  assert.equal(innerAttacher.style.display, '', 'Still shown');
+
+  document.getElementById('outer-focus-me').focus();
+
+  await wait();
+
+  assert.equal(innerAttacher.style.display, '', 'Hidden again');
 });

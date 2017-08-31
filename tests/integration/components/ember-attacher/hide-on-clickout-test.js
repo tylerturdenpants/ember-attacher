@@ -6,14 +6,14 @@ moduleForComponent('ember-attacher', 'Integration | Component | hideOn "clickout
   integration: true
 });
 
-test('hides when an element outside the target is clicked', function(assert) {
+test('hides when an element outside the target is clicked', async function(assert) {
   assert.expect(3);
 
   this.render(hbs`
     <input type="text" id="focus-me"/>
 
     <div id="parent">
-      {{#ember-attacher class='hello'
+      {{#ember-attacher id='attachment'
                         hideOn='clickout'
                         isShown=true}}
         hideOn click
@@ -21,26 +21,26 @@ test('hides when an element outside the target is clicked', function(assert) {
     </div>
   `);
 
-  const innerAttacher = find('.hello > .inner');
+  const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
   // Make sure the attachment is still shown when the target is clicked
-  return click(find('#parent')).then(() => {
-    assert.equal(innerAttacher.style.display, '', 'Still shown');
+  await click(find('#parent'));
 
-    return click(find('#focus-me')).then(() => {
-      assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
-    });
-  });
+  assert.equal(innerAttacher.style.display, '', 'Still shown');
+
+  await click(find('#focus-me'));
+
+  assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
 });
 
-test('with interactive=false: hides when attachment is clicked', function(assert) {
+test('with interactive=false: hides when attachment is clicked', async function(assert) {
   assert.expect(2);
 
   this.render(hbs`
     <div id="parent">
-      {{#ember-attacher class='hello'
+      {{#ember-attacher id='attachment'
                         hideOn='clickout'
                         isShown=true}}
         hideOn click
@@ -48,23 +48,23 @@ test('with interactive=false: hides when attachment is clicked', function(assert
     </div>
   `);
 
-  const innerAttacher = find('.hello > .inner');
+  const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
-  return click(innerAttacher).then(() => {
-    assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
-  });
+  await click(innerAttacher);
+
+  assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
 });
 
-test("with interactive=true: doesn't hide when attachment is clicked", function(assert) {
+test("with interactive=true: doesn't hide when attachment is clicked", async function(assert) {
   assert.expect(4);
 
   this.render(hbs`
     <input type="text" id="focus-me"/>
 
     <div id="parent">
-      {{#ember-attacher class='hello'
+      {{#ember-attacher id='attachment'
                         hideOn='clickout'
                         interactive=true
                         isShown=true}}
@@ -73,22 +73,22 @@ test("with interactive=true: doesn't hide when attachment is clicked", function(
     </div>
   `);
 
-  const innerAttacher = find('.hello > .inner');
+  const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
   // Make sure attachment stays shown when attachment clicked
-  return click(innerAttacher).then(() => {
-    assert.equal(innerAttacher.style.display, '', 'Still shown');
+  await click(innerAttacher);
 
-    // Make sure attachment stays shown when target clicked
-    return click(find('#parent')).then(() => {
-      assert.equal(innerAttacher.style.display, '', 'Still shown');
+  assert.equal(innerAttacher.style.display, '', 'Still shown');
 
-      // Make sure attachment is hidden once an element outside target or attachment is clicked
-      return click(find('#focus-me')).then(() => {
-        assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
-      });
-    });
-  });
+  // Make sure attachment stays shown when target clicked
+  await click(find('#parent'));
+
+  assert.equal(innerAttacher.style.display, '', 'Still shown');
+
+  // Make sure attachment is hidden once an element outside target or attachment is clicked
+  await click(find('#focus-me'));
+
+  assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
 });

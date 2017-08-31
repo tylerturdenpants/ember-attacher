@@ -11,13 +11,13 @@ test('it renders', function(assert) {
 
   this.render(hbs`
     <div>
-      {{#ember-attacher class='hello'}}
+      {{#ember-attacher id='attachment'}}
         popper text
       {{/ember-attacher}}
     </div>
   `);
 
-  const innerAttacher = find('.hello > .inner');
+  const innerAttacher = find('#attachment > .inner');
 
   assert.ok(innerAttacher, '.inner class exists');
 

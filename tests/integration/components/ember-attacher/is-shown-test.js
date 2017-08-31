@@ -6,14 +6,14 @@ moduleForComponent('ember-attacher', 'Integration | Component | isShown', {
   integration: true
 });
 
-test('isShown works with showOn/hideOn set to "click"', function(assert) {
+test('isShown works with showOn/hideOn set to "click"', async function(assert) {
   assert.expect(3);
 
   this.render(hbs`
     <button id="toggle-show">
       Click me, captain!
 
-      {{#ember-attacher class='hello'
+      {{#ember-attacher id='attachment'
                         hideOn='click'
                         isShown=true
                         showOn='click'}}
@@ -22,20 +22,20 @@ test('isShown works with showOn/hideOn set to "click"', function(assert) {
     </button>
   `);
 
-  const innerAttacher = find('.hello > .inner');
+  const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
-  return click(find('#toggle-show')).then(() => {
-    assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
+  await click(find('#toggle-show'));
 
-    return click(find('#toggle-show')).then(() => {
-      assert.equal(innerAttacher.style.display, '', 'Shown again after click');
-    });
-  });
+  assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
+
+  await click(find('#toggle-show'));
+
+  assert.equal(innerAttacher.style.display, '', 'Shown again after click');
 });
 
-test('isShown works with showOn/hideOn set to "none"', function(assert) {
+test('isShown works with showOn/hideOn set to "none"', async function(assert) {
   assert.expect(3);
 
   this.on('closePopover', () => {
@@ -52,7 +52,7 @@ test('isShown works with showOn/hideOn set to "none"', function(assert) {
     <button id="open" {{action 'openPopover'}}>
       Click me, captain!
 
-      {{#ember-attacher class='hello'
+      {{#ember-attacher id='attachment'
                         hideOn='none'
                         isShown=isShown
                         showOn='none'}}
@@ -66,20 +66,20 @@ test('isShown works with showOn/hideOn set to "none"', function(assert) {
     </button>
   `);
 
-  const innerAttacher = find('.hello > .inner');
+  const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
 
-  return click(find('#open')).then(() => {
-    assert.equal(innerAttacher.style.display, '', 'Now shown');
+  await click(find('#open'));
 
-    return click(find('#close')).then(() => {
-      assert.equal(innerAttacher.style.display, 'none', 'Hidden again');
-    });
-  });
+  assert.equal(innerAttacher.style.display, '', 'Now shown');
+
+  await click(find('#close'));
+
+  assert.equal(innerAttacher.style.display, 'none', 'Hidden again');
 });
 
-test('nested attachers open and close as expected', function(assert) {
+test('nested attachers open and close as expected', async function(assert) {
   assert.expect(6);
 
   this.on('openParentPopover', () => {
@@ -130,16 +130,16 @@ test('nested attachers open and close as expected', function(assert) {
   assert.equal(innerParentAttacher.style.display, 'none', 'parent initially hidden');
   assert.equal(innerChildAttacher.style.display, 'none', 'child initially hidden');
 
-  return click(find('#openParent')).then(() => {
-    assert.equal(innerParentAttacher.style.display, '', 'parent shown');
+  await click(find('#openParent'));
 
-    return click(find('#openChild', innerParentAttacher)).then(() => {
-      assert.equal(innerChildAttacher.style.display, '', 'child shown');
+  assert.equal(innerParentAttacher.style.display, '', 'parent shown');
 
-      return click(find('#closeChild')).then(() => {
-        assert.equal(innerChildAttacher.style.display, 'none', 'child hidden');
-        assert.equal(innerParentAttacher.style.display, '', 'parent still shown');
-      });
-    });
-  });
+  await click(find('#openChild', innerParentAttacher));
+
+  assert.equal(innerChildAttacher.style.display, '', 'child shown');
+
+  await click(find('#closeChild'));
+
+  assert.equal(innerChildAttacher.style.display, 'none', 'child hidden');
+  assert.equal(innerParentAttacher.style.display, '', 'parent still shown');
 });

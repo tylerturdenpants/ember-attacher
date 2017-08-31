@@ -6,12 +6,12 @@ moduleForComponent('ember-attacher', 'Integration | Component | hideOn "escapeke
   integration: true
 });
 
-test('hides when the escape key is pressed', function(assert) {
+test('hides when the escape key is pressed', async function(assert) {
   assert.expect(2);
 
   this.render(hbs`
     <div>
-      {{#ember-attacher class='hello'
+      {{#ember-attacher id='attachment'
                         hideOn='escapekey'
                         isShown=true}}
         hideOn click
@@ -19,12 +19,12 @@ test('hides when the escape key is pressed', function(assert) {
     </div>
   `);
 
-  const innerAttacher = find('.hello > .inner');
+  const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
   // Press escape key (keyCode === 27)
-  return keyEvent(document, 'keydown', 27).then(() => {
-    assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
-  });
+  await keyEvent(document, 'keydown', 27);
+
+  assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
 });
