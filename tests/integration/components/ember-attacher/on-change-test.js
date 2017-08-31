@@ -7,7 +7,7 @@ moduleForComponent('ember-attacher', 'Integration | Component | onChange', {
   integration: true
 });
 
-test('fires the onChange hook when visibility is toggled', function(assert) {
+test('fires the onChange hook when visibility is toggled', async function(assert) {
   assert.expect(5);
 
   this.set('isShown', true);
@@ -16,7 +16,7 @@ test('fires the onChange hook when visibility is toggled', function(assert) {
     <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher class='hello'
+      {{#ember-attacher id='attachment'
                         hideOn='click'
                         isShown=isShown
                         onChange=(action (mut isShown))
@@ -26,22 +26,22 @@ test('fires the onChange hook when visibility is toggled', function(assert) {
     </button>
   `);
 
-  const innerAttacher = find('.hello > .inner');
+  const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
-  return click(find('#click-toggle')).then(() => {
-    assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
-    assert.equal(this.get('isShown'), false);
+  await click(find('#click-toggle'));
 
-    // Show again by toggling isShown
-    this.set('isShown', true);
+  assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
+  assert.equal(this.get('isShown'), false);
 
-    return wait().then(() => {
-      assert.equal(innerAttacher.style.display, '', 'Shown again');
+  // Show again by toggling isShown
+  this.set('isShown', true);
 
-      // Make sure isShown is still true
-      assert.equal(this.get('isShown'), true);
-    });
-  });
+  await wait();
+
+  assert.equal(innerAttacher.style.display, '', 'Shown again');
+
+  // Make sure isShown is still true
+  assert.equal(this.get('isShown'), true);
 });

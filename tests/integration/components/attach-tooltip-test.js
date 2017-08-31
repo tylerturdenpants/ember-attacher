@@ -1,7 +1,17 @@
+import QUnit from 'qunit';
 import hbs from 'htmlbars-inline-precompile';
 import { find } from 'ember-native-dom-helpers';
 import { getOwner } from '@ember/application';
 import { moduleForComponent, test } from 'ember-qunit';
+
+QUnit.assert.contains = function(actual, expected, message) {
+  this.pushResult({
+    result: expected.every((elem) => actual.includes(elem)),
+    actual,
+    expected,
+    message
+  });
+};
 
 moduleForComponent('attach-tooltip', 'Integration | Component | attach tooltip', {
   afterEach() {
@@ -27,10 +37,9 @@ test('has the default classes', function(assert) {
 
   const tooltipWithClass = find('#tooltip-with-class');
 
-  assert.ok(
-    tooltipWithClass
-      .className
-      .startsWith('ember-attacher-popper ember-attacher-tooltip some-class'),
+  assert.contains(
+    tooltipWithClass.className.split(' '),
+    'ember-attacher-popper ember-attacher-tooltip some-class'.split(' '),
     'it adds the default classes to tooltips with a class'
   );
 
@@ -65,7 +74,7 @@ test('uses the user-supplied default tooltip class', function(assert) {
   );
 });
 
-test('it adds aria-describedby to the target and has the default classes', function(assert) {
+test('adds aria-describedby to the target', function(assert) {
   this.set('showTooltip', true);
 
   this.render(hbs`

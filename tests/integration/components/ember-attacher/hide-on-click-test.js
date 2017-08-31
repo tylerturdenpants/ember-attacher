@@ -6,14 +6,14 @@ moduleForComponent('ember-attacher', 'Integration | Component | hideOn "click"',
   integration: true
 });
 
-test('hides when the target is clicked', function(assert) {
+test('hides when the target is clicked', async function(assert) {
   assert.expect(2);
 
   this.render(hbs`
     <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher class='hello'
+      {{#ember-attacher id='attachment'
                         hideOn='click'
                         isShown=true}}
         hideOn click
@@ -21,11 +21,11 @@ test('hides when the target is clicked', function(assert) {
     </button>
   `);
 
-  const innerAttacher = find('.hello > .inner');
+  const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
-  return click(find('#click-toggle')).then(() => {
-    assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
-  });
+  await click(find('#click-toggle'));
+
+  assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
 });
