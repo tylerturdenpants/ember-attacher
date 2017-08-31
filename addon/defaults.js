@@ -1,0 +1,20 @@
+export default {
+  animation: 'fill',
+  arrow: false,
+  class: null,
+  flip: null,
+  hideDelay: 0,
+  hideDuration: 300,
+  hideOn: 'mouseleave blur',
+  interactive: false,
+  isOffset: false,
+  isShown: false,
+  placement: 'top',
+  popperContainer: '.ember-application',
+  popperOptions: null,
+  renderInPlace: false,
+  showDelay: 0,
+  showDuration: 300,
+  showOn: 'mouseenter focus',
+  tooltipClass: 'ember-attacher-popper ember-attacher-tooltip'
+};
