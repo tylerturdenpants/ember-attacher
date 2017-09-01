@@ -231,7 +231,6 @@ export default Component.extend({
     // Make the attachment visible immediately so transition animations can take place
     this._setIsVisibleAfterDelay(true, 0);
 
-    this.get('scheduleUpdate')();
     this.get('enableEventListeners')();
 
     // Start the show animation on the next cycle so CSS transitions can have an effect
@@ -243,12 +242,15 @@ export default Component.extend({
         return;
       }
 
+      this.get('scheduleUpdate')();
+
       const showDuration = parseInt(this.get('showDuration'));
 
       this.element.style.transitionDuration = `${showDuration}ms`;
       this.set('_transitionDuration', showDuration);
 
       this.set('_isStartingAnimation', true);
+
     });
 
     this._isHidden = false;
