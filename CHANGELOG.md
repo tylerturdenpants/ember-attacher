@@ -1,5 +1,21 @@
 # Change Log
 
+## [v0.10.4](https://github.com/kybishop/ember-attacher/tree/v0.10.4) (2017-09-01)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.10.3...v0.10.4)
+
+**Closed issues:**
+
+- Adding aria-describedby attribute to target? [\#37](https://github.com/kybishop/ember-attacher/issues/37)
+- How to test usage of addon? [\#34](https://github.com/kybishop/ember-attacher/issues/34)
+
+**Merged pull requests:**
+
+- fix\(initial position\) more foolproof when using isShown [\#59](https://github.com/kybishop/ember-attacher/pull/59) ([kybishop](https://github.com/kybishop))
+- Test fixups [\#58](https://github.com/kybishop/ember-attacher/pull/58) ([kybishop](https://github.com/kybishop))
+- feat\(attach-tooltip component\) has expected tooltip defaults [\#57](https://github.com/kybishop/ember-attacher/pull/57) ([kybishop](https://github.com/kybishop))
+- chore\(remove jquery\) [\#56](https://github.com/kybishop/ember-attacher/pull/56) ([kybishop](https://github.com/kybishop))
+- chore\(tests for hideOn='mouseleave'\) [\#55](https://github.com/kybishop/ember-attacher/pull/55) ([kybishop](https://github.com/kybishop))
+
 ## [v0.10.3](https://github.com/kybishop/ember-attacher/tree/v0.10.3) (2017-08-29)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.10.2...v0.10.3)
 
