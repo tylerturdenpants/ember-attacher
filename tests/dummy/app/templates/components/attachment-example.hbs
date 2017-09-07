@@ -62,10 +62,10 @@
 <centered class="edit-section">
   <vbox lm="fit">
     <hbox class="nav-bar">
-      <centered fit class="nav{{if isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' true}}>
+      <centered xs='6' class="nav{{if isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' true}}>
         \{{#attach-tooltip}}
       </centered>
-      <centered fit class="nav{{unless isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' false}}>
+      <centered xs='6' class="nav{{unless isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' false}}>
         \{{#ember-attacher}}
       </centered>
     </hbox>

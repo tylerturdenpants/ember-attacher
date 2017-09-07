@@ -26,11 +26,16 @@ test('fires the onChange hook when visibility is toggled', async function(assert
     </button>
   `);
 
+  // Wait for the initial show() RAF to complete;
+  await wait();
+
   const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
   await click(find('#click-toggle'));
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
   assert.equal(this.get('isShown'), false);
@@ -38,6 +43,7 @@ test('fires the onChange hook when visibility is toggled', async function(assert
   // Show again by toggling isShown
   this.set('isShown', true);
 
+  await wait();
   await wait();
 
   assert.equal(innerAttacher.style.display, '', 'Shown again');

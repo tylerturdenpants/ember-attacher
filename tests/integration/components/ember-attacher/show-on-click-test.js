@@ -1,4 +1,5 @@
 import hbs from 'htmlbars-inline-precompile';
+import wait from 'ember-test-helpers/wait';
 import { click, find } from 'ember-native-dom-helpers';
 import { moduleForComponent, test } from 'ember-qunit';
 
@@ -24,6 +25,8 @@ test('shows when the target is clicked', async function(assert) {
   assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
 
   await click(find('#click-toggle'));
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, '', 'Now shown');
 });
