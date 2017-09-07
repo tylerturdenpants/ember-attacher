@@ -20,11 +20,16 @@ test('hides when the mouse leaves the target', async function(assert) {
     </div>
   `);
 
+  // Wait for initial show()
+  await wait();
+
   const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
   await triggerEvent('#target', 'mouseleave');
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
 });
@@ -47,25 +52,36 @@ test("with interactive=true: doesn't hide if mouse over target or attachment", a
     <div id='outside'></div>
   `);
 
+  // Wait for initial show()
+  await wait();
+
   const innerAttacher = find('#hello > .inner');
   const target = find('#target');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
   await triggerEvent(target, 'mouseleave');
+  await wait();
+  await wait();
 
   // Sanity check still shown
   assert.equal(innerAttacher.style.display, '', 'Still shown after mouseleave');
 
   await triggerEvent(innerAttacher, 'mousemove');
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, '', 'Still shown after mousemove into attachment');
 
   await triggerEvent(find('#other'), 'mousemove');
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, '', 'Still shown after mousemove into target');
 
   await triggerEvent(find('#outside'), 'mousemove');
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display,
                'none',
@@ -95,11 +111,15 @@ test('with interactive=true: still hides when mouse leaves target + attachment '
     <div id='outside'></div>
   `);
 
+  // Wait for initial show()
+  await wait();
+
   const innerAttacher = find('#hello > .inner');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
   await click(find('#manual-hide'));
+  await wait();
 
   assert.equal(innerAttacher.style.display, 'none', 'Hidden after manual hide');
 
@@ -110,10 +130,15 @@ test('with interactive=true: still hides when mouse leaves target + attachment '
   await wait();
 
   await triggerEvent('#target', 'mouseleave');
+  await wait();
+  await wait();
+
   // Sanity check. Also note how the mouseleave didn't trigger a hide event
   assert.equal(innerAttacher.style.display, '', 'Shown again');
 
   await triggerEvent(find('#outside'), 'mousemove');
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, 'none', 'Hidden after mousemove');
 });
@@ -140,12 +165,17 @@ test('with interactive=true and isOffset=false: hides if mouse between '
     </div>
   `);
 
+  // Wait for initial show()
+  await wait();
+
   const innerAttacher = find('#attachment > .inner');
   const target = find('#target');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
   await triggerEvent(target, 'mouseleave');
+  await wait();
+  await wait();
 
   // Sanity check still shown
   assert.equal(innerAttacher.style.display, '', 'Still shown after mouseleave');
@@ -158,6 +188,8 @@ test('with interactive=true and isOffset=false: hides if mouse between '
                        clientX: attachmentPosition.left + 1,
                        clientY: attachmentPosition.top - 1
                      });
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, 'none', 'Hidden after mousemove between');
 });
@@ -173,7 +205,8 @@ test("with interactive=true and isOffset=true: doesn't hide if mouse between "
       }
     </style>
 
-    <div id="target" style="height: 300px; width: 300px;">
+    <div id="target" style="height: 50px; top: 0; position: fixed; width: 300px;">
+      target
       {{#ember-attacher id='attachment'
                         hideOn='mouseleave'
                         interactive=true
@@ -185,12 +218,17 @@ test("with interactive=true and isOffset=true: doesn't hide if mouse between "
     </div>
   `);
 
+  // Wait for initial show()
+  await wait();
+
   const innerAttacher = find('#attachment > .inner');
   const target = find('#target');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
   await triggerEvent(target, 'mouseleave');
+  await wait();
+  await wait();
 
   // Sanity check still shown
   assert.equal(innerAttacher.style.display, '', 'Still shown after mouseleave');
@@ -203,6 +241,8 @@ test("with interactive=true and isOffset=true: doesn't hide if mouse between "
                        clientX: attachmentPosition.left + 1,
                        clientY: attachmentPosition.top - 1
                      });
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, '', 'Still shown after mousemove into between');
 
@@ -212,6 +252,8 @@ test("with interactive=true and isOffset=true: doesn't hide if mouse between "
                        clientX: attachmentPosition.left - 1,
                        clientY: attachmentPosition.bottom + 1
                      });
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, 'none', 'hidden after mousemove outside');
 });

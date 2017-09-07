@@ -21,20 +21,15 @@ export default Component.extend({
     // Holds the current popper target so event listeners can be removed if the target changes
     this._currentTarget = null;
 
-    // The debounced _hide() is stored here so it can be cancelled
-    // if a _show() is triggered before the _hide() is executed
-    this._delayedHide = null;
-
-    // The debounced _show() is stored here so it can be cancelled
-    // if a _hide() is triggered before the _show() is executed
-    this._delayedShow = null;
+    // The debounced _hide() and _show() are stored here so they can be cancelled when necessary
+    this._delayedVisibilityToggle = null;
 
     // The final source of truth on whether or not all _hide() or _show() actions have completed
     this._isHidden = true;
 
     // Holds a delayed function to toggle the visibility of the attachment.
     // Used to make sure animations can complete before the attachment is hidden.
-    this._isVisibleTimeout = null;
+    this._animationTimeout = null;
 
     // Used to store event listeners so they can be removed when necessary.
     this._hideListenersOnDocumentByEvent = {};
@@ -59,12 +54,11 @@ export default Component.extend({
   didInsertElement() {
     this._super(...arguments);
 
-    next(() => {
-      // If the attachment is initially hidden it has no width when positioned for the first time.
-      // This can cause it to be positioned too far to the right, such that it overflows the screen
-      // when shown for the first time.
-      // We avoid this issue by removing the initial positioning of attachments which are initially
-      // hidden. The attachment will then correctly update its position from this._show()
+    requestAnimationFrame(() => {
+      // The attachment has no width if initially hidden. This can cause it to be positioned so far
+      // to the right that it overflows the screen until enough updates fix its position.
+      // We avoid this issue by positioning initially hidden elements in the top left of the screen.
+      // The attachment will then correctly update its position from the first this._show()
       if (this._isHidden && !this.isDestroying && !this.isDestroyed) {
         this.element.parentNode.style.transform = null;
       }
@@ -109,6 +103,9 @@ export default Component.extend({
   willDestroyElement() {
     this._super(...arguments);
 
+    cancelAnimationFrame(this._animationTimeout);
+    cancel(this._delayedVisibilityToggle);
+
     this._removeEventListeners();
   },
 
@@ -138,11 +135,11 @@ export default Component.extend({
     const isShown = this.get('isShown');
 
     if (isShown === true && this._isHidden) {
+      this._show();
+
       // Add the hide listeners in the next run loop to avoid conflicts
       // where clicking triggers both an isShown toggle and a clickout.
       next(this, () => this._addListenersForHideEvents());
-
-      this._show();
     } else if (isShown === false && !this._isHidden) {
       this._hide();
     }
@@ -151,6 +148,13 @@ export default Component.extend({
   /**
    * ================== PRIVATE IMPLEMENTATION DETAILS ==================
    */
+
+  actions: {
+    // Exposed via the named yield to enable custom hide events
+    hide() {
+      this._hide();
+    }
+  },
 
   classNameBindings: ['_animation', '_isStartingAnimation:ember-attacher-show:ember-attacher-hide'],
   // Part of the Component superclass. isVisible == false sets 'display: none'
@@ -176,19 +180,19 @@ export default Component.extend({
   }),
 
   _setIsVisibleAfterDelay(isVisible, delay) {
-    cancel(this._isVisibleTimeout);
-
     const onChange = this.get('onChange');
 
     if (delay) {
-      this._isVisibleTimeout = later(this, () => {
-        if (!this.isDestroyed && !this.isDestroying) {
-          this.set('isVisible', isVisible);
+      this._delayedVisibilityToggle = later(this, () => {
+        this._animationTimeout = requestAnimationFrame(() => {
+          if (!this.isDestroyed && !this.isDestroying) {
+            this.set('isVisible', isVisible);
 
-          if (onChange) {
-            onChange(isVisible);
+            if (onChange) {
+              onChange(isVisible);
+            }
           }
-        }
+        });
       }, delay);
     } else {
       this.set('isVisible', isVisible);
@@ -204,56 +208,105 @@ export default Component.extend({
    */
 
   _showAfterDelay() {
-    cancel(this._delayedHide);
-
-    // The attachment is already visible
-    if (!this._isHidden) {
-      return;
-    }
+    cancel(this._delayedVisibilityToggle);
 
     this._addListenersForHideEvents();
 
     const showDelay = parseInt(this.get('showDelay'));
 
-    this._delayedShow = debounce(this, this._show, showDelay, !showDelay);
+    this._delayedVisibilityToggle = debounce(this, this._show, showDelay, !showDelay);
   },
 
   _show() {
-    cancel(this._isVisibleTimeout);
+    cancelAnimationFrame(this._animationTimeout);
 
-    const target = this._currentTarget;
-
-    // The target was destroyed
-    if (!target) {
+    if (!this._currentTarget) {
       return;
     }
 
     // Make the attachment visible immediately so transition animations can take place
     this._setIsVisibleAfterDelay(true, 0);
 
-    this.get('enableEventListeners')();
+    this._startShowAnimation();
+  },
 
+  _startShowAnimation() {
     // Start the show animation on the next cycle so CSS transitions can have an effect
     // If we start the animation immediately, the transition won't work because isVisible will
     // turn on the same time as our show animation, and `display: none` => `display: anythingElse`
     // is not transition-able
-    next(this, () => {
+    // All included animations set opaque: 0, so the attachment is still effectively hidden until
+    // the final RAF occurs.
+    this._animationTimeout = requestAnimationFrame(() => {
+      if (this.isDestroyed || this.isDestroying || !this._currentTarget) {
+        return;
+      }
+
+      // Wait until the element is visible before continuing
+      if (this.element.style.display === 'none') {
+        this._startShowAnimation();
+
+        return;
+      }
+
+      this.get('enableEventListeners')();
+      this.get('update')();
+
+      // Wait for the above positioning to take effect before starting the show animation,
+      // else the positioning itself will be animated, causing animation glitches.
+      this._animationTimeout = requestAnimationFrame(() => {
+        if (this.isDestroyed || this.isDestroying || !this._currentTarget) {
+          return;
+        }
+
+        const showDuration = parseInt(this.get('showDuration'));
+
+        this.element.style.transitionDuration = `${showDuration}ms`;
+        this.set('_transitionDuration', showDuration);
+
+        this.set('_isStartingAnimation', true);
+
+        this._isHidden = false;
+      });
+    });
+  },
+
+  /**
+   * ================== HIDE ATTACHMENT LOGIC ==================
+   */
+
+  _hideAfterDelay() {
+    cancel(this._delayedVisibilityToggle);
+
+    const hideDelay = parseInt(this.get('hideDelay'));
+
+    this._delayedVisibilityToggle = debounce(this, this._hide, hideDelay, !hideDelay);
+  },
+
+  _hide() {
+    cancelAnimationFrame(this._animationTimeout);
+
+    this._removeListenersForHideEvents();
+
+    this._animationTimeout = requestAnimationFrame(() => {
       if (this.isDestroyed || this.isDestroying) {
         return;
       }
 
-      this.get('scheduleUpdate')();
+      const hideDuration = parseInt(this.get('hideDuration'));
 
-      const showDuration = parseInt(this.get('showDuration'));
+      this.element.style.transitionDuration = `${hideDuration}ms`;
+      this.set('_transitionDuration', hideDuration);
 
-      this.element.style.transitionDuration = `${showDuration}ms`;
-      this.set('_transitionDuration', showDuration);
+      this.set('_isStartingAnimation', false);
 
-      this.set('_isStartingAnimation', true);
+      // Wait for any animations to complete before hiding the attachment
+      this._setIsVisibleAfterDelay(false, hideDuration);
 
+      this.get('disableEventListeners')();
+
+      this._isHidden = true;
     });
-
-    this._isHidden = false;
   },
 
   /**
@@ -421,43 +474,6 @@ export default Component.extend({
     }
   },
 
-  /**
-   * ================== HIDE ATTACHMENT LOGIC ==================
-   */
-
-  _hideAfterDelay() {
-    cancel(this._delayedShow);
-
-    // The attachment is already hidden
-    if (this._isHidden) {
-      return;
-    }
-
-    const hideDelay = parseInt(this.get('hideDelay'));
-
-    this._delayedHide = debounce(this, this._hide, hideDelay, !hideDelay);
-  },
-
-  _hide() {
-    cancel(this._isVisibleTimeout);
-
-    this._removeListenersForHideEvents();
-
-    const hideDuration = parseInt(this.get('hideDuration'));
-
-    this.element.style.transitionDuration = `${hideDuration}ms`;
-    this.set('_transitionDuration', hideDuration);
-
-    this.set('_isStartingAnimation', false);
-
-    // Wait for any animations to complete before hiding the attachment
-    this._setIsVisibleAfterDelay(false, hideDuration);
-
-    this.get('disableEventListeners')();
-
-    this._isHidden = true;
-  },
-
   _removeListenersForHideEvents() {
     Object.keys(this._hideListenersOnDocumentByEvent).forEach((eventType) => {
       document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType]);
@@ -493,12 +509,5 @@ export default Component.extend({
         delete this._hideListenersOnTargetByEvent[eventType];
       }
     });
-  },
-
-  actions: {
-    // Exposed via the named yield to enable custom hide events
-    hide() {
-      this._hide();
-    }
   }
 });

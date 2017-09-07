@@ -1,4 +1,5 @@
 import hbs from 'htmlbars-inline-precompile';
+import wait from 'ember-test-helpers/wait';
 import { click, find } from 'ember-native-dom-helpers';
 import { moduleForComponent, test } from 'ember-qunit';
 
@@ -21,16 +22,24 @@ test('hides when an element outside the target is clicked', async function(asser
     </div>
   `);
 
+  // Wait for initial show animation to complete
+  await wait();
+  await wait();
+
   const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
   // Make sure the attachment is still shown when the target is clicked
   await click(find('#parent'));
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, '', 'Still shown');
 
   await click(find('#focus-me'));
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
 });
@@ -48,11 +57,16 @@ test('with interactive=false: hides when attachment is clicked', async function(
     </div>
   `);
 
+  // Wait for initial show animation to complete
+  await wait();
+
   const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
   await click(innerAttacher);
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
 });
@@ -73,22 +87,31 @@ test("with interactive=true: doesn't hide when attachment is clicked", async fun
     </div>
   `);
 
+  // Wait for initial show animation to complete
+  await wait();
+
   const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
   // Make sure attachment stays shown when attachment clicked
   await click(innerAttacher);
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, '', 'Still shown');
 
   // Make sure attachment stays shown when target clicked
   await click(find('#parent'));
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, '', 'Still shown');
 
   // Make sure attachment is hidden once an element outside target or attachment is clicked
   await click(find('#focus-me'));
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
 });

@@ -1,4 +1,5 @@
 import hbs from 'htmlbars-inline-precompile';
+import wait from 'ember-test-helpers/wait';
 import { click, find } from 'ember-native-dom-helpers';
 import { moduleForComponent, test } from 'ember-qunit';
 
@@ -22,15 +23,22 @@ test('isShown works with showOn/hideOn set to "click"', async function(assert) {
     </button>
   `);
 
+  // Wait for the initial show() RAF to complete;
+  await wait();
+
   const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
   await click(find('#toggle-show'));
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
 
   await click(find('#toggle-show'));
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, '', 'Shown again after click');
 });
@@ -71,16 +79,20 @@ test('isShown works with showOn/hideOn set to "none"', async function(assert) {
   assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
 
   await click(find('#open'));
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, '', 'Now shown');
 
   await click(find('#close'));
+  await wait();
+  await wait();
 
   assert.equal(innerAttacher.style.display, 'none', 'Hidden again');
 });
 
 test('nested attachers open and close as expected', async function(assert) {
-  assert.expect(6);
+  assert.expect(7);
 
   this.on('openParentPopover', () => {
     this.set('parentIsShown', true);
@@ -131,15 +143,27 @@ test('nested attachers open and close as expected', async function(assert) {
   assert.equal(innerChildAttacher.style.display, 'none', 'child initially hidden');
 
   await click(find('#openParent'));
+  await wait();
+  await wait();
 
   assert.equal(innerParentAttacher.style.display, '', 'parent shown');
 
+  assert.equal(innerChildAttacher.style.display, 'none', 'child still hidden');
+
   await click(find('#openChild', innerParentAttacher));
+  await wait();
+  await wait();
+
+  // Wait for show animation to complete
+  await wait();
+  await wait();
 
   assert.equal(innerChildAttacher.style.display, '', 'child shown');
 
   await click(find('#closeChild'));
+  await wait();
+  await wait();
 
-  assert.equal(innerChildAttacher.style.display, 'none', 'child hidden');
   assert.equal(innerParentAttacher.style.display, '', 'parent still shown');
+  assert.equal(innerChildAttacher.style.display, 'none', 'child hidden');
 });
