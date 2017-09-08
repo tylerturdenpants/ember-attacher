@@ -1,5 +1,13 @@
 # Change Log
 
+## [v0.10.6](https://github.com/kybishop/ember-attacher/tree/v0.10.6) (2017-09-07)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.10.5...v0.10.6)
+
+**Merged pull requests:**
+
+- Use RAF for animations [\#63](https://github.com/kybishop/ember-attacher/pull/63) ([kybishop](https://github.com/kybishop))
+- fix\(more foolproof initial position\) [\#62](https://github.com/kybishop/ember-attacher/pull/62) ([kybishop](https://github.com/kybishop))
+
 ## [v0.10.5](https://github.com/kybishop/ember-attacher/tree/v0.10.5) (2017-09-05)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.10.4...v0.10.5)
 
