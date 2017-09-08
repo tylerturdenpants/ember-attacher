@@ -5,7 +5,7 @@ export default Service.extend({
   arrow: false,
   hideDelay: 0,
   hideDuration: 300,
-  hideOn: 'mouseleave blur',
+  hideOn: 'mouseleave blur escapekey',
   interactive: false,
   isShown: false,
   placement: 'top',
