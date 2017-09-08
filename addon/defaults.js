@@ -5,7 +5,7 @@ export default {
   flip: null,
   hideDelay: 0,
   hideDuration: 300,
-  hideOn: 'mouseleave blur',
+  hideOn: 'mouseleave blur escapekey',
   interactive: false,
   isOffset: false,
   isShown: false,
