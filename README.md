@@ -6,23 +6,28 @@
 [![Ember Observer Score](http://emberobserver.com/badges/ember-attacher.svg)](http://emberobserver.com/addons/ember-attacher)
 [![Build Status](https://travis-ci.org/kybishop/ember-attacher.svg)](https://travis-ci.org/kybishop/ember-attacher)
 
-Tooltips and popovers made easy. Just drop an ember-attacher in a parent, or
-give it a target, and your popper is ready to go!
+Tooltips and popovers made easy.
+Just drop an attach-tooltip or ember-attacher in a parent and your popper is ready to go!
 
 ```html
 <button>
   Click me
 
-  {{#ember-attacher class="ember-attacher-popper ember-attacher-tooltip"}}
+  {{#attach-tooltip}}
     I'm a tooltip!
-  {{/ember-attacher}}
+  {{/attach-tooltip}}
 </button>
 
-<button class="other-button">No click me!</button>
+<button class="other-button">
+  No click me!
 
-{{#ember-attacher target=".other-button" class="ember-attacher-popper ember-attacher-tooltip"}}
-  I'm also a tooltip!
-{{/ember-attacher}}
+  {{#ember-attacher class="ember-attacher-popper"
+                    hideOn='click'
+                    isShown=true
+                    showOn='click'}}
+    I'm a popover!
+  {{/ember-attacher}}
+</button>
 ```
 
 See [the example site](https://kybishop.github.io/ember-attacher/) for a list of all
@@ -34,9 +39,27 @@ available options.
 ember install ember-attacher
 ```
 
+## Components
+
+### `{{#ember-attacher}}`
+
+The base component.
+ - Has no default class or roles.
+ - Does not modify the target in any way.
+
+### `{{#attach-tooltip}}`
+
+A tooltip attacher.
+- Has the default class `'ember-attacher-popper ember-attacher-tooltip'`
+  - The default tooltip classes can be modified by altering the `tooltipClass`
+    default. See [here](#user-defined-defaults) for details on editing default values.
+- Default `role` attribute of `tooltip`.
+- Causes the target to gain an `aria-describedby` attribute set to the tooltip's ID.
+
+
 ## User-defined defaults
 
-User-defined defaults can be set in the consuming app or addon's config/environment.js. These defaults will be applied to every `{{#ember-attacher}}`
+User-defined defaults can be set in the consuming app or addon's config/environment.js. These defaults will be applied to every `{{#ember-attacher}}` and `{{#attach-tooltip}}`
 
 ```javascript
 // config/environment/js
@@ -50,6 +73,8 @@ module.exports = function(environment) {
   };
 }
 ```
+
+The full list of editable defaults can be seen [here](https://github.com/kybishop/ember-attacher/blob/master/addon/defaults.js).
 
 # Development setup
 
