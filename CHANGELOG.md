@@ -1,5 +1,18 @@
 # Change Log
 
+## [v0.11.0](https://github.com/kybishop/ember-attacher/tree/v0.11.0) (2017-09-08)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.10.6...v0.11.0)
+
+**Closed issues:**
+
+- Document attach-tooltip in the README [\#60](https://github.com/kybishop/ember-attacher/issues/60)
+- Bug? Multiple tooltips can open when browser loses/gains focus. [\#54](https://github.com/kybishop/ember-attacher/issues/54)
+
+**Merged pull requests:**
+
+- Update readme [\#66](https://github.com/kybishop/ember-attacher/pull/66) ([kybishop](https://github.com/kybishop))
+- Attach tooltip improvements and passthrough ariaRole [\#65](https://github.com/kybishop/ember-attacher/pull/65) ([kybishop](https://github.com/kybishop))
+
 ## [v0.10.6](https://github.com/kybishop/ember-attacher/tree/v0.10.6) (2017-09-07)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.10.5...v0.10.6)
 
