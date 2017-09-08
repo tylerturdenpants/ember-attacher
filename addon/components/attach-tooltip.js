@@ -16,6 +16,8 @@ export default EmberAttacher.extend({
     }
   },
 
+  ariaRole: 'tooltip',
+
   class: computed({
     get() {
       return this.get('config').tooltipClass || DEFAULTS.tooltipClass;

@@ -20,6 +20,28 @@ moduleForComponent('attach-tooltip', 'Integration | Component | attach tooltip',
   integration: true
 });
 
+test('uses the correct aria-role', function(assert) {
+  this.render(hbs`
+    <div>
+      {{#attach-tooltip id='tooltip'}}
+        tooltip text
+      {{/attach-tooltip}}
+    </div>
+
+    <div>
+      {{#attach-tooltip id='other-tooltip' ariaRole='testing'}}
+        tooltip text
+      {{/attach-tooltip}}
+    </div>
+  `);
+
+  assert.equal(find('#tooltip').getAttribute('role'), 'tooltip', 'has default aria-role');
+
+  assert.equal(find('#other-tooltip').getAttribute('role'),
+               'testing',
+               'has user-supplied aria-role');
+});
+
 test('has the default classes', function(assert) {
   this.render(hbs`
     <div>
