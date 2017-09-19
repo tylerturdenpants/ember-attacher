@@ -2226,7 +2226,7 @@ ember-cli-babel@^6.0.0, ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.0.0-be
     clone "^2.0.0"
     ember-cli-version-checker "^2.0.0"
 
-ember-cli-babel@^6.4.1, ember-cli-babel@^6.8.2:
+ember-cli-babel@^6.3.0, ember-cli-babel@^6.4.1, ember-cli-babel@^6.8.2:
   version "6.8.2"
   resolved "https://registry.yarnpkg.com/ember-cli-babel/-/ember-cli-babel-6.8.2.tgz#eac2785964f4743f4c815cd53c6288f00cc087d7"
   dependencies:
@@ -2701,6 +2701,13 @@ ember-qunit@^2.2.0:
   resolved "https://registry.yarnpkg.com/ember-qunit/-/ember-qunit-2.2.0.tgz#3cdf400031c93a38de781a7304819738753b7f99"
   dependencies:
     ember-test-helpers "^0.6.3"
+
+ember-raf-test-waiter@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/ember-raf-test-waiter/-/ember-raf-test-waiter-0.1.0.tgz#388dcc1e2eb633794282012399dbf27b39f767cd"
+  dependencies:
+    broccoli-funnel "^2.0.1"
+    ember-cli-babel "^6.3.0"
 
 ember-resolver@^4.5.0:
   version "4.5.0"
