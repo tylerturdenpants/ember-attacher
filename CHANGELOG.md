@@ -1,5 +1,12 @@
 # Change Log
 
+## [v0.11.2](https://github.com/kybishop/ember-attacher/tree/v0.11.2) (2017-09-20)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.11.1...v0.11.2)
+
+**Merged pull requests:**
+
+- fix\(perf\) manually add run loop to RAF calls [\#68](https://github.com/kybishop/ember-attacher/pull/68) ([kybishop](https://github.com/kybishop))
+
 ## [v0.11.1](https://github.com/kybishop/ember-attacher/tree/v0.11.1) (2017-09-16)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.11.0...v0.11.1)
 
