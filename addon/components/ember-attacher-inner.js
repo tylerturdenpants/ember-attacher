@@ -1,6 +1,6 @@
 import Component from '@ember/component';
 import layout from '../templates/components/ember-attacher-inner';
-import { cancel, debounce, later, next } from '@ember/runloop';
+import { cancel, debounce, later, next, run } from '@ember/runloop';
 import { computed, observer } from '@ember/object';
 import { htmlSafe } from '@ember/string';
 
@@ -186,7 +186,7 @@ export default Component.extend({
       this._delayedVisibilityToggle = later(this, () => {
         this._animationTimeout = requestAnimationFrame(() => {
           if (!this.isDestroyed && !this.isDestroying) {
-            this.set('isVisible', isVisible);
+            run(() => this.set('isVisible', isVisible));
 
             if (onChange) {
               onChange(isVisible);
@@ -262,9 +262,10 @@ export default Component.extend({
         const showDuration = parseInt(this.get('showDuration'));
 
         this.element.style.transitionDuration = `${showDuration}ms`;
-        this.set('_transitionDuration', showDuration);
-
-        this.set('_isStartingAnimation', true);
+        run(() => {
+          this.set('_transitionDuration', showDuration);
+          this.set('_isStartingAnimation', true);
+        });
 
         this._isHidden = false;
       });
@@ -296,12 +297,14 @@ export default Component.extend({
       const hideDuration = parseInt(this.get('hideDuration'));
 
       this.element.style.transitionDuration = `${hideDuration}ms`;
-      this.set('_transitionDuration', hideDuration);
 
-      this.set('_isStartingAnimation', false);
+      run(() => {
+        this.set('_transitionDuration', hideDuration);
+        this.set('_isStartingAnimation', false);
 
-      // Wait for any animations to complete before hiding the attachment
-      this._setIsVisibleAfterDelay(false, hideDuration);
+        // Wait for any animations to complete before hiding the attachment
+        this._setIsVisibleAfterDelay(false, hideDuration);
+      });
 
       this.get('disableEventListeners')();
 

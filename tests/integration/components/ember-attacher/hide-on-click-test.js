@@ -1,5 +1,4 @@
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import { click, find } from 'ember-native-dom-helpers';
 import { moduleForComponent, test } from 'ember-qunit';
 
@@ -22,16 +21,11 @@ test('hides when the target is clicked', async function(assert) {
     </button>
   `);
 
-  // Wait for the initial show() RAF to complete;
-  await wait();
-
   const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
-  await click(find('#click-toggle'));
-  await wait();
-  await wait();
+  await click('#click-toggle');
 
   assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
 });

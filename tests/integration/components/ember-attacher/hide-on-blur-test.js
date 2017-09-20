@@ -1,5 +1,4 @@
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import { click, find, focus } from 'ember-native-dom-helpers';
 import { moduleForComponent, test } from 'ember-qunit';
 
@@ -28,16 +27,11 @@ test('hides when the target loses focus', async function(assert) {
 
   assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
 
-  await click(find('#click-toggle'));
-  await wait();
-  await wait();
+  await click('#click-toggle');
 
   assert.equal(innerAttacher.style.display, '', 'Now shown');
 
   await focus('#focus-me');
-
-  await wait();
-  await wait();
 
   assert.equal(innerAttacher.style.display, 'none', 'hidden again');
 });
@@ -63,16 +57,11 @@ test('with interactive=false: hides when the attachment gains focus', async func
 
   assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
 
-  await click(find('#click-toggle'));
-  await wait();
-  await wait();
+  await click('#click-toggle');
 
   assert.equal(innerAttacher.style.display, '', 'Now shown');
 
   await focus('#attachment-focus-me');
-
-  await wait();
-  await wait();
 
   assert.equal(innerAttacher.style.display, 'none', 'hidden again');
 });
@@ -99,23 +88,15 @@ test("with interactive=true: doesn't hide when attachment gains focus", async fu
 
   assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
 
-  await click(find('#click-toggle'));
-  await wait();
-  await wait();
+  await click('#click-toggle');
 
   assert.equal(innerAttacher.style.display, '', 'Now shown');
 
   await focus('#attachment-focus-me');
 
-  await wait();
-  await wait();
-
   assert.equal(innerAttacher.style.display, '', 'Still shown');
 
   await focus('#outer-focus-me');
-
-  await wait();
-  await wait();
 
   assert.equal(innerAttacher.style.display, '', 'Hidden again');
 });

@@ -1,5 +1,4 @@
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import { click, find } from 'ember-native-dom-helpers';
 import { moduleForComponent, test } from 'ember-qunit';
 
@@ -26,25 +25,17 @@ test('fires the onChange hook when visibility is toggled', async function(assert
     </button>
   `);
 
-  // Wait for the initial show() RAF to complete;
-  await wait();
-
   const innerAttacher = find('#attachment > .inner');
 
   assert.equal(innerAttacher.style.display, '', 'Initially shown');
 
-  await click(find('#click-toggle'));
-  await wait();
-  await wait();
+  await click('#click-toggle');
 
   assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
   assert.equal(this.get('isShown'), false);
 
   // Show again by toggling isShown
   this.set('isShown', true);
-
-  await wait();
-  await wait();
 
   assert.equal(innerAttacher.style.display, '', 'Shown again');
 

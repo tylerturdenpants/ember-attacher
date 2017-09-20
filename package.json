@@ -58,6 +58,7 @@
     "ember-native-dom-event-dispatcher": "^0.6.3",
     "ember-native-dom-helpers": "^0.5.3",
     "ember-power-select": "^1.9.6",
+    "ember-raf-test-waiter": "^0.1.0",
     "ember-resolver": "^4.5.0",
     "ember-source": "~2.15.0",
     "flexi": "^2.0.1",
