@@ -1,5 +1,6 @@
 import hbs from 'htmlbars-inline-precompile';
 import { find, keyEvent } from 'ember-native-dom-helpers';
+import { isVisible } from 'ember-attacher';
 import { moduleForComponent, test } from 'ember-qunit';
 
 moduleForComponent('ember-attacher', 'Integration | Component | hideOn "escapekey"', {
@@ -19,12 +20,12 @@ test('hides when the escape key is pressed', async function(assert) {
     </div>
   `);
 
-  const innerAttacher = find('#attachment > .inner');
+  const attachment = find('#attachment');
 
-  assert.equal(innerAttacher.style.display, '', 'Initially shown');
+  assert.equal(isVisible(attachment), true, 'Initially shown');
 
   // Press escape key (keyCode === 27)
   await keyEvent(document, 'keydown', 27);
 
-  assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
+  assert.equal(isVisible(attachment), false, 'Now hidden');
 });

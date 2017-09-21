@@ -447,7 +447,7 @@ export default Component.extend({
     const targetReceivedClick = this._currentTarget.contains(event.target);
 
     if (this.get('interactive')) {
-      if (!targetReceivedClick && !this.element.contains(event.target)) {
+      if (!targetReceivedClick && !this.element.parentNode.contains(event.target)) {
         this._hideAfterDelay();
       }
     } else if (!targetReceivedClick) {

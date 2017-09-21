@@ -1,5 +1,6 @@
 import hbs from 'htmlbars-inline-precompile';
-import { click, find } from 'ember-native-dom-helpers';
+import { click } from 'ember-native-dom-helpers';
+import { isVisible } from 'ember-attacher';
 import { moduleForComponent, test } from 'ember-qunit';
 
 moduleForComponent('ember-attacher', 'Integration | Component | hideOn "click"', {
@@ -21,11 +22,9 @@ test('hides when the target is clicked', async function(assert) {
     </button>
   `);
 
-  const innerAttacher = find('#attachment > .inner');
-
-  assert.equal(innerAttacher.style.display, '', 'Initially shown');
+  assert.equal(isVisible('#attachment'), true, 'Initially shown');
 
   await click('#click-toggle');
 
-  assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
+  assert.equal(isVisible('#attachment'), false, 'Now hidden');
 });

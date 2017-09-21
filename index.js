@@ -9,7 +9,7 @@ const StripClassCallCheck = require('babel6-plugin-strip-class-callcheck');
 module.exports = {
   name: 'ember-attacher',
 
-  included: function(app) {
+  included(app) {
     this._super.included.apply(this, arguments);
 
     this._env = app.env;
@@ -17,7 +17,7 @@ module.exports = {
   },
 
   _hasSetupBabelOptions: false,
-  _setupBabelOptions: function(env) {
+  _setupBabelOptions(env) {
     if (this._hasSetupBabelOptions) {
       return;
     }
@@ -48,11 +48,27 @@ module.exports = {
     this._hasSetupBabelOptions = true;
   },
 
-  treeForAddon: function(tree) {
+  treeForAddon(tree) {
     if (/production/.test(this._env)) {
-      tree = new Funnel(tree, { exclude: [ /-debug/ ] });
+      tree = new Funnel(tree, { exclude: [/-debug/] });
     }
 
     return this._super.treeForAddon.call(this, tree);
+  },
+
+  treeForAddonTestSupport(tree) {
+    // intentionally not calling _super here
+    // so that can have our `import`'s be
+    // import { click, fillIn } from 'ember-native-dom-helpers';
+
+    const namespacedTree = new Funnel(tree, {
+      srcDir: '/',
+      destDir: `/${this.moduleName()}`,
+      annotation: `Addon#treeForTestSupport (${this.name})`
+    });
+
+    return this.preprocessJs(namespacedTree, '/', this.name, {
+      registry: this.registry
+    });
   }
 };

@@ -17,7 +17,8 @@ test('it renders', function(assert) {
     </div>
   `);
 
-  const innerAttacher = find('#attachment > .inner');
+  const attachment = find('#attachment');
+  const innerAttacher = find('.inner', attachment);
 
   assert.ok(innerAttacher, '.inner class exists');
 
