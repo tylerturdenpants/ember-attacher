@@ -1,5 +1,6 @@
 import hbs from 'htmlbars-inline-precompile';
 import { click, find } from 'ember-native-dom-helpers';
+import { isVisible } from 'ember-attacher';
 import { moduleForComponent, test } from 'ember-qunit';
 
 moduleForComponent('ember-attacher', 'Integration | Component | onChange', {
@@ -25,19 +26,19 @@ test('fires the onChange hook when visibility is toggled', async function(assert
     </button>
   `);
 
-  const innerAttacher = find('#attachment > .inner');
+  const attachment = find('#attachment');
 
-  assert.equal(innerAttacher.style.display, '', 'Initially shown');
+  assert.equal(isVisible(attachment), true, 'Initially shown');
 
   await click('#click-toggle');
 
-  assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
+  assert.equal(isVisible(attachment), false, 'Now hidden');
   assert.equal(this.get('isShown'), false);
 
   // Show again by toggling isShown
   this.set('isShown', true);
 
-  assert.equal(innerAttacher.style.display, '', 'Shown again');
+  assert.equal(isVisible(attachment), true, 'Shown again');
 
   // Make sure isShown is still true
   assert.equal(this.get('isShown'), true);

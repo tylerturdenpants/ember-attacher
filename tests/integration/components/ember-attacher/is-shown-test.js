@@ -1,5 +1,6 @@
 import hbs from 'htmlbars-inline-precompile';
 import { click, find } from 'ember-native-dom-helpers';
+import { isVisible } from 'ember-attacher';
 import { moduleForComponent, test } from 'ember-qunit';
 
 moduleForComponent('ember-attacher', 'Integration | Component | isShown', {
@@ -22,17 +23,17 @@ test('isShown works with showOn/hideOn set to "click"', async function(assert) {
     </button>
   `);
 
-  const innerAttacher = find('#attachment > .inner');
+  const attachment = find('#attachment');
 
-  assert.equal(innerAttacher.style.display, '', 'Initially shown');
-
-  await click('#toggle-show');
-
-  assert.equal(innerAttacher.style.display, 'none', 'Now hidden');
+  assert.equal(isVisible(attachment), true, 'Initially shown');
 
   await click('#toggle-show');
 
-  assert.equal(innerAttacher.style.display, '', 'Shown again after click');
+  assert.equal(isVisible(attachment), false, 'Now hidden');
+
+  await click('#toggle-show');
+
+  assert.equal(isVisible(attachment), true, 'Shown again after click');
 });
 
 test('isShown works with showOn/hideOn set to "none"', async function(assert) {
@@ -66,17 +67,17 @@ test('isShown works with showOn/hideOn set to "none"', async function(assert) {
     </button>
   `);
 
-  const innerAttacher = find('#attachment > .inner');
+  const attachment = find('#attachment');
 
-  assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
+  assert.equal(isVisible(attachment), false, 'Initially hidden');
 
   await click('#open');
 
-  assert.equal(innerAttacher.style.display, '', 'Now shown');
+  assert.equal(isVisible(attachment), true, 'Now shown');
 
   await click('#close');
 
-  assert.equal(innerAttacher.style.display, 'none', 'Hidden again');
+  assert.equal(isVisible(attachment), false, 'Hidden again');
 });
 
 test('nested attachers open and close as expected', async function(assert) {

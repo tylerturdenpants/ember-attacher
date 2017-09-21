@@ -1,5 +1,6 @@
 import hbs from 'htmlbars-inline-precompile';
 import { click, find, focus } from 'ember-native-dom-helpers';
+import { isVisible } from 'ember-attacher';
 import { moduleForComponent, test } from 'ember-qunit';
 
 moduleForComponent('ember-attacher', 'Integration | Component | hideOn "focusout"', {
@@ -23,17 +24,17 @@ test('hides when the target loses focus', async function(assert) {
     </button>
   `);
 
-  const innerAttacher = find('#attachment > .inner');
+  const attachment = find('#attachment');
 
-  assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
+  assert.equal(isVisible(attachment), false, 'Initially hidden');
 
   await click('#click-toggle');
 
-  assert.equal(innerAttacher.style.display, '', 'Now shown');
+  assert.equal(isVisible(attachment), true, 'Now shown');
 
   await focus('#focus-me');
 
-  assert.equal(innerAttacher.style.display, 'none', 'hidden again');
+  assert.equal(isVisible(attachment), false, 'hidden again');
 });
 
 test('with interactive=false: hides when the attachment gains focus', async function(assert) {
@@ -53,17 +54,17 @@ test('with interactive=false: hides when the attachment gains focus', async func
     </button>
   `);
 
-  const innerAttacher = find('#attachment > .inner');
+  const attachment = find('#attachment');
 
-  assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
+  assert.equal(isVisible(attachment), false, 'Initially hidden');
 
   await click('#click-toggle');
 
-  assert.equal(innerAttacher.style.display, '', 'Now shown');
+  assert.equal(isVisible(attachment), true, 'Now shown');
 
   await focus('#attachment-focus-me');
 
-  assert.equal(innerAttacher.style.display, 'none', 'hidden again');
+  assert.equal(isVisible(attachment), false, 'hidden again');
 });
 
 test("with interactive=true: doesn't hide when the attachment gains focus", async function(assert) {
@@ -84,19 +85,21 @@ test("with interactive=true: doesn't hide when the attachment gains focus", asyn
     </button>
   `);
 
-  const innerAttacher = find('#attachment > .inner');
+  const attachment = find('#attachment');
 
-  assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
+  assert.equal(isVisible(attachment), false, 'Initially hidden');
 
   await click('#click-toggle');
 
-  assert.equal(innerAttacher.style.display, '', 'Now shown');
+  assert.equal(isVisible(attachment), true, 'Now shown');
 
   await focus('#attachment-focus-me');
 
-  assert.equal(innerAttacher.style.display, '', 'Still shown');
+  assert.equal(isVisible(attachment), true, 'Still shown');
+
+  await focus('#click-toggle');
 
   await focus('#outer-focus-me');
 
-  assert.equal(innerAttacher.style.display, '', 'Hidden again');
+  assert.equal(isVisible('#attachment'), false, 'Hidden again');
 });

@@ -1,5 +1,6 @@
 import hbs from 'htmlbars-inline-precompile';
 import { click, find } from 'ember-native-dom-helpers';
+import { isVisible } from 'ember-attacher';
 import { moduleForComponent, test } from 'ember-qunit';
 
 moduleForComponent('ember-attacher', 'Integration | Component | showOn "click"', {
@@ -19,11 +20,11 @@ test('shows when the target is clicked', async function(assert) {
     </button>
   `);
 
-  const innerAttacher = find('#attachment > .inner');
+  const attachment = find('#attachment');
 
-  assert.equal(innerAttacher.style.display, 'none', 'Initially hidden');
+  assert.equal(isVisible(attachment), false, 'Initially hidden');
 
   await click('#click-toggle');
 
-  assert.equal(innerAttacher.style.display, '', 'Now shown');
+  assert.equal(isVisible(attachment), true, 'Now shown');
 });
