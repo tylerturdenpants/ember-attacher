@@ -1,5 +1,19 @@
 # Change Log
 
+## [v0.11.3](https://github.com/kybishop/ember-attacher/tree/v0.11.3) (2017-09-22)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.11.2...v0.11.3)
+
+**Closed issues:**
+
+- Cannot find module package.json [\#72](https://github.com/kybishop/ember-attacher/issues/72)
+- Syntax error in IE 11 on development build [\#71](https://github.com/kybishop/ember-attacher/issues/71)
+
+**Merged pull requests:**
+
+- fix\(filters\) downgrade babel-plugin-filter-imports [\#73](https://github.com/kybishop/ember-attacher/pull/73) ([kybishop](https://github.com/kybishop))
+- feat\(isVisible test helper\) [\#70](https://github.com/kybishop/ember-attacher/pull/70) ([kybishop](https://github.com/kybishop))
+- chore\(showOn tests\) focus and mouseenter [\#69](https://github.com/kybishop/ember-attacher/pull/69) ([kybishop](https://github.com/kybishop))
+
 ## [v0.11.2](https://github.com/kybishop/ember-attacher/tree/v0.11.2) (2017-09-20)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.11.1...v0.11.2)
 
