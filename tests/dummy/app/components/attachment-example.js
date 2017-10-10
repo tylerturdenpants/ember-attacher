@@ -38,6 +38,10 @@ export default Component.extend({
       this.get('service').toggleProperty('isShown');
     },
 
+    toggleLazyRender() {
+      this.get('service').toggleProperty('lazyRender');
+    },
+
     toggleRenderInPlace() {
       this.get('service').toggleProperty('renderInPlace');
     },

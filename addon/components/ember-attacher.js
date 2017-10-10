@@ -43,6 +43,7 @@ export default Component.extend({
   interactive: DEFAULTS.interactive,
   isOffset: DEFAULTS.isOffset,
   isShown: DEFAULTS.isShown,
+  lazyRender: DEFAULTS.lazyRender,
   onChange: null,
   placement: DEFAULTS.placement,
   popperContainer: DEFAULTS.popperContainer,
