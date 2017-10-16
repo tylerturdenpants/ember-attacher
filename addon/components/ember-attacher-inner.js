@@ -167,6 +167,9 @@ export default Component.extend({
   _hideOn: computed('hideOn', function() {
     return this.get('hideOn').split(' ');
   }),
+  _shouldRender: computed('lazyRender', function() {
+    return !this.get('lazyRender');
+  }),
   _showOn: computed('showOn', function() {
     return this.get('showOn').split(' ');
   }),
@@ -223,6 +226,8 @@ export default Component.extend({
     if (!this._currentTarget) {
       return;
     }
+
+    this.set('_shouldRender', true);
 
     // Make the attachment visible immediately so transition animations can take place
     this._setIsVisibleAfterDelay(true, 0);

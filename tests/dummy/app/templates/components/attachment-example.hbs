@@ -34,6 +34,7 @@
                       hideOn=popoverData.hideOn
                       interactive=popoverData.interactive
                       isShown=popoverData.isShown
+                      lazyRender=popoverData.lazyRender
                       onChange=(action (mut popoverData.isShown))
                       placement=popoverData.placement
                       renderInPlace=popoverData.renderInPlace
@@ -202,6 +203,21 @@
         </span>
         =
         <button class="button medium" {{action "toggleIsShown"}}>{{service.isShown}}</button>
+      </centered>
+    </hbox>
+    <hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
+      <centered fit>
+        <span class="underlined">
+          lazyRender
+
+          {{#attach-tooltip}}
+            If you want ember-attacher to postpone rendering until first interacted.
+          {{/attach-tooltip}}
+        </span>
+        =
+        <button class="button medium" {{action "toggleLazyRender"}}>{{service.lazyRender}}</button>
       </centered>
     </hbox>
     <hbox>
