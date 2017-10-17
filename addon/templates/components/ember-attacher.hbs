@@ -10,7 +10,7 @@
                 target=target as |emberPopper|}}
   {{#ember-attacher-inner animation=animation
                           arrow=arrow
-                          class="inner"
+                          class=(concat 'inner' ' ' innerClass)
                           disableEventListeners=emberPopper.disableEventListeners
                           enableEventListeners=emberPopper.enableEventListeners
                           hideDelay=hideDelay

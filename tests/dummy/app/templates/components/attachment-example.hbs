@@ -33,6 +33,7 @@
                       hideDuration=popoverData.hideDuration
                       hideOn=popoverData.hideOn
                       interactive=popoverData.interactive
+                      innerClass='custom-extra-inner-class'
                       isShown=popoverData.isShown
                       lazyRender=popoverData.lazyRender
                       onChange=(action (mut popoverData.isShown))
@@ -346,6 +347,7 @@
                                          target="_blank"
                                          rel="noopener">custom-popover-css</a>"
             </centered></hbox>
+            <hbox><centered fit>innerClass="custom-extra-inner-class"</centered></hbox>
             <hbox><centered fit>as |attacher|}}</centered></hbox>
           {{/if}}
         </vbox>
