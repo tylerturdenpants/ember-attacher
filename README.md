@@ -21,7 +21,7 @@ Just drop an attach-tooltip or ember-attacher in a parent and your popper is rea
 <button class="other-button">
   No click me!
 
-  {{#ember-attacher class="custom-popover-css"
+  {{#ember-attacher class="ember-attacher-popper"
                     hideOn='click'
                     isShown=true
                     showOn='click'}}
