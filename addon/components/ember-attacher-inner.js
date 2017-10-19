@@ -270,6 +270,7 @@ export default Component.extend({
         run(() => {
           this.set('_transitionDuration', showDuration);
           this.set('_isStartingAnimation', true);
+          this.element.setAttribute('aria-hidden', 'false');
         });
 
         this._isHidden = false;
@@ -306,6 +307,7 @@ export default Component.extend({
       run(() => {
         this.set('_transitionDuration', hideDuration);
         this.set('_isStartingAnimation', false);
+        this.element.setAttribute('aria-hidden', 'true');
 
         // Wait for any animations to complete before hiding the attachment
         this._setIsVisibleAfterDelay(false, hideDuration);
