@@ -1,8 +1,9 @@
-import EmberAttacher from './ember-attacher';
+import AttachPopover from './attach-popover';
 import { computed } from '@ember/object';
 import DEFAULTS from '../defaults';
 
-export default EmberAttacher.extend({
+export default AttachPopover.extend({
+  /**
   actions: {
     onFoundTarget(target) {
       const oldTarget = this.get('_target');
@@ -38,4 +39,5 @@ export default EmberAttacher.extend({
       target.removeAttribute('aria-describedby');
     }
   }
+*/
 });

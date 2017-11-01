@@ -655,6 +655,10 @@ babel-plugin-debug-macros@^0.1.10, babel-plugin-debug-macros@^0.1.11:
   dependencies:
     semver "^5.3.0"
 
+babel-plugin-ember-legacy-class-constructor@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/babel-plugin-ember-legacy-class-constructor/-/babel-plugin-ember-legacy-class-constructor-0.1.4.tgz#dfe715b9bdb66f6c7e9eccc620137c03b3fa89e0"
+
 babel-plugin-ember-modules-api-polyfill@^1.5.1:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/babel-plugin-ember-modules-api-polyfill/-/babel-plugin-ember-modules-api-polyfill-1.6.0.tgz#abd1afa4237b3121cb51222f9bf3283cad8990aa"
@@ -1364,6 +1368,17 @@ broccoli-debug@^0.6.1, broccoli-debug@^0.6.2, broccoli-debug@^0.6.3:
     symlink-or-copy "^1.1.8"
     tree-sync "^1.2.2"
 
+broccoli-file-creator@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/broccoli-file-creator/-/broccoli-file-creator-1.1.1.tgz#1b35b67d215abdfadd8d49eeb69493c39e6c3450"
+  dependencies:
+    broccoli-kitchen-sink-helpers "~0.2.0"
+    broccoli-plugin "^1.1.0"
+    broccoli-writer "~0.1.1"
+    mkdirp "^0.5.1"
+    rsvp "~3.0.6"
+    symlink-or-copy "^1.0.1"
+
 broccoli-filter@^1.2.2, broccoli-filter@^1.2.3:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/broccoli-filter/-/broccoli-filter-1.2.4.tgz#409afb94b9a3a6da9fac8134e91e205f40cc7330"
@@ -1419,7 +1434,7 @@ broccoli-funnel@^2.0.0, broccoli-funnel@^2.0.1:
     symlink-or-copy "^1.0.0"
     walk-sync "^0.3.1"
 
-broccoli-kitchen-sink-helpers@^0.2.5:
+broccoli-kitchen-sink-helpers@^0.2.5, broccoli-kitchen-sink-helpers@~0.2.0:
   version "0.2.9"
   resolved "https://registry.yarnpkg.com/broccoli-kitchen-sink-helpers/-/broccoli-kitchen-sink-helpers-0.2.9.tgz#a5e0986ed8d76fb5984b68c3f0450d3a96e36ecc"
   dependencies:
@@ -1499,7 +1514,7 @@ broccoli-plugin@1.1.0:
     rimraf "^2.3.4"
     symlink-or-copy "^1.0.1"
 
-broccoli-plugin@^1.0.0, broccoli-plugin@^1.2.0, broccoli-plugin@^1.2.1, broccoli-plugin@^1.3.0:
+broccoli-plugin@^1.0.0, broccoli-plugin@^1.1.0, broccoli-plugin@^1.2.0, broccoli-plugin@^1.2.1, broccoli-plugin@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/broccoli-plugin/-/broccoli-plugin-1.3.0.tgz#bee704a8e42da08cb58e513aaa436efb7f0ef1ee"
   dependencies:
@@ -1571,6 +1586,13 @@ broccoli-uglify-sourcemap@^2.0.0:
     symlink-or-copy "^1.0.1"
     uglify-es "^3.1.3"
     walk-sync "^0.3.2"
+
+broccoli-writer@~0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/broccoli-writer/-/broccoli-writer-0.1.1.tgz#d4d71aa8f2afbc67a3866b91a2da79084b96ab2d"
+  dependencies:
+    quick-temp "^0.1.0"
+    rsvp "^3.0.6"
 
 browserslist@^2.1.2:
   version "2.3.3"
@@ -2179,6 +2201,17 @@ electron-to-chromium@^1.3.18:
   version "1.3.18"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.18.tgz#3dcc99da3e6b665f6abbc71c28ad51a2cd731a9c"
 
+ember-argument-decorators@~0.6.1:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/ember-argument-decorators/-/ember-argument-decorators-0.6.1.tgz#c6170f999c63de0a6a31bd85b6587d850b4f404b"
+  dependencies:
+    babel-plugin-filter-imports "^1.1.0"
+    broccoli-funnel "^2.0.1"
+    ember-cli-babel "^6.3.0"
+    ember-cli-version-checker "^2.0.0"
+    ember-compatibility-helpers "^0.1.1"
+    ember-get-config "^0.2.3"
+
 ember-basic-dropdown@^0.33.1:
   version "0.33.4"
   resolved "https://registry.yarnpkg.com/ember-basic-dropdown/-/ember-basic-dropdown-0.33.4.tgz#a52a0851c9f9065fecf0cfe2b2dc7b7c8662f3b4"
@@ -2589,6 +2622,14 @@ ember-compatibility-helpers@^0.1.0:
     ember-cli-version-checker "^2.0.0"
     semver "^5.4.1"
 
+ember-compatibility-helpers@^0.1.1, ember-compatibility-helpers@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/ember-compatibility-helpers/-/ember-compatibility-helpers-0.1.2.tgz#8eb1769ad761db273fd40242b1170d9f3841d0f0"
+  dependencies:
+    babel-plugin-debug-macros "^0.1.11"
+    ember-cli-version-checker "^2.0.0"
+    semver "^5.4.1"
+
 ember-concurrency@^0.8.1:
   version "0.8.7"
   resolved "https://registry.yarnpkg.com/ember-concurrency/-/ember-concurrency-0.8.7.tgz#346f5c88f2d5e987fb7e7324f8eb53ae3bae0970"
@@ -2598,9 +2639,9 @@ ember-concurrency@^0.8.1:
     ember-getowner-polyfill "^1.1.0"
     ember-maybe-import-regenerator "^0.1.5"
 
-ember-decorators@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/ember-decorators/-/ember-decorators-1.3.0.tgz#d5c9d603fe364e74ca21ae1df1f8941ed9cd1cab"
+ember-decorators@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/ember-decorators/-/ember-decorators-1.3.1.tgz#00027da711c200bdeaf9e572ea3d96957e13013d"
   dependencies:
     babel-plugin-transform-class-properties "^6.24.1"
     babel-plugin-transform-decorators-legacy "^1.3.4"
@@ -2625,6 +2666,13 @@ ember-factory-for-polyfill@^1.1.0:
   dependencies:
     ember-cli-version-checker "^1.2.0"
 
+ember-get-config@^0.2.3:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/ember-get-config/-/ember-get-config-0.2.4.tgz#118492a2a03d73e46004ed777928942021fe1ecd"
+  dependencies:
+    broccoli-file-creator "^1.1.1"
+    ember-cli-babel "^6.3.0"
+
 ember-getowner-polyfill@^1.1.0:
   version "1.2.5"
   resolved "https://registry.yarnpkg.com/ember-getowner-polyfill/-/ember-getowner-polyfill-1.2.5.tgz#ceff8a09897d0d7e05c821bb71666a95eb26dc92"
@@ -2632,6 +2680,14 @@ ember-getowner-polyfill@^1.1.0:
     ember-cli-babel "^5.1.6"
     ember-cli-version-checker "^1.2.0"
     ember-factory-for-polyfill "^1.1.0"
+
+ember-legacy-class-transform@~0.1.2:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/ember-legacy-class-transform/-/ember-legacy-class-transform-0.1.3.tgz#af943fd46aa050981b7f0927bf70ef8736878682"
+  dependencies:
+    babel-plugin-ember-legacy-class-constructor "^0.1.4"
+    ember-cli-babel "^6.3.0"
+    ember-cli-version-checker "^2.0.0"
 
 ember-load-initializers@^1.0.0:
   version "1.0.0"
@@ -2670,19 +2726,22 @@ ember-native-dom-helpers@^0.5.3:
     broccoli-funnel "^1.1.0"
     ember-cli-babel "^6.6.0"
 
-ember-popper@^0.6.5:
-  version "0.6.5"
-  resolved "https://registry.yarnpkg.com/ember-popper/-/ember-popper-0.6.5.tgz#ccb25b014294d6243c3c3ae6916a621755b6f901"
+ember-popper@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/ember-popper/-/ember-popper-0.7.0.tgz#bb14d20e22499195175b049457214571e4aab477"
   dependencies:
     babel-eslint "^8.0.1"
-    babel-plugin-filter-imports "^1.1.0"
     babel6-plugin-strip-class-callcheck "^6.0.0"
     broccoli-funnel "^2.0.0"
+    ember-argument-decorators "~0.6.1"
     ember-cli-babel "^6.8.2"
     ember-cli-htmlbars "^2.0.3"
     ember-cli-node-assets "^0.2.2"
     ember-cli-version-checker "^2.1.0"
-    ember-decorators "^1.3.0"
+    ember-compatibility-helpers "^0.1.2"
+    ember-decorators "^1.3.1"
+    ember-legacy-class-transform "~0.1.2"
+    ember-raf-scheduler "^0.1.0"
     fastboot-transform "^0.1.0"
     popper.js "^1.12.5"
 
@@ -2702,6 +2761,12 @@ ember-qunit@^2.2.0:
   resolved "https://registry.yarnpkg.com/ember-qunit/-/ember-qunit-2.2.0.tgz#3cdf400031c93a38de781a7304819738753b7f99"
   dependencies:
     ember-test-helpers "^0.6.3"
+
+ember-raf-scheduler@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/ember-raf-scheduler/-/ember-raf-scheduler-0.1.0.tgz#a22a02d238c374499231c03ab9c5b9887c72a853"
+  dependencies:
+    ember-cli-babel "^6.6.0"
 
 ember-raf-test-waiter@^0.1.0:
   version "0.1.0"
@@ -5222,7 +5287,7 @@ qs@~6.4.0:
   version "6.4.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.4.0.tgz#13e26d28ad6b0ffaa91312cd3bf708ed351e7233"
 
-quick-temp@^0.1.2, quick-temp@^0.1.3, quick-temp@^0.1.5, quick-temp@^0.1.8:
+quick-temp@^0.1.0, quick-temp@^0.1.2, quick-temp@^0.1.3, quick-temp@^0.1.5, quick-temp@^0.1.8:
   version "0.1.8"
   resolved "https://registry.yarnpkg.com/quick-temp/-/quick-temp-0.1.8.tgz#bab02a242ab8fb0dd758a3c9776b32f9a5d94408"
   dependencies:
@@ -5551,6 +5616,10 @@ rimraf@~2.2.6:
 rsvp@^3.0.14, rsvp@^3.0.16, rsvp@^3.0.17, rsvp@^3.0.18, rsvp@^3.0.21, rsvp@^3.0.6, rsvp@^3.1.0, rsvp@^3.2.0, rsvp@^3.2.1, rsvp@^3.3.3, rsvp@^3.5.0, rsvp@^3.6.0, rsvp@^3.6.1:
   version "3.6.2"
   resolved "https://registry.yarnpkg.com/rsvp/-/rsvp-3.6.2.tgz#2e96491599a96cde1b515d5674a8f7a91452926a"
+
+rsvp@~3.0.6:
+  version "3.0.21"
+  resolved "https://registry.yarnpkg.com/rsvp/-/rsvp-3.0.21.tgz#49c588fe18ef293bcd0ab9f4e6756e6ac433359f"
 
 rsvp@~3.2.1:
   version "3.2.1"

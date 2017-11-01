@@ -1,18 +1,154 @@
 import Component from '@ember/component';
-import layout from '../templates/components/ember-attacher-inner';
+import DEFAULTS from '../defaults';
+import layout from '../templates/components/attach-popover';
 import { cancel, debounce, later, next, run } from '@ember/runloop';
 import { computed, observer } from '@ember/object';
+import { getOwner } from '@ember/application';
 import { htmlSafe } from '@ember/string';
+import { stripInProduction } from 'ember-attacher/-debug/helpers';
+import { warn } from '@ember/debug';
 
 export default Component.extend({
+  layout,
+
+  tagName: '',
+
   /**
    * ================== PUBLIC CONFIG OPTIONS ==================
    */
 
-  // See ember-attacher.js, which passes all the default values into this component
+  animation: DEFAULTS.animation,
+  arrow: computed('animation', {
+    get() {
+      return DEFAULTS.arrow;
+    },
+
+    set(_, val) {
+      stripInProduction(() => {
+        if (this.get('animation') === 'fill' && val) {
+          warn('Animation: \'fill\' is not compatible with arrow: true', { id: 70015 });
+        }
+      });
+
+      return val;
+    }
+  }),
+  class: DEFAULTS.class,
+  hideDelay: DEFAULTS.hideDelay,
+  hideDuration: DEFAULTS.hideDuration,
+  hideOn: DEFAULTS.hideOn,
+  interactive: DEFAULTS.interactive,
+  isOffset: DEFAULTS.isOffset,
+  isShown: DEFAULTS.isShown,
+  lazyRender: DEFAULTS.lazyRender,
+  onChange: null,
+  placement: DEFAULTS.placement,
+  popperContainer: DEFAULTS.popperContainer,
+  popperOptions: DEFAULTS.popperOptions,
+  renderInPlace: DEFAULTS.renderInPlace,
+  showDelay: DEFAULTS.showDelay,
+  showDuration: DEFAULTS.showDuration,
+  showOn: DEFAULTS.showOn,
+  target: null,
 
   /**
-   * ================== COMPONENT LIFECYCLE HOOKS ==================
+   * ================== PRIVATE IMPLEMENTATION DETAILS ==================
+   */
+
+  actions: {
+    // Exposed via the named yield to enable custom hide events
+    hide() {
+      this._hide();
+    },
+
+    registerAPI(api) {
+      this.set('disableEventListeners', api.disableEventListeners);
+      this.set('enableEventListeners', api.enableEventListeners);
+      this.set('popperElement', api.popperElement);
+      this.set('scheduleUpdate', api.scheduleUpdate);
+      this.set('target', api.popperTarget);
+      this.set('update', api.update);
+    }
+  },
+
+  // The circle element needs a special duration that is slightly faster than the popper's
+  // transition, this prevents text from appearing outside the circle as it fills the background
+  _circleTransitionDuration: computed('_transitionDuration', function() {
+    return htmlSafe(
+      `transition-duration: ${Math.round(this.get('_transitionDuration') / 1.25)}ms`
+    );
+  }),
+
+  _class: computed('class', 'animation', '_isStartingAnimation', function() {
+    const showOrHideClass = `ember-attacher-${this.get('_isStartingAnimation') ? 'show' : 'hide'}`;
+
+    return `ember-attacher-${this.get('animation')} ${this.get('class') || ''} ${showOrHideClass}`;
+  }),
+
+  _hideOn: computed('hideOn', function() {
+    return this.get('hideOn').split(' ');
+  }),
+
+  _modifiers: computed('arrow', 'flip', 'modifiers', function() {
+    // Deep copy the modifiers since we might write to the provided hash
+    const modifiers
+      = this.get('modifiers') ? JSON.parse(JSON.stringify(this.get('modifiers'))) : {};
+
+    const arrow = this.get('arrow');
+    if (typeof(arrow) === 'boolean') {
+      if (!modifiers.arrow) {
+        modifiers.arrow = { enabled: arrow };
+      } else if (typeof(modifiers.arrow.enbabled) !== 'boolean') {
+        modifiers.arrow.enabled = arrow;
+      }
+    }
+
+    const flipString = this.get('flip');
+    if (flipString) {
+      if (!modifiers.flip) {
+        modifiers.flip = { behavior: flipString.split(' ') };
+      } else if (!modifiers.flip.behavior) {
+        modifiers.flip.behavior = flipString.split(' ');
+      }
+    }
+
+    return modifiers;
+  }),
+
+  _setIsVisibleAfterDelay(isVisible, delay) {
+    const onChange = this.get('onChange');
+
+    if (delay) {
+      this._delayedVisibilityToggle = later(this, () => {
+        this._animationTimeout = requestAnimationFrame(() => {
+          if (!this.isDestroyed && !this.isDestroying) {
+            run(() => this.set('isVisible', isVisible));
+
+            if (onChange) {
+              onChange(isVisible);
+            }
+          }
+        });
+      }, delay);
+    } else {
+      this.set('isVisible', isVisible);
+
+      if (onChange) {
+        onChange(isVisible);
+      }
+    }
+  },
+
+  _shouldRender: computed('lazyRender', function() {
+    return !this.get('lazyRender');
+  }),
+
+  _showOn: computed('showOn', function() {
+    return this.get('showOn').split(' ');
+  }),
+
+  /**
+   * ================== LIFECYCLE HOOKS ==================
    */
 
   init() {
@@ -49,8 +185,35 @@ export default Component.extend({
     this._hideOnMouseLeaveTarget = this._hideOnMouseLeaveTarget.bind(this);
     this._show = this._show.bind(this);
     this._showAfterDelay = this._showAfterDelay.bind(this);
+
+    this._setUserSuppliedDefaults();
   },
 
+  _setUserSuppliedDefaults() {
+    const defaults = getOwner(this).resolveRegistration('config:environment').emberAttacher || {};
+
+    // Exit early if no custom defaults are found
+    if (!defaults) {
+      return;
+    }
+
+    const attrs = this.get('attrs') || {};
+
+    for (const key in defaults) {
+      stripInProduction(() => {
+        if (!DEFAULTS.hasOwnProperty(key)) {
+          warn(`Unknown property given as an ember-attacher default: ${key}`, { id: 700152 });
+        }
+      });
+
+      // Don't override attrs manually passed into the component
+      if (attrs[key] === undefined) {
+        this[key] = defaults[key];
+      }
+    }
+  },
+
+  // TODO(kjb) I don't think this is relevant anymore
   didInsertElement() {
     this._super(...arguments);
 
@@ -59,8 +222,8 @@ export default Component.extend({
       // to the right that it overflows the screen until enough updates fix its position.
       // We avoid this issue by positioning initially hidden elements in the top left of the screen.
       // The attachment will then correctly update its position from the first this._show()
-      if (this._isHidden && !this.isDestroying && !this.isDestroyed) {
-        this.element.parentNode.style.transform = null;
+      if (this._isHidden && !this.isDestroying && !this.isDestroyed && this.get('target')) {
+        this.get('popperElement').style.transform = null;
       }
     });
 
@@ -146,67 +309,6 @@ export default Component.extend({
   }),
 
   /**
-   * ================== PRIVATE IMPLEMENTATION DETAILS ==================
-   */
-
-  actions: {
-    // Exposed via the named yield to enable custom hide events
-    hide() {
-      this._hide();
-    }
-  },
-
-  classNameBindings: ['_animation', '_isStartingAnimation:ember-attacher-show:ember-attacher-hide'],
-  // Part of the Component superclass. isVisible == false sets 'display: none'
-  isVisible: false,
-  layout,
-
-  _animation: computed('animation', function() {
-    return `ember-attacher-${this.get('animation')}`;
-  }),
-  _hideOn: computed('hideOn', function() {
-    return this.get('hideOn').split(' ');
-  }),
-  _shouldRender: computed('lazyRender', function() {
-    return !this.get('lazyRender');
-  }),
-  _showOn: computed('showOn', function() {
-    return this.get('showOn').split(' ');
-  }),
-
-  // The circle element needs a special duration that is slightly faster than the popper's
-  // transition, this prevents text from appearing outside the circle as it fills the background
-  circleTransitionDuration: computed('_transitionDuration', function() {
-    return htmlSafe(
-      `transition-duration: ${Math.round(this.get('_transitionDuration') / 1.25)}ms`
-    );
-  }),
-
-  _setIsVisibleAfterDelay(isVisible, delay) {
-    const onChange = this.get('onChange');
-
-    if (delay) {
-      this._delayedVisibilityToggle = later(this, () => {
-        this._animationTimeout = requestAnimationFrame(() => {
-          if (!this.isDestroyed && !this.isDestroying) {
-            run(() => this.set('isVisible', isVisible));
-
-            if (onChange) {
-              onChange(isVisible);
-            }
-          }
-        });
-      }, delay);
-    } else {
-      this.set('isVisible', isVisible);
-
-      if (onChange) {
-        onChange(isVisible);
-      }
-    }
-  },
-
-  /**
    * ================== SHOW ATTACHMENT LOGIC ==================
    */
 
@@ -247,8 +349,10 @@ export default Component.extend({
         return;
       }
 
+      const popperElement = this.get('popperElement');
+
       // Wait until the element is visible before continuing
-      if (this.element.style.display === 'none') {
+      if (popperElement.style.display === 'none') {
         this._startShowAnimation();
 
         return;
@@ -266,11 +370,11 @@ export default Component.extend({
 
         const showDuration = parseInt(this.get('showDuration'));
 
-        this.element.style.transitionDuration = `${showDuration}ms`;
+        popperElement.style.transitionDuration = `${showDuration}ms`;
         run(() => {
           this.set('_transitionDuration', showDuration);
           this.set('_isStartingAnimation', true);
-          this.element.setAttribute('aria-hidden', 'false');
+          popperElement.setAttribute('aria-hidden', 'false');
         });
 
         this._isHidden = false;
@@ -301,13 +405,14 @@ export default Component.extend({
       }
 
       const hideDuration = parseInt(this.get('hideDuration'));
+      const popperElement = this.get('popperElement');
 
-      this.element.style.transitionDuration = `${hideDuration}ms`;
+      popperElement.style.transitionDuration = `${hideDuration}ms`;
 
       run(() => {
         this.set('_transitionDuration', hideDuration);
         this.set('_isStartingAnimation', false);
-        this.element.setAttribute('aria-hidden', 'true');
+        popperElement.setAttribute('aria-hidden', 'true');
 
         // Wait for any animations to complete before hiding the attachment
         this._setIsVisibleAfterDelay(false, hideDuration);
@@ -394,11 +499,10 @@ export default Component.extend({
   _hideIfMouseOutsideTargetOrAttachment(event) {
     const target = this._currentTarget;
 
-    // If cursor is not on the attachment or target, hide the element
+    // If cursor is not on the attachment or target, hide the popper
     if (!target.contains(event.target)
         && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
-        // The ember-attacher-inner element is wrapped in the ember-attacher element
-        && !this.element.parentNode.contains(event.target)) {
+        && !this.get('popperElement').contains(event.target)) {
       // Remove this listener before hiding the attachment
       delete this._hideListenersOnDocumentByEvent.mousemove;
       document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
@@ -410,7 +514,7 @@ export default Component.extend({
   _isCursorBetweenTargetAndAttachment(event) {
     const { clientX, clientY } = event;
 
-    const attachmentPosition = this.element.getBoundingClientRect();
+    const attachmentPosition = this.get('popperElement').getBoundingClientRect();
     const targetPosition = this._currentTarget.getBoundingClientRect();
 
     const isBetweenLeftAndRight = clientX > Math.min(attachmentPosition.left, targetPosition.left)
@@ -454,7 +558,7 @@ export default Component.extend({
     const targetReceivedClick = this._currentTarget.contains(event.target);
 
     if (this.get('interactive')) {
-      if (!targetReceivedClick && !this.element.parentNode.contains(event.target)) {
+      if (!targetReceivedClick && !this.get('popperElement').contains(event.target)) {
         this._hideAfterDelay();
       }
     } else if (!targetReceivedClick) {
@@ -476,7 +580,7 @@ export default Component.extend({
     const targetContainsFocus = this._currentTarget.contains(event.relatedTarget);
 
     if (this.get('interactive')) {
-      if (!targetContainsFocus && !this.element.contains(event.relatedTarget)) {
+      if (!targetContainsFocus && !this.get('popperElement').contains(event.relatedTarget)) {
         this._hideAfterDelay();
       }
     } else if (!targetContainsFocus) {

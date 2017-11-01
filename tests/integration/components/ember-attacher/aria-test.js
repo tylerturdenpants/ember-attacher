@@ -21,9 +21,13 @@ test('aria-hidden updates when shown/hidden', async function(assert) {
 
   await click('#click-toggle');
 
-  assert.equal(find('#attachment > .inner').getAttribute('aria-hidden'), 'false', 'When shown, aria-hidden="false"');
+  assert.equal(find('#attachment').getAttribute('aria-hidden'),
+               'false',
+               'When shown, aria-hidden="false"');
 
   await click('#click-toggle');
 
-  assert.equal(find('#attachment > .inner').getAttribute('aria-hidden'), 'true', 'When hidden aria-hidden="true"');
+  assert.equal(find('#attachment').getAttribute('aria-hidden'),
+               'true',
+               'When hidden aria-hidden="true"');
 });
