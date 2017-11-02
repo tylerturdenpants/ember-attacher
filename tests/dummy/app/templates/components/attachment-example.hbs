@@ -6,10 +6,8 @@
     <button class="hover-me">
       Tooltip me, captain!
 
-{{!-- TODO(kjb) Fixme --}}
-      {{#attach-popover animation=tooltipData.animation
+      {{#attach-tooltip animation=tooltipData.animation
                         arrow=tooltipData.arrow
-class="ember-attacher-popper ember-attacher-tooltip"
                         hideDelay=tooltipData.hideDelay
                         hideDuration=tooltipData.hideDuration
                         hideOn=tooltipData.hideOn
@@ -22,33 +20,32 @@ class="ember-attacher-popper ember-attacher-tooltip"
                         showDuration=tooltipData.showDuration
                         showOn=tooltipData.showOn}}
         Hello world!
-      {{/attach-popover}}
+      {{/attach-tooltip}}
     </button>
 
     <button class="hover-me target-plz">
       Click me, captain!
+
+      {{#attach-popover animation=popoverData.animation
+                        arrow=popoverData.arrow
+                        class="ember-attacher-popper custom-popover-css"
+                        hideDelay=popoverData.hideDelay
+                        hideDuration=popoverData.hideDuration
+                        hideOn=popoverData.hideOn
+                        interactive=popoverData.interactive
+                        isShown=popoverData.isShown
+                        lazyRender=popoverData.lazyRender
+                        onChange=(action (mut popoverData.isShown))
+                        placement=popoverData.placement
+                        renderInPlace=popoverData.renderInPlace
+                        showDelay=popoverData.showDelay
+                        showDuration=popoverData.showDuration
+                        showOn=popoverData.showOn as |emberAttacher|}}
+        <p>Popovers and tooltips, oh my!</p>
+
+        <button {{action emberAttacher.hide}}>Close</button>
+      {{/attach-popover}}
     </button>
-
-    {{#attach-popover animation=popoverData.animation
-                      arrow=popoverData.arrow
-                      class="ember-attacher-popper custom-popover-css"
-                      hideDelay=popoverData.hideDelay
-                      hideDuration=popoverData.hideDuration
-                      hideOn=popoverData.hideOn
-                      interactive=popoverData.interactive
-                      innerClass='custom-extra-inner-class'
-                      isShown=popoverData.isShown
-                      lazyRender=popoverData.lazyRender
-                      onChange=(action (mut popoverData.isShown))
-                      placement=popoverData.placement
-                      renderInPlace=popoverData.renderInPlace
-                      showDelay=popoverData.showDelay
-                      showDuration=popoverData.showDuration
-                      showOn=popoverData.showOn as |emberAttacher|}}
-      <p>Popovers and tooltips, oh my!</p>
-
-      <button {{action emberAttacher.hide}}>Close</button>
-    {{/attach-popover}}
   </centered>
 </centered>
 {{#if (and service.arrow (eq service.animation "fill"))}}

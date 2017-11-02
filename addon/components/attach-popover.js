@@ -85,6 +85,11 @@ export default Component.extend({
     return `ember-attacher-${this.get('animation')} ${this.get('class') || ''} ${showOrHideClass}`;
   }),
 
+  // This is memoized so it can be used by both attach-popover and attach-tooltip
+  _config: computed(function() {
+    return getOwner(this).resolveRegistration('config:environment');
+  }),
+
   _hideOn: computed('hideOn', function() {
     return this.get('hideOn').split(' ');
   }),
@@ -122,7 +127,7 @@ export default Component.extend({
       this._delayedVisibilityToggle = later(this, () => {
         this._animationTimeout = requestAnimationFrame(() => {
           if (!this.isDestroyed && !this.isDestroying) {
-            run(() => this.set('isVisible', isVisible));
+            this.popperElement.style.display = isVisible ? '' : 'none';
 
             if (onChange) {
               onChange(isVisible);
@@ -131,7 +136,7 @@ export default Component.extend({
         });
       }, delay);
     } else {
-      this.set('isVisible', isVisible);
+      this.popperElement.style.display = isVisible ? '' : 'none';
 
       if (onChange) {
         onChange(isVisible);
@@ -190,7 +195,7 @@ export default Component.extend({
   },
 
   _setUserSuppliedDefaults() {
-    const defaults = getOwner(this).resolveRegistration('config:environment').emberAttacher || {};
+    const defaults = this.get('_config').emberAttacher || {};
 
     // Exit early if no custom defaults are found
     if (!defaults) {
@@ -213,9 +218,10 @@ export default Component.extend({
     }
   },
 
-  // TODO(kjb) I don't think this is relevant anymore
   didInsertElement() {
     this._super(...arguments);
+
+    this.popperElement.style.display = this.get('isShown') ? '' : 'none';
 
     requestAnimationFrame(() => {
       // The attachment has no width if initially hidden. This can cause it to be positioned so far
