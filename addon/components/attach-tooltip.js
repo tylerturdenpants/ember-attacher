@@ -11,7 +11,7 @@ export default AttachPopover.extend({
     },
 
     set(_key, value) {
-      const tooltipClass = this.get('config').tooltipClass || DEFAULTS.tooltipClass;
+      const tooltipClass = this.get('_config').tooltipClass || DEFAULTS.tooltipClass;
 
       return `${tooltipClass} ${value}`;
     }

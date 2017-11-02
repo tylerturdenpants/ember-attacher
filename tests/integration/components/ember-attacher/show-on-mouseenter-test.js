@@ -14,9 +14,9 @@ test('shows when the user mouses over the target', async function(assert) {
     <button id="target">
       Mouseenter me, captain!
 
-      {{#ember-attacher id='attachment' showOn='mouseenter'}}
+      {{#attach-popover id='attachment' showOn='mouseenter'}}
         showOn mouseenter
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 

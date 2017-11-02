@@ -14,9 +14,9 @@ test('shows when the target gains focus', async function(assert) {
     <button id="target">
       Focus me, captain!
 
-      {{#ember-attacher id='attachment' showOn='focus'}}
+      {{#attach-popover id='attachment' showOn='focus'}}
         showOn focus
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 

@@ -67,10 +67,9 @@ test('has the default classes', function(assert) {
 
   const tooltipWithNoClass = find('#tooltip-with-no-class');
 
-  assert.ok(
-    tooltipWithNoClass
-      .className
-      .startsWith('ember-attacher-popper ember-attacher-tooltip'),
+  assert.contains(
+    tooltipWithNoClass.className.split(' '),
+    'ember-attacher-popper ember-attacher-tooltip'.split(' '),
     'it adds the defaults classes to tooltips with no class'
   );
 });
@@ -90,8 +89,9 @@ test('uses the user-supplied default tooltip class', function(assert) {
 
   const tooltip = find('#attachment');
 
-  assert.ok(
-    tooltip.className.startsWith('different-default some-class'),
+  assert.contains(
+    tooltip.className.split(' '),
+    ['different-default', 'some-class'],
     'it adds the user-supplied default classes'
   );
 });

@@ -12,11 +12,11 @@ test('hides when the escape key is pressed', async function(assert) {
 
   this.render(hbs`
     <div>
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='escapekey'
                         isShown=true}}
         hideOn click
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </div>
   `);
 

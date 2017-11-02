@@ -7,24 +7,19 @@ moduleForComponent('ember-attacher', 'Integration | Component | ember attacher',
 });
 
 test('it renders', function(assert) {
-  assert.expect(3);
+  assert.expect(2);
 
   this.render(hbs`
     <div>
-      {{#ember-attacher id='attachment'}}
+      {{#attach-popover id='attachment'}}
         popper text
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </div>
   `);
 
   const attachment = find('#attachment');
-  const innerAttacher = find('.inner', attachment);
 
-  assert.ok(innerAttacher, '.inner class exists');
+  assert.ok(find('div[x-circle]', attachment), 'div[x-circle] exists');
 
-  assert.ok(find('div[x-circle]', innerAttacher), 'div[x-circle] exists');
-
-  const innerHTML = innerAttacher.innerHTML.trim();
-
-  assert.equal(innerHTML.indexOf('popper text'), 0);
+  assert.ok(attachment.innerHTML.indexOf('popper text') !== -1);
 });

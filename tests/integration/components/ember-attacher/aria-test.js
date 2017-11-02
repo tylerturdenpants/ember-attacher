@@ -13,9 +13,9 @@ test('aria-hidden updates when shown/hidden', async function(assert) {
     <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher id='attachment' hideOn='click' showOn='click'}}
+      {{#attach-popover id='attachment' hideOn='click' showOn='click'}}
         showOn/hideOn click updates aria-hidden
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 

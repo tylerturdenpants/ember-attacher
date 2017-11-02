@@ -14,11 +14,11 @@ test('hides when an element outside the target is clicked', async function(asser
     <input type="text" id="focus-me"/>
 
     <div id="parent">
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='clickout'
                         isShown=true}}
         hideOn click
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </div>
   `);
 
@@ -41,11 +41,11 @@ test('with interactive=false: hides when attachment is clicked', async function(
 
   this.render(hbs`
     <div id="parent">
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='clickout'
                         isShown=true}}
         hideOn click
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </div>
   `);
 
@@ -65,12 +65,12 @@ test("with interactive=true: doesn't hide when attachment is clicked", async fun
     <input type="text" id="focus-me"/>
 
     <div id="parent">
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='clickout'
                         interactive=true
                         isShown=true}}
         hideOn click
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </div>
   `);
 

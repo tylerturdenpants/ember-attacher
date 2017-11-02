@@ -14,12 +14,12 @@ test('isShown works with showOn/hideOn set to "click"', async function(assert) {
     <button id="toggle-show">
       Click me, captain!
 
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='click'
                         isShown=true
                         showOn='click'}}
         isShown w/ hideOn/ShowOn of 'click'
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 
@@ -53,7 +53,7 @@ test('isShown works with showOn/hideOn set to "none"', async function(assert) {
     <button id="open" {{action 'openPopover'}}>
       Click me, captain!
 
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='none'
                         isShown=isShown
                         showOn='none'}}
@@ -63,7 +63,7 @@ test('isShown works with showOn/hideOn set to "none"', async function(assert) {
           Close
         </button>
 
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 
@@ -104,14 +104,14 @@ test('nested attachers open and close as expected', async function(assert) {
     <button id="openParent" {{action 'openParentPopover'}}>
       Open parent
 
-      {{#ember-attacher class='parent'
+      {{#attach-popover class='parent'
                         hideOn='none'
                         isShown=parentIsShown
                         showOn='none'}}
         <button id="openChild" {{action 'openChildPopover'}}>
           Open child
 
-          {{#ember-attacher class='child'
+          {{#attach-popover class='child'
                             hideDuration=0
                             hideOn='none'
                             isShown=childIsShown
@@ -119,9 +119,9 @@ test('nested attachers open and close as expected', async function(assert) {
             <button id="closeChild" {{action 'closeChildPopover'}}>
               Close child
             </button>
-          {{/ember-attacher}}
+          {{/attach-popover}}
         </button>
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 

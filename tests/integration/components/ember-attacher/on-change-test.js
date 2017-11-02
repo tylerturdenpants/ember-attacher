@@ -16,13 +16,13 @@ test('fires the onChange hook when visibility is toggled', async function(assert
     <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='click'
                         isShown=isShown
                         onChange=(action (mut isShown))
                         showOn='click'}}
         showOn click
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 

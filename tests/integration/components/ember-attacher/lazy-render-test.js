@@ -16,9 +16,9 @@ test('will lazily render the yield block when lazyRender is passed as true', asy
     <button id="toggle-show">
       Click me, captain!
 
-      {{#ember-attacher id='attachment' lazyRender=true}}
+      {{#attach-popover id='attachment' lazyRender=true}}
         <div id='should-not-be-present-until-clicked'></div>
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 
@@ -36,9 +36,9 @@ test('lazily render will default to false which will eager render the yeild bloc
     <button id="toggle-show">
       Click me, captain!
 
-      {{#ember-attacher id='attachment'}}
+      {{#attach-popover id='attachment'}}
         <div id='should-not-be-present-until-clicked'></div>
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 

@@ -1,7 +1,13 @@
 import { find } from 'ember-native-dom-helpers';
 
 export function isVisible(selector, contextEl) {
-  const attachment = typeof(selector) === 'string' ? find(selector, contextEl) : selector;
+  const attachment = typeof(selector) === 'string' ? getAttachment(selector, contextEl) : selector;
+
+  return attachment.style.display !== 'none';
+}
+
+function getAttachment(selector, contextEl) {
+  const attachment = find(selector, contextEl);
 
   if (!attachment) {
     const msg = typeof(selector) === 'string' ? selector : selector.innerHTML;
@@ -9,5 +15,5 @@ export function isVisible(selector, contextEl) {
     throw `Could not locate attachment from selector: ${msg}`;
   }
 
-  return attachment.style.display !== 'none';
+  return attachment;
 }

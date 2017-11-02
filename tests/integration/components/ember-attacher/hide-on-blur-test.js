@@ -1,5 +1,5 @@
 import hbs from 'htmlbars-inline-precompile';
-import { click, focus } from 'ember-native-dom-helpers';
+import { click, find, focus } from 'ember-native-dom-helpers';
 import { isVisible } from 'ember-attacher';
 import { moduleForComponent, test } from 'ember-qunit';
 
@@ -16,11 +16,11 @@ test('hides when the target loses focus', async function(assert) {
     <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='blur'
                         showOn='click'}}
         hideOn click
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 
@@ -46,11 +46,11 @@ test('with interactive=false: hides when the attachment gains focus', async func
     <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='blur'
                         showOn='click'}}
         <input type="text" id="attachment-focus-me"/>
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 
@@ -76,12 +76,12 @@ test("with interactive=true: doesn't hide when attachment gains focus", async fu
     <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='blur'
                         interactive=true
                         showOn='click'}}
         <input type="text" id="attachment-focus-me"/>
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 

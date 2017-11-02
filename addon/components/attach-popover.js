@@ -4,6 +4,7 @@ import layout from '../templates/components/attach-popover';
 import { cancel, debounce, later, next, run } from '@ember/runloop';
 import { computed, observer } from '@ember/object';
 import { getOwner } from '@ember/application';
+import { guidFor } from '@ember/object/internals';
 import { htmlSafe } from '@ember/string';
 import { stripInProduction } from 'ember-attacher/-debug/helpers';
 import { warn } from '@ember/debug';
@@ -87,7 +88,7 @@ export default Component.extend({
 
   // This is memoized so it can be used by both attach-popover and attach-tooltip
   _config: computed(function() {
-    return getOwner(this).resolveRegistration('config:environment');
+    return getOwner(this).resolveRegistration('config:environment').emberAttacher || {};
   }),
 
   _hideOn: computed('hideOn', function() {
@@ -159,6 +160,8 @@ export default Component.extend({
   init() {
     this._super(...arguments);
 
+    this.id = this.id || `${guidFor(this)}-popper`;
+
     // Holds the current popper target so event listeners can be removed if the target changes
     this._currentTarget = null;
 
@@ -195,7 +198,7 @@ export default Component.extend({
   },
 
   _setUserSuppliedDefaults() {
-    const defaults = this.get('_config').emberAttacher || {};
+    const defaults = this.get('_config');
 
     // Exit early if no custom defaults are found
     if (!defaults) {
