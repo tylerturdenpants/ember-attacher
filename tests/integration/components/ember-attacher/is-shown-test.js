@@ -125,24 +125,24 @@ test('nested attachers open and close as expected', async function(assert) {
     </button>
   `);
 
-  const innerChildAttacher = find('.child > .inner');
-  const innerParentAttacher = find('.parent > .inner');
+  const childAttacher = find('.child');
+  const parentAttacher = find('.parent');
 
-  assert.equal(innerParentAttacher.style.display, 'none', 'parent initially hidden');
-  assert.equal(innerChildAttacher.style.display, 'none', 'child initially hidden');
+  assert.equal(parentAttacher.style.display, 'none', 'parent initially hidden');
+  assert.equal(childAttacher.style.display, 'none', 'child initially hidden');
 
   await click('#openParent');
 
-  assert.equal(innerParentAttacher.style.display, '', 'parent shown');
+  assert.equal(parentAttacher.style.display, '', 'parent shown');
 
-  assert.equal(innerChildAttacher.style.display, 'none', 'child still hidden');
+  assert.equal(childAttacher.style.display, 'none', 'child still hidden');
 
-  await click(find('#openChild', innerParentAttacher));
+  await click(find('#openChild', parentAttacher));
 
-  assert.equal(innerChildAttacher.style.display, '', 'child shown');
+  assert.equal(childAttacher.style.display, '', 'child shown');
 
   await click('#closeChild');
 
-  assert.equal(innerParentAttacher.style.display, '', 'parent still shown');
-  assert.equal(innerChildAttacher.style.display, 'none', 'child hidden');
+  assert.equal(parentAttacher.style.display, '', 'parent still shown');
+  assert.equal(childAttacher.style.display, 'none', 'child hidden');
 });
