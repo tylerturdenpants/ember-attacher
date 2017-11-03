@@ -1,7 +1,7 @@
 import Service from '@ember/service';
 
 export default Service.extend({
-  animation: 'fill',
+  animation: 'perspective',
   arrow: false,
   hideDelay: 0,
   hideDuration: 300,

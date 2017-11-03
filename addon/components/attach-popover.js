@@ -63,9 +63,9 @@ export default Component.extend({
     },
 
     registerAPI(api) {
+      this._popperElement = api.popperElement;
       this.set('disableEventListeners', api.disableEventListeners);
       this.set('enableEventListeners', api.enableEventListeners);
-      this.set('popperElement', api.popperElement);
       this.set('scheduleUpdate', api.scheduleUpdate);
       this.set('target', api.popperTarget);
       this.set('update', api.update);
@@ -128,7 +128,7 @@ export default Component.extend({
       this._delayedVisibilityToggle = later(this, () => {
         this._animationTimeout = requestAnimationFrame(() => {
           if (!this.isDestroyed && !this.isDestroying) {
-            this.popperElement.style.display = isVisible ? '' : 'none';
+            this._popperElement.style.display = isVisible ? '' : 'none';
 
             if (onChange) {
               onChange(isVisible);
@@ -137,7 +137,7 @@ export default Component.extend({
         });
       }, delay);
     } else {
-      this.popperElement.style.display = isVisible ? '' : 'none';
+      this._popperElement.style.display = isVisible ? '' : 'none';
 
       if (onChange) {
         onChange(isVisible);
@@ -151,6 +151,12 @@ export default Component.extend({
 
   _showOn: computed('showOn', function() {
     return this.get('showOn').split(' ');
+  }),
+
+  _transitionDuration: 0,
+
+  _transitionDurationCss: computed('_transitionDuration', function() {
+    return htmlSafe(`transition-duration: ${this.get('_transitionDuration')}ms`);
   }),
 
   /**
@@ -224,15 +230,15 @@ export default Component.extend({
   didInsertElement() {
     this._super(...arguments);
 
-    this.popperElement.style.display = this.get('isShown') ? '' : 'none';
-
     requestAnimationFrame(() => {
       // The attachment has no width if initially hidden. This can cause it to be positioned so far
       // to the right that it overflows the screen until enough updates fix its position.
       // We avoid this issue by positioning initially hidden elements in the top left of the screen.
       // The attachment will then correctly update its position from the first this._show()
-      if (this._isHidden && !this.isDestroying && !this.isDestroyed && this.get('target')) {
-        this.get('popperElement').style.transform = null;
+      if (this._isHidden && !this.isDestroying && !this.isDestroyed) {
+        this._popperElement.style.transform = null;
+
+        this._popperElement.style.display = this.get('isShown') ? '' : 'none';
       }
     });
 
@@ -358,7 +364,7 @@ export default Component.extend({
         return;
       }
 
-      const popperElement = this.get('popperElement');
+      const popperElement = this._popperElement;
 
       // Wait until the element is visible before continuing
       if (popperElement.style.display === 'none') {
@@ -377,11 +383,8 @@ export default Component.extend({
           return;
         }
 
-        const showDuration = parseInt(this.get('showDuration'));
-
-        popperElement.style.transitionDuration = `${showDuration}ms`;
         run(() => {
-          this.set('_transitionDuration', showDuration);
+          this.set('_transitionDuration', parseInt(this.get('showDuration')));
           this.set('_isStartingAnimation', true);
           popperElement.setAttribute('aria-hidden', 'false');
         });
@@ -414,14 +417,11 @@ export default Component.extend({
       }
 
       const hideDuration = parseInt(this.get('hideDuration'));
-      const popperElement = this.get('popperElement');
-
-      popperElement.style.transitionDuration = `${hideDuration}ms`;
 
       run(() => {
         this.set('_transitionDuration', hideDuration);
         this.set('_isStartingAnimation', false);
-        popperElement.setAttribute('aria-hidden', 'true');
+        this._popperElement.setAttribute('aria-hidden', 'true');
 
         // Wait for any animations to complete before hiding the attachment
         this._setIsVisibleAfterDelay(false, hideDuration);
@@ -511,7 +511,7 @@ export default Component.extend({
     // If cursor is not on the attachment or target, hide the popper
     if (!target.contains(event.target)
         && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
-        && !this.get('popperElement').contains(event.target)) {
+        && !this._popperElement.contains(event.target)) {
       // Remove this listener before hiding the attachment
       delete this._hideListenersOnDocumentByEvent.mousemove;
       document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
@@ -523,7 +523,7 @@ export default Component.extend({
   _isCursorBetweenTargetAndAttachment(event) {
     const { clientX, clientY } = event;
 
-    const attachmentPosition = this.get('popperElement').getBoundingClientRect();
+    const attachmentPosition = this._popperElement.getBoundingClientRect();
     const targetPosition = this._currentTarget.getBoundingClientRect();
 
     const isBetweenLeftAndRight = clientX > Math.min(attachmentPosition.left, targetPosition.left)
@@ -567,7 +567,7 @@ export default Component.extend({
     const targetReceivedClick = this._currentTarget.contains(event.target);
 
     if (this.get('interactive')) {
-      if (!targetReceivedClick && !this.get('popperElement').contains(event.target)) {
+      if (!targetReceivedClick && !this._popperElement.contains(event.target)) {
         this._hideAfterDelay();
       }
     } else if (!targetReceivedClick) {
@@ -589,7 +589,7 @@ export default Component.extend({
     const targetContainsFocus = this._currentTarget.contains(event.relatedTarget);
 
     if (this.get('interactive')) {
-      if (!targetContainsFocus && !this.get('popperElement').contains(event.relatedTarget)) {
+      if (!targetContainsFocus && !this._popperElement.contains(event.relatedTarget)) {
         this._hideAfterDelay();
       }
     } else if (!targetContainsFocus) {

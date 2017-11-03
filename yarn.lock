@@ -2681,7 +2681,7 @@ ember-getowner-polyfill@^1.1.0:
     ember-cli-version-checker "^1.2.0"
     ember-factory-for-polyfill "^1.1.0"
 
-ember-legacy-class-transform@~0.1.2:
+ember-legacy-class-transform@^0.1.3:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/ember-legacy-class-transform/-/ember-legacy-class-transform-0.1.3.tgz#af943fd46aa050981b7f0927bf70ef8736878682"
   dependencies:
@@ -2726,9 +2726,9 @@ ember-native-dom-helpers@^0.5.3:
     broccoli-funnel "^1.1.0"
     ember-cli-babel "^6.6.0"
 
-ember-popper@^0.7.0:
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/ember-popper/-/ember-popper-0.7.0.tgz#bb14d20e22499195175b049457214571e4aab477"
+ember-popper@^0.7.2:
+  version "0.7.2"
+  resolved "https://registry.yarnpkg.com/ember-popper/-/ember-popper-0.7.2.tgz#c47314496659b43d930d0fc0e30512039b5eaa88"
   dependencies:
     babel-eslint "^8.0.1"
     babel6-plugin-strip-class-callcheck "^6.0.0"
@@ -2740,7 +2740,7 @@ ember-popper@^0.7.0:
     ember-cli-version-checker "^2.1.0"
     ember-compatibility-helpers "^0.1.2"
     ember-decorators "^1.3.1"
-    ember-legacy-class-transform "~0.1.2"
+    ember-legacy-class-transform "^0.1.3"
     ember-raf-scheduler "^0.1.0"
     fastboot-transform "^0.1.0"
     popper.js "^1.12.5"
