@@ -16,11 +16,11 @@ test('hides when the target loses focus', async function(assert) {
     <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='focusout'
                         showOn='click'}}
         hideOn click
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 
@@ -46,11 +46,11 @@ test('with interactive=false: hides when the attachment gains focus', async func
     <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='focusout'
                         showOn='click'}}
         <input type="text" id="attachment-focus-me"/>
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 
@@ -76,12 +76,12 @@ test("with interactive=true: doesn't hide when the attachment gains focus", asyn
     <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='focusout'
                         interactive=true
                         showOn='click'}}
         <input type="text" id="attachment-focus-me"/>
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 

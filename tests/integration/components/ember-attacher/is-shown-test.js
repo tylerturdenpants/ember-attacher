@@ -14,12 +14,12 @@ test('isShown works with showOn/hideOn set to "click"', async function(assert) {
     <button id="toggle-show">
       Click me, captain!
 
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='click'
                         isShown=true
                         showOn='click'}}
         isShown w/ hideOn/ShowOn of 'click'
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 
@@ -53,7 +53,7 @@ test('isShown works with showOn/hideOn set to "none"', async function(assert) {
     <button id="open" {{action 'openPopover'}}>
       Click me, captain!
 
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='none'
                         isShown=isShown
                         showOn='none'}}
@@ -63,7 +63,7 @@ test('isShown works with showOn/hideOn set to "none"', async function(assert) {
           Close
         </button>
 
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 
@@ -104,45 +104,45 @@ test('nested attachers open and close as expected', async function(assert) {
     <button id="openParent" {{action 'openParentPopover'}}>
       Open parent
 
-      {{#ember-attacher class='parent'
-                        hideOn='none'
+      {{#attach-popover hideOn='none'
+                        id='parent'
                         isShown=parentIsShown
                         showOn='none'}}
         <button id="openChild" {{action 'openChildPopover'}}>
           Open child
 
-          {{#ember-attacher class='child'
-                            hideDuration=0
+          {{#attach-popover hideDuration=0
                             hideOn='none'
+                            id='child'
                             isShown=childIsShown
                             showOn='none'}}
             <button id="closeChild" {{action 'closeChildPopover'}}>
               Close child
             </button>
-          {{/ember-attacher}}
+          {{/attach-popover}}
         </button>
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 
-  const innerChildAttacher = find('.child > .inner');
-  const innerParentAttacher = find('.parent > .inner');
+  const childAttacher = find('#child');
+  const parentAttacher = find('#parent');
 
-  assert.equal(innerParentAttacher.style.display, 'none', 'parent initially hidden');
-  assert.equal(innerChildAttacher.style.display, 'none', 'child initially hidden');
+  assert.equal(parentAttacher.style.display, 'none', 'parent initially hidden');
+  assert.equal(childAttacher.style.display, 'none', 'child initially hidden');
 
   await click('#openParent');
 
-  assert.equal(innerParentAttacher.style.display, '', 'parent shown');
+  assert.equal(parentAttacher.style.display, '', 'parent shown');
 
-  assert.equal(innerChildAttacher.style.display, 'none', 'child still hidden');
+  assert.equal(childAttacher.style.display, 'none', 'child still hidden');
 
-  await click(find('#openChild', innerParentAttacher));
+  await click(find('#openChild', parentAttacher));
 
-  assert.equal(innerChildAttacher.style.display, '', 'child shown');
+  assert.equal(childAttacher.style.display, '', 'child shown');
 
   await click('#closeChild');
 
-  assert.equal(innerParentAttacher.style.display, '', 'parent still shown');
-  assert.equal(innerChildAttacher.style.display, 'none', 'child hidden');
+  assert.equal(parentAttacher.style.display, '', 'parent still shown');
+  assert.equal(childAttacher.style.display, 'none', 'child hidden');
 });

@@ -1,0 +1,1 @@
+export { default } from 'ember-attacher/components/attach-popover';

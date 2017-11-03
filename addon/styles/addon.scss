@@ -3,62 +3,58 @@
 $positions: 'top', 'bottom', 'left', 'right';
 $origins: bottom, top, right, left;
 
-.ember-attacher-popper {
-  min-height: 10px;
-
-  > .inner {
-    max-width: 400px;
-    perspective: 800px;
-    z-index: 9999;
-  }
+.ember-attacher {
+  perspective: 800px;
+  transition-timing-function: cubic-bezier(.165, .84, .44, 1);
+  z-index: 9999;
 
   @each $position in $positions {
-    &[x-placement=#{$position}] > .inner {
-      > div[x-arrow] {
+    &[x-placement=#{$position}] {
+      div[x-arrow] {
         @include arrow($position, 10px);
       }
 
       $circle-origins: 0% 50%, 0% -50%, 50% 5%, -50% 5%;
 
-      > div[x-circle] {
+      div[x-circle] {
+        @include circle-transform-hide($position);
         opacity: 0;
         transform-origin: nth($circle-origins, index($positions, $position));
-        @include circle-transform-hide($position);
       }
 
-      &.ember-attacher-fill {
+      > .ember-attacher-fill {
+        @include ember-attacher-hide-transform($position, 'shift');
         opacity: 0;
-        @include ember-attacher-hide-transform($position, 'shift')
       }
 
-      &.ember-attacher-none {
-        opacity: 1;
+      > .ember-attacher-none {
         @include ember-attacher-hide-transform($position, 'none');
+        opacity: 1;
+
       }
 
-      &.ember-attacher-fade {
+      > .ember-attacher-fade {
+        @include ember-attacher-show-transform($position, 'fade');
         opacity: 0;
-        @include ember-attacher-show-transform($position, 'fade')
       }
 
-      &.ember-attacher-shift {
+      > .ember-attacher-shift {
+        @include ember-attacher-hide-transform($position, 'shift');
         opacity: 0;
-        @include ember-attacher-hide-transform($position, 'shift')
       }
 
-      &.ember-attacher-scale {
+      > .ember-attacher-scale {
+        @include ember-attacher-hide-transform($position, 'scale');
         opacity: 0;
-        @include ember-attacher-hide-transform($position, 'scale')
       }
 
-      &.ember-attacher-perspective {
+      > .ember-attacher-perspective {
+        opacity: 0;
         transform-origin: nth($origins, index($positions, $position));
-
-        opacity: 0;
         @include ember-attacher-hide-transform($position, 'perspective');
       }
 
-      &.ember-attacher-show {
+      > .ember-attacher-show {
         > div[x-circle] {
           opacity: 1;
           transform: scale(1.2) translate(-50%, -50%);
@@ -86,44 +82,44 @@ $origins: bottom, top, right, left;
   }
 }
 
-.ember-attacher-tooltip > .inner {
-  position: relative;
-  color: white;
+.ember-attacher-tooltip {
+  background-color: #333;
   border-radius: 4px;
-  padding: 0.5rem 1rem;
+  color: #fff;
+  padding: .5rem 1rem;
+  position: relative;
   text-align: center;
   will-change: transform;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #333;
 
   &.ember-attacher-fill {
-    overflow: hidden;
     background-color: transparent;
+    overflow: hidden;
   }
 
   > div[x-arrow] {
-    z-index: -1;
-    position: absolute;
-    width: 10px;
-    height: 10px;
     background-color: #333;
     border: 1px solid;
     border-color: transparent transparent #333 #333;
+    height: 10px;
+    position: absolute;
+    width: 10px;
+    z-index: -1;
   }
 
   > div[x-circle] {
-    position: absolute;
-    will-change: transform;
     background-color: #333;
     border-radius: 50%;
-    width: 120%;
-    width: calc(100% + 2rem);
     left: 50%;
-    transition: all ease-out;
-    z-index: -1;
     opacity: 0;
     overflow: hidden;
+    position: absolute;
+    transition: all ease-out;
+    width: 120%;
+    width: calc(100% + 2rem);
+    will-change: transform;
+    z-index: -1;
 
     &::before {
       content: '';
@@ -134,11 +130,12 @@ $origins: bottom, top, right, left;
   }
 }
 
-.ember-attacher-light-theme > .inner {
-  color: #203d5d;
-  box-shadow: 0 0 16px -4px rgba(0,20,40,0.2), 0 0 80px -10px rgba(0,20,40,0.3);
+.ember-attacher-light-theme {
+  box-shadow: 0 0 16px -4px rgba(0, 20, 40, 0.2), 0 0 80px -10px rgba(0, 20, 40, 0.3);
   background-color: #f3f6f9;
   border: 1px solid #ced2e2;
+  color: #203d5d;
+
 
   > div[x-arrow] {
     background-color: #f3f6f9;
@@ -151,7 +148,7 @@ $origins: bottom, top, right, left;
 }
 
 @media (max-width: 500px) {
-  .ember-attacher-tooltip > .inner, .ember-attacher-popover > .inner {
+  .ember-attacher-tooltip {
     max-width: 94%;
     max-width: calc(100% - (2rem + 4px));
   }

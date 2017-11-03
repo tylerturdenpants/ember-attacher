@@ -1,10 +1,11 @@
 <centered class="section">
-  <p>Drop an <span class="no-wrap">\{{#attach-tooltip}}</span> or <span class="no-wrap">\{{#ember-attacher}}</span> in any element or component to get started.</p>
+  <p>Drop an <span class="no-wrap">\{{#attach-tooltip}}</span> or <span class="no-wrap">\{{#attach-popover}}</span> in any element or component to get started.</p>
 </centered>
 <centered class="section">
   <centered xs="12" lm="10" sm="8" md="6" lg="5" justify="around" class="popper-area">
     <button class="hover-me">
       Tooltip me, captain!
+
       {{#attach-tooltip animation=tooltipData.animation
                         arrow=tooltipData.arrow
                         hideDelay=tooltipData.hideDelay
@@ -24,29 +25,27 @@
 
     <button class="hover-me target-plz">
       Click me, captain!
+
+      {{#attach-popover animation=popoverData.animation
+                        arrow=popoverData.arrow
+                        class="ember-attacher-popper custom-popover-css"
+                        hideDelay=popoverData.hideDelay
+                        hideDuration=popoverData.hideDuration
+                        hideOn=popoverData.hideOn
+                        interactive=popoverData.interactive
+                        isShown=popoverData.isShown
+                        lazyRender=popoverData.lazyRender
+                        onChange=(action (mut popoverData.isShown))
+                        placement=popoverData.placement
+                        renderInPlace=popoverData.renderInPlace
+                        showDelay=popoverData.showDelay
+                        showDuration=popoverData.showDuration
+                        showOn=popoverData.showOn as |emberAttacher|}}
+        <p>Popovers and tooltips, oh my!</p>
+
+        <button {{action emberAttacher.hide}}>Close</button>
+      {{/attach-popover}}
     </button>
-
-    {{#ember-attacher animation=popoverData.animation
-                      arrow=popoverData.arrow
-                      class="ember-attacher-popper custom-popover-css"
-                      hideDelay=popoverData.hideDelay
-                      hideDuration=popoverData.hideDuration
-                      hideOn=popoverData.hideOn
-                      interactive=popoverData.interactive
-                      innerClass='custom-extra-inner-class'
-                      isShown=popoverData.isShown
-                      lazyRender=popoverData.lazyRender
-                      onChange=(action (mut popoverData.isShown))
-                      placement=popoverData.placement
-                      renderInPlace=popoverData.renderInPlace
-                      showDelay=popoverData.showDelay
-                      showDuration=popoverData.showDuration
-                      showOn=popoverData.showOn
-                      target=popoverData.target as |emberAttacher|}}
-      <p>Popovers and tooltips, oh my!</p>
-
-      <button {{action emberAttacher.hide}}>Close</button>
-    {{/ember-attacher}}
   </centered>
 </centered>
 {{#if (and service.arrow (eq service.animation "fill"))}}
@@ -68,7 +67,7 @@
         \{{#attach-tooltip}}
       </centered>
       <centered xs='6' class="nav{{unless isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' false}}>
-        \{{#ember-attacher}}
+        \{{#attach-popover}}
       </centered>
     </hbox>
 
@@ -86,16 +85,16 @@
         <centered fit>
           &nbsp;&nbsp;\{{
           <span class="underlined">
-            {{if isConfiguringTooltip '#attach-tooltip' '#ember-attacher'}}
+            {{if isConfiguringTooltip '#attach-tooltip' '#attach-popover'}}
 
             {{#attach-tooltip animation='shift'}}
               {{#if isConfiguringTooltip}}
                 This component has the default settings. The \{{attach-tooltip}} component
                 automatically gains the ember-attacher-popper and ember-attacher-tooltip classes.
                 It also modifies the target element's aria-describedby to point to the tooltip.
-                For manual control, use \{{ember-attacher}} instead.
+                For manual control, use \{{attach-popover}} instead.
               {{else}}
-                This is a click-triggered \{{ember-attacher}}. Unlike \{{attach-tooltip}}, it does
+                This is a click-triggered \{{attach-popover}}. Unlike \{{attach-tooltip}}, it does
                 not modify the target's aria-describedby, or have any default classes.
               {{/if}}
             {{/attach-tooltip}}
@@ -341,11 +340,6 @@
             </hbox>
           {{else}}
             <hbox><centered fit>class="ember-attacher-popper custom-popover-css"</centered></hbox>
-            <hbox><centered fit>innerClass="<a
-              href="https://github.com/kybishop/ember-attacher/blob/master/tests/dummy/app/styles/app.scss"
-                                                target="_blank"
-                                                rel="noopener">custom-extra-inner-class</a>"
-            </centered></hbox>
             <hbox><centered fit>as |attacher|}}</centered></hbox>
           {{/if}}
         </vbox>
@@ -381,7 +375,7 @@
       </vbox>
     {{/if}}
     <hbox>
-      &nbsp;&nbsp;\{{/{{if isConfiguringTooltip 'attach-tooltip}}' 'ember-attacher}}'}}
+      &nbsp;&nbsp;\{{/{{if isConfiguringTooltip 'attach-tooltip}}' 'attach-popover}}'}}
     </hbox>
     <hbox>
       <centered fit>&lt;\button></centered>

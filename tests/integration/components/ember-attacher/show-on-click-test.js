@@ -14,9 +14,9 @@ test('shows when the target is clicked', async function(assert) {
     <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher id='attachment' showOn='click'}}
+      {{#attach-popover id='attachment' showOn='click'}}
         showOn click
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 

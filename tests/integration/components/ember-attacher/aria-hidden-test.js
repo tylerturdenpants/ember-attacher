@@ -13,17 +13,21 @@ test('aria-hidden updates when shown/hidden', async function(assert) {
     <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher id='attachment' hideOn='click' showOn='click'}}
+      {{#attach-popover id='attachment' hideOn='click' showOn='click'}}
         showOn/hideOn click updates aria-hidden
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 
   await click('#click-toggle');
 
-  assert.equal(find('#attachment > .inner').getAttribute('aria-hidden'), 'false', 'When shown, aria-hidden="false"');
+  assert.equal(find('#attachment').getAttribute('aria-hidden'),
+               'false',
+               'When shown, aria-hidden="false"');
 
   await click('#click-toggle');
 
-  assert.equal(find('#attachment > .inner').getAttribute('aria-hidden'), 'true', 'When hidden aria-hidden="true"');
+  assert.equal(find('#attachment').getAttribute('aria-hidden'),
+               'true',
+               'When hidden aria-hidden="true"');
 });

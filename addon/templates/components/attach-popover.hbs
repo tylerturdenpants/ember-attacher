@@ -1,0 +1,23 @@
+{{#ember-popper ariaRole=ariaRole
+                class="ember-attacher"
+                eventsEnabled=false
+                id=id
+                modifiers=_modifiers
+                placement=placement
+                popperContainer=popperContainer
+                registerAPI=(action 'registerAPI')
+                renderInPlace=renderInPlace
+                target=target as |emberPopper|}}
+  {{#if _shouldRender}}
+    <div class="{{_class}}" style="{{_transitionDurationCss}}">
+      {{yield (hash emberPopper=emberPopper hide=(action 'hide'))}}
+
+      {{#if arrow}}
+        <div x-arrow></div>
+      {{/if}}
+      {{#if (eq animation 'fill')}}
+        <div x-circle style="{{_circleTransitionDuration}}"></div>
+      {{/if}}
+    </div>
+  {{/if}}
+{{/ember-popper}}

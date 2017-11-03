@@ -13,11 +13,11 @@ test('hides when the mouse leaves the target', async function(assert) {
 
   this.render(hbs`
     <div id="target">
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='mouseleave'
                         isShown=true}}
         hideOn mouseleave
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </div>
   `);
 
@@ -41,12 +41,12 @@ test("with interactive=true: doesn't hide if mouse over target or attachment", a
     <div id="target" style="height: 300px; width: 300px;">
       <span id="other">something else in the target</span>
 
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='mouseleave'
                         interactive=true
                         isShown=true}}
         hideOn mouseleave
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </div>
 
     <div id='outside'></div>
@@ -93,7 +93,7 @@ test('with interactive=true: still hides when mouse leaves target + attachment '
 
   this.render(hbs`
     <div id="target" style="height: 300px; width: 300px;">
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='mouseleave'
                         interactive=true
                         isShown=isShown
@@ -101,7 +101,7 @@ test('with interactive=true: still hides when mouse leaves target + attachment '
         hideOn mouseleave
 
         <button id="manual-hide" {{action attacher.hide}}>hide</button>
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </div>
 
     <div id='outside'></div>
@@ -149,13 +149,13 @@ test('with interactive=true and isOffset=false: hides if mouse between '
     </style>
 
     <div id="target" style="height: 300px; width: 300px;">
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='mouseleave'
                         interactive=true
                         placement='bottom'
                         isShown=true}}
         hideOn mouseleave
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </div>
   `);
 
@@ -199,14 +199,14 @@ test("with interactive=true and isOffset=true: doesn't hide if mouse between "
 
     <div id="target" style="height: 50px; top: 0; position: fixed; width: 300px;">
       target
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='mouseleave'
                         interactive=true
                         isOffset=true
                         placement='bottom'
                         isShown=true}}
         hideOn mouseleave
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </div>
   `);
 

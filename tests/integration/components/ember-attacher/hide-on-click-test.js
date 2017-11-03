@@ -14,11 +14,11 @@ test('hides when the target is clicked', async function(assert) {
     <button id="click-toggle">
       Click me, captain!
 
-      {{#ember-attacher id='attachment'
+      {{#attach-popover id='attachment'
                         hideOn='click'
                         isShown=true}}
         hideOn click
-      {{/ember-attacher}}
+      {{/attach-popover}}
     </button>
   `);
 
