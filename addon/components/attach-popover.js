@@ -352,10 +352,9 @@ export default Component.extend({
   },
 
   _startShowAnimation() {
-    // Start the show animation on the next cycle so CSS transitions can have an effect
-    // If we start the animation immediately, the transition won't work because isVisible will
-    // turn on the same time as our show animation, and `display: none` => `display: anythingElse`
-    // is not transition-able
+    // Start the show animation on the next cycle so CSS transitions can have an effect.
+    // If we start the animation immediately, the transition won't work because
+    // `display: none` => `display: ''` is not transition-able.
     // All included animations set opaque: 0, so the attachment is still effectively hidden until
     // the final RAF occurs.
     this._animationTimeout = requestAnimationFrame(() => {
