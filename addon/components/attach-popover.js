@@ -63,12 +63,13 @@ export default Component.extend({
     },
 
     registerAPI(api) {
+      // Only 'target' has observers, everything else can be a direct property
+      this._disableEventListeners = api.disableEventListeners;
+      this._enableEventListeners = api.enableEventListeners;
       this._popperElement = api.popperElement;
-      this.set('disableEventListeners', api.disableEventListeners);
-      this.set('enableEventListeners', api.enableEventListeners);
-      this.set('scheduleUpdate', api.scheduleUpdate);
+      this._update = api.update;
+
       this.set('target', api.popperTarget);
-      this.set('update', api.update);
     }
   },
 
@@ -371,8 +372,8 @@ export default Component.extend({
         return;
       }
 
-      this.get('enableEventListeners')();
-      this.get('update')();
+      this._enableEventListeners();
+      this._update();
 
       // Wait for the above positioning to take effect before starting the show animation,
       // else the positioning itself will be animated, causing animation glitches.
@@ -425,7 +426,7 @@ export default Component.extend({
         this._setIsVisibleAfterDelay(false, hideDuration);
       });
 
-      this.get('disableEventListeners')();
+      this._disableEventListeners();
 
       this._isHidden = true;
     });
