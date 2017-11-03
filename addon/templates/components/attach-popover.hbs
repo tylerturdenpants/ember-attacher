@@ -9,7 +9,7 @@
                 renderInPlace=renderInPlace
                 target=target as |emberPopper|}}
   {{#if _shouldRender}}
-    <div class="inner {{_class}}" style="{{_transitionDurationCss}}">
+    <div class="{{_class}}" style="{{_transitionDurationCss}}">
       {{yield (hash emberPopper=emberPopper hide=(action 'hide'))}}
 
       {{#if arrow}}

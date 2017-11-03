@@ -13,6 +13,5 @@ export default Service.extend({
   renderInPlace: false,
   showDelay: 0,
   showDuration: 300,
-  showOn: 'click',
-  target: '.target-plz'
+  showOn: 'click'
 });
