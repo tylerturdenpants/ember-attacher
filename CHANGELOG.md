@@ -1,5 +1,33 @@
 # Change Log
 
+## [v0.12.0](https://github.com/kybishop/ember-attacher/tree/v0.12.0) (2017-11-03)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.11.4...v0.12.0)
+
+**Closed issues:**
+
+- Testing [\#40](https://github.com/kybishop/ember-attacher/issues/40)
+
+**Merged pull requests:**
+
+- Update readme [\#83](https://github.com/kybishop/ember-attacher/pull/83) ([kybishop](https://github.com/kybishop))
+- fix\(css\) better tooltip widths [\#82](https://github.com/kybishop/ember-attacher/pull/82) ([kybishop](https://github.com/kybishop))
+- BREAKING\(get rid of inner component\) [\#81](https://github.com/kybishop/ember-attacher/pull/81) ([kybishop](https://github.com/kybishop))
+- Set aria-hidden when showing/hiding [\#80](https://github.com/kybishop/ember-attacher/pull/80) ([rwwagner90](https://github.com/rwwagner90))
+- chore\(upgrade deps\) ember 2.16, etc. [\#79](https://github.com/kybishop/ember-attacher/pull/79) ([kybishop](https://github.com/kybishop))
+- Move mixins to separate file, reduce redundant styles [\#78](https://github.com/kybishop/ember-attacher/pull/78) ([rwwagner90](https://github.com/rwwagner90))
+
+## [v0.11.4](https://github.com/kybishop/ember-attacher/tree/v0.11.4) (2017-10-18)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.11.3...v0.11.4)
+
+**Closed issues:**
+
+- Feature Request - Lazy Render [\#74](https://github.com/kybishop/ember-attacher/issues/74)
+
+**Merged pull requests:**
+
+- Support innerClass option [\#77](https://github.com/kybishop/ember-attacher/pull/77) ([rwwagner90](https://github.com/rwwagner90))
+- Adds lazyRender support [\#75](https://github.com/kybishop/ember-attacher/pull/75) ([Duder-onomy](https://github.com/Duder-onomy))
+
 ## [v0.11.3](https://github.com/kybishop/ember-attacher/tree/v0.11.3) (2017-09-22)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.11.2...v0.11.3)
 
