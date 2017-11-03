@@ -1,4 +1,5 @@
-{{#ember-popper class="ember-attacher"
+{{#ember-popper ariaRole=ariaRole
+                class="ember-attacher"
                 eventsEnabled=false
                 id=id
                 modifiers=_modifiers
@@ -8,7 +9,7 @@
                 renderInPlace=renderInPlace
                 target=target as |emberPopper|}}
   {{#if _shouldRender}}
-    <div ariaRole=ariaRole class="inner {{_class}}" style="{{_transitionDurationCss}}">
+    <div class="inner {{_class}}" style="{{_transitionDurationCss}}">
       {{yield (hash emberPopper=emberPopper hide=(action 'hide'))}}
 
       {{#if arrow}}

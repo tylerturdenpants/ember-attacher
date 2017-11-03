@@ -166,13 +166,13 @@ export default Component.extend({
   init() {
     this._super(...arguments);
 
-    this.id = this.id || `${guidFor(this)}-popper`;
-
     // Holds the current popper target so event listeners can be removed if the target changes
     this._currentTarget = null;
 
     // The debounced _hide() and _show() are stored here so they can be cancelled when necessary
     this._delayedVisibilityToggle = null;
+
+    this.id = this.id || `${guidFor(this)}-tooltip`;
 
     // The final source of truth on whether or not all _hide() or _show() actions have completed
     this._isHidden = true;
@@ -230,17 +230,15 @@ export default Component.extend({
   didInsertElement() {
     this._super(...arguments);
 
-    requestAnimationFrame(() => {
-      // The attachment has no width if initially hidden. This can cause it to be positioned so far
-      // to the right that it overflows the screen until enough updates fix its position.
-      // We avoid this issue by positioning initially hidden elements in the top left of the screen.
-      // The attachment will then correctly update its position from the first this._show()
-      if (this._isHidden && !this.isDestroying && !this.isDestroyed) {
-        this._popperElement.style.transform = null;
+    // The attachment has no width if initially hidden. This can cause it to be positioned so far
+    // to the right that it overflows the screen until enough updates fix its position.
+    // We avoid this issue by positioning initially hidden elements in the top left of the screen.
+    // The attachment will then correctly update its position from the first this._show()
+    if (this._isHidden && !this.isDestroying && !this.isDestroyed) {
+      this._popperElement.style.transform = null;
+    }
 
-        this._popperElement.style.display = this.get('isShown') ? '' : 'none';
-      }
-    });
+    this._popperElement.style.display = this.get('isShown') ? '' : 'none';
 
     this._initializeAttacher();
   },

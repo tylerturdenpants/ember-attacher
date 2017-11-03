@@ -104,16 +104,16 @@ test('nested attachers open and close as expected', async function(assert) {
     <button id="openParent" {{action 'openParentPopover'}}>
       Open parent
 
-      {{#attach-popover class='parent'
-                        hideOn='none'
+      {{#attach-popover hideOn='none'
+                        id='parent'
                         isShown=parentIsShown
                         showOn='none'}}
         <button id="openChild" {{action 'openChildPopover'}}>
           Open child
 
-          {{#attach-popover class='child'
-                            hideDuration=0
+          {{#attach-popover hideDuration=0
                             hideOn='none'
+                            id='child'
                             isShown=childIsShown
                             showOn='none'}}
             <button id="closeChild" {{action 'closeChildPopover'}}>
@@ -125,8 +125,8 @@ test('nested attachers open and close as expected', async function(assert) {
     </button>
   `);
 
-  const childAttacher = find('.child');
-  const parentAttacher = find('.parent');
+  const childAttacher = find('#child');
+  const parentAttacher = find('#parent');
 
   assert.equal(parentAttacher.style.display, 'none', 'parent initially hidden');
   assert.equal(childAttacher.style.display, 'none', 'child initially hidden');

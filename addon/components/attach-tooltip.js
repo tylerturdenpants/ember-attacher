@@ -1,6 +1,6 @@
 import AttachPopover from './attach-popover';
-import { computed, observer } from '@ember/object';
 import DEFAULTS from '../defaults';
+import { computed, observer } from '@ember/object';
 
 export default AttachPopover.extend({
   ariaRole: 'tooltip',

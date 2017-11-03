@@ -57,7 +57,7 @@ test('has the default classes', function(assert) {
     </div>
   `);
 
-  const tooltipWithClass = find('#tooltip-with-class');
+  const tooltipWithClass = find('#tooltip-with-class > .ember-attacher-tooltip');
 
   assert.contains(
     tooltipWithClass.className.split(' '),
@@ -65,7 +65,7 @@ test('has the default classes', function(assert) {
     'it adds the default classes to tooltips with a class'
   );
 
-  const tooltipWithNoClass = find('#tooltip-with-no-class');
+  const tooltipWithNoClass = find('#tooltip-with-no-class > .ember-attacher-tooltip');
 
   assert.contains(
     tooltipWithNoClass.className.split(' '),
@@ -87,7 +87,7 @@ test('uses the user-supplied default tooltip class', function(assert) {
     </div>
   `);
 
-  const tooltip = find('#attachment');
+  const tooltip = find('#attachment > .different-default');
 
   assert.contains(
     tooltip.className.split(' '),
@@ -127,7 +127,7 @@ test('adds aria-describedby to the target', function(assert) {
   assert.notOk(target.hasAttribute('aria-describedby'),
                'it removes aria-describedby on destruction');
 
-  const tooltipWithNoInitialId = find('.tooltip-with-no-initial-id');
+  const tooltipWithNoInitialId = find('.tooltip-with-no-initial-id').parentNode;
 
   assert.ok(tooltipWithNoInitialId.id, 'tooltip gets generated ID when no ID is supplied');
 
