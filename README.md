@@ -7,7 +7,7 @@
 [![Build Status](https://travis-ci.org/kybishop/ember-attacher.svg)](https://travis-ci.org/kybishop/ember-attacher)
 
 Tooltips and popovers made easy.
-Just drop an attach-tooltip or ember-attacher in a parent and your popper is ready to go!
+Just drop an `{{#attach-tooltip}} or `{{#attach-popover}}` in a parent and your popper is ready to go!
 
 ```html
 <button>
@@ -21,12 +21,12 @@ Just drop an attach-tooltip or ember-attacher in a parent and your popper is rea
 <button class="other-button">
   No click me!
 
-  {{#ember-attacher class="ember-attacher-popper"
+  {{#attach-popover class="ember-attacher-popper"
                     hideOn='click'
                     isShown=true
                     showOn='click'}}
     I'm a popover!
-  {{/ember-attacher}}
+  {{/attach-popover}}
 </button>
 ```
 
@@ -41,21 +41,53 @@ ember install ember-attacher
 
 ## Components
 
-### `{{#ember-attacher}}`
+### `{{#attach-popover}}`
 
-The base component.
+A popover attacher.
  - Has no default class or roles.
  - Does not modify the target in any way.
+ - Adds `aria-hidden` attribute to the popper element
 
 ### `{{#attach-tooltip}}`
 
-A tooltip attacher.
+A tooltip attacher. Subclass of `{{#attach-popover}}`
 - Has the default class `'ember-attacher-popper ember-attacher-tooltip'`
   - The default tooltip classes can be modified by altering the `tooltipClass`
     default. See [here](#user-defined-defaults) for details on editing default values.
 - Default `role` attribute of `tooltip`.
 - Causes the target to gain an `aria-describedby` attribute set to the tooltip's ID.
 
+## Testing
+
+Use the `isVisible()` test helper to check if an attachment is visible.
+
+```javascript
+import { click, find } from 'ember-native-dom-helpers';
+import { isVisible } from 'ember-attacher';
+
+test('example', async function(assert) {
+  this.render(hbs`
+    <button id="toggle">
+      Click me, captain!
+
+      {{#attach-popover id='attachment'
+                        hideOn='click'
+                        showOn='click'}}
+        Click-toggled popover
+      {{/attach-popover}}
+    </button>
+  `);
+
+  const attachment = find('#attachment');
+
+  assert.equal(isVisible(attachment), false, 'Initially hidden');
+
+  await click('#toggle');
+
+  // You can also pass in a selector
+  assert.equal(isVisible('#attachment'), true, 'Now shown');
+});
+```
 
 ## User-defined defaults
 
