@@ -32,6 +32,7 @@
     "ember-cli-babel": "^6.8.2",
     "ember-cli-htmlbars": "^2.0.2",
     "ember-cli-sass": "^7.0.0",
+    "ember-native-dom-helpers": "^0.5.3",
     "ember-popper": "^0.7.2",
     "ember-truth-helpers": "^2.0.0",
     "eslint-plugin-ember-suave": "^1.0.0"
@@ -56,7 +57,6 @@
     "ember-export-application-global": "^2.0.0",
     "ember-load-initializers": "^1.0.0",
     "ember-native-dom-event-dispatcher": "^0.6.3",
-    "ember-native-dom-helpers": "^0.5.3",
     "ember-power-select": "^1.9.11",
     "ember-raf-test-waiter": "^0.1.0",
     "ember-resolver": "^4.5.0",
