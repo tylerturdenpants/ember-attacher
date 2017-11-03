@@ -49,9 +49,9 @@ $origins: bottom, top, right, left;
       }
 
       > .ember-attacher-perspective {
+        @include ember-attacher-hide-transform($position, 'perspective');
         opacity: 0;
         transform-origin: nth($origins, index($positions, $position));
-        @include ember-attacher-hide-transform($position, 'perspective');
       }
 
       > .ember-attacher-show {
@@ -64,18 +64,18 @@ $origins: bottom, top, right, left;
         &.ember-attacher-fill,
         &.ember-attacher-none,
         &.ember-attacher-shift {
+          @include ember-attacher-show-transform($position, 'fade');
           opacity: 1;
-          @include ember-attacher-show-transform($position, 'fade')
         }
 
         &.ember-attacher-scale {
+          @include ember-attacher-show-transform($position, 'scale');
           opacity: 1;
-          @include ember-attacher-show-transform($position, 'scale')
         }
 
         &.ember-attacher-perspective {
-          opacity: 1;
           @include ember-attacher-show-transform($position, 'perspective');
+          opacity: 1;
         }
       }
     }
@@ -86,12 +86,13 @@ $origins: bottom, top, right, left;
   background-color: #333;
   border-radius: 4px;
   color: #fff;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  max-width: 400px;
   padding: .5rem 1rem;
   position: relative;
   text-align: center;
   will-change: transform;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 
   &.ember-attacher-fill {
     background-color: transparent;
@@ -131,9 +132,9 @@ $origins: bottom, top, right, left;
 }
 
 .ember-attacher-light-theme {
-  box-shadow: 0 0 16px -4px rgba(0, 20, 40, 0.2), 0 0 80px -10px rgba(0, 20, 40, 0.3);
   background-color: #f3f6f9;
   border: 1px solid #ced2e2;
+  box-shadow: 0 0 16px -4px rgba(0, 20, 40, 0.2), 0 0 80px -10px rgba(0, 20, 40, 0.3);
   color: #203d5d;
 
 
@@ -147,9 +148,9 @@ $origins: bottom, top, right, left;
   }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 450px) {
   .ember-attacher-tooltip {
-    max-width: 94%;
-    max-width: calc(100% - (2rem + 4px));
+    max-width: 96%;
+    max-width: calc(100% - 42px);
   }
 }
