@@ -1,5 +1,16 @@
 # Change Log
 
+## [v0.12.1](https://github.com/kybishop/ember-attacher/tree/v0.12.1) (2017-11-04)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.12.0...v0.12.1)
+
+**Closed issues:**
+
+- Dev-mode currently borked for v0.12.0 [\#84](https://github.com/kybishop/ember-attacher/issues/84)
+
+**Merged pull requests:**
+
+- chore\(bump deps\) ember-popper for bugfix [\#85](https://github.com/kybishop/ember-attacher/pull/85) ([kybishop](https://github.com/kybishop))
+
 ## [v0.12.0](https://github.com/kybishop/ember-attacher/tree/v0.12.0) (2017-11-03)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.11.4...v0.12.0)
 
