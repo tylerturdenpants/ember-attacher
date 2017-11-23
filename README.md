@@ -4,7 +4,7 @@
 ![Download count all time](https://img.shields.io/npm/dt/ember-attacher.svg)
 [![npm](https://img.shields.io/npm/dm/ember-attacher.svg)]()
 [![Ember Observer Score](http://emberobserver.com/badges/ember-attacher.svg)](http://emberobserver.com/addons/ember-attacher)
-[![Build Status](https://travis-ci.org/kybishop/ember-attacher.svg)](https://travis-ci.org/kybishop/ember-attacher)
+[![Build Status](https://travis-ci.org/kybishop/ember-attacher.svg?branch=master)](https://travis-ci.org/kybishop/ember-attacher)
 
 Tooltips and popovers made easy.
 Just drop an `{{#attach-tooltip}} or `{{#attach-popover}}` in a parent and your popper is ready to go!

@@ -93,7 +93,9 @@ export default Component.extend({
   }),
 
   _hideOn: computed('hideOn', function() {
-    return this.get('hideOn').split(' ');
+    const hideOn = this.get('hideOn');
+
+    return hideOn === null ? [] : (hideOn || DEFAULTS.hideOn).split(' ');
   }),
 
   _modifiers: computed('arrow', 'flip', 'modifiers', function() {
@@ -146,12 +148,14 @@ export default Component.extend({
     }
   },
 
-  _shouldRender: computed('lazyRender', function() {
+  _shouldRender: computed.not('lazyRender', function() {
     return !this.get('lazyRender');
   }),
 
   _showOn: computed('showOn', function() {
-    return this.get('showOn').split(' ');
+    const showOn = this.get('showOn');
+
+    return showOn === null ? [] : (showOn || DEFAULTS.showOn).split(' ');
   }),
 
   _transitionDuration: 0,

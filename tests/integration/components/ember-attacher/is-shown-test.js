@@ -36,7 +36,7 @@ test('isShown works with showOn/hideOn set to "click"', async function(assert) {
   assert.equal(isVisible(attachment), true, 'Shown again after click');
 });
 
-test('isShown works with showOn/hideOn set to "none"', async function(assert) {
+test('isShown works with showOn/hideOn set to `null`', async function(assert) {
   assert.expect(3);
 
   this.on('closePopover', () => {
@@ -49,14 +49,17 @@ test('isShown works with showOn/hideOn set to "none"', async function(assert) {
 
   this.set('isShown', false);
 
+  this.set('hideOn', null);
+  this.set('showOn', null);
+
   this.render(hbs`
     <button id="open" {{action 'openPopover'}}>
       Click me, captain!
 
       {{#attach-popover id='attachment'
-                        hideOn='none'
+                        hideOn=hideOn
                         isShown=isShown
-                        showOn='none'}}
+                        showOn=showOn}}
         isShown w/ hideOn/ShowOn of 'none'
 
         <button id="close" {{action 'closePopover'}}>
@@ -95,6 +98,9 @@ test('nested attachers open and close as expected', async function(assert) {
     this.set('childIsShown', true);
   });
 
+  this.set('hideOn', null);
+  this.set('showOn', null);
+
   this.setProperties({
     childIsShown: false,
     parentIsShown: false
@@ -104,10 +110,10 @@ test('nested attachers open and close as expected', async function(assert) {
     <button id="openParent" {{action 'openParentPopover'}}>
       Open parent
 
-      {{#attach-popover hideOn='none'
+      {{#attach-popover hideOn=hideOn
                         id='parent'
                         isShown=parentIsShown
-                        showOn='none'}}
+                        showOn=showOn}}
         <button id="openChild" {{action 'openChildPopover'}}>
           Open child
 
