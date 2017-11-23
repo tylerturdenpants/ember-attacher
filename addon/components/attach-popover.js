@@ -93,9 +93,13 @@ export default Component.extend({
   }),
 
   _hideOn: computed('hideOn', function() {
-    const hideOn = this.get('hideOn');
+    let hideOn = this.get('hideOn');
 
-    return hideOn === null ? [] : (hideOn || DEFAULTS.hideOn).split(' ');
+    if (hideOn === undefined) {
+      hideOn = DEFAULTS.hideOn;
+    }
+
+    return hideOn === null ? [] : hideOn.split(' ');
   }),
 
   _modifiers: computed('arrow', 'flip', 'modifiers', function() {
@@ -153,9 +157,13 @@ export default Component.extend({
   }),
 
   _showOn: computed('showOn', function() {
-    const showOn = this.get('showOn');
+    let showOn = this.get('showOn');
 
-    return showOn === null ? [] : (showOn || DEFAULTS.showOn).split(' ');
+    if (showOn === undefined) {
+      showOn = DEFAULTS.showOn;
+    }
+
+    return showOn === null ? [] : showOn.split(' ');
   }),
 
   _transitionDuration: 0,
