@@ -1,5 +1,5 @@
 import hbs from 'htmlbars-inline-precompile';
-import { find, focus } from 'ember-native-dom-helpers';
+import { find, triggerEvent } from 'ember-native-dom-helpers';
 import { isVisible } from 'ember-attacher';
 import { moduleForComponent, test } from 'ember-qunit';
 
@@ -24,7 +24,7 @@ test('shows when the target gains focus', async function(assert) {
 
   assert.equal(isVisible(attachment), false, 'Initially hidden');
 
-  await focus('#target');
+  await triggerEvent('#target', 'focus');
 
   assert.equal(isVisible(attachment), true, 'Now shown');
 });
