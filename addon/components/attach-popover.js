@@ -247,9 +247,11 @@ export default Component.extend({
     // to the right that it overflows the screen until enough updates fix its position.
     // We avoid this issue by positioning initially hidden elements in the top left of the screen.
     // The attachment will then correctly update its position from the first this._show()
-    if (this._isHidden && !this.isDestroying && !this.isDestroyed) {
-      this._popperElement.style.transform = null;
-    }
+    next(this, () => {
+      if (this._isHidden && !this.isDestroying && !this.isDestroyed) {
+        this._popperElement.style.transform = null;
+      }
+    });
 
     this._popperElement.style.display = this.get('isShown') ? '' : 'none';
 
