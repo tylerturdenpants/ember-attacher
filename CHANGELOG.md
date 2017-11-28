@@ -1,5 +1,19 @@
 # Change Log
 
+## [v0.12.2](https://github.com/kybishop/ember-attacher/tree/v0.12.2) (2017-11-28)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.12.1...v0.12.2)
+
+**Closed issues:**
+
+- Causes my builds to fail? [\#87](https://github.com/kybishop/ember-attacher/issues/87)
+- hideOn and showOn broken when undefined [\#76](https://github.com/kybishop/ember-attacher/issues/76)
+
+**Merged pull requests:**
+
+- fix\(initial positioning\) larger attachments stay in window more reliably [\#91](https://github.com/kybishop/ember-attacher/pull/91) ([kybishop](https://github.com/kybishop))
+- fix\(hideOn/showOn set to '' should set them to null\) [\#89](https://github.com/kybishop/ember-attacher/pull/89) ([kybishop](https://github.com/kybishop))
+- feat\(use defaults for hideOn/showOn when passed undefined\) [\#88](https://github.com/kybishop/ember-attacher/pull/88) ([kybishop](https://github.com/kybishop))
+
 ## [v0.12.1](https://github.com/kybishop/ember-attacher/tree/v0.12.1) (2017-11-04)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.12.0...v0.12.1)
 
