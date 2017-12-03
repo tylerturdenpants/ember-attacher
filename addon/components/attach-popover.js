@@ -250,6 +250,9 @@ export default Component.extend({
     next(this, () => {
       if (this._isHidden && !this.isDestroying && !this.isDestroyed) {
         this._popperElement.style.transform = null;
+
+        // Hide the attachment until it has been positioned, preventing jank during initial positioning
+        this._popperElement.style.visibility = 'hidden';
       }
     });
 
@@ -396,6 +399,8 @@ export default Component.extend({
         }
 
         run(() => {
+          // Make the popper element visible now that it has been positioned
+          popperElement.style.visibility = '';
           this.set('_transitionDuration', parseInt(this.get('showDuration')));
           this.set('_isStartingAnimation', true);
           popperElement.setAttribute('aria-hidden', 'false');
