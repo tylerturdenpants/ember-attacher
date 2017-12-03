@@ -33,7 +33,7 @@
     "ember-cli-htmlbars": "^2.0.2",
     "ember-cli-sass": "^7.0.0",
     "ember-native-dom-helpers": "^0.5.3",
-    "ember-popper": "^0.7.3",
+    "ember-popper": "^0.8.1",
     "ember-truth-helpers": "^2.0.0",
     "eslint-plugin-ember-suave": "^1.0.0"
   },

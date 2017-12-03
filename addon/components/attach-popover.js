@@ -46,11 +46,11 @@ export default Component.extend({
   placement: DEFAULTS.placement,
   popperContainer: DEFAULTS.popperContainer,
   popperOptions: DEFAULTS.popperOptions,
+  popperTarget: null,
   renderInPlace: DEFAULTS.renderInPlace,
   showDelay: DEFAULTS.showDelay,
   showDuration: DEFAULTS.showDuration,
   showOn: DEFAULTS.showOn,
-  target: null,
 
   /**
    * ================== PRIVATE IMPLEMENTATION DETAILS ==================
@@ -63,13 +63,13 @@ export default Component.extend({
     },
 
     registerAPI(api) {
-      // Only 'target' has observers, everything else can be a direct property
+      // Only 'popperTarget' has observers, everything else can be a direct property
       this._disableEventListeners = api.disableEventListeners;
       this._enableEventListeners = api.enableEventListeners;
       this._popperElement = api.popperElement;
       this._update = api.update;
 
-      this.set('target', api.popperTarget);
+      this.set('popperTarget', api.popperTarget);
     }
   },
 
@@ -261,7 +261,7 @@ export default Component.extend({
   _initializeAttacher() {
     this._removeEventListeners();
 
-    this._currentTarget = this.get('target');
+    this._currentTarget = this.get('popperTarget');
 
     if (!this._currentTarget) {
       // Hide the attachment until a valid target is found
@@ -318,7 +318,7 @@ export default Component.extend({
       });
   },
 
-  _targetOrTriggersChanged: observer('hideOn', 'showOn', 'target', function() {
+  _targetOrTriggersChanged: observer('hideOn', 'showOn', 'popperTarget', function() {
     this._initializeAttacher();
   }),
 
