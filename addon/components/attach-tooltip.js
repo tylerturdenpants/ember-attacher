@@ -17,7 +17,7 @@ export default AttachPopover.extend({
     }
   }),
 
-  targetChanged: observer('target', function() {
+  popperTargetChanged: observer('popperTarget', function() {
     const oldTarget = this._currentTarget;
     if (oldTarget) {
       oldTarget.removeAttribute('aria-describedby');
@@ -25,7 +25,7 @@ export default AttachPopover.extend({
 
     this._super(...arguments);
 
-    this.get('target').setAttribute('aria-describedby', this.id);
+    this.get('popperTarget').setAttribute('aria-describedby', this.id);
   }),
 
   willDestroyElement() {
