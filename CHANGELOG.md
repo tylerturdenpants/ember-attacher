@@ -1,5 +1,20 @@
 # Change Log
 
+## [v0.13.0](https://github.com/kybishop/ember-attacher/tree/v0.13.0) (2017-12-04)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.12.2...v0.13.0)
+
+**Closed issues:**
+
+- Jank when using isShown=true with animation="fill" [\#99](https://github.com/kybishop/ember-attacher/issues/99)
+- Popper briefly flickers in top left on initial show if no animation is used [\#95](https://github.com/kybishop/ember-attacher/issues/95)
+- Attacher-Component breaks ember-metrics [\#93](https://github.com/kybishop/ember-attacher/issues/93)
+
+**Merged pull requests:**
+
+- chore\(bump deps\) ember 2.17, etc. [\#98](https://github.com/kybishop/ember-attacher/pull/98) ([kybishop](https://github.com/kybishop))
+- fix\(initial positioning flicker when not using animations\) [\#97](https://github.com/kybishop/ember-attacher/pull/97) ([kybishop](https://github.com/kybishop))
+- BREAKING\(update popper dep\) target arg is now popperTarget [\#96](https://github.com/kybishop/ember-attacher/pull/96) ([kybishop](https://github.com/kybishop))
+
 ## [v0.12.2](https://github.com/kybishop/ember-attacher/tree/v0.12.2) (2017-11-28)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.12.1...v0.12.2)
 
