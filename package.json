@@ -32,7 +32,7 @@
     "ember-cli-babel": "^6.10.0",
     "ember-cli-htmlbars": "^2.0.2",
     "ember-cli-sass": "^7.1.1",
-    "ember-popper": "^0.8.2",
+    "ember-popper": "git://github.com/kybishop/ember-popper.git#targeted-component",
     "ember-truth-helpers": "^2.0.0",
     "eslint-plugin-ember-suave": "^1.0.0"
   },

@@ -1,4 +1,5 @@
 import hbs from 'htmlbars-inline-precompile';
+import wait from 'ember-test-helpers/wait';
 import { find, keyEvent } from 'ember-native-dom-helpers';
 import { isVisible } from 'ember-attacher';
 import { moduleForComponent, test } from 'ember-qunit';
@@ -26,6 +27,7 @@ test('hides when the escape key is pressed', async function(assert) {
 
   // Press escape key (keyCode === 27)
   await keyEvent(document, 'keydown', 27);
+  await wait();
 
   assert.equal(isVisible(attachment), false, 'Now hidden');
 });
