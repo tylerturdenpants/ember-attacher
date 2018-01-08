@@ -138,5 +138,5 @@ For more information on using ember-cli, visit [http://www.ember-cli.com/](http:
   ember-attacher.
 - [popper.js](https://github.com/FezVrasta/popper.js), the library that powers
   positioning (via [ember-popper](https://github.com/kybishop/ember-popper))
-- [ember-tooltips](https://github.com/yapplabs/ember-tether), the addon that
+- [ember-tooltips](https://github.com/sir-dunxalot/ember-tooltips), the addon that
   influenced much of ember-attacher's API.
