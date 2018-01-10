@@ -7,7 +7,7 @@
 [![Build Status](https://travis-ci.org/kybishop/ember-attacher.svg?branch=master)](https://travis-ci.org/kybishop/ember-attacher)
 
 Tooltips and popovers made easy.
-Just drop an `{{#attach-tooltip}} or `{{#attach-popover}}` in a parent and your popper is ready to go!
+Just drop an `{{#attach-tooltip}}` or `{{#attach-popover}}` in a parent and your popper is ready to go!
 
 ```html
 <button>
