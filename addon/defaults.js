@@ -10,6 +10,7 @@ export default {
   isOffset: false,
   isShown: false,
   lazyRender: false,
+  modifiers: null,
   placement: 'top',
   popperContainer: '.ember-application',
   popperOptions: null,
