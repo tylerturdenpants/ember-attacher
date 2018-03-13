@@ -1,5 +1,19 @@
 # Change Log
 
+## [v0.13.1](https://github.com/kybishop/ember-attacher/tree/v0.13.1) (2018-02-13)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.0...v0.13.1)
+
+**Closed issues:**
+
+- Block-scoped declarations \(let, const, function, class\) not yet supported outside strict mode [\#106](https://github.com/kybishop/ember-attacher/issues/106)
+- Warning in ember-cli console [\#105](https://github.com/kybishop/ember-attacher/issues/105)
+
+**Merged pull requests:**
+
+- chore\(bump deps\) ember 2.18, etc. [\#110](https://github.com/kybishop/ember-attacher/pull/110) ([kybishop](https://github.com/kybishop))
+- Fix missing back tick [\#104](https://github.com/kybishop/ember-attacher/pull/104) ([ctjhoa](https://github.com/ctjhoa))
+- Fix credit link [\#103](https://github.com/kybishop/ember-attacher/pull/103) ([ctjhoa](https://github.com/ctjhoa))
+
 ## [v0.13.0](https://github.com/kybishop/ember-attacher/tree/v0.13.0) (2017-12-04)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.12.2...v0.13.0)
 

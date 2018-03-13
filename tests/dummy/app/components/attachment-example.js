@@ -8,18 +8,23 @@ export default Component.extend({
   popoverData: service(),
   tooltipData: service(),
 
-  animationOptions: [
-    'fade',
-    'fill',
-    'none',
-    'perspective',
-    'scale',
-    'shift'
-  ],
-  hideOnOptions: ['click', 'clickout', 'mouseleave blur escapekey'],
+  init() {
+    this._super(...arguments);
+
+    this.animationOptions = [
+      'fade',
+      'fill',
+      'none',
+      'perspective',
+      'scale',
+      'shift'
+    ];
+    this.hideOnOptions = ['click', 'clickout', 'mouseleave blur escapekey'];
+    this.placementOptions = ['bottom', 'left', 'right', 'top'];
+    this.showOnOptions = ['click', 'mouseenter focus'];
+  },
+
   isConfiguringTooltip: true,
-  placementOptions: ['bottom', 'left', 'right', 'top'],
-  showOnOptions: ['click', 'mouseenter focus'],
 
   service: computed('isConfiguringTooltip', function() {
     return this.get('isConfiguringTooltip') ? this.get('tooltipData') : this.get('popoverData');
