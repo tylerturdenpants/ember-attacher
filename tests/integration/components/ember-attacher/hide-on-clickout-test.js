@@ -1,5 +1,5 @@
 import hbs from 'htmlbars-inline-precompile';
-import { click, find } from 'ember-native-dom-helpers';
+import { click, find, triggerEvent, waitUntil } from 'ember-native-dom-helpers';
 import { isVisible } from 'ember-attacher';
 import { moduleForComponent, test } from 'ember-qunit';
 
@@ -32,6 +32,8 @@ test('hides when an element outside the target is clicked', async function(asser
   assert.equal(isVisible(attachment), true, 'Still shown');
 
   await click('#focus-me');
+
+  await waitUntil(() => isVisible(attachment) === false);
 
   assert.equal(isVisible(attachment), false, 'Now hidden');
 });
@@ -91,5 +93,43 @@ test("with interactive=true: doesn't hide when attachment is clicked", async fun
   // Make sure attachment is hidden once an element outside target or attachment is clicked
   await click('#focus-me');
 
+  await waitUntil(() => isVisible(attachment) === false);
+
   assert.equal(isVisible(attachment), false, 'Now hidden');
+});
+
+test('hides when an element outside the target is touched on touch devices', async function(assert) {
+  // using `ontouchstart` internally to identify if the current device is touchable
+  window.ontouchstart = () => {};
+
+  assert.expect(3);
+
+  this.render(hbs`
+    <input type="text" id="focus-me"/>
+
+    <div id="parent">
+      {{#attach-popover id='attachment'
+                        hideOn='clickout'
+                        isShown=true}}
+        hideOn click
+      {{/attach-popover}}
+    </div>
+  `);
+
+  const attachment = find('#attachment');
+
+  assert.equal(isVisible(attachment), true, 'Initially shown');
+
+  // Make sure the attachment is still shown when the target is tapped
+  await triggerEvent('#parent', 'touchend');
+
+  assert.equal(isVisible(attachment), true, 'Still shown');
+
+  await triggerEvent('#focus-me', 'touchend');
+
+  await waitUntil(() => isVisible(attachment) === false);
+
+  assert.equal(isVisible(attachment), false, 'Now hidden');
+
+  delete window.ontouchstart;
 });
