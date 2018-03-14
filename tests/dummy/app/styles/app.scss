@@ -24,11 +24,17 @@ p {
 
 .header {
   color: #333;
-  padding: 6px;
+  padding: 6px 14px;
 
   .title {
     font-size: 34px;
   }
+}
+
+.mobile-only-header {
+  background-color: #3a6a9a;
+  padding: 18px;
+  padding-bottom: 0;
 }
 
 .github-link {
@@ -59,6 +65,10 @@ p {
 .section {
   padding: 18px;
   padding-bottom: 0;
+}
+
+.top-section {
+  padding-top: 10px;
 }
 
 .button {
