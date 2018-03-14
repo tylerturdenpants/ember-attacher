@@ -118,6 +118,17 @@
     ember-compatibility-helpers "^0.1.1"
     ember-get-config "^0.2.3"
 
+"@ember-decorators/argument@ember-decorators/argument":
+  version "0.8.12"
+  resolved "https://codeload.github.com/ember-decorators/argument/tar.gz/0409daef6c4b64d1735eb6a1aa3225752578edd3"
+  dependencies:
+    babel-plugin-filter-imports "^1.1.1"
+    broccoli-funnel "^2.0.1"
+    ember-cli-babel "^6.3.0"
+    ember-cli-version-checker "^2.0.0"
+    ember-compatibility-helpers "^0.1.1"
+    ember-get-config "^0.2.3"
+
 "@ember-decorators/babel-transforms@^0.1.1":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@ember-decorators/babel-transforms/-/babel-transforms-0.1.1.tgz#c2be1677192e55ccfeb806002d57e314a0e728bc"
@@ -135,15 +146,50 @@
     ember-cli-babel "^6.10.0"
     ember-cli-htmlbars-inline-precompile "^1.0.0"
 
+"@glimmer/compiler@^0.27.0":
+  version "0.27.0"
+  resolved "https://registry.yarnpkg.com/@glimmer/compiler/-/compiler-0.27.0.tgz#b24042752a53171d5cb3d9a95a29dfc0f314ed2c"
+  dependencies:
+    "@glimmer/interfaces" "^0.27.0"
+    "@glimmer/syntax" "^0.27.0"
+    "@glimmer/util" "^0.27.0"
+    "@glimmer/wire-format" "^0.27.0"
+    simple-html-tokenizer "^0.3.0"
+
 "@glimmer/di@^0.2.0":
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@glimmer/di/-/di-0.2.0.tgz#73bfd4a6ee4148a80bf092e8a5d29bcac9d4ce7e"
+
+"@glimmer/interfaces@^0.27.0":
+  version "0.27.0"
+  resolved "https://registry.yarnpkg.com/@glimmer/interfaces/-/interfaces-0.27.0.tgz#473cda3c8cca636989fb310b4ffdb8f14ffae5c9"
+  dependencies:
+    "@glimmer/wire-format" "^0.27.0"
 
 "@glimmer/resolver@^0.4.1":
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/@glimmer/resolver/-/resolver-0.4.1.tgz#cd9644572c556e7e799de1cf8eff2b999cf5b878"
   dependencies:
     "@glimmer/di" "^0.2.0"
+
+"@glimmer/syntax@^0.27.0":
+  version "0.27.0"
+  resolved "https://registry.yarnpkg.com/@glimmer/syntax/-/syntax-0.27.0.tgz#e53133727cf465a8787a07c7ea660a91689ebdc2"
+  dependencies:
+    "@glimmer/interfaces" "^0.27.0"
+    "@glimmer/util" "^0.27.0"
+    handlebars "^4.0.6"
+    simple-html-tokenizer "^0.3.0"
+
+"@glimmer/util@^0.27.0":
+  version "0.27.0"
+  resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.27.0.tgz#e6e26779b4b7ced899ec376c7b949d0f16f92383"
+
+"@glimmer/wire-format@^0.27.0":
+  version "0.27.0"
+  resolved "https://registry.yarnpkg.com/@glimmer/wire-format/-/wire-format-0.27.0.tgz#1d1729814da57b99f2dbbe718f71456259484b11"
+  dependencies:
+    "@glimmer/util" "^0.27.0"
 
 "@html-next/flexi-config@2.0.2":
   version "2.0.2"
@@ -285,6 +331,12 @@ ansi-styles@^2.2.1:
 ansi-styles@^3.0.0, ansi-styles@^3.1.0, ansi-styles@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-3.2.0.tgz#c159b8d5be0f9e5a6f346dab94f16ce022161b88"
+  dependencies:
+    color-convert "^1.9.0"
+
+ansi-styles@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-3.2.1.tgz#41fbb20243e50b12be0f04b8dedbf07520ce841d"
   dependencies:
     color-convert "^1.9.0"
 
@@ -1461,6 +1513,20 @@ broccoli-filter@^1.2.2, broccoli-filter@^1.2.3:
     symlink-or-copy "^1.0.1"
     walk-sync "^0.3.1"
 
+broccoli-filter@^1.2.4:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/broccoli-filter/-/broccoli-filter-1.3.0.tgz#71e3a8e32a17f309e12261919c5b1006d6766de6"
+  dependencies:
+    broccoli-kitchen-sink-helpers "^0.3.1"
+    broccoli-plugin "^1.0.0"
+    copy-dereference "^1.0.0"
+    debug "^2.2.0"
+    mkdirp "^0.5.1"
+    promise-map-series "^0.2.1"
+    rsvp "^3.0.18"
+    symlink-or-copy "^1.0.1"
+    walk-sync "^0.3.1"
+
 broccoli-funnel-reducer@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/broccoli-funnel-reducer/-/broccoli-funnel-reducer-1.0.0.tgz#11365b2a785aec9b17972a36df87eef24c5cc0ea"
@@ -1824,6 +1890,14 @@ chalk@^2.3.0:
     ansi-styles "^3.2.0"
     escape-string-regexp "^1.0.5"
     supports-color "^5.2.0"
+
+chalk@^2.3.1:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.3.2.tgz#250dc96b07491bfd601e648d66ddf5f60c7a5c65"
+  dependencies:
+    ansi-styles "^3.2.1"
+    escape-string-regexp "^1.0.5"
+    supports-color "^5.3.0"
 
 charm@^1.0.0:
   version "1.0.2"
@@ -2356,6 +2430,13 @@ electron-to-chromium@^1.3.18:
   version "1.3.18"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.18.tgz#3dcc99da3e6b665f6abbc71c28ad51a2cd731a9c"
 
+ember-ast-helpers@0.3.5:
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/ember-ast-helpers/-/ember-ast-helpers-0.3.5.tgz#db72afd9bc3de03759720ff7b03d4e3b2c7f2351"
+  dependencies:
+    "@glimmer/compiler" "^0.27.0"
+    "@glimmer/syntax" "^0.27.0"
+
 ember-basic-dropdown@^0.34.0:
   version "0.34.0"
   resolved "https://registry.yarnpkg.com/ember-basic-dropdown/-/ember-basic-dropdown-0.34.0.tgz#a0371b7c06756cdd3170e7d4a9ed4f4890bc2d59"
@@ -2848,6 +2929,23 @@ ember-factory-for-polyfill@^1.3.1:
   resolved "https://registry.yarnpkg.com/ember-factory-for-polyfill/-/ember-factory-for-polyfill-1.3.1.tgz#b446ed64916d293c847a4955240eb2c993b86eae"
   dependencies:
     ember-cli-version-checker "^2.1.0"
+
+ember-font-awesome@^4.0.0-rc.2:
+  version "4.0.0-rc.2"
+  resolved "https://registry.yarnpkg.com/ember-font-awesome/-/ember-font-awesome-4.0.0-rc.2.tgz#27735f57eb56509b51f2b5000da85e7fd84791df"
+  dependencies:
+    "@ember-decorators/argument" ember-decorators/argument
+    "@ember-decorators/babel-transforms" "^0.1.1"
+    broccoli-filter "^1.2.4"
+    broccoli-funnel "^2.0.1"
+    chalk "^2.3.0"
+    ember-ast-helpers "0.3.5"
+    ember-cli-babel "^6.11.0"
+    ember-cli-htmlbars "^2.0.2"
+    font-awesome "^4.7.0"
+    fs-readdir-recursive "^1.1.0"
+    postcss "^6.0.14"
+    sync-disk-cache "^1.3.2"
 
 ember-get-config@^0.2.3:
   version "0.2.4"
@@ -3631,6 +3729,10 @@ flexi@^2.0.2:
     chalk "^2.1.0"
     semver "^5.4.1"
 
+font-awesome@^4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/font-awesome/-/font-awesome-4.7.0.tgz#8fa8cf0411a1a31afd07b06d2902bb9fc815a133"
+
 for-in@^1.0.1, for-in@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/for-in/-/for-in-1.0.2.tgz#81068d295a8142ec0ac726c6e2200c30fb6d5e80"
@@ -3734,6 +3836,10 @@ fs-extra@^4.0.2:
 fs-readdir-recursive@^0.1.0:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/fs-readdir-recursive/-/fs-readdir-recursive-0.1.2.tgz#315b4fb8c1ca5b8c47defef319d073dad3568059"
+
+fs-readdir-recursive@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/fs-readdir-recursive/-/fs-readdir-recursive-1.1.0.tgz#e32fc030a2ccee44a6b5371308da54be0b397d27"
 
 fs-tree-diff@^0.5.2, fs-tree-diff@^0.5.3, fs-tree-diff@^0.5.4, fs-tree-diff@^0.5.6:
   version "0.5.6"
@@ -3957,6 +4063,16 @@ growly@^1.3.0:
 handlebars@^4.0.4:
   version "4.0.10"
   resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-4.0.10.tgz#3d30c718b09a3d96f23ea4cc1f403c4d3ba9ff4f"
+  dependencies:
+    async "^1.4.0"
+    optimist "^0.6.1"
+    source-map "^0.4.4"
+  optionalDependencies:
+    uglify-js "^2.6"
+
+handlebars@^4.0.6:
+  version "4.0.11"
+  resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-4.0.11.tgz#630a35dfe0294bc281edae6ffc5d329fc7982dcc"
   dependencies:
     async "^1.4.0"
     optimist "^0.6.1"
@@ -5806,6 +5922,14 @@ posix-character-classes@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/posix-character-classes/-/posix-character-classes-0.1.1.tgz#01eac0fe3b5af71a2a6c02feabb8c1fef7e00eab"
 
+postcss@^6.0.14:
+  version "6.0.19"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-6.0.19.tgz#76a78386f670b9d9494a655bf23ac012effd1555"
+  dependencies:
+    chalk "^2.3.1"
+    source-map "^0.6.1"
+    supports-color "^5.2.0"
+
 prelude-ls@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"
@@ -6400,6 +6524,10 @@ simple-fmt@~0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/simple-fmt/-/simple-fmt-0.1.0.tgz#191bf566a59e6530482cb25ab53b4a8dc85c3a6b"
 
+simple-html-tokenizer@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/simple-html-tokenizer/-/simple-html-tokenizer-0.3.0.tgz#9b8b5559d80e331a544dd13dd59382e5d0d94411"
+
 simple-is@~0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/simple-is/-/simple-is-0.2.0.tgz#2abb75aade39deb5cc815ce10e6191164850baf0"
@@ -6563,7 +6691,7 @@ source-map@^0.5.0, source-map@^0.5.6, source-map@~0.5.0, source-map@~0.5.1:
   version "0.5.6"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.5.6.tgz#75ce38f52bf0733c5a7f0c118d81334a2bb5f412"
 
-source-map@^0.6.0:
+source-map@^0.6.0, source-map@^0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
 
@@ -6766,9 +6894,25 @@ supports-color@^5.2.0:
   dependencies:
     has-flag "^3.0.0"
 
+supports-color@^5.3.0:
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-5.3.0.tgz#5b24ac15db80fa927cf5227a4a33fd3c4c7676c0"
+  dependencies:
+    has-flag "^3.0.0"
+
 symlink-or-copy@^1.0.0, symlink-or-copy@^1.0.1, symlink-or-copy@^1.1.8:
   version "1.1.8"
   resolved "https://registry.yarnpkg.com/symlink-or-copy/-/symlink-or-copy-1.1.8.tgz#cabe61e0010c1c023c173b25ee5108b37f4b4aa3"
+
+sync-disk-cache@^1.3.2:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/sync-disk-cache/-/sync-disk-cache-1.3.2.tgz#cec2889f51187632665e2639ef47dd92cdaa8938"
+  dependencies:
+    debug "^2.1.3"
+    heimdalljs "^0.2.3"
+    mkdirp "^0.5.0"
+    rimraf "^2.2.8"
+    username-sync "1.0.1"
 
 table@^4.0.1:
   version "4.0.1"

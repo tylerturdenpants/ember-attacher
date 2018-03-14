@@ -15,7 +15,7 @@ module.exports = {
   ],
 
   // the number of columns for the grid
-  columns: 12,
+  columns: 24,
 
   // optional, used for column classes: '<colPrefix>-<breakpointPrefix>-<columnNumber>'
   columnPrefix: 'col',

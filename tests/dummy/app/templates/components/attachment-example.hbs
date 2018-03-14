@@ -1,8 +1,8 @@
-<centered class="section">
+<centered class="section top-section">
   <p>Drop an <span class="no-wrap">\{{#attach-tooltip}}</span> or <span class="no-wrap">\{{#attach-popover}}</span> in any element or component to get started.</p>
 </centered>
 <centered class="section">
-  <centered xs="12" lm="10" sm="8" md="6" lg="5" justify="around" class="popper-area">
+  <centered xs="24" lm="20" sm="16" md="12" lg="10" justify="around" class="popper-area">
     <button class="hover-me">
       Tooltip me, captain!
 
@@ -63,10 +63,10 @@
 <centered class="edit-section">
   <vbox lm="fit">
     <hbox class="nav-bar">
-      <centered xs='6' class="nav{{if isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' true}}>
+      <centered xs='12' class="nav{{if isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' true}}>
         \{{#attach-tooltip}}
       </centered>
-      <centered xs='6' class="nav{{unless isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' false}}>
+      <centered xs='12' class="nav{{unless isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' false}}>
         \{{#attach-popover}}
       </centered>
     </hbox>
@@ -385,7 +385,7 @@
 </centered>
 <vbox align="center" class="section">
   <h2>Credits</h2>
-  <vbox fit xs="12" lm="10" sm="8" md="6">
+  <vbox fit xs="24" lm="20" sm="16" md="12">
     <p>Ember-attacher was inspired by tippy.js and ember-tooltips.</p>
     <p>It was built with love to provide a tooltip and popover addon based on popper.js, a modern replacement to tether.js, while taking advantage of everything Ember.js has to offer.</p>
   </vbox>
