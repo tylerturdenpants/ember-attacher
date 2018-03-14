@@ -477,8 +477,10 @@ export default Component.extend({
     }
 
     if (hideOn.indexOf('clickout') !== -1) {
-      this._hideListenersOnDocumentByEvent.click = this._hideOnClickOut;
-      document.addEventListener('click', this._hideOnClickOut);
+      const clickoutEvent = 'ontouchstart' in window ? 'touchend' : 'click';
+
+      this._hideListenersOnDocumentByEvent[clickoutEvent] = this._hideOnClickOut;
+      document.addEventListener(clickoutEvent, this._hideOnClickOut);
     }
 
     if (hideOn.indexOf('escapekey') !== -1) {
