@@ -1,19 +1,44 @@
 <screen><page>
   <centered class="header">
-    <box xs="hidden" lm="visible"></box>
-    <vbox align="center" xs="12" lm="8">
+    <box xs="hidden" lm="visible 5" sm="4"></box>
+    <vbox align="center" xs="24" lm="14" sm="16">
       <centered class="title">ember-attacher</centered>
-      <centered>Tooltips and popovers made easy</centered>
+      <centered>Tooltips & popovers made easy</centered>
     </vbox>
-    <box xs="hidden" lm="visible">
-      <box align="end">
+    <centered xs="hidden" lm="visible 5" sm="4" justify="between">
+      <hbox fit align="center" justify="end">
         <a href="https://github.com/kybishop/ember-attacher"
-           target="_blank"
-           rel="noopener"
-           class="github-link">GitHub</a>
-      </box>
-    </box>
+          target="_blank"
+          rel="noopener"
+          class="github-link">{{fa-icon 'github' size='lg'}}</a>
+        <a class="github-button"
+           href="https://github.com/kybishop/ember-attacher/fork"
+           data-icon="octicon-repo-forked"
+           data-size="large"
+           aria-label="Fork kybishop/ember-attacher on GitHub">Fork</a>
+      </hbox>
+    </centered>
   </centered>
+  <hbox lm="hidden" class="mobile-only-header" justify="between">
+    <centered>
+      <a href="http://emberobserver.com/addons/ember-attacher">
+        <img src="http://emberobserver.com/badges/ember-attacher.svg">
+      </a>
+    </centered>
+    <centered>
+      <a href="https://github.com/kybishop/ember-attacher"
+         target="_blank"
+         rel="noopener"
+         class="github-link">{{fa-icon 'github' size=2}}</a>
+    </centered>
+    <centered>
+      <a class="github-button"
+          href="https://github.com/kybishop/ember-attacher/fork"
+          data-icon="octicon-repo-forked"
+          data-size="large"
+          aria-label="Fork kybishop/ember-attacher on GitHub">Fork</a>
+    </centered>
+  </hbox>
   <vbox class="content">
     {{attachment-example}}
   </vbox>
