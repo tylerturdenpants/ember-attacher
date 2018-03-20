@@ -31,6 +31,12 @@ export default Component.extend({
   }),
 
   actions: {
+    log(api) {
+      /* eslint-disable no-console */
+      console.log('registerAPI called with arg:');
+      console.dir(api);
+    },
+
     toggleArrow() {
       this.get('service').toggleProperty('arrow');
     },

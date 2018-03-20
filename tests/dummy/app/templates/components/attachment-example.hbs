@@ -15,6 +15,7 @@
                         isShown=tooltipData.isShown
                         onChange=(action (mut tooltipData.isShown))
                         placement=tooltipData.placement
+                        registerAPI=(action 'log')
                         renderInPlace=tooltipData.renderInPlace
                         showDelay=tooltipData.showDelay
                         showDuration=tooltipData.showDuration
@@ -37,6 +38,7 @@
                         lazyRender=popoverData.lazyRender
                         onChange=(action (mut popoverData.isShown))
                         placement=popoverData.placement
+                        registerAPI=(action 'log')
                         renderInPlace=popoverData.renderInPlace
                         showDelay=popoverData.showDelay
                         showDuration=popoverData.showDuration
@@ -138,6 +140,25 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
         <span class="underlined">
+          hideDuration
+
+          {{#attach-tooltip}}
+            How long the hide animation will take.
+          {{/attach-tooltip}}
+        </span>
+        ={{input class="button medium"
+                 min="0"
+                 pattern="[0-9]"
+                 placeholder="0"
+                 step="100"
+                 type="number"
+                 value=service.hideDuration}}
+      </centered>
+    </hbox>
+    <hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
+      <centered fit>
+        <span class="underlined">
           hideOn
 
           {{#attach-tooltip animation='shift'}}
@@ -154,25 +175,6 @@
                           as |hideOnOption|}}
                             {{hideOnOption}}
                           {{/power-select}}"
-      </centered>
-    </hbox>
-    <hbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-      <centered fit>
-        <span class="underlined">
-          hideDuration
-
-          {{#attach-tooltip}}
-            How long the hide animation will take.
-          {{/attach-tooltip}}
-        </span>
-        ={{input class="button medium"
-                 min="0"
-                 pattern="[0-9]"
-                 placeholder="0"
-                 step="100"
-                 type="number"
-                 value=service.hideDuration}}
       </centered>
     </hbox>
     <hbox>
@@ -244,6 +246,24 @@
                                    as |placementOption|}}
                                      {{placementOption}}
                                    {{/power-select}}"
+      </centered>
+    </hbox>
+    <hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
+      <centered fit>
+        <span class="underlined">
+          registerAPI
+
+          {{#attach-tooltip animation='shift'}}
+            <p>RegisterAPI allows you to pass an action that will be called once the attachment has
+            been positioned, and any time the Popper.js instance must be recreated (from changing
+            options on the attachment).</p>
+            <p>RegisterAPI allows you to capture the element used for positioning,
+            the parent element, and various functions related to positioning, such as scheduleUpdate
+            and disableEventListeners. See the readme for a full description of RegisterAPI.</p>
+          {{/attach-tooltip}}
+        </span>
+        =(action (mut log))
       </centered>
     </hbox>
     <hbox>

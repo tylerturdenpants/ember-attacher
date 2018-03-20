@@ -35,6 +35,7 @@ export default Component.extend({
     }
   }),
   class: DEFAULTS.class,
+  flip: DEFAULTS.flip,
   hideDelay: DEFAULTS.hideDelay,
   hideDuration: DEFAULTS.hideDuration,
   hideOn: DEFAULTS.hideOn,
@@ -68,18 +69,25 @@ export default Component.extend({
       this._popperElement = api.popperElement;
       this._update = api.update;
 
-      if (this._isHidden && !this.isDestroying && !this.isDestroyed) {
-        // Hide the attachment until it has been positioned,
-        // preventing jank during initial positioning
-        this._popperElement.style.visibility = 'hidden';
+      if (!this.isDestroying && !this.isDestroyed) {
+        if (this.get('registerAPI') !== null) {
+          /* eslint-disable ember/closure-actions */
+          this.sendAction('registerAPI', api);
+        }
 
-        // The attachment has no width if initially hidden. This can cause it to be positioned so
-        // far to the right that it overflows the screen until enough updates fix its position.
-        // We avoid this by positioning initially hidden elements in the top left of the screen.
-        // The attachment will then correctly update its position from the first this._show()
-        this._popperElement.style.transform = null;
+        if (this._isHidden) {
+          // Hide the attachment until it has been positioned,
+          // preventing jank during initial positioning
+          this._popperElement.style.visibility = 'hidden';
 
-        this._popperElement.style.display = this.get('isShown') ? '' : 'none';
+          // The attachment has no width if initially hidden. This can cause it to be positioned so
+          // far to the right that it overflows the screen until enough updates fix its position.
+          // We avoid this by positioning initially hidden elements in the top left of the screen.
+          // The attachment will then correctly update its position from the first this._show()
+          this._popperElement.style.transform = null;
+
+          this._popperElement.style.display = this.get('isShown') ? '' : 'none';
+        }
       }
     }
   },
