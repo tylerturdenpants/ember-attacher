@@ -1,14 +1,16 @@
-{{#ember-popper ariaRole=ariaRole
-                class="ember-attacher"
-                eventsEnabled=false
-                id=id
-                modifiers=_modifiers
-                placement=placement
-                popperContainer=popperContainer
-                registerAPI=(action 'registerAPI')
-                renderInPlace=renderInPlace
-                popperTarget=popperTarget as |emberPopper|}}
-  {{#if _shouldRender}}
+{{unbound _parentFinder}}
+
+{{#if (and _currentTarget _shouldRender)}}
+  {{#ember-popper ariaRole=ariaRole
+                  class="ember-attacher"
+                  eventsEnabled=false
+                  id=id
+                  modifiers=_modifiers
+                  placement=placement
+                  popperContainer=popperContainer
+                  popperTarget=_currentTarget
+                  registerAPI=(action 'registerAPI')
+                  renderInPlace=renderInPlace as |emberPopper|}}
     <div class="{{_class}}" style="{{_transitionDurationCss}}">
       {{yield (hash emberPopper=emberPopper hide=(action 'hide'))}}
 
@@ -19,5 +21,5 @@
         <div x-circle style="{{_circleTransitionDuration}}"></div>
       {{/if}}
     </div>
-  {{/if}}
-{{/ember-popper}}
+  {{/ember-popper}}
+{{/if}}

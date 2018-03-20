@@ -63,13 +63,24 @@ export default Component.extend({
     },
 
     registerAPI(api) {
-      // Only 'popperTarget' has observers, everything else can be a direct property
       this._disableEventListeners = api.disableEventListeners;
       this._enableEventListeners = api.enableEventListeners;
       this._popperElement = api.popperElement;
       this._update = api.update;
 
-      this.set('popperTarget', api.popperTarget);
+      if (this._isHidden && !this.isDestroying && !this.isDestroyed) {
+        // Hide the attachment until it has been positioned,
+        // preventing jank during initial positioning
+        this._popperElement.style.visibility = 'hidden';
+
+        // The attachment has no width if initially hidden. This can cause it to be positioned so
+        // far to the right that it overflows the screen until enough updates fix its position.
+        // We avoid this by positioning initially hidden elements in the top left of the screen.
+        // The attachment will then correctly update its position from the first this._show()
+        this._popperElement.style.transform = null;
+
+        this._popperElement.style.display = this.get('isShown') ? '' : 'none';
+      }
     }
   },
 
@@ -129,6 +140,13 @@ export default Component.extend({
   }),
 
   _setIsVisibleAfterDelay(isVisible, delay) {
+    if (!this._popperElement) {
+      this._animationTimeout = requestAnimationFrame(() => {
+        this._animationTimeout = this._setIsVisibleAfterDelay(isVisible, delay);
+      });
+
+      return;
+    }
     const onChange = this.get('onChange');
 
     if (delay) {
@@ -136,6 +154,10 @@ export default Component.extend({
         this._animationTimeout = requestAnimationFrame(() => {
           if (!this.isDestroyed && !this.isDestroying) {
             this._popperElement.style.display = isVisible ? '' : 'none';
+
+            // Prevent jank by making the attachment invisible until positioned.
+            // The visibility style will be toggled by this._startShowAnimation()
+            this._popperElement.style.visibility = isVisible ? 'hidden' : '';
 
             if (onChange) {
               onChange(isVisible);
@@ -145,6 +167,10 @@ export default Component.extend({
       }, delay);
     } else {
       this._popperElement.style.display = isVisible ? '' : 'none';
+
+      // Prevent jank by making the attachment invisible until positioned.
+      // The visibility style will be toggled by this._startShowAnimation()
+      this._popperElement.style.visibility = isVisible ? 'hidden' : '';
 
       if (onChange) {
         onChange(isVisible);
@@ -179,13 +205,16 @@ export default Component.extend({
   init() {
     this._super(...arguments);
 
+    // Used to determine the attachments initial parent element
+    this._parentFinder = self.document ? self.document.createTextNode('') : '';
+
     // Holds the current popper target so event listeners can be removed if the target changes
     this._currentTarget = null;
 
     // The debounced _hide() and _show() are stored here so they can be cancelled when necessary
     this._delayedVisibilityToggle = null;
 
-    this.id = this.id || `${guidFor(this)}-tooltip`;
+    this.id = this.id || `${guidFor(this)}-popper`;
 
     // The final source of truth on whether or not all _hide() or _show() actions have completed
     this._isHidden = true;
@@ -243,37 +272,13 @@ export default Component.extend({
   didInsertElement() {
     this._super(...arguments);
 
-    // The attachment has no width if initially hidden. This can cause it to be positioned so far
-    // to the right that it overflows the screen until enough updates fix its position.
-    // We avoid this issue by positioning initially hidden elements in the top left of the screen.
-    // The attachment will then correctly update its position from the first this._show()
-    next(this, () => {
-      if (this._isHidden && !this.isDestroying && !this.isDestroyed) {
-        this._popperElement.style.transform = null;
-
-        // Hide the attachment until it has been positioned, preventing jank during initial positioning
-        this._popperElement.style.visibility = 'hidden';
-      }
-    });
-
-    this._popperElement.style.display = this.get('isShown') ? '' : 'none';
-
     this._initializeAttacher();
   },
 
   _initializeAttacher() {
     this._removeEventListeners();
 
-    this._currentTarget = this.get('popperTarget');
-
-    if (!this._currentTarget) {
-      // Hide the attachment until a valid target is found
-      if (!this._isHidden) {
-        this._hide();
-      }
-
-      return;
-    }
+    this.set('_currentTarget', this.get('popperTarget') || this._parentFinder.parentNode);
 
     this._addListenersForShowEvents();
 
@@ -382,8 +387,8 @@ export default Component.extend({
       const popperElement = this._popperElement;
 
       // Wait until the element is visible before continuing
-      if (popperElement.style.display === 'none') {
-        this._startShowAnimation();
+      if (!popperElement || popperElement.style.display === 'none') {
+        this._animationTimeout = this._startShowAnimation();
 
         return;
       }
