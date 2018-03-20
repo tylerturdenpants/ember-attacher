@@ -1,5 +1,27 @@
 # Change Log
 
+## [v0.13.2](https://github.com/kybishop/ember-attacher/tree/v0.13.2) (2018-03-20)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.1...v0.13.2)
+
+**Closed issues:**
+
+- TypeError: setting getter-only property "eventsEnabled" [\#117](https://github.com/kybishop/ember-attacher/issues/117)
+- setting `arrow: true` in config/environment.js throws error [\#114](https://github.com/kybishop/ember-attacher/issues/114)
+- "Uncaught Error: Could not find module `@ember/component`" when upgrading from 0.11.4 to 0.13.1 [\#112](https://github.com/kybishop/ember-attacher/issues/112)
+- Warning when setting 'modifiers' in app defaults \(environment.js\) [\#111](https://github.com/kybishop/ember-attacher/issues/111)
+- Option to add an offset/padding [\#107](https://github.com/kybishop/ember-attacher/issues/107)
+- Far too slow on initial render of pages with \> 100 tooltips [\#100](https://github.com/kybishop/ember-attacher/issues/100)
+- Add GitHub "Star" button to example website [\#92](https://github.com/kybishop/ember-attacher/issues/92)
+- Expose `registerAPI` [\#86](https://github.com/kybishop/ember-attacher/issues/86)
+
+**Merged pull requests:**
+
+- Expose register api [\#118](https://github.com/kybishop/ember-attacher/pull/118) ([kybishop](https://github.com/kybishop))
+- chore\(improve example app\) [\#116](https://github.com/kybishop/ember-attacher/pull/116) ([kybishop](https://github.com/kybishop))
+- feat: get hideOn clickout to work on iOS [\#115](https://github.com/kybishop/ember-attacher/pull/115) ([necojackarc](https://github.com/necojackarc))
+- add modifiers to DEFAULTS [\#113](https://github.com/kybishop/ember-attacher/pull/113) ([enkol](https://github.com/enkol))
+- feat\(true lazy rendering\) [\#102](https://github.com/kybishop/ember-attacher/pull/102) ([kybishop](https://github.com/kybishop))
+
 ## [v0.13.1](https://github.com/kybishop/ember-attacher/tree/v0.13.1) (2018-02-13)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.0...v0.13.1)
 
