@@ -1,11 +1,11 @@
 {
   "assets": {
     "assets/assetMap.json": "assets/assetMap.json",
-    "assets/dummy-fastboot.js": "assets/dummy-fastboot-5bad6a103a3f7783d3db00e9f1787319.js",
-    "assets/dummy.css": "assets/dummy-8bab821c7c08bf6bc2700c6b1d91f116.css",
-    "assets/dummy.js": "assets/dummy-ad38d7b050c1525eefa356b7fd08aa8e.js",
-    "assets/vendor.css": "assets/vendor-e5ff5b12c3859e1a684da6095d36ad75.css",
-    "assets/vendor.js": "assets/vendor-f37ad950e81e8ddb58b172d61906f038.js"
+    "assets/dummy-fastboot.js": "assets/dummy-fastboot-8af7c10f53bf3cdc4e024e178ab7d5b4.js",
+    "assets/dummy.css": "assets/dummy-330d0b74d40e9dbf1113d175d8fa868a.css",
+    "assets/dummy.js": "assets/dummy-d99a524bdedd890fe1973135d69234d4.js",
+    "assets/vendor.css": "assets/vendor-6c2164bc3e76e17be4f5d0b0fa864515.css",
+    "assets/vendor.js": "assets/vendor-b24ab6034bede1ef9d4214f535d46a2c.js"
   },
   "prepend": ""
 }
