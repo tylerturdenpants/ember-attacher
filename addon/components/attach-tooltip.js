@@ -17,6 +17,12 @@ export default AttachPopover.extend({
     }
   }),
 
+  didInsertElement() {
+    this._super(...arguments);
+
+    this._currentTarget.setAttribute('aria-describedby', this.id);
+  },
+
   popperTargetChanged: observer('popperTarget', function() {
     const oldTarget = this._currentTarget;
     if (oldTarget) {

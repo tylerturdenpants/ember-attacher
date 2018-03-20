@@ -30,7 +30,7 @@ Just drop an `{{#attach-tooltip}}` or `{{#attach-popover}}` in a parent and your
 </button>
 ```
 
-See [the example site](https://kybishop.github.io/ember-attacher/) for a list of all
+See [the example site](https://kybishop.github.io/ember-attacher/) for a demonstration of all
 available options.
 
 ## Installation
@@ -56,6 +56,112 @@ A tooltip attacher. Subclass of `{{#attach-popover}}`
     default. See [here](#user-defined-defaults) for details on editing default values.
 - Default `role` attribute of `tooltip`.
 - Causes the target to gain an `aria-describedby` attribute set to the tooltip's ID.
+
+## Options
+
+Below is a list of all availabe options, along with their defaults.
+
+```javascript
+{
+  // The animation used to present the animation.
+  // Options: ['fade', 'fill', 'none', 'perspective', 'scale', 'shift']
+  animation: 'fill',
+
+  // Whether or not an arrow will be displayed next to the attachment.
+  arrow: false,
+
+  // A class that will be applied to the attachment.
+  class: null,
+
+  // The flip priority of the attacment.
+  // Space-delimited string, any combination of ['left', 'right', 'top', 'bottom']
+  //
+  // Example: 'left top bottom'
+  flip: null,
+
+  // The delay, in milliseconds, before the attachment will be hidden.
+  hideDelay: 0,
+
+  // The duration, in milliseconds, of the hide animation.
+  hideDuration: 300,
+
+  // Events that will cause the attachment to hide, typically in reference to the target.
+  //
+  // Space-delimited string, any combination of:
+  // ['click', 'clickout', 'mouseleave blur escapekey']
+  hideOn: 'mouseleave blur escapekey',
+
+  // Interactive tooltips will not close when clicked or hovered over.
+  interactive: false,
+
+  // Set this to true if you have an interactive attachment that hides on mouseout and the
+  // attachment is offset from its target. This should only be the case if you are using custom
+  // CSS that offsets that attachment.
+  isOffset: false,
+
+  // Whether or not the attachment is initially shown.
+  isShown: false,
+
+  // If true, the attachment will only be inserted into the DOM on the first "show" trigger.
+  // Useful for performance reasons, but will hide your attachment from search engines.
+  lazyRender: false,
+
+  // An options object that will be merged into popperOptions.
+  modifiers: null,
+
+  // A function to be fired when the attachment's visibility changes. The new visibility is passed
+  // to the function as an arg.
+  onChange: null,
+
+  // The initial position of the attachment.
+  // Options: ['left', 'right', 'top', 'bottom']
+  placement: 'top',
+
+  // The container where the attachment's DOM will be inserted.
+  popperContainer: '.ember-application',
+
+  // An options object that will be passed to Popper.js, the positioning library.
+  popperOptions: null,
+
+  // NOT RECOMMENDED: We currently allow you to pass an explicit target, but this may be removed
+  // in a future release.
+  // Please provide your thoughts here: https://github.com/kybishop/ember-attacher/issues/109
+  popperTarget: null,
+
+  // Whether or not to render the attachment in place in the DOM, as opposed to
+  // on the popperContainer. NOTE: Rendering in place can cause z-index issues.
+  renderInPlace: false,
+
+  // The delay, in milliseconds, before the attachment will be shown.
+  showDelay: 0,
+
+  // The duration, in milliseconds, of the show animation.
+  showDuration: 300,
+
+   // Events on the target that will cause the attachment to show. For performance reasons, we
+   // recommend using some combination of 'mouseenter', 'focus', and 'click'
+  showOn: 'mouseenter focus',
+}
+```
+
+## User-defined defaults
+
+User-defined defaults can be set in the consuming app or addon's config/environment.js. These defaults will be applied to every `{{#ember-attacher}}` and `{{#attach-tooltip}}`
+
+```javascript
+// config/environment/js
+
+module.exports = function(environment) {
+  var ENV = {
+    emberAttacher: {
+      animation: 'shift',
+      arrow: true
+    }
+  };
+}
+```
+
+The full list of editable defaults can be seen [here](https://github.com/kybishop/ember-attacher/blob/master/addon/defaults.js).
 
 ## Testing
 
@@ -88,25 +194,6 @@ test('example', async function(assert) {
   assert.equal(isVisible('#attachment'), true, 'Now shown');
 });
 ```
-
-## User-defined defaults
-
-User-defined defaults can be set in the consuming app or addon's config/environment.js. These defaults will be applied to every `{{#ember-attacher}}` and `{{#attach-tooltip}}`
-
-```javascript
-// config/environment/js
-
-module.exports = function(environment) {
-  var ENV = {
-    emberAttacher: {
-      animation: 'shift',
-      arrow: true
-    }
-  };
-}
-```
-
-The full list of editable defaults can be seen [here](https://github.com/kybishop/ember-attacher/blob/master/addon/defaults.js).
 
 # Development setup
 
