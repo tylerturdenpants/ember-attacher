@@ -272,7 +272,11 @@ export default Component.extend({
 
       // Don't override attrs manually passed into the component
       if (attrs[key] === undefined) {
-        this[key] = defaults[key];
+        if (key === 'arrow') {
+          this.set('arrow', defaults[key]);
+        } else {
+          this[key] = defaults[key];
+        }
       }
     }
   },
