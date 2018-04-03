@@ -1,6 +1,6 @@
 {
   "name": "ember-attacher",
-  "version": "0.13.2",
+  "version": "0.13.3",
   "description": "Tooltips and popovers for Ember.js apps",
   "keywords": [
     "ember-addon",
