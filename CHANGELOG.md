@@ -1,5 +1,19 @@
 # Change Log
 
+## [v0.13.3](https://github.com/kybishop/ember-attacher/tree/v0.13.3) (2018-04-03)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.2...v0.13.3)
+
+**Closed issues:**
+
+- TypeError: Cannot set property arrow of \[object Object\] which has only a getter [\#123](https://github.com/kybishop/ember-attacher/issues/123)
+- Unnecessary `babel-eslint` dependency? [\#122](https://github.com/kybishop/ember-attacher/issues/122)
+- Using with overlays? [\#120](https://github.com/kybishop/ember-attacher/issues/120)
+
+**Merged pull requests:**
+
+- fix\(user-supplied default for "arrow"\) [\#124](https://github.com/kybishop/ember-attacher/pull/124) ([kybishop](https://github.com/kybishop))
+- chore\(bump deps\) ember 3.0 [\#119](https://github.com/kybishop/ember-attacher/pull/119) ([kybishop](https://github.com/kybishop))
+
 ## [v0.13.2](https://github.com/kybishop/ember-attacher/tree/v0.13.2) (2018-03-20)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.1...v0.13.2)
 
