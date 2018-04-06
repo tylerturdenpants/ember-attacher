@@ -1,8 +1,8 @@
 # ember-attacher
 
 [![npm version](https://badge.fury.io/js/ember-attacher.svg)](http://badge.fury.io/js/ember-attacher)
-![Download count all time](https://img.shields.io/npm/dt/ember-attacher.svg)
-[![npm](https://img.shields.io/npm/dm/ember-attacher.svg)]()
+[![Download count all time](https://img.shields.io/npm/dt/ember-attacher.svg)](https://www.npmjs.com/package/ember-attacher)
+[![npm](https://img.shields.io/npm/dm/ember-attacher.svg)](https://www.npmjs.com/package/ember-attacher)
 [![Ember Observer Score](http://emberobserver.com/badges/ember-attacher.svg)](http://emberobserver.com/addons/ember-attacher)
 [![Build Status](https://travis-ci.org/kybishop/ember-attacher.svg?branch=master)](https://travis-ci.org/kybishop/ember-attacher)
 
