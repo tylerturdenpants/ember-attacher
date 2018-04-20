@@ -144,6 +144,39 @@ Below is a list of all availabe options, along with their defaults.
 }
 ```
 
+**Warnings on arrows**
+
+`ember-attacher` provides arrow styling for `attach-tooltip`. However, arrows on `attach-popover` needs custom style from the user (as the popover background-color depends on use cases). For example: 
+
+```css
+.custom-popover-css {
+  background-color: blue;
+  color: white;
+}
+
+.custom-popover-css>div[x-arrow] {
+  background-color: blue;
+  height: 10px;
+  position: absolute;
+  width: 10px;
+  z-index: -1;
+}
+```
+
+```hbs
+<button>
+  Show dropdown arrows
+
+  {{#attach-popover class="custom-popover-css"
+                    arrow=true
+                    hideOn='click'
+                    isShown=true
+                    showOn='click'}}
+    I'm a popover with arrows!
+  {{/attach-popover}}
+</button>
+```
+
 ## User-defined defaults
 
 User-defined defaults can be set in the consuming app or addon's config/environment.js. These defaults will be applied to every `{{#ember-attacher}}` and `{{#attach-tooltip}}`
