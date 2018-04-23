@@ -9,7 +9,7 @@
 Tooltips and popovers made easy.
 Just drop an `{{#attach-tooltip}}` or `{{#attach-popover}}` in a parent and your popper is ready to go!
 
-```html
+```hbs
 <button>
   Click me
 
@@ -162,6 +162,12 @@ module.exports = function(environment) {
 ```
 
 The full list of editable defaults can be seen [here](https://github.com/kybishop/ember-attacher/blob/master/addon/defaults.js).
+
+## Styles
+
+`ember-attacher` provides [styles](https://github.com/kybishop/ember-attacher/blob/master/addon/styles/addon.scss#L85) for the default tooltip class, `ember-attacher-tooltip`, but no styles are included for `{{attach-popover}}`.
+
+Example styling for a popover [can be found in the dummy app](https://github.com/kybishop/ember-attacher/blob/master/tests/dummy/app/styles/app.scss#L132). Note how the arrow must also be styled to match the popover (background color, size, etc.)
 
 ## Testing
 
