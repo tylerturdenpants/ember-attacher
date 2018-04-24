@@ -26,7 +26,11 @@ export default Component.extend({
 
     set(_, val) {
       stripInProduction(() => {
-        if (this.get('animation') === 'fill' && val) {
+        // Setters are run before the init hook, where user-supplied defaults are applied, so we
+        // need to manually check for a user-supplied animation default.
+        const animation = this.get('animation') || this.get('_config.animation');
+
+        if (animation === 'fill' && val) {
           warn('Animation: \'fill\' is not compatible with arrow: true', { id: 70015 });
         }
       });
