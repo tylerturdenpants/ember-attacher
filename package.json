@@ -31,7 +31,7 @@
     "broccoli-funnel": "^2.0.1",
     "ember-cli-babel": "^6.11.0",
     "ember-cli-htmlbars": "^2.0.2",
-    "ember-cli-sass": "^7.1.4",
+    "ember-cli-sass": "^7.2.0",
     "ember-popper": "^0.9.0",
     "ember-truth-helpers": "^2.0.0"
   },

@@ -1,0 +1,16 @@
+.ember-attacher-light-theme {
+  background-color: #f3f6f9;
+  border: 1px solid #ced2e2;
+  box-shadow: 0 0 16px -4px rgba(0, 20, 40, 0.2), 0 0 80px -10px rgba(0, 20, 40, 0.3);
+  color: #203d5d;
+
+
+  > div[x-arrow] {
+    background-color: #f3f6f9;
+    border-color: transparent transparent #ced2e2 #ced2e2;
+  }
+
+  > div[x-circle] {
+    background-color: #f3f6f9;
+  }
+}
