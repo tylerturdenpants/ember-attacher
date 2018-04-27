@@ -1,5 +1,19 @@
 # Change Log
 
+## [v0.13.4](https://github.com/kybishop/ember-attacher/tree/v0.13.4) (2018-04-27)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.3...v0.13.4)
+
+**Closed issues:**
+
+- addon.sass file not found [\#130](https://github.com/kybishop/ember-attacher/issues/130)
+- Animation: 'fill' is not compatible with arrow: true [\#126](https://github.com/kybishop/ember-attacher/issues/126)
+
+**Merged pull requests:**
+
+- Enable sass [\#131](https://github.com/kybishop/ember-attacher/pull/131) ([lamabiker](https://github.com/lamabiker))
+- fix\(user-supplied animation default can now prevent arrow warning\) [\#129](https://github.com/kybishop/ember-attacher/pull/129) ([kybishop](https://github.com/kybishop))
+- Improve README [\#128](https://github.com/kybishop/ember-attacher/pull/128) ([mostafa-sakhiri](https://github.com/mostafa-sakhiri))
+
 ## [v0.13.3](https://github.com/kybishop/ember-attacher/tree/v0.13.3) (2018-04-03)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.2...v0.13.3)
 
