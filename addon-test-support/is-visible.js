@@ -3,7 +3,7 @@ import { find } from 'ember-native-dom-helpers';
 export function isVisible(selector, contextEl) {
   const attachment = typeof(selector) === 'string' ? getAttachment(selector, contextEl) : selector;
 
-  return attachment.style.display !== 'none';
+  return attachment.style.display !== 'none' && !attachement.classList.contains('ember-attacher-hide');
 }
 
 function getAttachment(selector, contextEl) {
