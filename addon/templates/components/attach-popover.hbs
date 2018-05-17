@@ -11,7 +11,7 @@
                   popperTarget=_currentTarget
                   registerAPI=(action 'registerAPI')
                   renderInPlace=renderInPlace as |emberPopper|}}
-    <div class="{{_class}}" style="{{_transitionDurationCss}}">
+    <div class="{{_class}}" style="{{_style}}">
       {{yield (hash emberPopper=emberPopper hide=(action 'hide'))}}
 
       {{#if arrow}}

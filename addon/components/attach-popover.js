@@ -5,9 +5,10 @@ import { cancel, debounce, later, next, run } from '@ember/runloop';
 import { computed, observer } from '@ember/object';
 import { getOwner } from '@ember/application';
 import { guidFor } from '@ember/object/internals';
-import { htmlSafe } from '@ember/string';
+import { htmlSafe, isHTMLSafe } from '@ember/string';
 import { stripInProduction } from 'ember-attacher/-debug/helpers';
 import { warn } from '@ember/debug';
+import { isEmpty } from '@ember/utils';
 
 export default Component.extend({
   layout,
@@ -56,6 +57,7 @@ export default Component.extend({
   showDelay: DEFAULTS.showDelay,
   showDuration: DEFAULTS.showDuration,
   showOn: DEFAULTS.showOn,
+  style: DEFAULTS.style,
 
   /**
    * ================== PRIVATE IMPLEMENTATION DETAILS ==================
@@ -108,6 +110,18 @@ export default Component.extend({
     const showOrHideClass = `ember-attacher-${this.get('_isStartingAnimation') ? 'show' : 'hide'}`;
 
     return `ember-attacher-${this.get('animation')} ${this.get('class') || ''} ${showOrHideClass}`;
+  }),
+
+  _style: computed('style', '_transitionDuration', function () {
+    const style = this.get('style');
+    const transitionDuration = this.get('_transitionDuration');
+    warn(
+      '@ember/string/htmlSafe must be used for any `style` passed to ember-attacher',
+      isEmpty(style) || isHTMLSafe(style),
+      { id: 'ember-attacher-require-html-safe-style' }
+    );
+
+    return htmlSafe(`transition-duration: ${transitionDuration}ms; ${style}`);
   }),
 
   // This is memoized so it can be used by both attach-popover and attach-tooltip
@@ -205,10 +219,6 @@ export default Component.extend({
   }),
 
   _transitionDuration: 0,
-
-  _transitionDurationCss: computed('_transitionDuration', function() {
-    return htmlSafe(`transition-duration: ${this.get('_transitionDuration')}ms`);
-  }),
 
   /**
    * ================== LIFECYCLE HOOKS ==================

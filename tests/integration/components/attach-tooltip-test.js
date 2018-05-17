@@ -3,6 +3,7 @@ import hbs from 'htmlbars-inline-precompile';
 import { find } from 'ember-native-dom-helpers';
 import { getOwner } from '@ember/application';
 import { moduleForComponent, test } from 'ember-qunit';
+import { htmlSafe } from '@ember/string';
 
 QUnit.assert.contains = function(actual, expected, message) {
   this.pushResult({
@@ -93,6 +94,45 @@ test('uses the user-supplied default tooltip class', function(assert) {
     tooltip.className.split(' '),
     ['different-default', 'some-class'],
     'it adds the user-supplied default classes'
+  );
+});
+
+test('uses style passed in by user', function (assert) {
+  this.set('style', htmlSafe('cursor: pointer;'));
+  this.render(hbs`
+    <div>
+      {{#attach-tooltip id='tooltip-with-style' style=style}}
+        tooltip text
+      {{/attach-tooltip}}
+    </div>
+
+    <div>
+      {{#attach-tooltip id='tooltip-with-no-style'}}
+        tooltip text
+      {{/attach-tooltip}}
+    </div>
+  `);
+
+  const tooltipWithStyle = find('#tooltip-with-style > .ember-attacher-tooltip');
+
+  assert.equal(
+    tooltipWithStyle.style.getPropertyValue('cursor'),
+    'pointer',
+    'it adds the user style to tooltips'
+  );
+
+  assert.equal(
+    tooltipWithStyle.style.getPropertyValue('transition-duration'),
+    '0ms',
+    'it adds the default style to tooltips'
+  );
+
+  const tooltipWithNoStyle = find('#tooltip-with-no-style > .ember-attacher-tooltip');
+
+  assert.equal(
+    tooltipWithNoStyle.style.getPropertyValue('transition-duration'),
+    '0ms',
+    'it adds the default style to tooltips with no user style'
   );
 });
 
