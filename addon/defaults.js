@@ -18,5 +18,6 @@ export default {
   showDelay: 0,
   showDuration: 300,
   showOn: 'mouseenter focus',
+  style: null,
   tooltipClass: 'ember-attacher-popper ember-attacher-tooltip'
 };
