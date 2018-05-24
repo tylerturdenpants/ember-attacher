@@ -377,6 +377,8 @@ export default Component.extend({
   _showAfterDelay() {
     cancel(this._delayedVisibilityToggle);
 
+    this.set('_shouldRender', true);
+
     this._addListenersForHideEvents();
 
     const showDelay = parseInt(this.get('showDelay'));
@@ -390,8 +392,6 @@ export default Component.extend({
     if (!this._currentTarget) {
       return;
     }
-
-    this.set('_shouldRender', true);
 
     // Make the attachment visible immediately so transition animations can take place
     this._setIsVisibleAfterDelay(true, 0);
@@ -460,6 +460,7 @@ export default Component.extend({
     this._removeListenersForHideEvents();
 
     this._animationTimeout = requestAnimationFrame(() => {
+      // Avoid a race condition where we attempt to hide after the component is being destroyed.
       if (this.isDestroyed || this.isDestroying) {
         return;
       }
@@ -489,8 +490,8 @@ export default Component.extend({
     const hideOn = this.get('_hideOn');
     const target = this._currentTarget;
 
-    // Target was destroyed
-    if (!target) {
+    // Target or component was destroyed
+    if (!target || this.isDestroyed || this.isDestroying) {
       return;
     }
 
@@ -558,7 +559,7 @@ export default Component.extend({
   _hideIfMouseOutsideTargetOrAttachment(event) {
     const target = this._currentTarget;
 
-    // If cursor is not on the attachment or target, hide the popper
+    // If cursor is not on the attachment or target, hide the popover
     if (!target.contains(event.target)
         && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
         && !this._popperElement.contains(event.target)) {
