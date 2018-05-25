@@ -1,5 +1,26 @@
 # Change Log
 
+## [v0.13.6](https://github.com/kybishop/ember-attacher/tree/v0.13.6) (2018-05-25)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.5...v0.13.6)
+
+**Closed issues:**
+
+- lazyLoad + showDelay causes error  [\#137](https://github.com/kybishop/ember-attacher/issues/137)
+- Apply Dynamic Styles [\#135](https://github.com/kybishop/ember-attacher/issues/135)
+- Cannot read property 'setAttribute' of undefined [\#125](https://github.com/kybishop/ember-attacher/issues/125)
+
+**Merged pull requests:**
+
+- fix\(race conditions with lazyRender and showDelay\) [\#138](https://github.com/kybishop/ember-attacher/pull/138) ([kybishop](https://github.com/kybishop))
+- Pass in style attribute to style attachment [\#136](https://github.com/kybishop/ember-attacher/pull/136) ([jrjohnson](https://github.com/jrjohnson))
+
+## [v0.13.5](https://github.com/kybishop/ember-attacher/tree/v0.13.5) (2018-04-27)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.4...v0.13.5)
+
+**Merged pull requests:**
+
+- chore\(remove package-lock.json\) [\#132](https://github.com/kybishop/ember-attacher/pull/132) ([kybishop](https://github.com/kybishop))
+
 ## [v0.13.4](https://github.com/kybishop/ember-attacher/tree/v0.13.4) (2018-04-27)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.3...v0.13.4)
 
