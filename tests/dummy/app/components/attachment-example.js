@@ -20,7 +20,12 @@ export default Component.extend({
       'shift'
     ];
     this.hideOnOptions = ['click', 'clickout', 'mouseleave blur escapekey'];
-    this.placementOptions = ['bottom', 'left', 'right', 'top'];
+    this.placementOptions = [
+      'bottom', 'bottom-start', 'bottom-end',
+      'left', 'left-start', 'left-end',
+      'right', 'right-start', 'right-end',
+      'top', 'top-start', 'top-end',
+    ];
     this.showOnOptions = ['click', 'mouseenter focus'];
   },
 

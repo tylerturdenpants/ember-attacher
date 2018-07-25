@@ -4,7 +4,7 @@
   z-index: 9999;
 
   @each $position in $positions {
-    &[x-placement=#{$position}] {
+    &[x-placement^=#{$position}] {
       div[x-arrow] {
         @include arrow($position, 10px);
       }
