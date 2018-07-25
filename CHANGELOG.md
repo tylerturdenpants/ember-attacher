@@ -1,5 +1,20 @@
 # Change Log
 
+## [v0.13.7](https://github.com/kybishop/ember-attacher/tree/v0.13.7) (2018-07-25)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.6...v0.13.7)
+
+**Closed issues:**
+
+- Tweak the CSS to work with positions like right-start [\#139](https://github.com/kybishop/ember-attacher/issues/139)
+- Animation support for more Popper.js placements \(right-start, etc.\) [\#134](https://github.com/kybishop/ember-attacher/issues/134)
+- Animation: 'fill' is not compatible with arrow: true [\#126](https://github.com/kybishop/ember-attacher/issues/126)
+- Tooltip background color is transparent for long text. [\#101](https://github.com/kybishop/ember-attacher/issues/101)
+
+**Merged pull requests:**
+
+- fix\(warning on arrow/fill incompat\) [\#144](https://github.com/kybishop/ember-attacher/pull/144) ([kybishop](https://github.com/kybishop))
+- feat: works with placement modifiers \(start/end\) [\#143](https://github.com/kybishop/ember-attacher/pull/143) ([urbany](https://github.com/urbany))
+
 ## [v0.13.6](https://github.com/kybishop/ember-attacher/tree/v0.13.6) (2018-05-25)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.5...v0.13.6)
 
@@ -7,7 +22,6 @@
 
 - lazyLoad + showDelay causes error  [\#137](https://github.com/kybishop/ember-attacher/issues/137)
 - Apply Dynamic Styles [\#135](https://github.com/kybishop/ember-attacher/issues/135)
-- Cannot read property 'setAttribute' of undefined [\#125](https://github.com/kybishop/ember-attacher/issues/125)
 
 **Merged pull requests:**
 
@@ -27,7 +41,6 @@
 **Closed issues:**
 
 - addon.sass file not found [\#130](https://github.com/kybishop/ember-attacher/issues/130)
-- Animation: 'fill' is not compatible with arrow: true [\#126](https://github.com/kybishop/ember-attacher/issues/126)
 
 **Merged pull requests:**
 
