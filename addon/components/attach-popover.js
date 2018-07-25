@@ -20,25 +20,7 @@ export default Component.extend({
    */
 
   animation: DEFAULTS.animation,
-  arrow: computed('animation', {
-    get() {
-      return DEFAULTS.arrow;
-    },
-
-    set(_, val) {
-      stripInProduction(() => {
-        // Setters are run before the init hook, where user-supplied defaults are applied, so we
-        // need to manually check for a user-supplied animation default.
-        const animation = this.get('animation') || this.get('_config.animation');
-
-        if (animation === 'fill' && val) {
-          warn('Animation: \'fill\' is not compatible with arrow: true', { id: 70015 });
-        }
-      });
-
-      return val;
-    }
-  }),
+  arrow: DEFAULTS.arrow,
   class: DEFAULTS.class,
   flip: DEFAULTS.flip,
   hideDelay: DEFAULTS.hideDelay,
@@ -267,17 +249,48 @@ export default Component.extend({
     this._setUserSuppliedDefaults();
   },
 
+  didReceiveAttrs() {
+    this._super(...arguments);
+
+    stripInProduction(() => {
+      const attrs = this.get('attrs') || {};
+      const userDefaults = this.get('_config');
+
+      let arrow;
+      if (attrs.arrow !== undefined) {
+        arrow = attrs.arrow.value;
+      } else if (userDefaults.arrow !== undefined) {
+        arrow = userDefaults.arrow;
+      } else {
+        arrow = DEFAULTS.arrow;
+      }
+
+      let animation;
+      if (attrs.animation !== undefined) {
+        animation = attrs.animation.value;
+      } else if (userDefaults.animation !== undefined) {
+        animation = userDefaults.animation;
+      } else {
+        animation = DEFAULTS.animation;
+      }
+
+      if (arrow && animation === 'fill') {
+        warn('Animation: \'fill\' is not compatible with arrow: true', { id: 70015 });
+      }
+    });
+  },
+
   _setUserSuppliedDefaults() {
-    const defaults = this.get('_config');
+    const userDefaults = this.get('_config');
 
     // Exit early if no custom defaults are found
-    if (!defaults) {
+    if (!userDefaults) {
       return;
     }
 
     const attrs = this.get('attrs') || {};
 
-    for (const key in defaults) {
+    for (const key in userDefaults) {
       stripInProduction(() => {
         if (!DEFAULTS.hasOwnProperty(key)) {
           warn(`Unknown property given as an ember-attacher default: ${key}`, { id: 700152 });
@@ -287,9 +300,9 @@ export default Component.extend({
       // Don't override attrs manually passed into the component
       if (attrs[key] === undefined) {
         if (key === 'arrow') {
-          this.set('arrow', defaults[key]);
+          this.set('arrow', userDefaults[key]);
         } else {
-          this[key] = defaults[key];
+          this[key] = userDefaults[key];
         }
       }
     }
