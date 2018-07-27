@@ -1,5 +1,5 @@
+import { click, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import { click, find } from 'ember-native-dom-helpers';
 import { moduleForComponent, test } from 'ember-qunit';
 
 moduleForComponent('ember-attacher', 'Integration | Component | aria-hidden', {

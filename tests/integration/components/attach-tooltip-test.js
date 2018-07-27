@@ -1,6 +1,6 @@
+import { find } from '@ember/test-helpers';
 import QUnit from 'qunit';
 import hbs from 'htmlbars-inline-precompile';
-import { find } from 'ember-native-dom-helpers';
 import { getOwner } from '@ember/application';
 import { moduleForComponent, test } from 'ember-qunit';
 import { htmlSafe } from '@ember/string';
