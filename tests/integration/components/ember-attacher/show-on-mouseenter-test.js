@@ -1,30 +1,31 @@
+import { find, render, triggerEvent } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import { find, triggerEvent } from 'ember-native-dom-helpers';
 import { isVisible } from 'ember-attacher';
-import { moduleForComponent, test } from 'ember-qunit';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
 
-moduleForComponent('ember-attacher', 'Integration | Component | showOn "mouseenter"', {
-  integration: true
-});
+module('Integration | Component | showOn "mouseenter"', function(hooks) {
+  setupRenderingTest(hooks);
 
-test('shows when the user mouses over the target', async function(assert) {
-  assert.expect(2);
+  test('shows when the user mouses over the target', async function(assert) {
+    assert.expect(2);
 
-  this.render(hbs`
-    <button id="target">
-      Mouseenter me, captain!
+    await render(hbs`
+      <button id="target">
+        Mouseenter me, captain!
 
-      {{#attach-popover id='attachment' showOn='mouseenter'}}
-        showOn mouseenter
-      {{/attach-popover}}
-    </button>
-  `);
+        {{#attach-popover id='attachment' showOn='mouseenter'}}
+          showOn mouseenter
+        {{/attach-popover}}
+      </button>
+    `);
 
-  const attachment = find('#attachment');
+    const attachment = find('#attachment');
 
-  assert.equal(isVisible(attachment), false, 'Initially hidden');
+    assert.equal(isVisible(attachment), false, 'Initially hidden');
 
-  await triggerEvent('#target', 'mouseenter');
+    await triggerEvent('#target', 'mouseenter');
 
-  assert.equal(isVisible(attachment), true, 'Now shown');
+    assert.equal(isVisible(attachment), true, 'Now shown');
+  });
 });

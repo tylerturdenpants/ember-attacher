@@ -1,25 +1,26 @@
+import { find, render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import { find } from 'ember-native-dom-helpers';
-import { moduleForComponent, test } from 'ember-qunit';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
 
-moduleForComponent('ember-attacher', 'Integration | Component | ember attacher', {
-  integration: true
-});
+module('Integration | Component | ember attacher', function(hooks) {
+  setupRenderingTest(hooks);
 
-test('it renders', function(assert) {
-  assert.expect(2);
+  test('it renders', async function(assert) {
+    assert.expect(2);
 
-  this.render(hbs`
-    <div>
-      {{#attach-popover id='attachment'}}
-        popper text
-      {{/attach-popover}}
-    </div>
-  `);
+    await render(hbs`
+      <div>
+        {{#attach-popover id='attachment'}}
+          popper text
+        {{/attach-popover}}
+      </div>
+    `);
 
-  const attachment = find('#attachment');
+    const attachment = find('#attachment');
 
-  assert.ok(find('div[x-circle]', attachment), 'div[x-circle] exists');
+    assert.ok(find('div[x-circle]', attachment), 'div[x-circle] exists');
 
-  assert.ok(attachment.innerHTML.indexOf('popper text') !== -1);
+    assert.ok(attachment.innerHTML.indexOf('popper text') !== -1);
+  });
 });
