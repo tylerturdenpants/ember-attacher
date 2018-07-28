@@ -1,248 +1,248 @@
-import { click, find, triggerEvent } from '@ember/test-helpers';
+import { click, find, render, settled, triggerEvent } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 import { isVisible } from 'ember-attacher';
-import { moduleForComponent, test } from 'ember-qunit';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
 
-moduleForComponent('ember-attacher', 'Integration | Component | hideOn "mouseleave"', {
-  integration: true
-});
+module('Integration | Component | hideOn "mouseleave"', function(hooks) {
+  setupRenderingTest(hooks);
 
-test('hides when the mouse leaves the target', async function(assert) {
-  assert.expect(2);
+  test('hides when the mouse leaves the target', async function(assert) {
+    assert.expect(2);
 
-  this.render(hbs`
-    <div id="target">
-      {{#attach-popover id='attachment'
-                        hideOn='mouseleave'
-                        isShown=true}}
-        hideOn mouseleave
-      {{/attach-popover}}
-    </div>
-  `);
+    await render(hbs`
+      <div id="target">
+        {{#attach-popover id='attachment'
+                          hideOn='mouseleave'
+                          isShown=true}}
+          hideOn mouseleave
+        {{/attach-popover}}
+      </div>
+    `);
 
-  // Wait for initial show()
-  await wait();
+    // Wait for initial show()
+    await settled();
 
-  const attachment = find('#attachment');
+    const attachment = find('#attachment');
 
-  assert.equal(isVisible(attachment), true, 'Initially shown');
+    assert.equal(isVisible(attachment), true, 'Initially shown');
 
-  await triggerEvent('#target', 'mouseleave');
-  await wait();
+    await triggerEvent('#target', 'mouseleave');
+    await settled();
 
-  assert.equal(isVisible(attachment), false, 'Now hidden');
-});
+    assert.equal(isVisible(attachment), false, 'Now hidden');
+  });
 
-test("with interactive=true: doesn't hide if mouse over target or attachment", async function(assert) {
-  assert.expect(5);
+  test("with interactive=true: doesn't hide if mouse over target or attachment", async function(assert) {
+    assert.expect(5);
 
-  this.render(hbs`
-    <div id="target" style="height: 300px; width: 300px;">
-      <span id="other">something else in the target</span>
+    await render(hbs`
+      <div id="target" style="height: 300px; width: 300px;">
+        <span id="other">something else in the target</span>
 
-      {{#attach-popover id='attachment'
-                        hideOn='mouseleave'
-                        interactive=true
-                        isShown=true}}
-        hideOn mouseleave
-      {{/attach-popover}}
-    </div>
+        {{#attach-popover id='attachment'
+                          hideOn='mouseleave'
+                          interactive=true
+                          isShown=true}}
+          hideOn mouseleave
+        {{/attach-popover}}
+      </div>
 
-    <div id='outside'></div>
-  `);
+      <div id='outside'></div>
+    `);
 
-  // Wait for initial show()
-  await wait();
+    // Wait for initial show()
+    await settled();
 
-  const attachment = find('#attachment');
-  const target = find('#target');
+    const attachment = find('#attachment');
+    const target = find('#target');
 
-  assert.equal(isVisible(attachment), true, 'Initially shown');
+    assert.equal(isVisible(attachment), true, 'Initially shown');
 
-  await triggerEvent(target, 'mouseleave');
-  await wait();
+    await triggerEvent(target, 'mouseleave');
+    await settled();
 
-  // Sanity check still shown
-  assert.equal(isVisible(attachment), true, 'Still shown after mouseleave');
+    // Sanity check still shown
+    assert.equal(isVisible(attachment), true, 'Still shown after mouseleave');
 
-  await triggerEvent(attachment, 'mousemove');
-  await wait();
+    await triggerEvent(attachment, 'mousemove');
+    await settled();
 
-  assert.equal(isVisible(attachment), true, 'Still shown after mousemove into attachment');
+    assert.equal(isVisible(attachment), true, 'Still shown after mousemove into attachment');
 
-  await triggerEvent(find('#other'), 'mousemove');
-  await wait();
+    await triggerEvent(find('#other'), 'mousemove');
+    await settled();
 
-  assert.equal(isVisible(attachment), true, 'Still shown after mousemove into target');
+    assert.equal(isVisible(attachment), true, 'Still shown after mousemove into target');
 
-  await triggerEvent(find('#outside'), 'mousemove');
-  await wait();
+    await triggerEvent(find('#outside'), 'mousemove');
+    await settled();
 
-  assert.equal(isVisible(attachment),
-               false,
-               'Hidden after mousemove outside target and attachment');
-});
+    assert.equal(isVisible(attachment),
+                 false,
+                 'Hidden after mousemove outside target and attachment');
+  });
 
-// Regression test
-test('with interactive=true: still hides when mouse leaves target + attachment '
-     + 'after a manual hide', async function(assert) {
-  assert.expect(4);
+  // Regression test
+  test('with interactive=true: still hides when mouse leaves target + attachment '
+       + 'after a manual hide', async function(assert) {
+    assert.expect(4);
 
-  this.set('isShown', true);
+    this.set('isShown', true);
 
-  this.render(hbs`
-    <div id="target" style="height: 300px; width: 300px;">
-      {{#attach-popover id='attachment'
-                        hideOn='mouseleave'
-                        interactive=true
-                        isShown=isShown
-                        onChange=(action (mut isShown)) as |attacher|}}
-        hideOn mouseleave
+    await render(hbs`
+      <div id="target" style="height: 300px; width: 300px;">
+        {{#attach-popover id='attachment'
+                          hideOn='mouseleave'
+                          interactive=true
+                          isShown=isShown
+                          onChange=(action (mut isShown)) as |attacher|}}
+          hideOn mouseleave
 
-        <button id="manual-hide" {{action attacher.hide}}>hide</button>
-      {{/attach-popover}}
-    </div>
+          <button id="manual-hide" {{action attacher.hide}}>hide</button>
+        {{/attach-popover}}
+      </div>
 
-    <div id='outside'></div>
-  `);
+      <div id='outside'></div>
+    `);
 
-  // Wait for initial show()
-  await wait();
+    // Wait for initial show()
+    await settled();
 
-  const attachment = find('#attachment');
+    const attachment = find('#attachment');
 
-  assert.equal(isVisible(attachment), true, 'Initially shown');
+    assert.equal(isVisible(attachment), true, 'Initially shown');
 
-  await click('#manual-hide');
-  await wait();
+    await click('#manual-hide');
+    await settled();
 
-  assert.equal(isVisible(attachment), false, 'Hidden after manual hide');
+    assert.equal(isVisible(attachment), false, 'Hidden after manual hide');
 
-  // Make visible again
-  this.set('isShown', true);
+    // Make visible again
+    this.set('isShown', true);
 
-  // Need to wait for mouseleave listener to be set, then trigger it
-  await wait();
+    // Need to wait for mouseleave listener to be set, then trigger it
+    await settled();
 
-  await triggerEvent('#target', 'mouseleave');
-  await wait();
+    await triggerEvent('#target', 'mouseleave');
+    await settled();
 
-  // Sanity check. Also note how the mouseleave didn't trigger a hide event
-  assert.equal(isVisible(attachment), true, 'Shown again');
+    // Sanity check. Also note how the mouseleave didn't trigger a hide event
+    assert.equal(isVisible(attachment), true, 'Shown again');
 
-  await triggerEvent(find('#outside'), 'mousemove');
-  await wait();
+    await triggerEvent(find('#outside'), 'mousemove');
+    await settled();
 
-  assert.equal(isVisible(attachment), false, 'Hidden after mousemove');
-});
+    assert.equal(isVisible(attachment), false, 'Hidden after mousemove');
+  });
 
-test('with interactive=true and isOffset=false: hides if mouse between '
-     + 'target and attachment', async function(assert) {
-  assert.expect(3);
+  test('with interactive=true and isOffset=false: hides if mouse between '
+       + 'target and attachment', async function(assert) {
+    assert.expect(3);
 
-  this.render(hbs`
-    <style>
-      #attachment {
-        margin-top: 10px;
-      }
-    </style>
+    await render(hbs`
+      <style>
+        #attachment {
+          margin-top: 10px;
+        }
+      </style>
 
-    <div id="target" style="height: 300px; width: 300px;">
-      {{#attach-popover id='attachment'
-                        hideOn='mouseleave'
-                        interactive=true
-                        placement='bottom'
-                        isShown=true}}
-        hideOn mouseleave
-      {{/attach-popover}}
-    </div>
-  `);
+      <div id="target" style="height: 300px; width: 300px;">
+        {{#attach-popover id='attachment'
+                          hideOn='mouseleave'
+                          interactive=true
+                          placement='bottom'
+                          isShown=true}}
+          hideOn mouseleave
+        {{/attach-popover}}
+      </div>
+    `);
 
-  // Wait for initial show()
-  await wait();
+    // Wait for initial show()
+    await settled();
 
-  const attachment = find('#attachment');
-  const target = find('#target');
+    const attachment = find('#attachment');
+    const target = find('#target');
 
-  assert.equal(isVisible(attachment), true, 'Initially shown');
+    assert.equal(isVisible(attachment), true, 'Initially shown');
 
-  await triggerEvent(target, 'mouseleave');
-  await wait();
+    await triggerEvent(target, 'mouseleave');
+    await settled();
 
-  // Sanity check still shown
-  assert.equal(isVisible(attachment), true, 'Still shown after mouseleave');
+    // Sanity check still shown
+    assert.equal(isVisible(attachment), true, 'Still shown after mouseleave');
 
-  const attachmentPosition = find('#attachment').getBoundingClientRect();
+    const attachmentPosition = find('#attachment').getBoundingClientRect();
 
-  await triggerEvent(document,
-                     'mousemove',
-                     {
-                       clientX: attachmentPosition.left + 1,
-                       clientY: attachmentPosition.top - 1
-                     });
-  await wait();
+    await triggerEvent(document,
+                       'mousemove',
+                       {
+                         clientX: attachmentPosition.left + 1,
+                         clientY: attachmentPosition.top - 1
+                       });
+    await settled();
 
-  assert.equal(isVisible(attachment), false, 'Hidden after mousemove between');
-});
+    assert.equal(isVisible(attachment), false, 'Hidden after mousemove between');
+  });
 
-test("with interactive=true and isOffset=true: doesn't hide if mouse between "
-     + 'target and attachment', async function(assert) {
-  assert.expect(4);
+  test("with interactive=true and isOffset=true: doesn't hide if mouse between "
+       + 'target and attachment', async function(assert) {
+    assert.expect(4);
 
-  this.render(hbs`
-    <style>
-      #attachment {
-        margin-top: 10px;
-      }
-    </style>
+    await render(hbs`
+      <style>
+        #attachment {
+          margin-top: 10px;
+        }
+      </style>
 
-    <div id="target" style="height: 50px; top: 0; position: fixed; width: 300px;">
-      target
-      {{#attach-popover id='attachment'
-                        hideOn='mouseleave'
-                        interactive=true
-                        isOffset=true
-                        placement='bottom'
-                        isShown=true}}
-        hideOn mouseleave
-      {{/attach-popover}}
-    </div>
-  `);
+      <div id="target" style="height: 50px; top: 0; position: fixed; width: 300px;">
+        target
+        {{#attach-popover id='attachment'
+                          hideOn='mouseleave'
+                          interactive=true
+                          isOffset=true
+                          placement='bottom'
+                          isShown=true}}
+          hideOn mouseleave
+        {{/attach-popover}}
+      </div>
+    `);
 
-  // Wait for initial show()
-  await wait();
+    // Wait for initial show()
+    await settled();
 
-  const attachment = find('#attachment');
-  const target = find('#target');
+    const attachment = find('#attachment');
+    const target = find('#target');
 
-  assert.equal(isVisible(attachment), true, 'Initially shown');
+    assert.equal(isVisible(attachment), true, 'Initially shown');
 
-  await triggerEvent(target, 'mouseleave');
-  await wait();
+    await triggerEvent(target, 'mouseleave');
+    await settled();
 
-  // Sanity check still shown
-  assert.equal(isVisible(attachment), true, 'Still shown after mouseleave');
+    // Sanity check still shown
+    assert.equal(isVisible(attachment), true, 'Still shown after mouseleave');
 
-  const attachmentPosition = find('#attachment').getBoundingClientRect();
+    const attachmentPosition = find('#attachment').getBoundingClientRect();
 
-  await triggerEvent(document,
-                     'mousemove',
-                     {
-                       clientX: attachmentPosition.left + 1,
-                       clientY: attachmentPosition.top - 1
-                     });
-  await wait();
+    await triggerEvent(document,
+                       'mousemove',
+                       {
+                         clientX: attachmentPosition.left + 1,
+                         clientY: attachmentPosition.top - 1
+                       });
+    await settled();
 
-  assert.equal(isVisible(attachment), true, 'Still shown after mousemove into between');
+    assert.equal(isVisible(attachment), true, 'Still shown after mousemove into between');
 
-  await triggerEvent(document,
-                     'mousemove',
-                     {
-                       clientX: attachmentPosition.left - 1,
-                       clientY: attachmentPosition.bottom + 1
-                     });
-  await wait();
+    await triggerEvent(document,
+                       'mousemove',
+                       {
+                         clientX: attachmentPosition.left - 1,
+                         clientY: attachmentPosition.bottom + 1
+                       });
+    await settled();
 
-  assert.equal(isVisible(attachment), false, 'hidden after mousemove outside');
+    assert.equal(isVisible(attachment), false, 'hidden after mousemove outside');
+  });
 });

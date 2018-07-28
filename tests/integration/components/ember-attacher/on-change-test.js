@@ -1,45 +1,46 @@
-import { click, find } from '@ember/test-helpers';
+import { click, find, render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { isVisible } from 'ember-attacher';
-import { moduleForComponent, test } from 'ember-qunit';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
 
-moduleForComponent('ember-attacher', 'Integration | Component | onChange', {
-  integration: true
-});
+module('Integration | Component | onChange', function(hooks) {
+  setupRenderingTest(hooks);
 
-test('fires the onChange hook when visibility is toggled', async function(assert) {
-  assert.expect(5);
+  test('fires the onChange hook when visibility is toggled', async function(assert) {
+    assert.expect(5);
 
-  this.set('isShown', true);
+    this.set('isShown', true);
 
-  this.render(hbs`
-    <button id="click-toggle">
-      Click me, captain!
+    await render(hbs`
+      <button id="click-toggle">
+        Click me, captain!
 
-      {{#attach-popover id='attachment'
-                        hideOn='click'
-                        isShown=isShown
-                        onChange=(action (mut isShown))
-                        showOn='click'}}
-        showOn click
-      {{/attach-popover}}
-    </button>
-  `);
+        {{#attach-popover id='attachment'
+                          hideOn='click'
+                          isShown=isShown
+                          onChange=(action (mut isShown))
+                          showOn='click'}}
+          showOn click
+        {{/attach-popover}}
+      </button>
+    `);
 
-  const attachment = find('#attachment');
+    const attachment = find('#attachment');
 
-  assert.equal(isVisible(attachment), true, 'Initially shown');
+    assert.equal(isVisible(attachment), true, 'Initially shown');
 
-  await click('#click-toggle');
+    await click('#click-toggle');
 
-  assert.equal(isVisible(attachment), false, 'Now hidden');
-  assert.equal(this.get('isShown'), false);
+    assert.equal(this.get('isShown'), false, 'isShown was toggled to true');
+    assert.equal(isVisible(attachment), false, 'Now hidden');
 
-  // Show again by toggling isShown
-  this.set('isShown', true);
+    // Show again by toggling isShown
+    this.set('isShown', true);
 
-  assert.equal(isVisible(attachment), true, 'Shown again');
+    assert.equal(isVisible(attachment), true, 'Shown again');
 
-  // Make sure isShown is still true
-  assert.equal(this.get('isShown'), true);
+    // Make sure isShown is still true
+    assert.equal(this.get('isShown'), true);
+  });
 });
