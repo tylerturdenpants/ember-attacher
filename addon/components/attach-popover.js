@@ -1,14 +1,14 @@
-import { getOwner } from '@ember/application';
 import Component from '@ember/component';
-import { warn } from '@ember/debug';
-import { computed, observer } from '@ember/object';
-import { guidFor } from '@ember/object/internals';
-import { cancel, debounce, later, next, run } from '@ember/runloop';
-import { htmlSafe, isHTMLSafe } from '@ember/string';
-import { isEmpty } from '@ember/utils';
-import { stripInProduction } from 'ember-attacher/-debug/helpers';
 import DEFAULTS from '../defaults';
 import layout from '../templates/components/attach-popover';
+import { cancel, debounce, later, next, run } from '@ember/runloop';
+import { computed, observer } from '@ember/object';
+import { getOwner } from '@ember/application';
+import { guidFor } from '@ember/object/internals';
+import { htmlSafe, isHTMLSafe } from '@ember/string';
+import { stripInProduction } from 'ember-attacher/-debug/helpers';
+import { warn } from '@ember/debug';
+import { isEmpty } from '@ember/utils';
 
 export default Component.extend({
   layout,
@@ -81,13 +81,13 @@ export default Component.extend({
 
   // The circle element needs a special duration that is slightly faster than the popper's
   // transition, this prevents text from appearing outside the circle as it fills the background
-  _circleTransitionDuration: computed('_transitionDuration', function () {
+  _circleTransitionDuration: computed('_transitionDuration', function() {
     return htmlSafe(
       `transition-duration: ${Math.round(this.get('_transitionDuration') / 1.25)}ms`
     );
   }),
 
-  _class: computed('class', 'animation', '_isStartingAnimation', function () {
+  _class: computed('class', 'animation', '_isStartingAnimation', function() {
     const showOrHideClass = `ember-attacher-${this.get('_isStartingAnimation') ? 'show' : 'hide'}`;
 
     return `ember-attacher-${this.get('animation')} ${this.get('class') || ''} ${showOrHideClass}`;
@@ -106,11 +106,11 @@ export default Component.extend({
   }),
 
   // This is memoized so it can be used by both attach-popover and attach-tooltip
-  _config: computed(function () {
+  _config: computed(function() {
     return getOwner(this).resolveRegistration('config:environment').emberAttacher || {};
   }),
 
-  _hideOn: computed('hideOn', function () {
+  _hideOn: computed('hideOn', function() {
     let hideOn = this.get('hideOn');
 
     if (hideOn === undefined) {
@@ -120,7 +120,7 @@ export default Component.extend({
     return hideOn === null ? [] : hideOn.split(' ');
   }),
 
-  _modifiers: computed('arrow', 'flip', 'modifiers', function () {
+  _modifiers: computed('arrow', 'flip', 'modifiers', function() {
     // Deep copy the modifiers since we might write to the provided hash
     const modifiers
       = this.get('modifiers') ? JSON.parse(JSON.stringify(this.get('modifiers'))) : {};
@@ -185,11 +185,11 @@ export default Component.extend({
     }
   },
 
-  _shouldRender: computed.not('lazyRender', function () {
+  _shouldRender: computed.not('lazyRender', function() {
     return !this.get('lazyRender');
   }),
 
-  _showOn: computed('showOn', function () {
+  _showOn: computed('showOn', function() {
     let showOn = this.get('showOn');
 
     if (showOn === undefined) {
@@ -364,11 +364,11 @@ export default Component.extend({
       });
   },
 
-  _targetOrTriggersChanged: observer('hideOn', 'showOn', 'popperTarget', function () {
+  _targetOrTriggersChanged: observer('hideOn', 'showOn', 'popperTarget', function() {
     this._initializeAttacher();
   }),
 
-  _isShownChanged: observer('isShown', function () {
+  _isShownChanged: observer('isShown', function() {
     const isShown = this.get('isShown');
 
     if (isShown === true && this._isHidden) {
