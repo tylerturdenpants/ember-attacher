@@ -58,9 +58,8 @@ export default Component.extend({
       this._update = api.update;
 
       if (!this.isDestroying && !this.isDestroyed) {
-        if (this.get('registerAPI') !== null) {
-          /* eslint-disable ember/closure-actions */
-          this.sendAction('registerAPI', api);
+        if (this.get('registerAPI') !== undefined) {
+          this.registerAPI(api);
         }
 
         if (this._isHidden) {
@@ -574,8 +573,8 @@ export default Component.extend({
 
     // If cursor is not on the attachment or target, hide the popover
     if (!target.contains(event.target)
-        && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
-        && !this._popperElement.contains(event.target)) {
+      && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
+      && !this._popperElement.contains(event.target)) {
       // Remove this listener before hiding the attachment
       delete this._hideListenersOnDocumentByEvent.mousemove;
       document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
@@ -598,29 +597,29 @@ export default Component.extend({
 
     // Check if cursor is between a left-flipped attachment
     if (attachmentPosition.right < targetPosition.left
-        && clientX >= attachmentPosition.right && clientX <= targetPosition.left
-        && isBetweenTopAndBottom) {
+      && clientX >= attachmentPosition.right && clientX <= targetPosition.left
+      && isBetweenTopAndBottom) {
       return true;
     }
 
     // Check if cursor is between a right-flipped attachment
     if (attachmentPosition.left > targetPosition.right
-        && clientX <= attachmentPosition.left && clientX >= targetPosition.right
-        && isBetweenTopAndBottom) {
+      && clientX <= attachmentPosition.left && clientX >= targetPosition.right
+      && isBetweenTopAndBottom) {
       return true;
     }
 
     // Check if cursor is between a bottom-flipped attachment
     if (attachmentPosition.top > targetPosition.bottom
-        && clientY <= attachmentPosition.top && clientY >= targetPosition.bottom
-        && isBetweenLeftAndRight) {
+      && clientY <= attachmentPosition.top && clientY >= targetPosition.bottom
+      && isBetweenLeftAndRight) {
       return true;
     }
 
     // Check if cursor is between a top-flipped attachment
     if (attachmentPosition.bottom < targetPosition.top
-        && clientY >= attachmentPosition.bottom && clientY <= targetPosition.top
-        && isBetweenLeftAndRight) {
+      && clientY >= attachmentPosition.bottom && clientY <= targetPosition.top
+      && isBetweenLeftAndRight) {
       return true;
     }
 
