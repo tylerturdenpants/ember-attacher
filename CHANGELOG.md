@@ -1,5 +1,19 @@
 # Change Log
 
+## [v0.13.8](https://github.com/kybishop/ember-attacher/tree/v0.13.8) (2018-09-28)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.7...v0.13.8)
+
+**Closed issues:**
+
+- Deprecation: Use closure actions instead of `sendAction` [\#148](https://github.com/kybishop/ember-attacher/issues/148)
+- Few files missing 404 errors [\#142](https://github.com/kybishop/ember-attacher/issues/142)
+- Replace ember-cli-sass with postcss [\#108](https://github.com/kybishop/ember-attacher/issues/108)
+
+**Merged pull requests:**
+
+- Use closure actions instead of sendAction [\#149](https://github.com/kybishop/ember-attacher/pull/149) ([scottwernervt](https://github.com/scottwernervt))
+- Update ember-cli-sass [\#147](https://github.com/kybishop/ember-attacher/pull/147) ([jrjohnson](https://github.com/jrjohnson))
+
 ## [v0.13.7](https://github.com/kybishop/ember-attacher/tree/v0.13.7) (2018-07-25)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.6...v0.13.7)
 
