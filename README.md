@@ -149,7 +149,7 @@ Below is a list of all availabe options, along with their defaults.
 User-defined defaults can be set in the consuming app or addon's config/environment.js. These defaults will be applied to every `{{#ember-attacher}}` and `{{#attach-tooltip}}`
 
 ```javascript
-// config/environment/js
+// config/environment.js
 
 module.exports = function(environment) {
   var ENV = {
