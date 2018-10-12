@@ -36,11 +36,9 @@ module('Integration | Component | attach tooltip', function(hooks) {
       </div>
     `);
 
-    assert.equal(find('#tooltip').getAttribute('role'), 'tooltip', 'has default aria-role');
+    assert.dom('#tooltip').hasAttribute('role', 'tooltip', 'has default aria-role');
 
-    assert.equal(find('#other-tooltip').getAttribute('role'),
-                 'testing',
-                 'has user-supplied aria-role');
+    assert.dom('#other-tooltip').hasAttribute('role', 'testing', 'has user-supplied aria-role');
   });
 
   test('has the default classes', async function(assert) {
@@ -171,8 +169,10 @@ module('Integration | Component | attach tooltip', function(hooks) {
 
     assert.ok(tooltipWithNoInitialId.id, 'tooltip gets generated ID when no ID is supplied');
 
-    assert.equal(find('#other-target').getAttribute('aria-describedby'),
-                 tooltipWithNoInitialId.id,
-                 "target receives aria-describedby with tooltip's generated ID");
+    assert.dom('#other-target').hasAttribute(
+      'aria-describedby',
+      tooltipWithNoInitialId.id,
+      "target receives aria-describedby with tooltip's generated ID"
+    );
   });
 });

@@ -1,5 +1,5 @@
 import hbs from 'htmlbars-inline-precompile';
-import { click, find } from 'ember-native-dom-helpers';
+import { click } from 'ember-native-dom-helpers';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
@@ -23,14 +23,10 @@ module('Integration | Component | aria-hidden', function(hooks) {
 
     await click('#click-toggle');
 
-    assert.equal(find('#attachment').getAttribute('aria-hidden'),
-                 'false',
-                 'When shown, aria-hidden="false"');
+    assert.dom('#attachment').hasAttribute('aria-hidden', 'false', 'When shown, aria-hidden="false"');
 
     await click('#click-toggle');
 
-    assert.equal(find('#attachment').getAttribute('aria-hidden'),
-                 'true',
-                 'When hidden aria-hidden="true"');
+    assert.dom('#attachment').hasAttribute('aria-hidden', 'true', 'When hidden aria-hidden="true"');
   });
 });

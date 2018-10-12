@@ -21,7 +21,7 @@ module('Integration | Component | ember attacher', function(hooks) {
 
     const attachment = find('#attachment');
 
-    assert.ok(find('div[x-circle]', attachment), 'div[x-circle] exists');
+    assert.dom('div[x-circle]', attachment).exists('div[x-circle] exists');
 
     assert.ok(attachment.innerHTML.indexOf('popper text') !== -1);
   });

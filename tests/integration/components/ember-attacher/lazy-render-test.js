@@ -1,8 +1,5 @@
 import hbs from 'htmlbars-inline-precompile';
-import {
-  click,
-  find
-} from 'ember-native-dom-helpers';
+import { click } from 'ember-native-dom-helpers';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
@@ -24,11 +21,11 @@ module('Integration | Component | lazyRender', function(hooks) {
       </button>
     `);
 
-    assert.notOk(find('#should-not-be-present-until-clicked'), 'Has not initially rendered the yield block.');
+    assert.dom('#should-not-be-present-until-clicked').doesNotExist('Has not initially rendered the yield block.');
 
     await click('#toggle-show');
 
-    assert.ok(find('#should-not-be-present-until-clicked'), 'Has rendered the yield block.');
+    assert.dom('#should-not-be-present-until-clicked').exists('Has rendered the yield block.');
   });
 
   test('lazily render will default to false which will eager render the yeild block', async function(assert) {
@@ -44,6 +41,6 @@ module('Integration | Component | lazyRender', function(hooks) {
       </button>
     `);
 
-    assert.ok(find('#should-not-be-present-until-clicked'), 'Has initially rendered the yield block.');
+    assert.dom('#should-not-be-present-until-clicked').exists('Has initially rendered the yield block.');
   });
 });
