@@ -1,33 +1,36 @@
 import hbs from 'htmlbars-inline-precompile';
 import { find, keyEvent, waitUntil } from 'ember-native-dom-helpers';
 import { isVisible } from 'ember-attacher';
-import { moduleForComponent, test } from 'ember-qunit';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
 
-moduleForComponent('ember-attacher', 'Integration | Component | hideOn "escapekey"', {
-  integration: true
-});
+import { render } from '@ember/test-helpers';
 
-test('hides when the escape key is pressed', async function(assert) {
-  assert.expect(2);
+module('Integration | Component | hideOn "escapekey"', function(hooks) {
+  setupRenderingTest(hooks);
 
-  this.render(hbs`
-    <div>
-      {{#attach-popover id='attachment'
-                        hideOn='escapekey'
-                        isShown=true}}
-        hideOn click
-      {{/attach-popover}}
-    </div>
-  `);
+  test('hides when the escape key is pressed', async function(assert) {
+    assert.expect(2);
 
-  const attachment = find('#attachment');
+    await render(hbs`
+      <div>
+        {{#attach-popover id='attachment'
+                          hideOn='escapekey'
+                          isShown=true}}
+          hideOn click
+        {{/attach-popover}}
+      </div>
+    `);
 
-  assert.equal(isVisible(attachment), true, 'Initially shown');
+    const attachment = find('#attachment');
 
-  // Press escape key (keyCode === 27)
-  await keyEvent(document, 'keydown', 27);
+    assert.equal(isVisible(attachment), true, 'Initially shown');
 
-  await waitUntil(() => isVisible(attachment) === false);
+    // Press escape key (keyCode === 27)
+    await keyEvent(document, 'keydown', 27);
 
-  assert.equal(isVisible(attachment), false, 'Now hidden');
+    await waitUntil(() => isVisible(attachment) === false);
+
+    assert.equal(isVisible(attachment), false, 'Now hidden');
+  });
 });

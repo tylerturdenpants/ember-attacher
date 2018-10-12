@@ -1,30 +1,33 @@
 import hbs from 'htmlbars-inline-precompile';
 import { click } from 'ember-native-dom-helpers';
 import { isVisible } from 'ember-attacher';
-import { moduleForComponent, test } from 'ember-qunit';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
 
-moduleForComponent('ember-attacher', 'Integration | Component | hideOn "click"', {
-  integration: true
-});
+import { render } from '@ember/test-helpers';
 
-test('hides when the target is clicked', async function(assert) {
-  assert.expect(2);
+module('Integration | Component | hideOn "click"', function(hooks) {
+  setupRenderingTest(hooks);
 
-  this.render(hbs`
-    <button id="click-toggle">
-      Click me, captain!
+  test('hides when the target is clicked', async function(assert) {
+    assert.expect(2);
 
-      {{#attach-popover id='attachment'
-                        hideOn='click'
-                        isShown=true}}
-        hideOn click
-      {{/attach-popover}}
-    </button>
-  `);
+    await render(hbs`
+      <button id="click-toggle">
+        Click me, captain!
 
-  assert.equal(isVisible('#attachment'), true, 'Initially shown');
+        {{#attach-popover id='attachment'
+                          hideOn='click'
+                          isShown=true}}
+          hideOn click
+        {{/attach-popover}}
+      </button>
+    `);
 
-  await click('#click-toggle');
+    assert.equal(isVisible('#attachment'), true, 'Initially shown');
 
-  assert.equal(isVisible('#attachment'), false, 'Now hidden');
+    await click('#click-toggle');
+
+    assert.equal(isVisible('#attachment'), false, 'Now hidden');
+  });
 });

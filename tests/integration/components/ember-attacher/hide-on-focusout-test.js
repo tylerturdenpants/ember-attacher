@@ -1,113 +1,116 @@
 import hbs from 'htmlbars-inline-precompile';
 import { click, find, focus, waitUntil } from 'ember-native-dom-helpers';
 import { isVisible } from 'ember-attacher';
-import { moduleForComponent, test } from 'ember-qunit';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
 
-moduleForComponent('ember-attacher', 'Integration | Component | hideOn "focusout"', {
-  integration: true
-});
+import { render } from '@ember/test-helpers';
 
-test('hides when the target loses focus', async function(assert) {
-  assert.expect(3);
+module('Integration | Component | hideOn "focusout"', function(hooks) {
+  setupRenderingTest(hooks);
 
-  this.render(hbs`
-    <input type="text" id="focus-me"/>
+  test('hides when the target loses focus', async function(assert) {
+    assert.expect(3);
 
-    <button id="click-toggle">
-      Click me, captain!
+    await render(hbs`
+      <input type="text" id="focus-me"/>
 
-      {{#attach-popover id='attachment'
-                        hideOn='focusout'
-                        showOn='click'}}
-        hideOn click
-      {{/attach-popover}}
-    </button>
-  `);
+      <button id="click-toggle">
+        Click me, captain!
 
-  const attachment = find('#attachment');
+        {{#attach-popover id='attachment'
+                          hideOn='focusout'
+                          showOn='click'}}
+          hideOn click
+        {{/attach-popover}}
+      </button>
+    `);
 
-  assert.equal(isVisible(attachment), false, 'Initially hidden');
+    const attachment = find('#attachment');
 
-  await click('#click-toggle');
+    assert.equal(isVisible(attachment), false, 'Initially hidden');
 
-  assert.equal(isVisible(attachment), true, 'Now shown');
+    await click('#click-toggle');
 
-  await focus('#focus-me');
+    assert.equal(isVisible(attachment), true, 'Now shown');
 
-  await waitUntil(() => isVisible(attachment) === false);
+    await focus('#focus-me');
 
-  assert.equal(isVisible(attachment), false, 'hidden again');
-});
+    await waitUntil(() => isVisible(attachment) === false);
 
-test('with interactive=false: hides when the attachment gains focus', async function(assert) {
-  assert.expect(3);
+    assert.equal(isVisible(attachment), false, 'hidden again');
+  });
 
-  this.render(hbs`
-    <input type="text" id="focus-me"/>
+  test('with interactive=false: hides when the attachment gains focus', async function(assert) {
+    assert.expect(3);
 
-    <button id="click-toggle">
-      Click me, captain!
+    await render(hbs`
+      <input type="text" id="focus-me"/>
 
-      {{#attach-popover id='attachment'
-                        hideOn='focusout'
-                        showOn='click'}}
-        <input type="text" id="attachment-focus-me"/>
-      {{/attach-popover}}
-    </button>
-  `);
+      <button id="click-toggle">
+        Click me, captain!
 
-  const attachment = find('#attachment');
+        {{#attach-popover id='attachment'
+                          hideOn='focusout'
+                          showOn='click'}}
+          <input type="text" id="attachment-focus-me"/>
+        {{/attach-popover}}
+      </button>
+    `);
 
-  assert.equal(isVisible(attachment), false, 'Initially hidden');
+    const attachment = find('#attachment');
 
-  await click('#click-toggle');
+    assert.equal(isVisible(attachment), false, 'Initially hidden');
 
-  assert.equal(isVisible(attachment), true, 'Now shown');
+    await click('#click-toggle');
 
-  await focus('#attachment-focus-me');
+    assert.equal(isVisible(attachment), true, 'Now shown');
 
-  await waitUntil(() => isVisible(attachment) === false);
+    await focus('#attachment-focus-me');
 
-  assert.equal(isVisible(attachment), false, 'hidden again');
-});
+    await waitUntil(() => isVisible(attachment) === false);
 
-test("with interactive=true: doesn't hide when the attachment gains focus", async function(assert) {
-  assert.expect(4);
+    assert.equal(isVisible(attachment), false, 'hidden again');
+  });
 
-  this.render(hbs`
-    <input type="text" id="outer-focus-me"/>
+  test("with interactive=true: doesn't hide when the attachment gains focus", async function(assert) {
+    assert.expect(4);
 
-    <button id="click-toggle">
-      Click me, captain!
+    await render(hbs`
+      <input type="text" id="outer-focus-me"/>
 
-      {{#attach-popover id='attachment'
-                        hideOn='focusout'
-                        interactive=true
-                        showOn='click'}}
-        <input type="text" id="attachment-focus-me"/>
-      {{/attach-popover}}
-    </button>
-  `);
+      <button id="click-toggle">
+        Click me, captain!
 
-  const attachment = find('#attachment');
+        {{#attach-popover id='attachment'
+                          hideOn='focusout'
+                          interactive=true
+                          showOn='click'}}
+          <input type="text" id="attachment-focus-me"/>
+        {{/attach-popover}}
+      </button>
+    `);
 
-  assert.equal(isVisible(attachment), false, 'Initially hidden');
+    const attachment = find('#attachment');
 
-  await click('#click-toggle');
+    assert.equal(isVisible(attachment), false, 'Initially hidden');
 
-  assert.equal(isVisible(attachment), true, 'Now shown');
+    await click('#click-toggle');
 
-  await focus('#attachment-focus-me');
+    assert.equal(isVisible(attachment), true, 'Now shown');
 
-  assert.equal(isVisible(attachment), true, 'Still shown');
+    await focus('#attachment-focus-me');
 
-  await focus('#click-toggle');
+    assert.equal(isVisible(attachment), true, 'Still shown');
 
-  await waitUntil(() => isVisible(attachment));
+    await focus('#click-toggle');
 
-  await focus('#outer-focus-me');
+    await waitUntil(() => isVisible(attachment));
 
-  await waitUntil(() => isVisible(attachment) === false);
+    await focus('#outer-focus-me');
 
-  assert.equal(isVisible('#attachment'), false, 'Hidden again');
+    await waitUntil(() => isVisible(attachment) === false);
+
+    assert.equal(isVisible('#attachment'), false, 'Hidden again');
+  });
 });
