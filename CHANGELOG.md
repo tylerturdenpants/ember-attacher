@@ -1,5 +1,17 @@
 # Change Log
 
+## [v0.13.10](https://github.com/kybishop/ember-attacher/tree/v0.13.10) (2018-10-12)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.9...v0.13.10)
+
+**Closed issues:**
+
+- Error: Could not find module `ember-native-dom-helpers` imported from `ember-attacher/is-visible` [\#140](https://github.com/kybishop/ember-attacher/issues/140)
+
+**Merged pull requests:**
+
+- remove hidden ember-native-dom-helpers dependency [\#154](https://github.com/kybishop/ember-attacher/pull/154) ([kybishop](https://github.com/kybishop))
+- Upgrade to ember 3.4 [\#153](https://github.com/kybishop/ember-attacher/pull/153) ([kybishop](https://github.com/kybishop))
+
 ## [v0.13.9](https://github.com/kybishop/ember-attacher/tree/v0.13.9) (2018-10-12)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.8...v0.13.9)
 
