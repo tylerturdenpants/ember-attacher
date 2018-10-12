@@ -1,3 +1,4 @@
+import { not } from '@ember/object/computed';
 import Component from '@ember/component';
 import DEFAULTS from '../defaults';
 import layout from '../templates/components/attach-popover';
@@ -185,7 +186,7 @@ export default Component.extend({
     }
   },
 
-  _shouldRender: computed.not('lazyRender', function() {
+  _shouldRender: not('lazyRender', function() {
     return !this.get('lazyRender');
   }),
 

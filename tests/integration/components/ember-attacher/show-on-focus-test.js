@@ -1,30 +1,33 @@
 import hbs from 'htmlbars-inline-precompile';
 import { find, triggerEvent } from 'ember-native-dom-helpers';
 import { isVisible } from 'ember-attacher';
-import { moduleForComponent, test } from 'ember-qunit';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
 
-moduleForComponent('ember-attacher', 'Integration | Component | showOn "focus"', {
-  integration: true
-});
+import { render } from '@ember/test-helpers';
 
-test('shows when the target gains focus', async function(assert) {
-  assert.expect(2);
+module('Integration | Component | showOn "focus"', function(hooks) {
+  setupRenderingTest(hooks);
 
-  this.render(hbs`
-    <button id="target">
-      Focus me, captain!
+  test('shows when the target gains focus', async function(assert) {
+    assert.expect(2);
 
-      {{#attach-popover id='attachment' showOn='focus'}}
-        showOn focus
-      {{/attach-popover}}
-    </button>
-  `);
+    await render(hbs`
+      <button id="target">
+        Focus me, captain!
 
-  const attachment = find('#attachment');
+        {{#attach-popover id='attachment' showOn='focus'}}
+          showOn focus
+        {{/attach-popover}}
+      </button>
+    `);
 
-  assert.equal(isVisible(attachment), false, 'Initially hidden');
+    const attachment = find('#attachment');
 
-  await triggerEvent('#target', 'focus');
+    assert.equal(isVisible(attachment), false, 'Initially hidden');
 
-  assert.equal(isVisible(attachment), true, 'Now shown');
+    await triggerEvent('#target', 'focus');
+
+    assert.equal(isVisible(attachment), true, 'Now shown');
+  });
 });

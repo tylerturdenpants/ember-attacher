@@ -6,7 +6,7 @@ const Funnel = require('broccoli-funnel');
 const StripClassCallCheck = require('babel6-plugin-strip-class-callcheck');
 
 module.exports = {
-  name: 'ember-attacher',
+  name: require('./package').name,
 
   included(app) {
     this._super.included.apply(this, arguments);
