@@ -1,5 +1,18 @@
 # Change Log
 
+## [v0.13.9](https://github.com/kybishop/ember-attacher/tree/v0.13.9) (2018-10-12)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.8...v0.13.9)
+
+**Closed issues:**
+
+- Could not find module `ember-compatibility-helpers` imported from `@ember-decorators/argument/-debug/utils/validation-decorator` [\#151](https://github.com/kybishop/ember-attacher/issues/151)
+- Dependency lint finds multiple version of ember-compatibility-helpers [\#127](https://github.com/kybishop/ember-attacher/issues/127)
+
+**Merged pull requests:**
+
+- bump ember-popper to v0.9.2 [\#152](https://github.com/kybishop/ember-attacher/pull/152) ([kybishop](https://github.com/kybishop))
+- Fix typo [\#150](https://github.com/kybishop/ember-attacher/pull/150) ([ctjhoa](https://github.com/ctjhoa))
+
 ## [v0.13.8](https://github.com/kybishop/ember-attacher/tree/v0.13.8) (2018-09-28)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.7...v0.13.8)
 
