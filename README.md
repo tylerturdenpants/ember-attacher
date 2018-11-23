@@ -59,7 +59,7 @@ A tooltip attacher. Subclass of `{{#attach-popover}}`
 
 ## Options
 
-Below is a list of all availabe options, along with their defaults.
+Below is a list of all available options, along with their defaults.
 
 ```javascript
 {
@@ -138,9 +138,15 @@ Below is a list of all availabe options, along with their defaults.
   // The duration, in milliseconds, of the show animation.
   showDuration: 300,
 
-   // Events on the target that will cause the attachment to show. For performance reasons, we
-   // recommend using some combination of 'mouseenter', 'focus', and 'click'
+  // Events on the target that will cause the attachment to show. For performance reasons, we
+  // recommend using some combination of 'mouseenter', 'focus', and 'click'
   showOn: 'mouseenter focus',
+
+  // Whether to add event listeners for attachment show and hide in the capturing phase rather
+  // than the bubbling phase. This should be set to true when there are elements on the page that
+  // are stopping event propagation in the bubbling phase, and as a result preventing correct
+  // showing and hiding of popovers and tooltips.
+  useCapture: false
 }
 ```
 
