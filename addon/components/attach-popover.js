@@ -518,14 +518,14 @@ export default Component.extend({
       }
 
       this._hideListenersOnTargetByEvent.click = this._hideAfterDelay;
-      target.addEventListener('click', this._hideAfterDelay);
+      target.addEventListener('click', this._hideAfterDelay, true);
     }
 
     if (hideOn.indexOf('clickout') !== -1) {
       const clickoutEvent = 'ontouchstart' in window ? 'touchend' : 'click';
 
       this._hideListenersOnDocumentByEvent[clickoutEvent] = this._hideOnClickOut;
-      document.addEventListener(clickoutEvent, this._hideOnClickOut);
+      document.addEventListener(clickoutEvent, this._hideOnClickOut, true);
     }
 
     if (hideOn.indexOf('escapekey') !== -1) {
