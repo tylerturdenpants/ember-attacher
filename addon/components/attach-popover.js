@@ -334,7 +334,7 @@ export default Component.extend({
     this.get('_showOn').forEach((event) => {
       this._showListenersOnTargetByEvent[event] = this._showAfterDelay;
 
-      this._currentTarget.addEventListener(event, this._showAfterDelay);
+      this._currentTarget.addEventListener(event, this._showAfterDelay, true);
     });
   },
 
@@ -349,7 +349,7 @@ export default Component.extend({
 
   _removeEventListeners() {
     Object.keys(this._hideListenersOnDocumentByEvent).forEach((eventType) => {
-      document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType]);
+      document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType], true);
       delete this._hideListenersOnDocumentByEvent[eventType];
     });
 
@@ -360,7 +360,7 @@ export default Component.extend({
     [this._hideListenersOnTargetByEvent, this._showListenersOnTargetByEvent]
       .forEach((eventToListener) => {
         Object.keys(eventToListener).forEach((event) => {
-          this._currentTarget.removeEventListener(event, eventToListener[event]);
+          this._currentTarget.removeEventListener(event, eventToListener[event], true);
         });
       });
   },
@@ -512,39 +512,39 @@ export default Component.extend({
       const showOnClickListener = this._showListenersOnTargetByEvent.click;
 
       if (showOnClickListener) {
-        target.removeEventListener('click', showOnClickListener);
+        target.removeEventListener('click', showOnClickListener, true);
 
         delete this._showListenersOnTargetByEvent.click;
       }
 
       this._hideListenersOnTargetByEvent.click = this._hideAfterDelay;
-      target.addEventListener('click', this._hideAfterDelay);
+      target.addEventListener('click', this._hideAfterDelay, true);
     }
 
     if (hideOn.indexOf('clickout') !== -1) {
       const clickoutEvent = 'ontouchstart' in window ? 'touchend' : 'click';
 
       this._hideListenersOnDocumentByEvent[clickoutEvent] = this._hideOnClickOut;
-      document.addEventListener(clickoutEvent, this._hideOnClickOut);
+      document.addEventListener(clickoutEvent, this._hideOnClickOut, true);
     }
 
     if (hideOn.indexOf('escapekey') !== -1) {
       this._hideListenersOnDocumentByEvent.keydown = this._hideOnEscapeKey;
-      document.addEventListener('keydown', this._hideOnEscapeKey);
+      document.addEventListener('keydown', this._hideOnEscapeKey, true);
     }
 
     // Hides the attachment when the mouse leaves the target
     // (or leaves both target and attachment for interactive attachments)
     if (hideOn.indexOf('mouseleave') !== -1) {
       this._hideListenersOnTargetByEvent.mouseleave = this._hideOnMouseLeaveTarget;
-      target.addEventListener('mouseleave', this._hideOnMouseLeaveTarget);
+      target.addEventListener('mouseleave', this._hideOnMouseLeaveTarget, true);
     }
 
     // Hides the attachment when focus is lost on the target
     ['blur', 'focusout'].forEach((eventType) => {
       if (hideOn.indexOf(eventType) !== -1) {
         this._hideListenersOnTargetByEvent[eventType] = this._hideOnLostFocus;
-        target.addEventListener(eventType, this._hideOnLostFocus);
+        target.addEventListener(eventType, this._hideOnLostFocus, true);
       }
     });
   },
@@ -558,7 +558,7 @@ export default Component.extend({
       //   queue another fire at the end of the debounce period
       if (!this._hideListenersOnDocumentByEvent.mousemove) {
         this._hideListenersOnDocumentByEvent.mousemove = this._hideIfMouseOutsideTargetOrAttachment;
-        document.addEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
+        document.addEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment, true);
       }
     } else {
       this._hideAfterDelay();
@@ -578,7 +578,7 @@ export default Component.extend({
       && !this._popperElement.contains(event.target)) {
       // Remove this listener before hiding the attachment
       delete this._hideListenersOnDocumentByEvent.mousemove;
-      document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment);
+      document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment, true);
 
       this._hideAfterDelay();
     }
@@ -663,7 +663,7 @@ export default Component.extend({
 
   _removeListenersForHideEvents() {
     Object.keys(this._hideListenersOnDocumentByEvent).forEach((eventType) => {
-      document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType]);
+      document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType], true);
       delete this._hideListenersOnDocumentByEvent[eventType];
     });
 
@@ -680,19 +680,19 @@ export default Component.extend({
       const hideOnClickListener = this._hideListenersOnTargetByEvent.click;
 
       if (hideOnClickListener) {
-        target.removeEventListener('click', hideOnClickListener);
+        target.removeEventListener('click', hideOnClickListener, true);
         delete this._hideListenersOnTargetByEvent.click;
       }
 
       this._showListenersOnTargetByEvent.click = this._showAfterDelay;
-      target.addEventListener('click', this._showAfterDelay);
+      target.addEventListener('click', this._showAfterDelay, true);
     }
 
     ['blur', 'focusout', 'mouseleave'].forEach((eventType) => {
       const listener = this._hideListenersOnTargetByEvent[eventType];
 
       if (listener) {
-        target.removeEventListener(eventType, listener);
+        target.removeEventListener(eventType, listener, true);
         delete this._hideListenersOnTargetByEvent[eventType];
       }
     });
