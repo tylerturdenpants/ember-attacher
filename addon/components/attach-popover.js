@@ -573,7 +573,7 @@ export default Component.extend({
     const target = this._currentTarget;
 
     // If cursor is not on the attachment or target, hide the popover
-    if (!target.contains(event.target)
+    if (target && !target.contains(event.target)
       && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
       && !this._popperElement.contains(event.target)) {
       // Remove this listener before hiding the attachment
