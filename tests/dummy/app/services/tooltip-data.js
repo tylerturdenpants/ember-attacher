@@ -13,5 +13,6 @@ export default Service.extend({
   renderInPlace: false,
   showDelay: 0,
   showDuration: 300,
-  showOn: 'mouseenter focus'
+  showOn: 'mouseenter focus',
+  useCapture: false
 });
