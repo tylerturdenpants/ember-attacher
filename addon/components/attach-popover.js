@@ -278,7 +278,22 @@ export default Component.extend({
       if (arrow && animation === 'fill') {
         warn('Animation: \'fill\' is not compatible with arrow: true', { id: 70015 });
       }
+
+      this._lastUseCaptureArgumentValue = this.useCapture;
     });
+  },
+
+  didUpdateAttrs() {
+    this._super(...arguments);
+
+    stripInProduction(() => {
+      if (this.useCapture !== this._lastUseCaptureArgumentValue) {
+        warn(
+          'The value of the useCapture argument was mutated',
+          { id: 'ember-attacher.use-capture-mutated' }
+        );
+      }
+    })
   },
 
   _setUserSuppliedDefaults() {
