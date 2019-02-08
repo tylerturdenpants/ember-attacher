@@ -122,25 +122,23 @@ export default Component.extend({
   }),
 
   _modifiers: computed('arrow', 'flip', 'modifiers', function() {
-    // Deep copy the modifiers since we might write to the provided hash
+    // Copy the modifiers since we might write to the provided hash
     const modifiers
-      = this.get('modifiers') ? JSON.parse(JSON.stringify(this.get('modifiers'))) : {};
+      = this.get('modifiers') ? Object.assign({}, this.get('modifiers')) : {};
 
     const arrow = this.get('arrow');
-    if (typeof(arrow) === 'boolean') {
-      if (!modifiers.arrow) {
-        modifiers.arrow = { enabled: arrow };
-      } else if (typeof(modifiers.arrow.enbabled) !== 'boolean') {
-        modifiers.arrow.enabled = arrow;
-      }
+    if (typeof(arrow) === 'boolean' && !modifiers.arrow) {
+      modifiers.arrow = { enabled: arrow };
     }
 
     const flipString = this.get('flip');
     if (flipString) {
+      const flipModifier = { behavior: flipString.split(' ') };
       if (!modifiers.flip) {
-        modifiers.flip = { behavior: flipString.split(' ') };
+        modifiers.flip = flipModifier;
       } else if (!modifiers.flip.behavior) {
-        modifiers.flip.behavior = flipString.split(' ');
+        // Copy the flip modifier since we are altering the provided hash
+        modifiers.flip = Object.assign({}, modifiers.flip, flipModifier);
       }
     }
 
