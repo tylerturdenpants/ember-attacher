@@ -1,6 +1,6 @@
 {{unbound _parentFinder}}
 
-{{#if (and _currentTarget _shouldRender)}}
+{{#if (and _currentTarget (or (not lazyRender) _mustRender))}}
   {{#ember-popper ariaRole=ariaRole
                   class="ember-attacher"
                   eventsEnabled=false

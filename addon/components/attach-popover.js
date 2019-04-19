@@ -1,4 +1,3 @@
-import { not } from '@ember/object/computed';
 import Component from '@ember/component';
 import DEFAULTS from '../defaults';
 import layout from '../templates/components/attach-popover';
@@ -187,9 +186,8 @@ export default Component.extend({
     }
   },
 
-  _shouldRender: not('lazyRender', function() {
-    return !this.get('lazyRender');
-  }),
+  // This is set to true when the popover is shown in order to override lazyRender=false
+  _mustRender: false,
 
   _showOn: computed('showOn', function() {
     let showOn = this.get('showOn');
@@ -406,7 +404,7 @@ export default Component.extend({
   _showAfterDelay() {
     cancel(this._delayedVisibilityToggle);
 
-    this.set('_shouldRender', true);
+    this.set('_mustRender', true);
 
     this._addListenersForHideEvents();
 
