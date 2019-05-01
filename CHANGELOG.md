@@ -1,5 +1,17 @@
 # Change Log
 
+## [v0.14.0](https://github.com/kybishop/ember-attacher/tree/v0.14.0) (2019-05-01)
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.10...v0.14.0)
+
+**Closed issues:**
+
+- Deprecation warning in Ember 3.9 [\#164](https://github.com/kybishop/ember-attacher/issues/164)
+
+**Merged pull requests:**
+
+- Fix computed-property.override deprecation in Ember 3.9 [\#165](https://github.com/kybishop/ember-attacher/pull/165) ([richard-viney](https://github.com/richard-viney))
+- FEATURE - Add useCapture config option [\#159](https://github.com/kybishop/ember-attacher/pull/159) ([richard-viney](https://github.com/richard-viney))
+
 ## [v0.13.10](https://github.com/kybishop/ember-attacher/tree/v0.13.10) (2018-10-12)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.9...v0.13.10)
 
