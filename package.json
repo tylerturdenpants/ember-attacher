@@ -30,7 +30,7 @@
     "babel-plugin-filter-imports": "^1.1.1",
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
     "broccoli-funnel": "^2.0.1",
-    "ember-cli-babel": "^6.16.0",
+    "ember-cli-babel": "^7.8.0",
     "ember-cli-htmlbars": "^3.0.0",
     "ember-cli-sass": "^8.0.1",
     "ember-popper": "^0.10.1",
@@ -73,7 +73,7 @@
     "qunit-dom": "^0.7.1"
   },
   "engines": {
-    "node": "6.* || 8.* || >= 10.*"
+    "node": "8.* || >= 10.*"
   },
   "ember-addon": {
     "configPath": "tests/dummy/config",
