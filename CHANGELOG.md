@@ -1,6 +1,21 @@
 # Change Log
 
-## [v0.14.0](https://github.com/kybishop/ember-attacher/tree/v0.14.0) (2019-05-01)
+## [Unreleased](https://github.com/kybishop/ember-attacher/tree/HEAD)
+
+[Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.15.0...HEAD)
+
+**Closed issues:**
+
+- Releasing should be easier [\#171](https://github.com/kybishop/ember-attacher/issues/171)
+- Dependency lint finds multiple version of  ember-maybe-in-element [\#170](https://github.com/kybishop/ember-attacher/issues/170)
+- Seeking Maintainers [\#162](https://github.com/kybishop/ember-attacher/issues/162)
+
+**Merged pull requests:**
+
+- add scripts for all types of publishes \(patch/minor/major\) [\#172](https://github.com/kybishop/ember-attacher/pull/172) ([tylerturdenpants](https://github.com/tylerturdenpants))
+- updated ember-popper [\#169](https://github.com/kybishop/ember-attacher/pull/169) ([tylerturdenpants](https://github.com/tylerturdenpants))
+
+## [v0.14.0](https://github.com/kybishop/ember-attacher/tree/v0.14.0) (2019-05-30)
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.13.10...v0.14.0)
 
 **Closed issues:**
@@ -9,7 +24,9 @@
 
 **Merged pull requests:**
 
+- Version 0.14.0 [\#166](https://github.com/kybishop/ember-attacher/pull/166) ([luketheobscure](https://github.com/luketheobscure))
 - Fix computed-property.override deprecation in Ember 3.9 [\#165](https://github.com/kybishop/ember-attacher/pull/165) ([richard-viney](https://github.com/richard-viney))
+- fix: prevent modifiers with functions from being lost on parse [\#163](https://github.com/kybishop/ember-attacher/pull/163) ([urbany](https://github.com/urbany))
 - FEATURE - Add useCapture config option [\#159](https://github.com/kybishop/ember-attacher/pull/159) ([richard-viney](https://github.com/richard-viney))
 
 ## [v0.13.10](https://github.com/kybishop/ember-attacher/tree/v0.13.10) (2018-10-12)
