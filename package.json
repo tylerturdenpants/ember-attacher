@@ -21,6 +21,9 @@
   "scripts": {
     "build": "ember build",
     "deploy": "ember build && ember github-pages:commit --message \"Deploy gh-pages from commit $(git rev-parse HEAD)\" && git push origin gh-pages:gh-pages",
+    "publish:patch": "npm version patch && git push && git push --tags && npm publish",
+    "publish:minor": "npm version minor && git push && git push --tags && npm publish",
+    "publish:major": "npm version major && git push && git push --tags && npm publish",
     "lint:js": "eslint .",
     "start": "ember serve",
     "test": "ember test",
