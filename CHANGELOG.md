@@ -1,6 +1,6 @@
 # Change Log
 
-## [0.15.1](https://github.com/kybishop/ember-attacher/tree/HEAD) (2019-07-09)
+## [v0.15.1](https://github.com/kybishop/ember-attacher/tree/HEAD) (2019-07-09)
 
 [Full Changelog](https://github.com/kybishop/ember-attacher/compare/v0.15.1...HEAD)
 
