@@ -6,6 +6,13 @@
 [![Ember Observer Score](http://emberobserver.com/badges/ember-attacher.svg)](http://emberobserver.com/addons/ember-attacher)
 [![Build Status](https://travis-ci.org/kybishop/ember-attacher.svg?branch=master)](https://travis-ci.org/kybishop/ember-attacher)
 
+Compatibility
+------------------------------------------------------------------------------
+
+* Ember.js v3.4 or above
+* Ember CLI v2.13 or above
+* Node.js v8 or above
+
 Tooltips and popovers made easy.
 Just drop an `{{#attach-tooltip}}` or `{{#attach-popover}}` in a parent and your popper is ready to go!
 
@@ -209,27 +216,7 @@ test('example', async function(assert) {
 
 # Development setup
 
-### Installation
-
-* `git clone` this repository
-* `yarn install`
-
-### Running Tests
-
-* `ember test`
-* `ember test --serve`
-
-This addon uses ember-try to test against multiple versions of Ember:
-
-* `ember try:each`
-* `ember try:one ember-release --- ember test --serve`
-
-### Running the dummy app
-
-* `ember server`
-* Visit your app at http://localhost:4200.
-
-For more information on using ember-cli, visit [http://www.ember-cli.com/](http://www.ember-cli.com/).
+See the [Contributing](CONTRIBUTING.md) guide for details.
 
 # FAQ
 
