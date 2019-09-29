@@ -1442,9 +1442,9 @@ babel-plugin-htmlbars-inline-precompile@^1.0.0:
   integrity sha512-4jvKEHR1bAX03hBDZ94IXsYCj3bwk9vYsn6ux6JZNL2U5pvzCWjqyrGahfsGNrhERyxw8IqcirOi9Q6WCo3dkQ==
 
 babel-plugin-htmlbars-inline-precompile@^2.0.0, babel-plugin-htmlbars-inline-precompile@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/babel-plugin-htmlbars-inline-precompile/-/babel-plugin-htmlbars-inline-precompile-2.1.0.tgz#92b0b23efc462c8df4d54c04a591b5d4111fd9c2"
-  integrity sha512-yoaNhhSO1bM5qgzwmK5y8EteCq6rOsrTjbgVFQoZcVuADAlDPYNcvin4120BR9UPG2qWD3mYwYPfY39kWq3WGA==
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/babel-plugin-htmlbars-inline-precompile/-/babel-plugin-htmlbars-inline-precompile-2.1.1.tgz#59edd4eab28d27fbafa26d51bc19795278d103a9"
+  integrity sha512-obo5//IFrEZNAQovcXxOXLn5nwkQ0Y+xhR7AMg1sYR6W7KxQLZI9/XzbIytVhjwwY+Bd2e0+qyHEplJbHyZ1Og==
 
 babel-plugin-module-resolver@^3.1.1, babel-plugin-module-resolver@^3.2.0:
   version "3.2.0"
@@ -3795,14 +3795,6 @@ ember-named-arguments-polyfill@^1.0.0:
     ember-cli-babel "^6.6.0"
     ember-cli-version-checker "^2.1.2"
 
-ember-native-dom-event-dispatcher@^0.6.4:
-  version "0.6.4"
-  resolved "https://registry.yarnpkg.com/ember-native-dom-event-dispatcher/-/ember-native-dom-event-dispatcher-0.6.4.tgz#ba03d512a72d159a376b27593b497ba08fe14a8a"
-  integrity sha512-b4BbEzxSzeIqcS9b1IA3Y8k6hWl0u0yZP3Ade1nNlQLpU213ifbece3iOi9VNdTFeX2I8sPIDHDivmJm7NoBZA==
-  dependencies:
-    ember-cli-babel "^6.11.0"
-    ember-cli-version-checker "^2.1.0"
-
 ember-native-dom-helpers@^0.5.10, ember-native-dom-helpers@^0.5.4:
   version "0.5.10"
   resolved "https://registry.yarnpkg.com/ember-native-dom-helpers/-/ember-native-dom-helpers-0.5.10.tgz#9c7172e4ddfa5dd86830c46a936e2f8eca3e5896"
@@ -4997,9 +4989,9 @@ growly@^1.3.0:
   integrity sha1-8QdIy+dq+WS3yWyTxrzCivEgwIE=
 
 handlebars@^4.0.11, handlebars@^4.0.4, handlebars@^4.0.6:
-  version "4.3.4"
-  resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-4.3.4.tgz#aab065294c27ad16ff4e711240a7288d2753306d"
-  integrity sha512-vvpo6mpK4ScNC1DbGRZ2d5BznS6ht0r1hi20RivsibMc6jNvFAeZQ6qk5VNspo6SOwVOJQbjHyBCpuS7BzA1pw==
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-4.4.0.tgz#22e1a897c5d83023d39801f35f6b65cf97ed8b25"
+  integrity sha512-xkRtOt3/3DzTKMOt3xahj2M/EqNhY988T+imYSlMgs5fVhLN2fmKVVj0LtEGmb+3UUYV5Qmm1052Mm3dIQxOvw==
   dependencies:
     neo-async "^2.6.0"
     optimist "^0.6.1"
