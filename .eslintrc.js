@@ -24,6 +24,7 @@ module.exports = {
       'FunctionDeclaration': { 'parameters': 'first' },
       'FunctionExpression': { 'parameters': 'first' }
     }],
+    'ember/no-observers': 0,
   },
   overrides: [
     // node files
