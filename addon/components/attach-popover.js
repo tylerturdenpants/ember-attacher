@@ -418,6 +418,8 @@ export default Component.extend({
       return;
     }
 
+    this.set('_mustRender', true);
+
     // Make the attachment visible immediately so transition animations can take place
     this._setIsVisibleAfterDelay(true, 0);
 
