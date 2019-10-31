@@ -10,6 +10,8 @@
 
 # misc
 .tern-project
+/.env*
+/.pnp*
 /.sass-cache
 /connect.lock
 /coverage/
