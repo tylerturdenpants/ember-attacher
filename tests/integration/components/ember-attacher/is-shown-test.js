@@ -90,6 +90,54 @@ module('Integration | Component | isShown', function(hooks) {
     assert.equal(isVisible(attachment), false, 'Hidden again');
   });
 
+  test('isShown works with showOn/hideOn set to `null` with lazyRender', async function(assert) {
+    assert.expect(3);
+
+    this.actions.closePopover = () => {
+      this.set('isShown', false);
+    };
+
+    this.actions.openPopover = () => {
+      this.set('isShown', true);
+    };
+
+    this.set('isShown', false);
+
+    this.set('hideOn', null);
+    this.set('showOn', null);
+
+    await render(hbs`
+      <button id="open" {{action 'openPopover'}}>
+        Click me, captain!
+
+        {{#attach-popover id='attachment'
+                          hideOn=hideOn
+                          isShown=isShown
+                          lazyRender=true
+                          showOn=showOn}}
+          isShown w/ hideOn/ShowOn of 'none'
+
+          <button id="close" {{action 'closePopover'}}>
+            Close
+          </button>
+
+        {{/attach-popover}}
+      </button>
+    `);
+
+    assert.equal(find('#attachment'), undefined, 'Not present in DOM');
+
+    await click('#open');
+
+    const attachment = find('#attachment');
+
+    assert.equal(isVisible(attachment), true, 'Now shown');
+
+    await click('#close');
+
+    assert.equal(isVisible(attachment), false, 'Hidden again');
+  });
+
   test('nested attachers open and close as expected', async function(assert) {
     assert.expect(7);
 
