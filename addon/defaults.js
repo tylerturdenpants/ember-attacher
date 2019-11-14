@@ -1,4 +1,3 @@
-import Ember from 'ember';
 export default {
   animation: 'fill',
   arrow: false,
@@ -13,7 +12,7 @@ export default {
   lazyRender: false,
   modifiers: null,
   placement: 'top',
-  popperContainer: Ember.testing ? '#ember-testing' : '.ember-application',
+  popperContainer: '.ember-application',
   popperOptions: null,
   renderInPlace: false,
   showDelay: 0,
