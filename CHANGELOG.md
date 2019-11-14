@@ -1,3 +1,26 @@
+## v1.0.0 (2019-11-14)
+
+#### :boom: Breaking Change
+* [#175](https://github.com/kybishop/ember-attacher/pull/175) Update to ember-cli 3.13 ([@jrjohnson](https://github.com/jrjohnson))
+
+#### :rocket: Enhancement
+* [#185](https://github.com/kybishop/ember-attacher/pull/185) add release-it ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#181](https://github.com/kybishop/ember-attacher/pull/181) Add class to know if popover has arrow ([@ctjhoa](https://github.com/ctjhoa))
+
+#### :bug: Bug Fix
+* [#189](https://github.com/kybishop/ember-attacher/pull/189) decouple release from deploy ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#186](https://github.com/kybishop/ember-attacher/pull/186) No exception when this._popperElement not set ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#177](https://github.com/kybishop/ember-attacher/pull/177) fix(lazyRender and isShown set manually) (#176) ([@ctjhoa](https://github.com/ctjhoa))
+
+#### :house: Internal
+* [#174](https://github.com/kybishop/ember-attacher/pull/174) Update packages ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#180](https://github.com/kybishop/ember-attacher/pull/180) Improve tests ([@ctjhoa](https://github.com/ctjhoa))
+
+#### Committers: 3
+- Camille TJHOA ([@ctjhoa](https://github.com/ctjhoa))
+- Jonathan Johnson ([@jrjohnson](https://github.com/jrjohnson))
+- Ryan Mark ([@tylerturdenpants](https://github.com/tylerturdenpants))
+
 # Change Log
 
 ## [v0.15.1](https://github.com/kybishop/ember-attacher/tree/HEAD) (2019-07-09)
