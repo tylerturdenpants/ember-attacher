@@ -80,6 +80,9 @@
     "configPath": "tests/dummy/config",
     "demoURL": "https://kybishop.github.io/ember-attacher/"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
   "release-it": {
     "plugins": {
       "release-it-lerna-changelog": {
