@@ -52,7 +52,6 @@
     "ember-cli-eslint": "^5.1.0",
     "ember-cli-fastboot": "^1.1.3",
     "ember-cli-github-pages": "^0.2.0",
-    "ember-cli-htmlbars-inline-precompile": "^3.0.0",
     "ember-cli-inject-live-reload": "^2.0.1",
     "ember-cli-sri": "^2.1.1",
     "ember-cli-uglify": "^3.0.0",
