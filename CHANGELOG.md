@@ -1,3 +1,11 @@
+## v1.0.1 (2019-11-14)
+
+#### :bug: Bug Fix
+* [#190](https://github.com/kybishop/ember-attacher/pull/190) downgrade ember-power-select ([@tylerturdenpants](https://github.com/tylerturdenpants))
+
+#### Committers: 1
+- Ryan Mark ([@tylerturdenpants](https://github.com/tylerturdenpants))
+
 ## v1.0.0 (2019-11-14)
 
 #### :boom: Breaking Change
