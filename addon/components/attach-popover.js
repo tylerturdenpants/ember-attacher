@@ -88,10 +88,11 @@ export default Component.extend({
     );
   }),
 
-  _class: computed('class', 'animation', '_isStartingAnimation', function() {
+  _class: computed('class', 'arrow', 'animation', '_isStartingAnimation', function() {
     const showOrHideClass = `ember-attacher-${this.get('_isStartingAnimation') ? 'show' : 'hide'}`;
+    const arrowClass = `ember-attacher-${this.get('arrow') ? 'with' : 'without'}-arrow`;
 
-    return `ember-attacher-${this.get('animation')} ${this.get('class') || ''} ${showOrHideClass}`;
+    return `ember-attacher-${this.get('animation')} ${this.get('class') || ''} ${showOrHideClass} ${arrowClass}`;
   }),
 
   _style: computed('style', '_transitionDuration', function () {
