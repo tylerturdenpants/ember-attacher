@@ -1,10 +1,9 @@
 import hbs from 'htmlbars-inline-precompile';
-import { find, keyEvent, waitUntil } from 'ember-native-dom-helpers';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
-import { render } from '@ember/test-helpers';
+import { render, find, triggerKeyEvent, waitUntil } from '@ember/test-helpers';
 
 module('Integration | Component | hideOn "escapekey"', function(hooks) {
   setupRenderingTest(hooks);
@@ -27,7 +26,7 @@ module('Integration | Component | hideOn "escapekey"', function(hooks) {
     assert.equal(isVisible(attachment), true, 'Initially shown');
 
     // Press escape key (keyCode === 27)
-    await keyEvent(document, 'keydown', 27);
+    await triggerKeyEvent(document, 'keydown', 27);
 
     await waitUntil(() => isVisible(attachment) === false);
 

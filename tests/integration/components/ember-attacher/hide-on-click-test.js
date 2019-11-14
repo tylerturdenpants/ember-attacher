@@ -1,10 +1,9 @@
 import hbs from 'htmlbars-inline-precompile';
-import { click } from 'ember-native-dom-helpers';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
-import { render } from '@ember/test-helpers';
+import { render, click } from '@ember/test-helpers';
 
 module('Integration | Component | hideOn "click"', function(hooks) {
   setupRenderingTest(hooks);

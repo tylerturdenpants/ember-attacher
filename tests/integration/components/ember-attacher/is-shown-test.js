@@ -1,10 +1,9 @@
 import hbs from 'htmlbars-inline-precompile';
-import { click, find } from 'ember-native-dom-helpers';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
-import { render } from '@ember/test-helpers';
+import { render, click, find } from '@ember/test-helpers';
 
 module('Integration | Component | isShown', function(hooks) {
   setupRenderingTest(hooks);
@@ -198,7 +197,7 @@ module('Integration | Component | isShown', function(hooks) {
 
     assert.equal(childAttacher.style.display, 'none', 'child still hidden');
 
-    await click(find('#openChild', parentAttacher));
+    await click(parentAttacher.querySelector('#openChild'));
 
     assert.equal(childAttacher.style.display, '', 'child shown');
 
