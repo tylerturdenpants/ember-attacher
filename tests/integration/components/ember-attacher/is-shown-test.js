@@ -3,7 +3,7 @@ import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
-import { render, click, find } from '@ember/test-helpers';
+import { render, click, find, settled } from '@ember/test-helpers';
 
 module('Integration | Component | isShown', function(hooks) {
   setupRenderingTest(hooks);
@@ -34,6 +34,8 @@ module('Integration | Component | isShown', function(hooks) {
     assert.equal(isVisible(attachment), true, 'Initially shown');
 
     await click('#toggle-show');
+
+    await settled();
 
     assert.equal(isVisible(attachment), false, 'Now hidden');
 
@@ -82,9 +84,13 @@ module('Integration | Component | isShown', function(hooks) {
 
     await click('#open');
 
+    await settled();
+
     assert.equal(isVisible(attachment), true, 'Now shown');
 
     await click('#close');
+
+    await settled();
 
     assert.equal(isVisible(attachment), false, 'Hidden again');
   });
@@ -130,9 +136,13 @@ module('Integration | Component | isShown', function(hooks) {
 
     const attachment = find('#attachment');
 
+    await settled();
+
     assert.equal(isVisible(attachment), true, 'Now shown');
 
     await click('#close');
+
+    await settled();
 
     assert.equal(isVisible(attachment), false, 'Hidden again');
   });

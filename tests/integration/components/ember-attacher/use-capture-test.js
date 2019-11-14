@@ -3,7 +3,7 @@ import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
-import { render, click } from '@ember/test-helpers';
+import { render, click, settled } from '@ember/test-helpers';
 
 module('Integration | Component | useCapture "true"', function(hooks) {
   setupRenderingTest(hooks);
@@ -30,6 +30,8 @@ module('Integration | Component | useCapture "true"', function(hooks) {
     assert.equal(isVisible('#attachment'), true, 'Initially shown');
 
     await click('#click-out-target');
+
+    await settled();
 
     assert.equal(isVisible('#attachment'), false, 'Now hidden');
   });

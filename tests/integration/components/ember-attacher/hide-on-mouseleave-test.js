@@ -29,6 +29,7 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
     assert.equal(isVisible(attachment), true, 'Initially shown');
 
     await triggerEvent('#target', 'mouseleave');
+
     await settled();
 
     assert.equal(isVisible(attachment), false, 'Now hidden');

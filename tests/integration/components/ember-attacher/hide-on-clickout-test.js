@@ -3,7 +3,7 @@ import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
-import { render, click, find, triggerEvent, waitUntil } from '@ember/test-helpers';
+import { render, click, find, triggerEvent, waitUntil, settled } from '@ember/test-helpers';
 
 module('Integration | Component | hideOn "clickout"', function(hooks) {
   setupRenderingTest(hooks);
@@ -34,6 +34,8 @@ module('Integration | Component | hideOn "clickout"', function(hooks) {
 
     await click('#focus-me');
 
+    await settled();
+
     await waitUntil(() => isVisible(attachment) === false);
 
     assert.equal(isVisible(attachment), false, 'Now hidden');
@@ -57,6 +59,8 @@ module('Integration | Component | hideOn "clickout"', function(hooks) {
     assert.equal(isVisible(attachment), true, 'Initially shown');
 
     await click(attachment);
+
+    await settled();
 
     assert.equal(isVisible(attachment), false, 'Now hidden');
   });
@@ -127,6 +131,8 @@ module('Integration | Component | hideOn "clickout"', function(hooks) {
     assert.equal(isVisible(attachment), true, 'Still shown');
 
     await triggerEvent('#focus-me', 'touchend');
+
+    await settled();
 
     await waitUntil(() => isVisible(attachment) === false);
 

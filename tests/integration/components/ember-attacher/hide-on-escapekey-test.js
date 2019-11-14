@@ -3,7 +3,7 @@ import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
-import { render, find, triggerKeyEvent, waitUntil } from '@ember/test-helpers';
+import { render, find, triggerKeyEvent, waitUntil, settled } from '@ember/test-helpers';
 
 module('Integration | Component | hideOn "escapekey"', function(hooks) {
   setupRenderingTest(hooks);
@@ -27,6 +27,8 @@ module('Integration | Component | hideOn "escapekey"', function(hooks) {
 
     // Press escape key (keyCode === 27)
     await triggerKeyEvent(document, 'keydown', 27);
+
+    await settled();
 
     await waitUntil(() => isVisible(attachment) === false);
 
