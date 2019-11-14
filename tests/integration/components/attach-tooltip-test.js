@@ -1,8 +1,7 @@
 import QUnit, { module, test } from 'qunit';
 import hbs from 'htmlbars-inline-precompile';
-import { find } from 'ember-native-dom-helpers';
 import { setupRenderingTest } from 'ember-qunit';
-import { render } from '@ember/test-helpers';
+import { render, find } from '@ember/test-helpers';
 import { htmlSafe } from '@ember/string';
 
 QUnit.assert.contains = function(actual, expected, message) {

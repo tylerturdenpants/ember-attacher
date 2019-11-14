@@ -1,10 +1,9 @@
 import hbs from 'htmlbars-inline-precompile';
-import { click, find, triggerEvent } from 'ember-native-dom-helpers';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
-import { render, settled } from '@ember/test-helpers';
+import { render, settled, click, find, triggerEvent } from '@ember/test-helpers';
 
 module('Integration | Component | hideOn "mouseleave"', function(hooks) {
   setupRenderingTest(hooks);
@@ -30,6 +29,7 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
     assert.equal(isVisible(attachment), true, 'Initially shown');
 
     await triggerEvent('#target', 'mouseleave');
+
     await settled();
 
     assert.equal(isVisible(attachment), false, 'Now hidden');

@@ -61,7 +61,6 @@
     "ember-font-awesome": "^4.0.0-rc.2",
     "ember-load-initializers": "^2.1.0",
     "ember-maybe-import-regenerator": "^0.1.6",
-    "ember-native-dom-helpers": "^0.5.10",
     "ember-power-select": "^1.10.4",
     "ember-qunit": "^4.5.1",
     "ember-raf-test-waiter": "^0.1.0",

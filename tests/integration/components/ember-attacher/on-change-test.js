@@ -1,10 +1,9 @@
 import hbs from 'htmlbars-inline-precompile';
-import { click, find } from 'ember-native-dom-helpers';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
-import { render } from '@ember/test-helpers';
+import { render, click, find, settled } from '@ember/test-helpers';
 
 module('Integration | Component | onChange', function(hooks) {
   setupRenderingTest(hooks);
@@ -34,11 +33,15 @@ module('Integration | Component | onChange', function(hooks) {
 
     await click('#click-toggle');
 
+    await settled();
+
     assert.equal(isVisible(attachment), false, 'Now hidden');
     assert.equal(this.get('isShown'), false);
 
     // Show again by toggling isShown
     this.set('isShown', true);
+
+    await settled();
 
     assert.equal(isVisible(attachment), true, 'Shown again');
 
