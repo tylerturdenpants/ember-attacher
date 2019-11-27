@@ -458,6 +458,9 @@ export default Component.extend({
         }
 
         run(() => {
+          if (this.isDestroyed || this.isDestroying || !this._currentTarget) {
+            return;
+          }
           // Make the popper element visible now that it has been positioned
           popperElement.style.visibility = '';
           this.set('_transitionDuration', parseInt(this.get('showDuration')));
