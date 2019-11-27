@@ -499,6 +499,10 @@ export default Component.extend({
       const hideDuration = parseInt(this.get('hideDuration'));
 
       run(() => {
+        if (this.isDestroyed || this.isDestroying) {
+          return;
+        }
+
         this.set('_transitionDuration', hideDuration);
         this.set('_isStartingAnimation', false);
         this._popperElement.setAttribute('aria-hidden', 'true');
