@@ -1,3 +1,5 @@
+* Fix exception when object is destroyed or destroying (#191) (39e0a85)
+
 ## v1.0.1 (2019-11-14)
 
 #### :bug: Bug Fix
