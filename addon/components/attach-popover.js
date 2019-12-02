@@ -458,6 +458,9 @@ export default Component.extend({
         }
 
         run(() => {
+          if (this.isDestroyed || this.isDestroying || !this._currentTarget) {
+            return;
+          }
           // Make the popper element visible now that it has been positioned
           popperElement.style.visibility = '';
           this.set('_transitionDuration', parseInt(this.get('showDuration')));
@@ -496,6 +499,10 @@ export default Component.extend({
       const hideDuration = parseInt(this.get('hideDuration'));
 
       run(() => {
+        if (this.isDestroyed || this.isDestroying) {
+          return;
+        }
+
         this.set('_transitionDuration', hideDuration);
         this.set('_isStartingAnimation', false);
         this._popperElement.setAttribute('aria-hidden', 'true');
