@@ -28,6 +28,13 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 10.x
+      - uses: actions/cache@v1
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
       - name: install dependencies
         run: yarn install
       - name: lint
@@ -61,6 +68,13 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 10.x
+      - uses: actions/cache@v1
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
       - name: install dependencies
         run: yarn install
       - name: test
