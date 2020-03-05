@@ -1,3 +1,19 @@
+## v1.1.0 (2020-03-05)
+
+#### :boom: Breaking Change
+* [#201](https://github.com/kybishop/ember-attacher/pull/201) Remove support for Ember 3.4 ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#195](https://github.com/kybishop/ember-attacher/pull/195) Remove support for node 8 ([@tylerturdenpants](https://github.com/tylerturdenpants))
+
+#### :house: Internal
+* [#211](https://github.com/kybishop/ember-attacher/pull/211) Add Dependabot config ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#196](https://github.com/kybishop/ember-attacher/pull/196) Update all packages ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#198](https://github.com/kybishop/ember-attacher/pull/198) Add Yarn Cache to Github Actions ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#197](https://github.com/kybishop/ember-attacher/pull/197) Move to GitHub Actions ([@tylerturdenpants](https://github.com/tylerturdenpants))
+
+#### Committers: 2
+- Ryan Mark ([@tylerturdenpants](https://github.com/tylerturdenpants))
+- [@dependabot-preview[bot]](https://github.com/apps/dependabot-preview)
+
 * Fix exception when object is destroyed or destroying (#191) (39e0a85)
 
 ## v1.0.1 (2019-11-14)
