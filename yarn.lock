@@ -909,16 +909,7 @@
     globals "^11.1.0"
     lodash "^4.17.13"
 
-"@babel/types@^7.0.0", "@babel/types@^7.2.0", "@babel/types@^7.4.4", "@babel/types@^7.5.5", "@babel/types@^7.6.0":
-  version "7.6.1"
-  resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.6.1.tgz#53abf3308add3ac2a2884d539151c57c4b3ac648"
-  integrity sha512-X7gdiuaCmA0uRjCmRtYJNAVCc/q+5xSgsfKJHqMN4iNLILX39677fJE1O40arPMh0TTtS9ItH67yre6c7k6t0g==
-  dependencies:
-    esutils "^2.0.2"
-    lodash "^4.17.13"
-    to-fast-properties "^2.0.0"
-
-"@babel/types@^7.4.0", "@babel/types@^7.5.0", "@babel/types@^7.7.0", "@babel/types@^7.7.2":
+"@babel/types@^7.0.0", "@babel/types@^7.2.0", "@babel/types@^7.4.0", "@babel/types@^7.4.4", "@babel/types@^7.5.0", "@babel/types@^7.5.5", "@babel/types@^7.6.0", "@babel/types@^7.7.0", "@babel/types@^7.7.2":
   version "7.7.2"
   resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.7.2.tgz#550b82e5571dcd174af576e23f0adba7ffc683f7"
   integrity sha512-YTf6PXoh3+eZgRCBzzP25Bugd2ngmpQVrk7kXX0i5N9BO7TFBtIgZYs7WtxtOGs8e6A4ZI7ECkbBCEHeXocvOA==
@@ -1841,6 +1832,14 @@ babel-plugin-filter-imports@^3.0.0:
   dependencies:
     "@babel/types" "^7.4.0"
     lodash "^4.17.11"
+
+babel-plugin-filter-imports@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/babel-plugin-filter-imports/-/babel-plugin-filter-imports-4.0.0.tgz#068f8da15236a96a9602c36dc6f4a6eeca70a4f4"
+  integrity sha512-jDLlxI8QnfKd7PtieH6pl4tZJzymzfCDCPGdTq/grgbiYAikwDPp/oL0IlFJn0HQjLpcLkyYhPKkUVneRESw5w==
+  dependencies:
+    "@babel/types" "^7.7.2"
+    lodash "^4.17.15"
 
 babel-plugin-htmlbars-inline-precompile@^1.0.0:
   version "1.0.0"
