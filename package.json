@@ -71,7 +71,7 @@
     "loader.js": "^4.7.0",
     "qunit-dom": "^1.1.0",
     "release-it": "^13.0.2",
-    "release-it-lerna-changelog": "^1.0.3"
+    "release-it-lerna-changelog": "^2.0.0"
   },
   "engines": {
     "node": "10.* || >= 12.*"
