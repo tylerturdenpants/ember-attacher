@@ -486,6 +486,13 @@ export default Component.extend({
   },
 
   _hide() {
+    if (!this._popperElement) {
+      this._animationTimeout = requestAnimationFrame(() => {
+        this._animationTimeout = this._hide();
+      });
+      return;
+    }
+
     cancelAnimationFrame(this._animationTimeout);
 
     this._removeListenersForHideEvents();
