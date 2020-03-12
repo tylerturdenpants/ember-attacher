@@ -1,3 +1,11 @@
+## v1.1.1 (2020-03-12)
+
+#### :bug: Bug Fix
+* [#218](https://github.com/kybishop/ember-attacher/pull/218) fix: delay hide until popperElement is set ([@urbany](https://github.com/urbany))
+
+#### Committers: 1
+- João Teixeira ([@urbany](https://github.com/urbany))
+
 ## v1.1.0 (2020-03-05)
 
 #### :boom: Breaking Change
