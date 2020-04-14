@@ -344,6 +344,11 @@ export default Component.extend({
   },
 
   _addListenersForShowEvents() {
+
+    if (!this._currentTarget) {
+      return;
+    }
+
     this.get('_showOn').forEach((event) => {
       this._showListenersOnTargetByEvent[event] = this._showAfterDelay;
 
@@ -601,6 +606,10 @@ export default Component.extend({
   _hideIfMouseOutsideTargetOrAttachment(event) {
     const target = this._currentTarget;
 
+    if (!target) {
+      return;
+    }
+
     // If cursor is not on the attachment or target, hide the popover
     if (!target.contains(event.target)
       && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
@@ -614,6 +623,11 @@ export default Component.extend({
   },
 
   _isCursorBetweenTargetAndAttachment(event) {
+
+    if (!this._currentTarget) {
+      return;
+    }
+
     const { clientX, clientY } = event;
 
     const attachmentPosition = this._popperElement.getBoundingClientRect();
@@ -677,6 +691,10 @@ export default Component.extend({
   _hideOnLostFocus(event) {
     if (event.relatedTarget === null) {
       this._hideAfterDelay();
+    }
+    
+    if (!this._currentTarget) {
+      return;
     }
 
     const targetContainsFocus = this._currentTarget.contains(event.relatedTarget);
