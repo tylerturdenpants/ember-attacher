@@ -20,6 +20,10 @@ export default AttachPopover.extend({
   didInsertElement() {
     this._super(...arguments);
 
+    if (!this._currentTarget) {
+      return;
+    }
+
     this._currentTarget.setAttribute('aria-describedby', this.id);
   },
 
