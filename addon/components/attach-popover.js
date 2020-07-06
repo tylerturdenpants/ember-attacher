@@ -110,12 +110,12 @@ export default Component.extend({
   }),
 
   // This is memoized so it can be used by both attach-popover and attach-tooltip
-  envConfig: computed(function() {
+  _envConfig: computed(function() {
     return getOwner(this).resolveRegistration('config:environment').emberAttacher || {};
   }),
 
-  _config: computed('configKey', 'envConfig', function() {
-    return this.envConfig[this.configKey] || this.envConfig
+  _config: computed('_envConfig', 'configKey', function() {
+    return this._envConfig[this.configKey] || this._envConfig
 
   }),
 
