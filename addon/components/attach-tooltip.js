@@ -3,6 +3,7 @@ import DEFAULTS from '../defaults';
 import { computed, observer } from '@ember/object';
 
 export default AttachPopover.extend({
+  configKey: 'tooltip',
   ariaRole: 'tooltip',
 
   class: computed('_config.tooltipClass', {
