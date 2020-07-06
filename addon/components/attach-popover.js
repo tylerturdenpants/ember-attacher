@@ -59,7 +59,7 @@ export default Component.extend({
       this._update = api.update;
 
       if (!this.isDestroying && !this.isDestroyed) {
-        if (this.get('registerAPI') !== undefined) {
+        if (this.registerAPI !== undefined) {
           this.registerAPI(api);
         }
 
@@ -74,7 +74,7 @@ export default Component.extend({
           // The attachment will then correctly update its position from the first this._show()
           this._popperElement.style.transform = null;
 
-          this._popperElement.style.display = this.get('isShown') ? '' : 'none';
+          this._popperElement.style.display = this.isShown ? '' : 'none';
         }
       }
     }
@@ -84,20 +84,20 @@ export default Component.extend({
   // transition, this prevents text from appearing outside the circle as it fills the background
   _circleTransitionDuration: computed('_transitionDuration', function() {
     return htmlSafe(
-      `transition-duration: ${Math.round(this.get('_transitionDuration') / 1.25)}ms`
+      `transition-duration: ${Math.round(this._transitionDuration / 1.25)}ms`
     );
   }),
 
   _class: computed('class', 'arrow', 'animation', '_isStartingAnimation', function() {
-    const showOrHideClass = `ember-attacher-${this.get('_isStartingAnimation') ? 'show' : 'hide'}`;
-    const arrowClass = `ember-attacher-${this.get('arrow') ? 'with' : 'without'}-arrow`;
+    const showOrHideClass = `ember-attacher-${this._isStartingAnimation ? 'show' : 'hide'}`;
+    const arrowClass = `ember-attacher-${this.arrow ? 'with' : 'without'}-arrow`;
 
-    return `ember-attacher-${this.get('animation')} ${this.get('class') || ''} ${showOrHideClass} ${arrowClass}`;
+    return `ember-attacher-${this.animation} ${this.class || ''} ${showOrHideClass} ${arrowClass}`;
   }),
 
   _style: computed('style', '_transitionDuration', function () {
-    const style = this.get('style');
-    const transitionDuration = this.get('_transitionDuration');
+    const style = this.style;
+    const transitionDuration = this._transitionDuration;
     warn(
       '@ember/string/htmlSafe must be used for any `style` passed to ember-attacher',
       isEmpty(style) || isHTMLSafe(style),
@@ -113,7 +113,7 @@ export default Component.extend({
   }),
 
   _hideOn: computed('hideOn', function() {
-    let hideOn = this.get('hideOn');
+    let hideOn = this.hideOn;
 
     if (hideOn === undefined) {
       hideOn = DEFAULTS.hideOn;
@@ -125,14 +125,14 @@ export default Component.extend({
   _modifiers: computed('arrow', 'flip', 'modifiers', function() {
     // Copy the modifiers since we might write to the provided hash
     const modifiers
-      = this.get('modifiers') ? Object.assign({}, this.get('modifiers')) : {};
+      = this.modifiers ? Object.assign({}, this.modifiers) : {};
 
-    const arrow = this.get('arrow');
+    const arrow = this.arrow;
     if (typeof(arrow) === 'boolean' && !modifiers.arrow) {
       modifiers.arrow = { enabled: arrow };
     }
 
-    const flipString = this.get('flip');
+    const flipString = this.flip;
     if (flipString) {
       const flipModifier = { behavior: flipString.split(' ') };
       if (!modifiers.flip) {
@@ -154,7 +154,7 @@ export default Component.extend({
 
       return;
     }
-    const onChange = this.get('onChange');
+    const onChange = this.onChange;
 
     if (delay) {
       this._delayedVisibilityToggle = later(this, () => {
@@ -189,7 +189,7 @@ export default Component.extend({
   _mustRender: false,
 
   _showOn: computed('showOn', function() {
-    let showOn = this.get('showOn');
+    let showOn = this.showOn;
 
     if (showOn === undefined) {
       showOn = DEFAULTS.showOn;
@@ -251,8 +251,8 @@ export default Component.extend({
     this._super(...arguments);
 
     stripInProduction(() => {
-      const attrs = this.get('attrs') || {};
-      const userDefaults = this.get('_config');
+      const attrs = this.attributes || {};
+      const userDefaults = this._config;
 
       let arrow;
       if (attrs.arrow !== undefined) {
@@ -294,14 +294,14 @@ export default Component.extend({
   },
 
   _setUserSuppliedDefaults() {
-    const userDefaults = this.get('_config');
+    const userDefaults = this._config;
 
     // Exit early if no custom defaults are found
     if (!userDefaults) {
       return;
     }
 
-    const attrs = this.get('attrs') || {};
+    const attrs = this.attributes || {};
 
     for (const key in userDefaults) {
       stripInProduction(() => {
@@ -330,11 +330,11 @@ export default Component.extend({
   _initializeAttacher() {
     this._removeEventListeners();
 
-    this.set('_currentTarget', this.get('popperTarget') || this._parentFinder.parentNode);
+    this.set('_currentTarget', this.popperTarget || this._parentFinder.parentNode);
 
     this._addListenersForShowEvents();
 
-    if (!this._isHidden || this.get('isShown')) {
+    if (!this._isHidden || this.isShown) {
       this._addListenersForHideEvents();
 
       // Even if the attachment is already shown, we still want to
@@ -349,10 +349,10 @@ export default Component.extend({
       return;
     }
 
-    this.get('_showOn').forEach((event) => {
+    this._showOn.forEach((event) => {
       this._showListenersOnTargetByEvent[event] = this._showAfterDelay;
 
-      this._currentTarget.addEventListener(event, this._showAfterDelay, this.get('useCapture'));
+      this._currentTarget.addEventListener(event, this._showAfterDelay, this.useCapture);
     });
   },
 
@@ -367,7 +367,7 @@ export default Component.extend({
 
   _removeEventListeners() {
     Object.keys(this._hideListenersOnDocumentByEvent).forEach((eventType) => {
-      document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType], this.get('useCapture'));
+      document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType], this.useCapture);
       delete this._hideListenersOnDocumentByEvent[eventType];
     });
 
@@ -378,7 +378,7 @@ export default Component.extend({
     [this._hideListenersOnTargetByEvent, this._showListenersOnTargetByEvent]
       .forEach((eventToListener) => {
         Object.keys(eventToListener).forEach((event) => {
-          this._currentTarget.removeEventListener(event, eventToListener[event], this.get('useCapture'));
+          this._currentTarget.removeEventListener(event, eventToListener[event], this.useCapture);
         });
       });
   },
@@ -388,7 +388,7 @@ export default Component.extend({
   }),
 
   _isShownChanged: observer('isShown', function() {
-    const isShown = this.get('isShown');
+    const isShown = this.isShown;
 
     if (isShown === true && this._isHidden) {
       this._show();
@@ -412,7 +412,7 @@ export default Component.extend({
 
     this._addListenersForHideEvents();
 
-    const showDelay = parseInt(this.get('showDelay'));
+    const showDelay = parseInt(this.showDelay);
 
     this._delayedVisibilityToggle = debounce(this, this._show, showDelay, !showDelay);
   },
@@ -468,7 +468,7 @@ export default Component.extend({
           }
           // Make the popper element visible now that it has been positioned
           popperElement.style.visibility = '';
-          this.set('_transitionDuration', parseInt(this.get('showDuration')));
+          this.set('_transitionDuration', parseInt(this.showDuration));
           this.set('_isStartingAnimation', true);
           popperElement.setAttribute('aria-hidden', 'false');
         });
@@ -485,7 +485,7 @@ export default Component.extend({
   _hideAfterDelay() {
     cancel(this._delayedVisibilityToggle);
 
-    const hideDelay = parseInt(this.get('hideDelay'));
+    const hideDelay = parseInt(this.hideDelay);
 
     this._delayedVisibilityToggle = debounce(this, this._hide, hideDelay, !hideDelay);
   },
@@ -508,7 +508,7 @@ export default Component.extend({
         return;
       }
 
-      const hideDuration = parseInt(this.get('hideDuration'));
+      const hideDuration = parseInt(this.hideDuration);
 
       run(() => {
         if (this.isDestroyed || this.isDestroying) {
@@ -534,7 +534,7 @@ export default Component.extend({
    */
 
   _addListenersForHideEvents() {
-    const hideOn = this.get('_hideOn');
+    const hideOn = this._hideOn;
     const target = this._currentTarget;
 
     // Target or component was destroyed
@@ -546,45 +546,45 @@ export default Component.extend({
       const showOnClickListener = this._showListenersOnTargetByEvent.click;
 
       if (showOnClickListener) {
-        target.removeEventListener('click', showOnClickListener, this.get('useCapture'));
+        target.removeEventListener('click', showOnClickListener, this.useCapture);
 
         delete this._showListenersOnTargetByEvent.click;
       }
 
       this._hideListenersOnTargetByEvent.click = this._hideAfterDelay;
-      target.addEventListener('click', this._hideAfterDelay, this.get('useCapture'));
+      target.addEventListener('click', this._hideAfterDelay, this.useCapture);
     }
 
     if (hideOn.indexOf('clickout') !== -1) {
       const clickoutEvent = 'ontouchstart' in window ? 'touchend' : 'click';
 
       this._hideListenersOnDocumentByEvent[clickoutEvent] = this._hideOnClickOut;
-      document.addEventListener(clickoutEvent, this._hideOnClickOut, this.get('useCapture'));
+      document.addEventListener(clickoutEvent, this._hideOnClickOut, this.useCapture);
     }
 
     if (hideOn.indexOf('escapekey') !== -1) {
       this._hideListenersOnDocumentByEvent.keydown = this._hideOnEscapeKey;
-      document.addEventListener('keydown', this._hideOnEscapeKey, this.get('useCapture'));
+      document.addEventListener('keydown', this._hideOnEscapeKey, this.useCapture);
     }
 
     // Hides the attachment when the mouse leaves the target
     // (or leaves both target and attachment for interactive attachments)
     if (hideOn.indexOf('mouseleave') !== -1) {
       this._hideListenersOnTargetByEvent.mouseleave = this._hideOnMouseLeaveTarget;
-      target.addEventListener('mouseleave', this._hideOnMouseLeaveTarget, this.get('useCapture'));
+      target.addEventListener('mouseleave', this._hideOnMouseLeaveTarget, this.useCapture);
     }
 
     // Hides the attachment when focus is lost on the target
     ['blur', 'focusout'].forEach((eventType) => {
       if (hideOn.indexOf(eventType) !== -1) {
         this._hideListenersOnTargetByEvent[eventType] = this._hideOnLostFocus;
-        target.addEventListener(eventType, this._hideOnLostFocus, this.get('useCapture'));
+        target.addEventListener(eventType, this._hideOnLostFocus, this.useCapture);
       }
     });
   },
 
   _hideOnMouseLeaveTarget() {
-    if (this.get('interactive')) {
+    if (this.interactive) {
       // TODO(kjb) Should debounce this, but hiding appears sluggish if you debounce.
       //   - If you debounce with immediate fire, you get a bug where you can move out of the
       //   attachment and not trigger the hide because the hide check was debounced
@@ -592,7 +592,7 @@ export default Component.extend({
       //   queue another fire at the end of the debounce period
       if (!this._hideListenersOnDocumentByEvent.mousemove) {
         this._hideListenersOnDocumentByEvent.mousemove = this._hideIfMouseOutsideTargetOrAttachment;
-        document.addEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment, this.get('useCapture'));
+        document.addEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment, this.useCapture);
       }
     } else {
       this._hideAfterDelay();
@@ -612,11 +612,11 @@ export default Component.extend({
 
     // If cursor is not on the attachment or target, hide the popover
     if (!target.contains(event.target)
-      && !(this.get('isOffset') && this._isCursorBetweenTargetAndAttachment(event))
+      && !(this.isOffset && this._isCursorBetweenTargetAndAttachment(event))
       && (this._popperElement && !this._popperElement.contains(event.target))) {
       // Remove this listener before hiding the attachment
       delete this._hideListenersOnDocumentByEvent.mousemove;
-      document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment, this.get('useCapture'));
+      document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment, this.useCapture);
 
       this._hideAfterDelay();
     }
@@ -673,7 +673,7 @@ export default Component.extend({
   _hideOnClickOut(event) {
     const targetReceivedClick = this._currentTarget.contains(event.target);
 
-    if (this.get('interactive')) {
+    if (this.interactive) {
       if (!targetReceivedClick && !this._popperElement.contains(event.target)) {
         this._hideAfterDelay();
       }
@@ -692,14 +692,14 @@ export default Component.extend({
     if (event.relatedTarget === null) {
       this._hideAfterDelay();
     }
-    
+
     if (!this._currentTarget) {
       return;
     }
 
     const targetContainsFocus = this._currentTarget.contains(event.relatedTarget);
 
-    if (this.get('interactive')) {
+    if (this.interactive) {
       if (!targetContainsFocus && !this._popperElement.contains(event.relatedTarget)) {
         this._hideAfterDelay();
       }
@@ -710,11 +710,11 @@ export default Component.extend({
 
   _removeListenersForHideEvents() {
     Object.keys(this._hideListenersOnDocumentByEvent).forEach((eventType) => {
-      document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType], this.get('useCapture'));
+      document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType], this.useCapture);
       delete this._hideListenersOnDocumentByEvent[eventType];
     });
 
-    const showOn = this.get('_showOn');
+    const showOn = this._showOn;
     const target = this._currentTarget;
 
     // The target was destroyed, nothing to remove listeners from
@@ -727,19 +727,19 @@ export default Component.extend({
       const hideOnClickListener = this._hideListenersOnTargetByEvent.click;
 
       if (hideOnClickListener) {
-        target.removeEventListener('click', hideOnClickListener, this.get('useCapture'));
+        target.removeEventListener('click', hideOnClickListener, this.useCapture);
         delete this._hideListenersOnTargetByEvent.click;
       }
 
       this._showListenersOnTargetByEvent.click = this._showAfterDelay;
-      target.addEventListener('click', this._showAfterDelay, this.get('useCapture'));
+      target.addEventListener('click', this._showAfterDelay, this.useCapture);
     }
 
     ['blur', 'focusout', 'mouseleave'].forEach((eventType) => {
       const listener = this._hideListenersOnTargetByEvent[eventType];
 
       if (listener) {
-        target.removeEventListener(eventType, listener, this.get('useCapture'));
+        target.removeEventListener(eventType, listener, this.useCapture);
         delete this._hideListenersOnTargetByEvent[eventType];
       }
     });

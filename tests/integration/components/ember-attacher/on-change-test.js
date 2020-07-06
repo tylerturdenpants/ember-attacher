@@ -36,7 +36,7 @@ module('Integration | Component | onChange', function(hooks) {
     await settled();
 
     assert.equal(isVisible(attachment), false, 'Now hidden');
-    assert.equal(this.get('isShown'), false);
+    assert.equal(this.isShown, false);
 
     // Show again by toggling isShown
     this.set('isShown', true);
@@ -46,6 +46,6 @@ module('Integration | Component | onChange', function(hooks) {
     assert.equal(isVisible(attachment), true, 'Shown again');
 
     // Make sure isShown is still true
-    assert.equal(this.get('isShown'), true);
+    assert.equal(this.isShown, true);
   });
 });
