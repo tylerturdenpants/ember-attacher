@@ -5,13 +5,13 @@ import { computed, observer } from '@ember/object';
 export default AttachPopover.extend({
   ariaRole: 'tooltip',
 
-  class: computed({
+  class: computed('_config.tooltipClass', {
     get() {
-      return this.get('_config').tooltipClass || DEFAULTS.tooltipClass;
+      return this._config.tooltipClass || DEFAULTS.tooltipClass;
     },
 
     set(_key, value) {
-      const tooltipClass = this.get('_config').tooltipClass || DEFAULTS.tooltipClass;
+      const tooltipClass = this._config.tooltipClass || DEFAULTS.tooltipClass;
 
       return `${tooltipClass} ${value}`;
     }
@@ -35,7 +35,7 @@ export default AttachPopover.extend({
 
     this._super(...arguments);
 
-    this.get('popperTarget').setAttribute('aria-describedby', this.id);
+    this.popperTarget.setAttribute('aria-describedby', this.id);
   }),
 
   willDestroyElement() {

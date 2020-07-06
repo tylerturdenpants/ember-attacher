@@ -32,7 +32,7 @@ export default Component.extend({
   isConfiguringTooltip: true,
 
   service: computed('isConfiguringTooltip', function() {
-    return this.get('isConfiguringTooltip') ? this.get('tooltipData') : this.get('popoverData');
+    return this.isConfiguringTooltip ? this.tooltipData : this.popoverData;
   }),
 
   actions: {
@@ -43,23 +43,23 @@ export default Component.extend({
     },
 
     toggleArrow() {
-      this.get('service').toggleProperty('arrow');
+      this.service.toggleProperty('arrow');
     },
 
     toggleInteractive() {
-      this.get('service').toggleProperty('interactive');
+      this.service.toggleProperty('interactive');
     },
 
     toggleIsShown() {
-      this.get('service').toggleProperty('isShown');
+      this.service.toggleProperty('isShown');
     },
 
     toggleLazyRender() {
-      this.get('service').toggleProperty('lazyRender');
+      this.service.toggleProperty('lazyRender');
     },
 
     toggleRenderInPlace() {
-      this.get('service').toggleProperty('renderInPlace');
+      this.service.toggleProperty('renderInPlace');
     },
 
     setIsConfiguringTooltip(bool) {
