@@ -45,7 +45,7 @@
     "@html-next/flexi-dsl": "^2.2.0",
     "babel-eslint": "^10.1.0",
     "broccoli-asset-rev": "^3.0.0",
-    "ember-cli": "~3.19.0",
+    "ember-cli": "~3.20.0",
     "ember-cli-dependency-checker": "^3.2.0",
     "ember-cli-eslint": "^5.1.0",
     "ember-cli-fastboot": "^2.2.3",
