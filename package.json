@@ -31,7 +31,7 @@
     "babel-plugin-filter-imports": "^4.0.0",
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
     "broccoli-funnel": "^3.0.3",
-    "ember-cli-babel": "^7.21.0",
+    "ember-cli-babel": "^7.22.0",
     "ember-cli-htmlbars": "^5.2.0",
     "ember-cli-sass": "^10.0.1",
     "ember-popper": "^0.11.2",
