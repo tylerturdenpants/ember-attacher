@@ -4848,7 +4848,7 @@ ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.11.0, ember-cli-babel@^6.16.0,
     ember-cli-version-checker "^2.1.2"
     semver "^5.5.0"
 
-ember-cli-babel@^7.1.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.1.3, ember-cli-babel@^7.10.0, ember-cli-babel@^7.11.0, ember-cli-babel@^7.12.0, ember-cli-babel@^7.13.0, ember-cli-babel@^7.13.2, ember-cli-babel@^7.19.0, ember-cli-babel@^7.21.0, ember-cli-babel@^7.22.1, ember-cli-babel@^7.7.3:
+ember-cli-babel@^7.1.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.1.3, ember-cli-babel@^7.10.0, ember-cli-babel@^7.11.0, ember-cli-babel@^7.12.0, ember-cli-babel@^7.13.0, ember-cli-babel@^7.19.0, ember-cli-babel@^7.21.0, ember-cli-babel@^7.22.1, ember-cli-babel@^7.7.3:
   version "7.22.1"
   resolved "https://registry.yarnpkg.com/ember-cli-babel/-/ember-cli-babel-7.22.1.tgz#cad28b89cf0e184c93b863d09bc5ba4ce1d2e453"
   integrity sha512-kCT8WbC1AYFtyOpU23ESm22a+gL6fWv8Nzwe8QFQ5u0piJzM9MEudfbjADEaoyKTrjMQTDsrWwEf3yjggDsOng==
@@ -5397,17 +5397,17 @@ ember-modifier-manager-polyfill@^1.1.0:
     ember-cli-version-checker "^2.1.2"
     ember-compatibility-helpers "^1.2.0"
 
-ember-popper@^0.11.2:
-  version "0.11.2"
-  resolved "https://registry.yarnpkg.com/ember-popper/-/ember-popper-0.11.2.tgz#071c558b726b783992fa7ae4d5607ac790eae853"
-  integrity sha512-JatPwKWrUtnC35nDgQ5+JceCI7n/0Nhzcj3Fo1yFBKHXBW5wpt07Q+0h/Xc7++WP1U3kvyyT9o+WG5mnovx9SQ==
+ember-popper@^0.11.3:
+  version "0.11.3"
+  resolved "https://registry.yarnpkg.com/ember-popper/-/ember-popper-0.11.3.tgz#23059e2cd9671a8b38b2482a0d28a48d65ef977e"
+  integrity sha512-7MyVXH32sKyh1zUZLgh3L3TnrMyPjIY5yiUyi8RpcVn/Hr0yrHCTR3zflx0ZDeuaHo0xyY0xN9Pj61Tfbuplrw==
   dependencies:
+    "@ember/render-modifiers" "^1.0.2"
     ember-cli-babel "^7.13.0"
     ember-cli-htmlbars "^4.2.0"
     ember-cli-node-assets "^0.2.2"
     ember-in-element-polyfill "^1.0.0"
     ember-raf-scheduler "^0.1.0"
-    ember-ref-modifier "^1.0.0"
     fastboot-transform "^0.1.0"
     popper.js "^1.14.1"
 
@@ -5456,13 +5456,6 @@ ember-raf-test-waiter@^0.1.0:
   dependencies:
     broccoli-funnel "^2.0.1"
     ember-cli-babel "^6.3.0"
-
-ember-ref-modifier@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/ember-ref-modifier/-/ember-ref-modifier-1.0.0.tgz#3e98d8c26eda7cf4da4b2d82d6a0c80c5058efed"
-  integrity sha512-JPCwlKerzZCbc5GO01xcgRJv5JcK1O61FF5PE6UxMNRwgDxT33mjTPO2JFhn4HGoG0NvpnkpLLxw+qf1KuX8kw==
-  dependencies:
-    ember-cli-babel "^7.13.2"
 
 ember-resolver@^8.0.2:
   version "8.0.2"
