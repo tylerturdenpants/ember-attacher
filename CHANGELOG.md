@@ -1,3 +1,22 @@
+## v1.2.0 (2020-10-28)
+
+#### :boom: Breaking Change
+* [#359](https://github.com/kybishop/ember-attacher/pull/359) Upgrade to native class usage ([@tylerturdenpants](https://github.com/tylerturdenpants))
+
+#### :rocket: Enhancement
+* [#361](https://github.com/kybishop/ember-attacher/pull/361) Bump packages ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#359](https://github.com/kybishop/ember-attacher/pull/359) Upgrade to native class usage ([@tylerturdenpants](https://github.com/tylerturdenpants))
+
+#### :house: Internal
+* [#361](https://github.com/kybishop/ember-attacher/pull/361) Bump packages ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#360](https://github.com/kybishop/ember-attacher/pull/360) Fix markdown files ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#359](https://github.com/kybishop/ember-attacher/pull/359) Upgrade to native class usage ([@tylerturdenpants](https://github.com/tylerturdenpants))
+
+#### Committers: 3
+- Ryan Mark ([@tylerturdenpants](https://github.com/tylerturdenpants))
+- [@dependabot-preview[bot]](https://github.com/apps/dependabot-preview)
+- [@endevea](https://github.com/endevea)
+
 ## v1.1.1 (2020-03-12)
 
 #### :bug: Bug Fix
