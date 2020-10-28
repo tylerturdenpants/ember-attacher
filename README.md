@@ -6,7 +6,8 @@
 [![Ember Observer Score](http://emberobserver.com/badges/ember-attacher.svg)](http://emberobserver.com/addons/ember-attacher)
 [![Build Status](https://travis-ci.org/kybishop/ember-attacher.svg?branch=master)](https://travis-ci.org/kybishop/ember-attacher)
 
-Compatibility
+## Compatibility
+
 ------------------------------------------------------------------------------
 
 * Ember.js v3.12 or above
@@ -51,18 +52,21 @@ ember install ember-attacher
 ### `{{#attach-popover}}`
 
 A popover attacher.
- - Has no default class or roles.
- - Does not modify the target in any way.
- - Adds `aria-hidden` attribute to the popper element
+
+* Has no default class or roles.
+* Does not modify the target in any way.
+* Adds `aria-hidden` attribute to the popper element
 
 ### `{{#attach-tooltip}}`
 
 A tooltip attacher. Subclass of `{{#attach-popover}}`
-- Has the default class `'ember-attacher-popper ember-attacher-tooltip'`
-  - The default tooltip classes can be modified by altering the `tooltipClass`
+
+* Has the default class `'ember-attacher-popper ember-attacher-tooltip'`
+  * The default tooltip classes can be modified by altering the `tooltipClass`
     default. See [here](#user-defined-defaults) for details on editing default values.
-- Default `role` attribute of `tooltip`.
-- Causes the target to gain an `aria-describedby` attribute set to the tooltip's ID.
+
+* Default `role` attribute of `tooltip`.
+* Causes the target to gain an `aria-describedby` attribute set to the tooltip's ID.
 
 ## Options
 
@@ -214,31 +218,36 @@ test('example', async function(assert) {
 });
 ```
 
-# Development setup
+## Development setup
 
 See the [Contributing](CONTRIBUTING.md) guide for details.
 
-# FAQ
+## FAQ
 
-### How are animations implemented?
+### How animations are implemented
 
 Attachments are composed of two containers:
-- [An outer container](https://github.com/kybishop/ember-attacher/blob/master/addon/templates/components/attach-popover.hbs#L2) for positioning (via [ember-popper](https://github.com/kybishop/ember-popper)/[popper.js](https://github.com/FezVrasta/popper.js)).
-- [An inner container](https://github.com/kybishop/ember-attacher/blob/master/addon/templates/components/attach-popover.hbs#L12) for the content. This is the container that is animated.
+
+* [An outer container](https://github.com/kybishop/ember-attacher/blob/master/addon/templates/components/attach-popover.hbs#L2) for positioning (via [ember-popper](https://github.com/kybishop/ember-popper)/[popper.js](https://github.com/FezVrasta/popper.js)).
+* [An inner container](https://github.com/kybishop/ember-attacher/blob/master/addon/templates/components/attach-popover.hbs#L12) for the content. This is the container that is animated.
 
 The outer container is positioned right next to the target via the CSS `transform` property. The inner container is required because animations also use `transform`, which would otherwise conflict with the container's position.
 
 `transform` and `tansition-duration` are the CSS magic that allows animations to smoothly shift up/down, left/right, etc.
 
 Note that animations require an implementation for each position (left, right, top, and bottom):
-- https://github.com/kybishop/ember-attacher/blob/master/addon/styles/addon.scss#L67
-- https://github.com/kybishop/ember-attacher/blob/master/addon/styles/_mixins.scss#L75
 
-# Credits
+* <https://github.com/kybishop/ember-attacher/blob/master/addon/styles/addon.scss#L67>
 
-- [tippy.js](https://github.com/atomiks/tippyjs), the library that inspired
+* <https://github.com/kybishop/ember-attacher/blob/master/addon/styles/_mixins.scss#L75>
+
+## Credits
+
+* [tippy.js](https://github.com/atomiks/tippyjs), the library that inspired
   ember-attacher.
-- [popper.js](https://github.com/FezVrasta/popper.js), the library that powers
+
+* [popper.js](https://github.com/FezVrasta/popper.js), the library that powers
   positioning (via [ember-popper](https://github.com/kybishop/ember-popper))
-- [ember-tooltips](https://github.com/sir-dunxalot/ember-tooltips), the addon that
+
+* [ember-tooltips](https://github.com/sir-dunxalot/ember-tooltips), the addon that
   influenced much of ember-attacher's API.
