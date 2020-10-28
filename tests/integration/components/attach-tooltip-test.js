@@ -56,7 +56,6 @@ module('Integration | Component | attach tooltip', function(hooks) {
     `);
 
     const tooltipWithClass = find('#tooltip-with-class > .ember-attacher-tooltip');
-
     assert.contains(
       tooltipWithClass.className.split(' '),
       'ember-attacher-popper ember-attacher-tooltip some-class'.split(' '),

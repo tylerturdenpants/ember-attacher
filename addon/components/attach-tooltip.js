@@ -1,49 +1,57 @@
+import classic from 'ember-classic-decorator';
+import { observes } from '@ember-decorators/object';
+import { computed } from '@ember/object';
+import { alias } from '@ember/object/computed';
 import AttachPopover from './attach-popover';
 import DEFAULTS from '../defaults';
-import { computed, observer } from '@ember/object';
 
-export default AttachPopover.extend({
-  ariaRole: 'tooltip',
+@classic
+export default class AttachTooltip extends AttachPopover {
+  ariaRole = 'tooltip';
 
-  class: computed('_config.tooltipClass', {
-    get() {
-      return this._config.tooltipClass || DEFAULTS.tooltipClass;
-    },
+  @alias('_class')
+  class;
 
-    set(_key, value) {
-      const tooltipClass = this._config.tooltipClass || DEFAULTS.tooltipClass;
+  @computed('_config.tooltipClass')
+  get _class() {
+    return this._config.tooltipClass || DEFAULTS.tooltipClass;
+  }
 
-      return `${tooltipClass} ${value}`;
-    }
-  }),
+  set _class(value) {
+    const tooltipClass = this._config.tooltipClass || DEFAULTS.tooltipClass;
+
+    // eslint-disable-next-line no-setter-return
+    return `${tooltipClass} ${value}`;
+  }
 
   didInsertElement() {
-    this._super(...arguments);
+    super.didInsertElement(...arguments);
 
     if (!this._currentTarget) {
       return;
     }
 
     this._currentTarget.setAttribute('aria-describedby', this.id);
-  },
+  }
 
-  popperTargetChanged: observer('popperTarget', function() {
+  @observes('popperTarget')
+  popperTargetChanged() {
     const oldTarget = this._currentTarget;
     if (oldTarget) {
       oldTarget.removeAttribute('aria-describedby');
     }
 
-    this._super(...arguments);
+    super.popperTargetChanged;
 
     this.popperTarget.setAttribute('aria-describedby', this.id);
-  }),
+  }
 
   willDestroyElement() {
-    this._super(...arguments);
+    super.willDestroyElement(...arguments);
 
     const target = this._currentTarget;
     if (target) {
       target.removeAttribute('aria-describedby');
     }
   }
-});
+}
