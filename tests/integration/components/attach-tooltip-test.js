@@ -56,7 +56,6 @@ module('Integration | Component | attach tooltip', function(hooks) {
     `);
 
     const tooltipWithClass = find('#tooltip-with-class > .ember-attacher-tooltip');
-
     assert.contains(
       tooltipWithClass.className.split(' '),
       'ember-attacher-popper ember-attacher-tooltip some-class'.split(' '),
@@ -94,6 +93,29 @@ module('Integration | Component | attach tooltip', function(hooks) {
     );
   });
 
+  test('uses the user-supplied default tooltip class - separate config', async function(assert) {
+    this.owner.resolveRegistration('config:environment').emberAttacher = {
+      tooltip: {
+        tooltipClass: 'separate-default'
+      }
+    };
+
+    await render(hbs`
+      <div id="target">
+        {{#attach-tooltip id='attachment' class='some-class'}}
+          tooltip text
+        {{/attach-tooltip}}
+      </div>
+    `);
+
+    const tooltip = find('#attachment > .separate-default');
+
+    assert.contains(
+      tooltip.className.split(' '),
+      ['separate-default', 'some-class'],
+      'it adds the user-supplied default classes'
+    );
+  });
 
   test('uses the user-supplied default tooltip class - separate config', async function(assert) {
     this.owner.resolveRegistration('config:environment').emberAttacher = {

@@ -1,8 +1,11 @@
+import classic from 'ember-classic-decorator';
+import { tagName, layout as templateLayout } from '@ember-decorators/component';
+import { observes } from '@ember-decorators/object';
+import { action, computed } from '@ember/object';
 import Component from '@ember/component';
 import DEFAULTS from '../defaults';
 import layout from '../templates/components/attach-popover';
 import { cancel, debounce, later, next, run } from '@ember/runloop';
-import { computed, observer } from '@ember/object';
 import { getOwner } from '@ember/application';
 import { guidFor } from '@ember/object/internals';
 import { htmlSafe, isHTMLSafe } from '@ember/string';
@@ -10,94 +13,92 @@ import { stripInProduction } from 'ember-attacher/-debug/helpers';
 import { warn } from '@ember/debug';
 import { isEmpty } from '@ember/utils';
 
-export default Component.extend({
-  configKey: 'popover',
-
-  layout,
-
-  tagName: '',
-
+@classic
+@templateLayout(layout)
+@tagName('')
+export default class AttachPopover extends Component {
+  configKey = 'popover';
   /**
    * ================== PUBLIC CONFIG OPTIONS ==================
    */
 
-  animation: DEFAULTS.animation,
-  arrow: DEFAULTS.arrow,
-  class: DEFAULTS.class,
-  flip: DEFAULTS.flip,
-  hideDelay: DEFAULTS.hideDelay,
-  hideDuration: DEFAULTS.hideDuration,
-  hideOn: DEFAULTS.hideOn,
-  interactive: DEFAULTS.interactive,
-  isOffset: DEFAULTS.isOffset,
-  isShown: DEFAULTS.isShown,
-  lazyRender: DEFAULTS.lazyRender,
-  onChange: null,
-  placement: DEFAULTS.placement,
-  popperContainer: DEFAULTS.popperContainer,
-  popperOptions: DEFAULTS.popperOptions,
-  popperTarget: null,
-  renderInPlace: DEFAULTS.renderInPlace,
-  showDelay: DEFAULTS.showDelay,
-  showDuration: DEFAULTS.showDuration,
-  showOn: DEFAULTS.showOn,
-  style: DEFAULTS.style,
-  useCapture: DEFAULTS.useCapture,
+  animation = DEFAULTS.animation;
 
-  /**
-   * ================== PRIVATE IMPLEMENTATION DETAILS ==================
-   */
+  arrow = DEFAULTS.arrow;
+  class = DEFAULTS.class;
+  flip = DEFAULTS.flip;
+  hideDelay = DEFAULTS.hideDelay;
+  hideDuration = DEFAULTS.hideDuration;
+  hideOn = DEFAULTS.hideOn;
+  interactive = DEFAULTS.interactive;
+  isOffset = DEFAULTS.isOffset;
+  isShown = DEFAULTS.isShown;
+  lazyRender = DEFAULTS.lazyRender;
+  onChange = null;
+  placement = DEFAULTS.placement;
+  popperContainer = DEFAULTS.popperContainer;
+  popperOptions = DEFAULTS.popperOptions;
+  popperTarget = null;
+  renderInPlace = DEFAULTS.renderInPlace;
+  showDelay = DEFAULTS.showDelay;
+  showDuration = DEFAULTS.showDuration;
+  showOn = DEFAULTS.showOn;
+  style = DEFAULTS.style;
+  useCapture = DEFAULTS.useCapture;
 
-  actions: {
-    // Exposed via the named yield to enable custom hide events
-    hide() {
-      this._hide();
-    },
+  // Exposed via the named yield to enable custom hide events
+  @action
+  hide() {
+    this._hide();
+  }
 
-    registerAPI(api) {
-      this._disableEventListeners = api.disableEventListeners;
-      this._enableEventListeners = api.enableEventListeners;
-      this._popperElement = api.popperElement;
-      this._update = api.update;
+  @action
+  _registerAPI(api) {
+    this._disableEventListeners = api.disableEventListeners;
+    this._enableEventListeners = api.enableEventListeners;
+    this._popperElement = api.popperElement;
+    this._update = api.update;
 
-      if (!this.isDestroying && !this.isDestroyed) {
-        if (this.registerAPI !== undefined) {
-          this.registerAPI(api);
-        }
+    if (!this.isDestroying && !this.isDestroyed) {
+      if (this.registerAPI !== undefined) {
+        this.registerAPI(api);
+      }
 
-        if (this._isHidden) {
-          // Hide the attachment until it has been positioned,
-          // preventing jank during initial positioning
-          this._popperElement.style.visibility = 'hidden';
+      if (this._isHidden) {
+        // Hide the attachment until it has been positioned,
+        // preventing jank during initial positioning
+        this._popperElement.style.visibility = 'hidden';
 
-          // The attachment has no width if initially hidden. This can cause it to be positioned so
-          // far to the right that it overflows the screen until enough updates fix its position.
-          // We avoid this by positioning initially hidden elements in the top left of the screen.
-          // The attachment will then correctly update its position from the first this._show()
-          this._popperElement.style.transform = null;
+        // The attachment has no width if initially hidden. This can cause it to be positioned so
+        // far to the right that it overflows the screen until enough updates fix its position.
+        // We avoid this by positioning initially hidden elements in the top left of the screen.
+        // The attachment will then correctly update its position from the first this._show()
+        this._popperElement.style.transform = null;
 
-          this._popperElement.style.display = this.isShown ? '' : 'none';
-        }
+        this._popperElement.style.display = this.isShown ? '' : 'none';
       }
     }
-  },
+  }
 
   // The circle element needs a special duration that is slightly faster than the popper's
   // transition, this prevents text from appearing outside the circle as it fills the background
-  _circleTransitionDuration: computed('_transitionDuration', function() {
+  @computed('_transitionDuration')
+  get _circleTransitionDuration() {
     return htmlSafe(
       `transition-duration: ${Math.round(this._transitionDuration / 1.25)}ms`
     );
-  }),
+  }
 
-  _class: computed('class', 'arrow', 'animation', '_isStartingAnimation', function() {
+  @computed('class', 'arrow', 'animation', '_isStartingAnimation')
+  get _class() {
     const showOrHideClass = `ember-attacher-${this._isStartingAnimation ? 'show' : 'hide'}`;
     const arrowClass = `ember-attacher-${this.arrow ? 'with' : 'without'}-arrow`;
 
     return `ember-attacher-${this.animation} ${this.class || ''} ${showOrHideClass} ${arrowClass}`;
-  }),
+  }
 
-  _style: computed('style', '_transitionDuration', function () {
+  @computed('style', '_transitionDuration')
+  get _style() {
     const style = this.style;
     const transitionDuration = this._transitionDuration;
     warn(
@@ -107,19 +108,21 @@ export default Component.extend({
     );
 
     return htmlSafe(`transition-duration: ${transitionDuration}ms; ${style}`);
-  }),
+  }
 
   // This is memoized so it can be used by both attach-popover and attach-tooltip
-  _envConfig: computed(function() {
+  get _envConfig() {
     return getOwner(this).resolveRegistration('config:environment').emberAttacher || {};
-  }),
+  }
 
-  _config: computed('_envConfig', 'configKey', function() {
+  @computed('_envConfig', 'configKey')
+  get _config() {
     return this._envConfig[this.configKey] || this._envConfig
 
-  }),
+  }
 
-  _hideOn: computed('hideOn', function() {
+  @computed('hideOn')
+  get _hideOn() {
     let hideOn = this.hideOn;
 
     if (hideOn === undefined) {
@@ -127,9 +130,10 @@ export default Component.extend({
     }
 
     return hideOn === null ? [] : hideOn.split(' ');
-  }),
+  }
 
-  _modifiers: computed('arrow', 'flip', 'modifiers', function() {
+  @computed('arrow', 'flip', 'modifiers')
+  get _modifiers() {
     // Copy the modifiers since we might write to the provided hash
     const modifiers
       = this.modifiers ? Object.assign({}, this.modifiers) : {};
@@ -151,7 +155,7 @@ export default Component.extend({
     }
 
     return modifiers;
-  }),
+  }
 
   _setIsVisibleAfterDelay(isVisible, delay) {
     if (!this._popperElement) {
@@ -190,12 +194,13 @@ export default Component.extend({
         onChange(isVisible);
       }
     }
-  },
+  }
 
   // This is set to true when the popover is shown in order to override lazyRender=false
-  _mustRender: false,
+  _mustRender = false;
 
-  _showOn: computed('showOn', function() {
+  @computed('showOn')
+  get _showOn() {
     let showOn = this.showOn;
 
     if (showOn === undefined) {
@@ -203,16 +208,16 @@ export default Component.extend({
     }
 
     return showOn === null ? [] : showOn.split(' ');
-  }),
+  }
 
-  _transitionDuration: 0,
+  _transitionDuration = 0;
 
   /**
    * ================== LIFECYCLE HOOKS ==================
    */
 
   init() {
-    this._super(...arguments);
+    super.init(...arguments);
 
     // Used to determine the attachments initial parent element
     this._parentFinder = self.document ? self.document.createTextNode('') : '';
@@ -252,10 +257,10 @@ export default Component.extend({
     this._showAfterDelay = this._showAfterDelay.bind(this);
 
     this._setUserSuppliedDefaults();
-  },
+  }
 
   didReceiveAttrs() {
-    this._super(...arguments);
+    super.didReceiveAttrs(...arguments);
 
     stripInProduction(() => {
       const attrs = this.attributes || {};
@@ -285,10 +290,10 @@ export default Component.extend({
 
       this._lastUseCaptureArgumentValue = this.useCapture;
     });
-  },
+  }
 
   didUpdateAttrs() {
-    this._super(...arguments);
+    super.didUpdateAttrs(...arguments);
 
     stripInProduction(() => {
       if (this.useCapture !== this._lastUseCaptureArgumentValue) {
@@ -298,7 +303,7 @@ export default Component.extend({
         );
       }
     })
-  },
+  }
 
   _setUserSuppliedDefaults() {
     const userDefaults = this._config;
@@ -312,6 +317,7 @@ export default Component.extend({
 
     for (const key in userDefaults) {
       stripInProduction(() => {
+        // eslint-disable-next-line no-prototype-builtins
         if (!DEFAULTS.hasOwnProperty(key)) {
           warn(`Unknown property given as an ember-attacher default: ${key}`, { id: 700152 });
         }
@@ -326,13 +332,13 @@ export default Component.extend({
         }
       }
     }
-  },
+  }
 
   didInsertElement() {
-    this._super(...arguments);
+    super.didInsertElement(...arguments);
 
     this._initializeAttacher();
-  },
+  }
 
   _initializeAttacher() {
     this._removeEventListeners();
@@ -348,7 +354,7 @@ export default Component.extend({
       // call this._show() to make sure its position is updated for a potentially new target.
       this._show();
     }
-  },
+  }
 
   _addListenersForShowEvents() {
 
@@ -361,16 +367,16 @@ export default Component.extend({
 
       this._currentTarget.addEventListener(event, this._showAfterDelay, this.useCapture);
     });
-  },
+  }
 
   willDestroyElement() {
-    this._super(...arguments);
+    super.willDestroyElement(...arguments);
 
     cancelAnimationFrame(this._animationTimeout);
     cancel(this._delayedVisibilityToggle);
 
     this._removeEventListeners();
-  },
+  }
 
   _removeEventListeners() {
     Object.keys(this._hideListenersOnDocumentByEvent).forEach((eventType) => {
@@ -388,13 +394,15 @@ export default Component.extend({
           this._currentTarget.removeEventListener(event, eventToListener[event], this.useCapture);
         });
       });
-  },
+  }
 
-  _targetOrTriggersChanged: observer('hideOn', 'showOn', 'popperTarget', function() {
+  @observes('hideOn', 'showOn', 'popperTarget')
+  _targetOrTriggersChanged() {
     this._initializeAttacher();
-  }),
+  }
 
-  _isShownChanged: observer('isShown', function() {
+  @observes('isShown')
+  _isShownChanged() {
     const isShown = this.isShown;
 
     if (isShown === true && this._isHidden) {
@@ -406,7 +414,7 @@ export default Component.extend({
     } else if (isShown === false && !this._isHidden) {
       this._hide();
     }
-  }),
+  }
 
   /**
    * ================== SHOW ATTACHMENT LOGIC ==================
@@ -422,7 +430,7 @@ export default Component.extend({
     const showDelay = parseInt(this.showDelay);
 
     this._delayedVisibilityToggle = debounce(this, this._show, showDelay, !showDelay);
-  },
+  }
 
   _show() {
     cancelAnimationFrame(this._animationTimeout);
@@ -437,7 +445,7 @@ export default Component.extend({
     this._setIsVisibleAfterDelay(true, 0);
 
     this._startShowAnimation();
-  },
+  }
 
   _startShowAnimation() {
     // Start the show animation on the next cycle so CSS transitions can have an effect.
@@ -483,7 +491,7 @@ export default Component.extend({
         this._isHidden = false;
       });
     });
-  },
+  }
 
   /**
    * ================== HIDE ATTACHMENT LOGIC ==================
@@ -495,7 +503,7 @@ export default Component.extend({
     const hideDelay = parseInt(this.hideDelay);
 
     this._delayedVisibilityToggle = debounce(this, this._hide, hideDelay, !hideDelay);
-  },
+  }
 
   _hide() {
     if (!this._popperElement) {
@@ -534,7 +542,7 @@ export default Component.extend({
 
       this._isHidden = true;
     });
-  },
+  }
 
   /**
    * ================== HIDE LISTENERS ==================
@@ -588,7 +596,7 @@ export default Component.extend({
         target.addEventListener(eventType, this._hideOnLostFocus, this.useCapture);
       }
     });
-  },
+  }
 
   _hideOnMouseLeaveTarget() {
     if (this.interactive) {
@@ -604,11 +612,11 @@ export default Component.extend({
     } else {
       this._hideAfterDelay();
     }
-  },
+  }
 
   _debouncedHideIfMouseOutsideTargetOrAttachment(event) {
     debounce(this, this._hideIfMouseOutsideTargetOrAttachment, event, 10);
-  },
+  }
 
   _hideIfMouseOutsideTargetOrAttachment(event) {
     const target = this._currentTarget;
@@ -627,7 +635,7 @@ export default Component.extend({
 
       this._hideAfterDelay();
     }
-  },
+  }
 
   _isCursorBetweenTargetAndAttachment(event) {
 
@@ -675,7 +683,7 @@ export default Component.extend({
     }
 
     return false;
-  },
+  }
 
   _hideOnClickOut(event) {
     const targetReceivedClick = this._currentTarget.contains(event.target);
@@ -687,13 +695,13 @@ export default Component.extend({
     } else if (!targetReceivedClick) {
       this._hideAfterDelay();
     }
-  },
+  }
 
   _hideOnEscapeKey(event) {
     if (event.keyCode === 27) {
       return this._hideAfterDelay();
     }
-  },
+  }
 
   _hideOnLostFocus(event) {
     if (event.relatedTarget === null) {
@@ -713,7 +721,7 @@ export default Component.extend({
     } else if (!targetContainsFocus) {
       this._hideAfterDelay();
     }
-  },
+  }
 
   _removeListenersForHideEvents() {
     Object.keys(this._hideListenersOnDocumentByEvent).forEach((eventType) => {
@@ -751,4 +759,4 @@ export default Component.extend({
       }
     });
   }
-});
+}

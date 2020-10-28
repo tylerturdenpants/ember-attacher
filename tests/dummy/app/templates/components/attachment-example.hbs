@@ -107,14 +107,15 @@
       <hbox fit>
         <box xs="fit" lm="hidden">&nbsp;&nbsp;&nbsp;&nbsp;</box>
         <centered fit>
-          animation="{{#power-select onchange=(action (mut service.animation))
-                                     options=animationOptions
-                                     searchEnabled=false
-                                     selected=service.animation
-                                     triggerClass="button large"
-                                     as |animationOption|}}
-                                       {{animationOption}}
-                                     {{/power-select}}"
+          animation="<PowerSelect
+                      @onChange={{action (mut service.animation)}}
+                      @options={{animationOptions}}
+                      @searchEnabled={{false}}
+                      @selected={{service.animation}}
+                      @triggerClass="button large" as |animationOption|
+                     >
+                      {{animationOption}}
+                     </PowerSelect>"
         </centered>
       </hbox>
     </box>
@@ -167,14 +168,15 @@
             <p>escapekey: hides the attachment when the user presses the escape key</p>
           {{/attach-tooltip}}
         </span>
-        ="{{#power-select onchange=(action (mut service.hideOn))
-                          options=hideOnOptions
-                          searchEnabled=false
-                          selected=service.hideOn
-                          triggerClass="button xlarge"
-                          as |hideOnOption|}}
-                            {{hideOnOption}}
-                          {{/power-select}}"
+        ="<PowerSelect
+            @onChange={{action (mut service.hideOn)}}
+            @options={{hideOnOptions}}
+            @searchEnabled={{false}}
+            @selected={{service.hideOn}}
+            @triggerClass="button xlarge" as |hideOnOption|
+          >
+            {{hideOnOption}}
+          </PowerSelect>"
       </centered>
     </hbox>
     <hbox>
@@ -238,14 +240,15 @@
     <hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
       <centered fit>
-        placement="{{#power-select onchange=(action (mut service.placement))
-                                   options=placementOptions
-                                   searchEnabled=false
-                                   selected=service.placement
-                                   triggerClass="button large"
-                                   as |placementOption|}}
-                                     {{placementOption}}
-                                   {{/power-select}}"
+        placement="<PowerSelect
+                    @onChange={{action (mut service.placement)}}
+                    @options={{placementOptions}}
+                    @searchEnabled={{false}}
+                    @selected={{service.placement}}
+                    @triggerClass="button large" as |placementOption|
+                  >
+                    {{placementOption}}
+                  </PowerSelect>"
       </centered>
     </hbox>
     <hbox>
@@ -330,14 +333,15 @@
             and "click", though you can use any event listener you want.
           {{/attach-tooltip}}
         </span>
-        ="{{#power-select onchange=(action (mut service.showOn))
-                          options=showOnOptions
-                          searchEnabled=false
-                          selected=service.showOn
-                          triggerClass="button xlarge"
-                          as |showOnOption|}}
-                            {{showOnOption}}
-                          {{/power-select}}"
+        ="<PowerSelect
+            @onChange={{action (mut service.showOn)}}
+            @options={{showOnOptions}}
+            @searchEnabled={{false}}
+            @selected={{service.showOn}}
+            @triggerClass="button xlarge" as |showOnOption|
+          >
+            {{showOnOption}}
+          </PowerSelect>"
       </centered>
     </hbox>
     <hbox>

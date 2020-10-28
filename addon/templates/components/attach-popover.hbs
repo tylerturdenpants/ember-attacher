@@ -9,7 +9,7 @@
                   placement=placement
                   popperContainer=popperContainer
                   popperTarget=_currentTarget
-                  registerAPI=(action 'registerAPI')
+                  registerAPI=(action '_registerAPI')
                   renderInPlace=renderInPlace as |emberPopper|}}
     <div class="{{_class}}" style="{{_style}}">
       {{yield (hash emberPopper=emberPopper hide=(action 'hide'))}}
