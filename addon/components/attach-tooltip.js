@@ -7,6 +7,7 @@ import DEFAULTS from '../defaults';
 
 @classic
 export default class AttachTooltip extends AttachPopover {
+  configKey = 'tooltip';
   ariaRole = 'tooltip';
 
   @alias('_class')

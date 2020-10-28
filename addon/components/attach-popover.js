@@ -17,6 +17,7 @@ import { isEmpty } from '@ember/utils';
 @templateLayout(layout)
 @tagName('')
 export default class AttachPopover extends Component {
+  configKey = 'popover';
   /**
    * ================== PUBLIC CONFIG OPTIONS ==================
    */
@@ -110,9 +111,14 @@ export default class AttachPopover extends Component {
   }
 
   // This is memoized so it can be used by both attach-popover and attach-tooltip
-  @computed
-  get _config() {
+  get _envConfig() {
     return getOwner(this).resolveRegistration('config:environment').emberAttacher || {};
+  }
+
+  @computed('_envConfig', 'configKey')
+  get _config() {
+    return this._envConfig[this.configKey] || this._envConfig
+
   }
 
   @computed('hideOn')
@@ -311,6 +317,7 @@ export default class AttachPopover extends Component {
 
     for (const key in userDefaults) {
       stripInProduction(() => {
+        // eslint-disable-next-line no-prototype-builtins
         if (!DEFAULTS.hasOwnProperty(key)) {
           warn(`Unknown property given as an ember-attacher default: ${key}`, { id: 700152 });
         }
@@ -550,7 +557,7 @@ export default class AttachPopover extends Component {
       return;
     }
 
-    if (hideOn.indexOf('click') !== -1) {
+    if (hideOn.includes('click')) {
       const showOnClickListener = this._showListenersOnTargetByEvent.click;
 
       if (showOnClickListener) {
@@ -563,28 +570,28 @@ export default class AttachPopover extends Component {
       target.addEventListener('click', this._hideAfterDelay, this.useCapture);
     }
 
-    if (hideOn.indexOf('clickout') !== -1) {
+    if (hideOn.includes('clickout')) {
       const clickoutEvent = 'ontouchstart' in window ? 'touchend' : 'click';
 
       this._hideListenersOnDocumentByEvent[clickoutEvent] = this._hideOnClickOut;
       document.addEventListener(clickoutEvent, this._hideOnClickOut, this.useCapture);
     }
 
-    if (hideOn.indexOf('escapekey') !== -1) {
+    if (hideOn.includes('escapekey')) {
       this._hideListenersOnDocumentByEvent.keydown = this._hideOnEscapeKey;
       document.addEventListener('keydown', this._hideOnEscapeKey, this.useCapture);
     }
 
     // Hides the attachment when the mouse leaves the target
     // (or leaves both target and attachment for interactive attachments)
-    if (hideOn.indexOf('mouseleave') !== -1) {
+    if (hideOn.includes('mouseleave')) {
       this._hideListenersOnTargetByEvent.mouseleave = this._hideOnMouseLeaveTarget;
       target.addEventListener('mouseleave', this._hideOnMouseLeaveTarget, this.useCapture);
     }
 
     // Hides the attachment when focus is lost on the target
     ['blur', 'focusout'].forEach((eventType) => {
-      if (hideOn.indexOf(eventType) !== -1) {
+      if (hideOn.includes(eventType)) {
         this._hideListenersOnTargetByEvent[eventType] = this._hideOnLostFocus;
         target.addEventListener(eventType, this._hideOnLostFocus, this.useCapture);
       }
@@ -731,7 +738,7 @@ export default class AttachPopover extends Component {
     }
 
     // Switch clicking back to a show event
-    if (showOn.indexOf('click') !== -1) {
+    if (showOn.includes('click')) {
       const hideOnClickListener = this._hideListenersOnTargetByEvent.click;
 
       if (hideOnClickListener) {
