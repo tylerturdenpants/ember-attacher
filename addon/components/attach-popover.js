@@ -25,7 +25,6 @@ export default class AttachPopover extends Component {
   animation = DEFAULTS.animation;
 
   arrow = DEFAULTS.arrow;
-  class = DEFAULTS.class;
   flip = DEFAULTS.flip;
   hideDelay = DEFAULTS.hideDelay;
   hideDuration = DEFAULTS.hideDuration;

@@ -1,7 +1,6 @@
 export default {
   animation: 'fill',
   arrow: false,
-  class: null,
   flip: null,
   hideDelay: 0,
   hideDuration: 300,

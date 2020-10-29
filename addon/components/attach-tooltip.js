@@ -1,7 +1,6 @@
 import classic from 'ember-classic-decorator';
 import { observes } from '@ember-decorators/object';
 import { computed } from '@ember/object';
-import { alias } from '@ember/object/computed';
 import AttachPopover from './attach-popover';
 import DEFAULTS from '../defaults';
 
@@ -10,15 +9,12 @@ export default class AttachTooltip extends AttachPopover {
   configKey = 'tooltip';
   ariaRole = 'tooltip';
 
-  @alias('_class')
-  class;
-
   @computed('_config.tooltipClass')
-  get _class() {
+  get class() {
     return this._config.tooltipClass || DEFAULTS.tooltipClass;
   }
 
-  set _class(value) {
+  set class(value) {
     const tooltipClass = this._config.tooltipClass || DEFAULTS.tooltipClass;
 
     // eslint-disable-next-line no-setter-return
