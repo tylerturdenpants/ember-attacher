@@ -1,3 +1,11 @@
+## v1.2.1 (2020-10-29)
+
+#### :bug: Bug Fix
+* [#362](https://github.com/kybishop/ember-attacher/pull/362) Fix optional class name feature ([@tylerturdenpants](https://github.com/tylerturdenpants))
+
+#### Committers: 1
+- Ryan Mark ([@tylerturdenpants](https://github.com/tylerturdenpants))
+
 ## v1.2.0 (2020-10-28)
 
 #### :boom: Breaking Change
