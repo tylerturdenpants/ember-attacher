@@ -178,6 +178,27 @@ module.exports = function(environment) {
 }
 ```
 
+You can also set the user-defined defaults separately like so:
+
+```javascript
+// config/environment.js
+
+module.exports = function(environment) {
+  var ENV = {
+    emberAttacher: {
+      tooltip: {
+        animation: 'fade',
+        arrow: true
+      },
+      popover: {
+        animation: 'shift',
+        arrow: false
+      }
+    }
+  };
+}
+```
+
 The full list of editable defaults can be seen [here](https://github.com/kybishop/ember-attacher/blob/master/addon/defaults.js).
 
 ## Styles
