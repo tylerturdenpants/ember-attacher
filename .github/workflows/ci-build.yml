@@ -19,7 +19,6 @@ jobs:
         os: [ubuntu-latest, macOS-latest]
 
     steps:
-      - if: matrix.os == 'macOS-latest'
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
