@@ -36,6 +36,14 @@ jobs:
           node-version: 10.x
           yarn-version: 1.22.5
 
+      - uses: actions/cache@v1
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-:  
+
       - run: yarn install --no-lockfile
       - run: yarn test
 
@@ -48,14 +56,13 @@ jobs:
       fail-fast: true
       matrix:
         ember-try-scenario:
-          - ember-lts-3.112
+          - ember-lts-3.12
           - ember-lts-3.16
-          - ember-lts-3.20
           - ember-release
           - ember-beta
           - ember-canary
+          - ember-default
           - ember-default-with-jquery
-          - ember-classic
 
     steps:
       - uses: actions/checkout@v2
@@ -63,6 +70,14 @@ jobs:
         with:
           node-version: 12.x
           yarn-version: 1.22.5
+
+      - uses: actions/cache@v1
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-:  
 
       - run: yarn install --frozen-lockfile
 
