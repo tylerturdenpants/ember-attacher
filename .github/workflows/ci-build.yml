@@ -20,7 +20,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: rwjblue/setup-volta@v1
+      - uses: mydea/actions-ember-testing@v2
         with:
           node-version: 10.x
       - uses: actions/cache@v1
@@ -39,16 +40,13 @@ jobs:
         run: yarn test
 
   try-scenarios:
-    name: ${{ matrix.ember-try-scenario }}
-
+    name: ${{ matrix.ember }}
     runs-on: ubuntu-latest
-
     needs: test
-
     strategy:
       fail-fast: true
       matrix:
-        ember-try-scenario:
+        ember:
           - ember-lts-3.12
           - ember-lts-3.16
           - ember-release
@@ -59,7 +57,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: rwjblue/setup-volta@v1
+      - uses: mydea/actions-ember-testing@v2
         with:
           node-version: 10.x
       - uses: actions/cache@v1
@@ -72,6 +71,5 @@ jobs:
       - name: install dependencies
         run: yarn install
       - name: test
-        env:
-          EMBER_TRY_SCENARIO: ${{ matrix.ember-try-scenario }}
-        run: yarn try:one $EMBER_TRY_SCENARIO
+        run: node_modules/.bin/ember try:one $EMBER_TRY_SCENARIO
+        
