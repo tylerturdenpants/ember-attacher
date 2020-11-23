@@ -30,7 +30,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - run: yarn install --frozen-lockfile
-      - run: yarn lint
+      - run: yarn lint:js
       - run: yarn test
 
   floating-dependencies:
@@ -45,7 +45,7 @@ jobs:
           yarn-version: 1.22.5
 
       - run: yarn install --no-lockfile
-      - run: yarn test:ember
+      - run: yarn test
 
   try-scenarios:
     name: "ember-try: ${{ matrix.ember-try-scenario }}"
