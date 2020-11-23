@@ -49,7 +49,6 @@ jobs:
           node-version: 10.x
           yarn-version: 1.22.5
 
-      - name: Install Dependencies
       - run: yarn install --no-lockfile
       - run: yarn test:ember
 
