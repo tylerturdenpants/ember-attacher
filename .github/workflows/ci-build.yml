@@ -40,7 +40,7 @@ jobs:
         run: yarn test
 
   try-scenarios:
-    name: ${{ matrix.ember }}
+    name: ${{ matrix.ember-try-scenario }}
     runs-on: ubuntu-latest
     needs: test
     strategy:
@@ -71,5 +71,8 @@ jobs:
       - name: install dependencies
         run: yarn install
       - name: test
+        env:
+          EMBER_TRY_SCENARIO: ${{ matrix.ember-try-scenario }}
         run: node_modules/.bin/ember try:one $EMBER_TRY_SCENARIO
+
         
