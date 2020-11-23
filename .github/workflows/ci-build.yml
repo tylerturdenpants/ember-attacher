@@ -1,4 +1,4 @@
-name: CI Build
+name: CI
 
 on:
   push:
@@ -12,45 +12,53 @@ on:
 jobs:
   test:
     name: Tests
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macOS-latest]
+    runs-on: ubuntu-latest
 
     steps:
-      - if: matrix.os == 'macOS-latest'
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: volta-cli/action@v1
         with:
           node-version: 10.x
+          yarn-version: 1.22.5
+
+      - run: yarn install --frozen-lockfile
+      - run: yarn lint:js
+      - run: yarn test
+
+  floating-dependencies:
+    name: Floating Dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: volta-cli/action@v1
+        with:
+          node-version: 10.x
+          yarn-version: 1.22.5
+
       - uses: actions/cache@v1
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ~/.cache/yarn
           key: ${{ runner.os }}-yarn-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: install dependencies
-        run: yarn install
-      - name: lint
-        run: |
-          yarn lint:js
-      - name: test
-        run: yarn test
+            ${{ runner.os }}-yarn-:
+
+      - run: yarn install --no-lockfile
+      - run: yarn test
 
   try-scenarios:
-    name: ${{ matrix.ember-try-scenario }}
+    name: "ember-try: ${{ matrix.ember-try-scenario }}"
     runs-on: ubuntu-latest
-
     needs: test
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         ember-try-scenario:
           - ember-lts-3.12
           - ember-lts-3.16
+          - ember-lts-3.20
           - ember-release
           - ember-beta
           - ember-canary
@@ -58,20 +66,21 @@ jobs:
           - ember-default-with-jquery
 
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: volta-cli/action@v1
         with:
-          node-version: 10.x
+          node-version: 12.x
+          yarn-version: 1.22.5
+
       - uses: actions/cache@v1
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ~/.cache/yarn
           key: ${{ runner.os }}-yarn-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: install dependencies
-        run: yarn install
+            ${{ runner.os }}-yarn-:
+
+      - run: yarn install --frozen-lockfile
+
       - name: test
-        env:
-          EMBER_TRY_SCENARIO: ${{ matrix.ember-try-scenario }}
-        run: yarn try:one $EMBER_TRY_SCENARIO
+        run: yarn ember try:one ${{ matrix.ember-try-scenario }} --skip-cleanup
