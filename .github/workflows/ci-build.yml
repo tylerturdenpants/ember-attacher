@@ -1,75 +1,49 @@
-name: CI Build
+name: Test & Lint
 
-on:
-  push:
-    branches:
-      - master
-      - 'v*'
-  pull_request: {}
-  schedule:
-    - cron: '0 3 * * *' # daily, at 3am
+on: [push, pull_request]
 
 jobs:
   test:
-    name: Tests
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macOS-latest]
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
-      - if: matrix.os == 'macOS-latest'
       - uses: actions/checkout@v1
-      - uses: rwjblue/setup-volta@v1
+      - uses: volta-cli/action@v1
       - uses: mydea/actions-ember-testing@v2
-        with:
-          node-version: 10.x
-      - uses: actions/cache@v1
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ~/.cache/yarn
-          key: ${{ runner.os }}-yarn-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: install dependencies
+      - name: Install dependencies
         run: yarn install
-      - name: lint
+      - name: Run tests
+        run: yarn test:ember
+      - name: Lint
         run: |
           yarn lint:js
-      - name: test
-        run: yarn test
-
-  try-scenarios:
-    name: ${{ matrix.ember }}
+          yarn lint:hbs
+  test-matrix:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
-    needs: test
+    timeout-minutes: 5
+
     strategy:
-      fail-fast: true
       matrix:
+        # Keep this in sync with config/ember-try.js
         ember:
-          - ember-lts-3.12
-          - ember-lts-3.16
-          - ember-release
-          - ember-beta
-          - ember-canary
-          - ember-default
-          - ember-default-with-jquery
+          [
+            ember-3.13,
+            ember-lts-3.16,
+            ember-release,
+            ember-beta,
+            ember-canary,
+            ember-default-with-jquery,
+            ember-classic,
+          ]
 
     steps:
       - uses: actions/checkout@v1
-      - uses: rwjblue/setup-volta@v1
+      - uses: volta-cli/action@v1
       - uses: mydea/actions-ember-testing@v2
-        with:
-          node-version: 10.x
-      - uses: actions/cache@v1
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ~/.cache/yarn
-          key: ${{ runner.os }}-yarn-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: install dependencies
+      - name: Install dependencies
         run: yarn install
-      - name: test
+      - name: Run tests
         run: yarn test:one ${{ matrix.ember }}
