@@ -5,18 +5,14 @@ on:
     branches:
       - master
       - 'v*'
-  pull_request: {}
+  pull_request:
   schedule:
     - cron: '0 3 * * *' # daily, at 3am
 
 jobs:
   test:
     name: Tests
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macOS-latest]
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -24,16 +20,7 @@ jobs:
         with:
           node-version: 10.x
           yarn-version: 1.22.5
-     
-      - uses: actions/cache@v1
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ~/.cache/yarn
-          key: ${{ runner.os }}-yarn-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
 
-      - name: Install Dependencies
       - run: yarn install --frozen-lockfile
       - run: yarn lint
       - run: yarn test:ember
@@ -76,16 +63,7 @@ jobs:
           node-version: 12.x
           yarn-version: 1.22.5
 
-      - uses: actions/cache@v1
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ~/.cache/yarn
-          key: ${{ runner.os }}-yarn-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install Dependencies
       - run: yarn install --frozen-lockfile
 
-      - name: Test
+      - name: test
         run: yarn ember try:one ${{ matrix.ember-try-scenario }} --skip-cleanup
