@@ -317,7 +317,7 @@ export default class AttachPopover extends Component {
     for (const key in userDefaults) {
       stripInProduction(() => {
         // eslint-disable-next-line no-prototype-builtins
-        if (!DEFAULTS.hasOwnProperty(key)) {
+        if (key !== 'class' && !DEFAULTS.hasOwnProperty(key)) {
           warn(`Unknown property given as an ember-attacher default: ${key}`, { id: 700152 });
         }
       });
