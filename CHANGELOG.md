@@ -1,3 +1,12 @@
+## v1.2.3 (2020-12-08)
+
+#### :bug: Bug Fix
+* [#388](https://github.com/kybishop/ember-attacher/pull/388) Fix user supplied attributes ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#383](https://github.com/kybishop/ember-attacher/pull/383) Exclude class from defaults test ([@tylerturdenpants](https://github.com/tylerturdenpants))
+
+#### Committers: 1
+- Ryan Mark ([@tylerturdenpants](https://github.com/tylerturdenpants))
+
 ## v1.2.1 (2020-10-29)
 
 #### :bug: Bug Fix
