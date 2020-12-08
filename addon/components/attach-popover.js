@@ -262,7 +262,8 @@ export default class AttachPopover extends Component {
     super.didReceiveAttrs(...arguments);
 
     stripInProduction(() => {
-      const attrs = this.attributes || {};
+      // eslint-disable-next-line ember/no-attrs-in-components
+      const attrs = this.attrs || {};
       const userDefaults = this._config;
 
       let arrow;
@@ -312,7 +313,8 @@ export default class AttachPopover extends Component {
       return;
     }
 
-    const attrs = this.attributes || {};
+    // eslint-disable-next-line ember/no-attrs-in-components
+    const attrs = this.attrs || {};
 
     for (const key in userDefaults) {
       stripInProduction(() => {

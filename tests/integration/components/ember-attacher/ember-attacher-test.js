@@ -25,6 +25,34 @@ module('Integration | Component | ember attacher', function(hooks) {
     assert.ok(attachment.innerHTML.includes('popper text'));
   });
 
+  test('uses the user-supplied popover class over global config class', async function(assert) {
+    this.owner.resolveRegistration('config:environment').emberAttacher = {
+      class: 'different-default'
+    };
+
+    await render(hbs`
+      <div id="target">
+        {{#attach-popover id='attachment' class='some-class some-other-class'}}
+          tooltip text
+        {{/attach-popover}}
+      </div>
+    `);
+
+    const popover = find('#attachment > .some-class');
+
+    assert.contains(
+      popover.className.split(' '),
+      [
+        'ember-attacher-fill',
+        'some-class',
+        'some-other-class',
+        'ember-attacher-hide',
+        'ember-attacher-without-arrow'
+      ],
+      'it adds the user-supplied default classes'
+    );
+  });
+
   test('uses the user-supplied default popover class - separate config', async function(assert) {
     assert.expect(1);
 
