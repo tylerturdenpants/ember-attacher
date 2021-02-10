@@ -38,7 +38,7 @@
     "ember-decorators": "^6.1.1",
     "ember-popper": "^0.11.3",
     "ember-truth-helpers": "^3.0.0",
-    "sass": "^1.32.6"
+    "sass": "^1.32.7"
   },
   "devDependencies": {
     "@ember/optional-features": "^2.0.0",
