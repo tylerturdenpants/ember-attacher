@@ -62,7 +62,7 @@
     "ember-qunit": "^4.6.0",
     "ember-raf-test-waiter": "^0.1.0",
     "ember-resolver": "^8.0.2",
-    "ember-source": "~3.24.1",
+    "ember-source": "~3.25.1",
     "ember-source-channel-url": "^3.0.0",
     "ember-try": "^1.4.0",
     "eslint": "^7.19.0",
