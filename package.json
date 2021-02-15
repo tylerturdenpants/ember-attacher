@@ -71,7 +71,7 @@
     "flexi": "^2.1.0",
     "loader.js": "^4.7.0",
     "qunit-dom": "^1.6.0",
-    "release-it": "^14.3.0",
+    "release-it": "^14.4.0",
     "release-it-lerna-changelog": "^3.1.0"
   },
   "engines": {
