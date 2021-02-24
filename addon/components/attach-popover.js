@@ -8,7 +8,7 @@ import layout from '../templates/components/attach-popover';
 import { cancel, debounce, later, next, run } from '@ember/runloop';
 import { getOwner } from '@ember/application';
 import { guidFor } from '@ember/object/internals';
-import { htmlSafe, isHTMLSafe } from '@ember/string';
+import { htmlSafe, isHTMLSafe } from '@ember/template';
 import { stripInProduction } from 'ember-attacher/-debug/helpers';
 import { warn } from '@ember/debug';
 import { isEmpty } from '@ember/utils';
