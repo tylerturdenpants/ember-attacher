@@ -42,6 +42,17 @@ p {
   cursor: pointer;
   padding-right: 6px;
   text-decoration: none;
+
+  svg {
+    height: 48px;
+    width: 50px;
+  }
+
+  &.white {
+    svg {
+      fill: #fff;
+    }
+  }
 }
 
 .content {
@@ -57,7 +68,7 @@ p {
 
   &.active {
     background-color: #ddd;
-    font-weight: bold;
+    font-weight: 600;
   }
 }
 
@@ -73,11 +84,11 @@ p {
 
 .button {
   background-color: #fff;
-  border-bottom: 1px solid #aaaaaa;
-  border-left: 1px solid #aaaaaa;
+  border-bottom: 1px solid #aaa;
+  border-left: 1px solid #aaa;
   border-radius: 4px;
-  border-right: 1px solid #aaaaaa;
-  border-top: 1px solid #aaaaaa;
+  border-right: 1px solid #aaa;
+  border-top: 1px solid #aaa;
   color: #333;
   font-family: monospace;
   font-size: inherit;
@@ -183,7 +194,7 @@ p {
   color: #111;
 }
 
-@media(max-width: 400px) {
+@media (max-width: 400px) {
   .button.xlarge {
     min-width: 160px;
     width: 160px;
@@ -200,7 +211,7 @@ p {
   }
 }
 
-@media(max-width: 331px) {
+@media (max-width: 331px) {
   .edit-me,
   .nav {
     font-size: 14px;
