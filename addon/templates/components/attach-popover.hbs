@@ -1,7 +1,7 @@
 {{unbound _parentFinder}}
 
-{{#if (and _currentTarget (or (not lazyRender) _mustRender))}}
-  {{#ember-popper ariaRole=ariaRole
+{{~#if (and _currentTarget (or (not lazyRender) _mustRender))}}
+  {{~#ember-popper ariaRole=ariaRole
                   class="ember-attacher"
                   eventsEnabled=false
                   id=id
@@ -10,7 +10,7 @@
                   popperContainer=popperContainer
                   popperTarget=_currentTarget
                   registerAPI=(action '_registerAPI')
-                  renderInPlace=renderInPlace as |emberPopper|}}
+                  renderInPlace=renderInPlace as |emberPopper|~}}
     <div class="{{_class}}" style="{{_style}}">
       {{yield (hash emberPopper=emberPopper hide=(action 'hide'))}}
 
@@ -21,5 +21,5 @@
         <div x-circle style="{{_circleTransitionDuration}}"></div>
       {{/if}}
     </div>
-  {{/ember-popper}}
-{{/if}}
+  {{~/ember-popper}}
+{{~/if~}}
