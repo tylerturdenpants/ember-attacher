@@ -42,6 +42,17 @@ p {
   cursor: pointer;
   padding-right: 6px;
   text-decoration: none;
+
+  svg {
+    height: 48px;
+    width: 50px;
+  }
+
+  &.white {
+    svg {
+      fill: #fff;
+    }
+  }
 }
 
 .content {
@@ -57,7 +68,7 @@ p {
 
   &.active {
     background-color: #ddd;
-    font-weight: bold;
+    font-weight: 600;
   }
 }
 
@@ -73,11 +84,11 @@ p {
 
 .button {
   background-color: #fff;
-  border-bottom: 1px solid #aaaaaa;
-  border-left: 1px solid #aaaaaa;
+  border-bottom: 1px solid #aaa;
+  border-left: 1px solid #aaa;
   border-radius: 4px;
-  border-right: 1px solid #aaaaaa;
-  border-top: 1px solid #aaaaaa;
+  border-right: 1px solid #aaa;
+  border-top: 1px solid #aaa;
   color: #333;
   font-family: monospace;
   font-size: inherit;
@@ -183,7 +194,7 @@ p {
   color: #111;
 }
 
-@media(max-width: 400px) {
+@media (max-width: 400px) {
   .button.xlarge {
     min-width: 160px;
     width: 160px;
@@ -200,7 +211,7 @@ p {
   }
 }
 
-@media(max-width: 331px) {
+@media (max-width: 331px) {
   .edit-me,
   .nav {
     font-size: 14px;
@@ -259,7 +270,7 @@ p {
   -ms-flex-align: center;
   align-items: center;
 
-  .flexi-fit {
+  &.flexi-fit {
     -webkit-box-flex: 0;
     -moz-box-flex: 0;
     -webkit-flex: none;
@@ -291,6 +302,35 @@ p {
   flex: 1 0 0px;
   -webkit-flex-direction: column;
   flex-direction: column;
+
+  .fit-xs {
+    -webkit-box-flex: 0;
+    -moz-box-flex: 0;
+    -webkit-flex: none;
+    -ms-flex: none;
+    flex: none;
+  }
+
+  &.flexi-fit {
+    -webkit-box-flex: 0;
+    -moz-box-flex: 0;
+    -webkit-flex: none;
+    -ms-flex: none;
+    flex: none;
+  }
+
+  @media (min-width: 512px) {
+    &.horizontal-lm {
+      -webkit-flex-direction: row;
+      flex-direction: row;
+    }
+  }
+
+  @media (min-width: 512px) {
+    &.hidden-lm {
+      display: none;
+    }
+  }
 }
 
 [data-element-vbox] {
@@ -336,4 +376,12 @@ p {
   flex-wrap: wrap;
   -webkit-flex-direction: row;
   flex-direction: row;
+
+  &.flexi-fit {
+    -webkit-box-flex: 0;
+    -moz-box-flex: 0;
+    -webkit-flex: none;
+    -ms-flex: none;
+    flex: none;
+  }
 }
