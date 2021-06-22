@@ -1,17 +1,19 @@
+@use "sass:math";
+
 @mixin arrow($position, $width) {
   @if ($position == 'top') {
     transform: rotate(-45deg);
-    bottom: -$width/2;
+    bottom: math.div(-$width, 2);
   } @else if ($position == 'bottom') {
     transform: rotate(135deg);
-    top: -$width/2;
+    top: math.div(-$width, 2);
   } @else if ($position == 'left') {
     transform: rotate(225deg);
-    right: -$width/2;
+    right: math.div(-$width, 2);
     top: 50%;
   } @else if ($position == 'right') {
     transform: rotate(45deg);
-    left: -$width/2;
+    left: math.div(-$width, 2);
     top: 50%;
   }
 }
