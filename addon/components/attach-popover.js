@@ -1,7 +1,6 @@
-import classic from 'ember-classic-decorator';
 import { tagName, layout as templateLayout } from '@ember-decorators/component';
 import { observes } from '@ember-decorators/object';
-import { action, computed } from '@ember/object';
+import { action, computed, set } from '@ember/object';
 import Component from '@ember/component';
 import DEFAULTS from '../defaults';
 import layout from '../templates/components/attach-popover';
@@ -13,7 +12,6 @@ import { stripInProduction } from 'ember-attacher/-debug/helpers';
 import { warn } from '@ember/debug';
 import { isEmpty } from '@ember/utils';
 
-@classic
 @templateLayout(layout)
 @tagName('')
 export default class AttachPopover extends Component {
@@ -327,7 +325,7 @@ export default class AttachPopover extends Component {
       // Don't override attrs manually passed into the component
       if (attrs[key] === undefined) {
         if (key === 'arrow') {
-          this.set('arrow', userDefaults[key]);
+          set(this, 'arrow', userDefaults[key]);
         } else {
           this[key] = userDefaults[key];
         }
@@ -344,7 +342,7 @@ export default class AttachPopover extends Component {
   _initializeAttacher() {
     this._removeEventListeners();
 
-    this.set('_currentTarget', this.popperTarget || this._parentFinder.parentNode);
+    set(this, '_currentTarget', this.popperTarget || this._parentFinder.parentNode);
 
     this._addListenersForShowEvents();
 
@@ -424,7 +422,7 @@ export default class AttachPopover extends Component {
   _showAfterDelay() {
     cancel(this._delayedVisibilityToggle);
 
-    this.set('_mustRender', true);
+    set(this, '_mustRender', true);
 
     this._addListenersForHideEvents();
 
@@ -440,7 +438,7 @@ export default class AttachPopover extends Component {
       return;
     }
 
-    this.set('_mustRender', true);
+    set(this, '_mustRender', true);
 
     // Make the attachment visible immediately so transition animations can take place
     this._setIsVisibleAfterDelay(true, 0);
@@ -484,8 +482,8 @@ export default class AttachPopover extends Component {
           }
           // Make the popper element visible now that it has been positioned
           popperElement.style.visibility = '';
-          this.set('_transitionDuration', parseInt(this.showDuration));
-          this.set('_isStartingAnimation', true);
+          set(this, '_transitionDuration', parseInt(this.showDuration));
+          set(this, '_isStartingAnimation', true);
           popperElement.setAttribute('aria-hidden', 'false');
         });
 
@@ -531,8 +529,8 @@ export default class AttachPopover extends Component {
           return;
         }
 
-        this.set('_transitionDuration', hideDuration);
-        this.set('_isStartingAnimation', false);
+        set(this, '_transitionDuration', hideDuration);
+        set(this, '_isStartingAnimation', false);
         this._popperElement.setAttribute('aria-hidden', 'true');
 
         // Wait for any animations to complete before hiding the attachment
