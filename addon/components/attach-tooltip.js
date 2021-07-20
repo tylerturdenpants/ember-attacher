@@ -1,10 +1,8 @@
-import classic from 'ember-classic-decorator';
 import { observes } from '@ember-decorators/object';
 import { computed } from '@ember/object';
 import AttachPopover from './attach-popover';
 import DEFAULTS from '../defaults';
 
-@classic
 export default class AttachTooltip extends AttachPopover {
   configKey = 'tooltip';
   ariaRole = 'tooltip';
