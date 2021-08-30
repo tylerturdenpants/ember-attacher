@@ -23,6 +23,7 @@
     "deploy": "ember build && ember github-pages:commit --message \"Deploy gh-pages from commit $(git rev-parse HEAD)\" && git push origin gh-pages:gh-pages",
     "release": "release-it",
     "lint:js": "eslint .",
+    "lint": "eslint .",
     "start": "ember serve",
     "test": "ember test",
     "test:all": "ember try:each"
