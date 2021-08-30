@@ -27,7 +27,7 @@ module('Integration | Component | registerAPI', function(hooks) {
 
     await render(hbs`
       <div id='parent'>
-        {{#if show}}
+        {{#if this.show}}
           {{#attach-popover id='attachment' registerAPI=(action 'registerAPI')}}
             template block text
           {{/attach-popover}}
