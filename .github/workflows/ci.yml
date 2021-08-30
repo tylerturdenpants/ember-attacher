@@ -171,7 +171,6 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     needs: test
-    timeout-minutes: 5
 
     strategy:
       fail-fast: true
@@ -181,17 +180,9 @@ jobs:
           ember-lts-3.16,
           ember-lts-3.20,
           ember-release,
-          ember-beta,
-          ember-canary,
           ember-default,
           ember-default-with-jquery
         ]
-        allow-failure: [false]
-        include:
-          - ember-try-scenario: ember-beta
-            allow-failure: true
-          - ember-try-scenario: ember-canary
-            allow-failure: true
 
     steps:
     - uses: actions/checkout@v2
