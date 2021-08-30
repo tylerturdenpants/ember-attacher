@@ -1,7 +1,7 @@
 {{unbound this._parentFinder}}
 
-{{#if (and this._currentTarget (or (not this.lazyRender) this._mustRender))}}
-  {{#ember-popper ariaRole=@ariaRole
+{{~#if (and this._currentTarget (or (not this.lazyRender) this._mustRender))}}
+  {{~#ember-popper ariaRole=this.ariaRole
                   class="ember-attacher"
                   eventsEnabled=false
                   id=this.id
