@@ -121,6 +121,7 @@ jobs:
 
     - name: Test
       run: yarn test --launch ${{ matrix.browser }}
+      timeout-minutes: 5
 
 
   floating-dependencies:
@@ -162,6 +163,7 @@ jobs:
 
     - name: Test
       run: yarn test --launch ${{ matrix.browser }}
+      timeout-minutes: 5
 
 
   try-scenarios:
@@ -169,6 +171,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     needs: test
+    timeout-minutes: 5
 
     strategy:
       fail-fast: true
