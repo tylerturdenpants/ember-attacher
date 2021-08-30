@@ -120,7 +120,7 @@ jobs:
         steps.cache-dependencies.outputs.cache-hit != 'true'
 
     - name: Test
-      run: yarn test:ember --launch ${{ matrix.browser }}
+      run: yarn test --launch ${{ matrix.browser }}
 
 
   floating-dependencies:
