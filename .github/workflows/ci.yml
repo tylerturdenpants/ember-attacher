@@ -161,7 +161,7 @@ jobs:
       run: yarn install --no-lockfile --non-interactive
 
     - name: Test
-      run: yarn test:ember --launch ${{ matrix.browser }}
+      run: yarn test --launch ${{ matrix.browser }}
 
 
   try-scenarios:
