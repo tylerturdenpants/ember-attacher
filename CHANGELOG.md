@@ -1,3 +1,28 @@
+## v1.3.0 (2021-09-09)
+
+#### :rocket: Enhancement
+* [#553](https://github.com/kybishop/ember-attacher/pull/553) Remove warning for popover/tooltip in config ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#550](https://github.com/kybishop/ember-attacher/pull/550) Better default handling ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#488](https://github.com/kybishop/ember-attacher/pull/488) Remove excess whitespace content ([@kmccullough](https://github.com/kmccullough))
+* [#446](https://github.com/kybishop/ember-attacher/pull/446) add svg-jar to replace ember-font-awesome ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#427](https://github.com/kybishop/ember-attacher/pull/427) update to ember-qunit 5 ([@tylerturdenpants](https://github.com/tylerturdenpants))
+
+#### :bug: Bug Fix
+* [#479](https://github.com/kybishop/ember-attacher/pull/479) Remove addons that use old AST builder syntax API's ([@tylerturdenpants](https://github.com/tylerturdenpants))
+
+#### :house: Internal
+* [#553](https://github.com/kybishop/ember-attacher/pull/553) Remove warning for popover/tooltip in config ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#549](https://github.com/kybishop/ember-attacher/pull/549) Use github-actions-setup-for-ember-addon ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#446](https://github.com/kybishop/ember-attacher/pull/446) add svg-jar to replace ember-font-awesome ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#427](https://github.com/kybishop/ember-attacher/pull/427) update to ember-qunit 5 ([@tylerturdenpants](https://github.com/tylerturdenpants))
+* [#479](https://github.com/kybishop/ember-attacher/pull/479) Remove addons that use old AST builder syntax API's ([@tylerturdenpants](https://github.com/tylerturdenpants))
+
+#### Committers: 4
+- Kerry McCullough ([@kmccullough](https://github.com/kmccullough))
+- Peter Wagenet ([@wagenet](https://github.com/wagenet))
+- Ryan Mark ([@tylerturdenpants](https://github.com/tylerturdenpants))
+- [@dependabot-preview[bot]](https://github.com/apps/dependabot-preview)
+
 ## v1.3.0-beta.3 (2021-09-02)
 
 #### :rocket: Enhancement
