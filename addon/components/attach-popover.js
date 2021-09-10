@@ -116,8 +116,10 @@ export default class AttachPopover extends Component {
 
   @computed('_envConfig', 'configKey')
   get _config() {
-    return this._envConfig[this.configKey] || this._envConfig
-
+    return {
+      ...this._envConfig,
+      ...this._envConfig[this.configKey],
+    };
   }
 
   @computed('hideOn')
@@ -309,7 +311,7 @@ export default class AttachPopover extends Component {
     const userDefaults = this._config;
 
     // Exit early if no custom defaults are found
-    if (!userDefaults) {
+    if (!Object.keys(userDefaults).length) {
       return;
     }
 
@@ -319,7 +321,7 @@ export default class AttachPopover extends Component {
     for (const key in userDefaults) {
       stripInProduction(() => {
         // eslint-disable-next-line no-prototype-builtins
-        if (key !== 'class' && !DEFAULTS.hasOwnProperty(key)) {
+        if (!['popover','tooltip', 'class'].includes(key) && !DEFAULTS.hasOwnProperty(key)) {
           warn(`Unknown property given as an ember-attacher default: ${key}`, { id: 700152 });
         }
       });

@@ -1,3 +1,4 @@
+/* eslint-disable ember/no-settled-after-test-helper */
 import hbs from 'htmlbars-inline-precompile';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
@@ -15,7 +16,7 @@ module('Integration | Component | showOn', function(hooks) {
 
     await render(hbs`
       <button id="target">
-        {{#attach-popover id='attachment' hideOn='click' showOn=showOn}}
+        {{#attach-popover id='attachment' hideOn='click' showOn=this.showOn}}
           showOn mouseenter
         {{/attach-popover}}
       </button>

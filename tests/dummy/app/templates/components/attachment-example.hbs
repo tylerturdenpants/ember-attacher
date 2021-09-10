@@ -1,8 +1,8 @@
-<centered class="section top-section">
+<div data-element-centered class="section top-section">
   <p>Drop an <span class="no-wrap">\{{#attach-tooltip}}</span> or <span class="no-wrap">\{{#attach-popover}}</span> in any element or component to get started.</p>
-</centered>
-<centered class="section">
-  <centered xs="24" lm="20" sm="16" md="12" lg="10" justify="around" class="popper-area">
+</div>
+<div data-element-centered class="section">
+  <div data-element-centered class="popper-area justify-around col-lg-10 col-md-12 col-sm-16 col-lm-20 col-xs-24">
     <button class="hover-me">
       Tooltip me, captain!
 
@@ -48,43 +48,43 @@
         <button {{action emberAttacher.hide}}>Close</button>
       {{/attach-popover}}
     </button>
-  </centered>
-</centered>
+  </div>
+</div>
 {{#if (and service.arrow (eq service.animation "fill"))}}
-  <centered class="section">
+  <div data-element-centered class="section">
     <h2>Warning: `animation: "fill"` is not compatible with `arrow: true`</h2>
-  </centered>
+  </div>
 {{/if}}
 
 {{#if service.renderInPlace}}
-  <centered class="section" vertical fit>
+  <div data-element-centered class="section flexi-fit flexi-vertical">
     <h3>Note: renderInPlace can cause z-index issues.</h3>
     <h3>Hover over the renderInPlace attr for more details.</h3>
-  </centered>
+  </div>
 {{/if}}
-<centered class="edit-section">
-  <vbox lm="fit">
-    <hbox class="nav-bar">
-      <centered xs='12' class="nav{{if isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' true}}>
+<div data-element-centered class="edit-section">
+  <div data-element-vbox class="fit-lm">
+    <div data-element-hbox class="nav-bar">
+      <div data-element-centered class="col-xs-12 nav{{if isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' true}}>
         \{{#attach-tooltip}}
-      </centered>
-      <centered xs='12' class="nav{{unless isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' false}}>
+      </div>
+      <div data-element-centered  class="col-xs-12 nav{{unless isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' false}}>
         \{{#attach-popover}}
-      </centered>
-    </hbox>
+      </div>
+    </div>
 
-  <vbox class="edit-me">
-    <hbox><centered fit>&lt;button class="hover-me"></centered></hbox>
-    <hbox>
-      <centered fit>
+  <div data-element-vbox class="edit-me">
+    <div data-element-hbox><div data-element-centered class="flexi-fit">&lt;button class="hover-me"></div></div>
+    <div data-element-hbox>
+      <div data-element-centered class="flexi-fit">
         &nbsp;&nbsp;
         {{if isConfiguringTooltip 'Tooltip me, captain!' 'Click me, captain!'}}
-      </centered>
-    </hbox>
-    <hbox>&nbsp;</hbox>
-    <box lm="horizontal" fit>
-      <hbox fit class="no-wrap">
-        <centered fit>
+      </div>
+    </div>
+    <div data-element-hbox>&nbsp;</div>
+    <div data-element-box class="flexi-fit horizontal-lm">
+      <div data-element-hbox class="no-wrap flexi-fit">
+        <div data-element-centered class="flexi-fit">
           &nbsp;&nbsp;\{{
           <span class="underlined">
             {{if isConfiguringTooltip '#attach-tooltip' '#attach-popover'}}
@@ -102,11 +102,11 @@
             {{/attach-tooltip}}
           </span>
           &nbsp;
-        </centered>
-      </hbox>
-      <hbox fit>
-        <box xs="fit" lm="hidden">&nbsp;&nbsp;&nbsp;&nbsp;</box>
-        <centered fit>
+        </div>
+      </div>
+      <div data-element-hbox class="flexi-fit">
+        <div data-element-box class="hidden-lm fit-xs">&nbsp;&nbsp;&nbsp;&nbsp;</div>
+        <div data-element-centered class="flexi-fit">
           animation="<PowerSelect
                       @onChange={{action (mut service.animation)}}
                       @options={{animationOptions}}
@@ -116,18 +116,18 @@
                      >
                       {{animationOption}}
                      </PowerSelect>"
-        </centered>
-      </hbox>
-    </box>
-    <hbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-      <centered fit>
+        </div>
+      </div>
+    </div>
+    <div data-element-hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      <div data-element-centered class="flexi-fit">
         arrow=<button class="button medium" {{action "toggleArrow"}}>{{service.arrow}}</button>
-      </centered>
-    </hbox>
-    <hbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-      <centered fit>
+      </div>
+    </div>
+    <div data-element-hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      <div data-element-centered class="flexi-fit">
         hideDelay={{input class="button medium"
                           min="0"
                           pattern="[0-9]"
@@ -135,11 +135,11 @@
                           step="100"
                           type="number"
                           value=service.hideDelay}}
-      </centered>
-    </hbox>
-    <hbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-      <centered fit>
+      </div>
+    </div>
+    <div data-element-hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      <div data-element-centered class="flexi-fit">
         <span class="underlined">
           hideDuration
 
@@ -154,11 +154,11 @@
                  step="100"
                  type="number"
                  value=service.hideDuration}}
-      </centered>
-    </hbox>
-    <hbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-      <centered fit>
+      </div>
+    </div>
+    <div data-element-hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      <div data-element-centered class="flexi-fit">
         <span class="underlined">
           hideOn
 
@@ -177,11 +177,11 @@
           >
             {{hideOnOption}}
           </PowerSelect>"
-      </centered>
-    </hbox>
-    <hbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-      <centered fit>
+      </div>
+    </div>
+    <div data-element-hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      <div data-element-centered class="flexi-fit">
         <span class="underlined">
           interactive
 
@@ -193,11 +193,11 @@
         <button class="button medium" {{action "toggleInteractive"}}>
           {{service.interactive}}
         </button>
-      </centered>
-    </hbox>
-    <hbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-      <centered fit>
+      </div>
+    </div>
+    <div data-element-hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      <div data-element-centered class="flexi-fit">
         <span class="underlined">
           isShown
 
@@ -207,12 +207,12 @@
         </span>
         =
         <button class="button medium" {{action "toggleIsShown"}}>{{service.isShown}}</button>
-      </centered>
-    </hbox>
-    <hbox>
+      </div>
+    </div>
+    <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-      <centered fit>
+      <div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      <div data-element-centered class="flexi-fit">
         <span class="underlined">
           lazyRender
 
@@ -222,11 +222,11 @@
         </span>
         =
         <button class="button medium" {{action "toggleLazyRender"}}>{{service.lazyRender}}</button>
-      </centered>
-    </hbox>
-    <hbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-      <centered fit>
+      </div>
+    </div>
+    <div data-element-hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      <div data-element-centered class="flexi-fit">
         <span class="underlined">
           onChange
 
@@ -235,11 +235,11 @@
           {{/attach-tooltip}}
         </span>
         =(action (mut isShown))
-      </centered>
-    </hbox>
-    <hbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-      <centered fit>
+      </div>
+    </div>
+    <div data-element-hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      <div data-element-centered class="flexi-fit">
         placement="<PowerSelect
                     @onChange={{action (mut service.placement)}}
                     @options={{placementOptions}}
@@ -249,11 +249,11 @@
                   >
                     {{placementOption}}
                   </PowerSelect>"
-      </centered>
-    </hbox>
-    <hbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-      <centered fit>
+      </div>
+    </div>
+    <div data-element-hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      <div data-element-centered class="flexi-fit">
         <span class="underlined">
           registerAPI
 
@@ -267,11 +267,11 @@
           {{/attach-tooltip}}
         </span>
         =(action (mut log))
-      </centered>
-    </hbox>
-    <hbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-      <centered fit>
+      </div>
+    </div>
+    <div data-element-hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      <div data-element-centered class="flexi-fit">
         <span class="underlined">
           renderInPlace
 
@@ -289,11 +289,11 @@
         <button class="button medium" {{action "toggleRenderInPlace"}}>
           {{service.renderInPlace}}
         </button>
-      </centered>
-    </hbox>
-    <hbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-      <centered fit>
+      </div>
+    </div>
+    <div data-element-hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      <div data-element-centered class="flexi-fit">
         showDelay={{input class="button medium"
                           min="0"
                           pattern="[0-9]"
@@ -301,11 +301,11 @@
                           step="100"
                           type="number"
                           value=service.showDelay}}
-      </centered>
-    </hbox>
-    <hbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-      <centered fit>
+      </div>
+    </div>
+    <div data-element-hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      <div data-element-centered class="flexi-fit">
         <span class="underlined">
           showDuration
 
@@ -320,11 +320,11 @@
                  step="100"
                  type="number"
                  value=service.showDuration}}
-      </centered>
-    </hbox>
-    <hbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-      <centered fit>
+      </div>
+    </div>
+    <div data-element-hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      <div data-element-centered class="flexi-fit">
         <span class="underlined">
           showOn
 
@@ -342,15 +342,15 @@
           >
             {{showOnOption}}
           </PowerSelect>"
-      </centered>
-    </hbox>
-    <hbox>
-      &nbsp;&nbsp;&nbsp;&nbsp;<box xs="hidden" lm="visible fit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</box>
-      <centered fit>
+      </div>
+    </div>
+    <div data-element-hbox>
+      &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      <div data-element-centered class="flexi-fit">
         <vbox>
           {{#if isConfiguringTooltip}}
-            <hbox>
-              <centered fit>
+            <div data-element-hbox>
+              <div data-element-centered class="flexi-fit">
                 <span class="underlined">
                   class
 
@@ -360,57 +360,57 @@
                   {{/attach-tooltip}}
                 </span>
                 ='optional-class-here'}}
-              </centered>
-            </hbox>
+              </div>
+            </div>
           {{else}}
-            <hbox><centered fit>class="ember-attacher-popper custom-popover-css"</centered></hbox>
-            <hbox><centered fit>as |attacher|}}</centered></hbox>
+            <div data-element-hbox><div data-element-centered class="flexi-fit">class="ember-attacher-popper custom-popover-css"</div></div>
+            <div data-element-hbox><div data-element-centered class="flexi-fit">as |attacher|}}</div></div>
           {{/if}}
         </vbox>
-      </centered>
-    </hbox>
+      </div>
+    </div>
     {{#if isConfiguringTooltip}}
-      <hbox>&nbsp;&nbsp;&nbsp;&nbsp;Hello world!</hbox>
+      <div data-element-hbox>&nbsp;&nbsp;&nbsp;&nbsp;Hello world!</div>
     {{else}}
-      <vbox>
-        <hbox fit><centered fit>&nbsp;&nbsp;&nbsp;&nbsp;&lt;p></centered></hbox>
-        <hbox fit><centered fit>
+      <div data-element-vbox>
+        <div data-element-hbox class="flexi-fit"><div data-element-centered class="flexi-fit">&nbsp;&nbsp;&nbsp;&nbsp;&lt;p></div></div>
+        <div data-element-hbox class="flexi-fit"><div data-element-centered class="flexi-fit">
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Popovers and tooltips, oh my!
-        </centered></hbox>
-        <hbox fit><centered fit>&nbsp;&nbsp;&nbsp;&nbsp;&lt;/p></centered></hbox>
-        <hbox>
+        </div></div>
+        <div data-element-hbox class="flexi-fit"><div data-element-centered class="flexi-fit">&nbsp;&nbsp;&nbsp;&nbsp;&lt;/p></div></div>
+        <div data-element-hbox>
           &nbsp;&nbsp;&nbsp;&nbsp;
-          <centered fit>
+          <div data-element-centered class="flexi-fit">
             &lt;button \{{action attacher.hide}}>
-          </centered>
-        </hbox>
-        <hbox>
+          </div>
+        </div>
+        <div data-element-hbox>
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <centered fit>
+          <div data-element-centered class="flexi-fit">
             Close
-          </centered>
-        </hbox>
-        <hbox>
+          </div>
+        </div>
+        <div data-element-hbox>
           &nbsp;&nbsp;&nbsp;&nbsp;
-          <centered fit>
+          <div data-element-centered class="flexi-fit">
             &lt;\button>
-          </centered>
-        </hbox>
-      </vbox>
+          </div>
+        </div>
+      </div>
     {{/if}}
-    <hbox>
+    <div data-element-hbox>
       &nbsp;&nbsp;\{{/{{if isConfiguringTooltip 'attach-tooltip}}' 'attach-popover}}'}}
-    </hbox>
-    <hbox>
-      <centered fit>&lt;\button></centered>
-    </hbox>
-  </vbox>
-  </vbox>
-</centered>
-<vbox align="center" class="section">
+    </div>
+    <div data-element-hbox>
+      <div data-element-centered class="flexi-fit">&lt;\button></div>
+    </div>
+  </div>
+  </div>
+</div>
+<div data-element-vbox class="section align-center">
   <h2>Credits</h2>
-  <vbox fit xs="24" lm="20" sm="16" md="12">
+  <div data-element-vbox class="col-md-12 col-sm-16 col-lm-20 col-xs-24 flexi-fit">
     <p>Ember-attacher was inspired by tippy.js and ember-tooltips.</p>
     <p>It was built with love to provide a tooltip and popover addon based on popper.js, a modern replacement to tether.js, while taking advantage of everything Ember.js has to offer.</p>
-  </vbox>
-</vbox>
+  </div>
+</div>

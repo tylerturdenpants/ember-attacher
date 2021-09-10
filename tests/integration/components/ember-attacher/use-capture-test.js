@@ -1,3 +1,4 @@
+/* eslint-disable ember/no-settled-after-test-helper */
 import hbs from 'htmlbars-inline-precompile';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
@@ -12,7 +13,7 @@ module('Integration | Component | useCapture "true"', function(hooks) {
     assert.expect(2);
 
     await render(hbs`
-      <div id="click-out-target" {{action (mut unusedVar) bubbles=false}}>
+      <div id="click-out-target" {{action (mut this.unusedVar) bubbles=false}}>
       </div>
 
       <button>

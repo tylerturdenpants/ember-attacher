@@ -1,3 +1,4 @@
+/* eslint-disable ember/no-settled-after-test-helper */
 import hbs from 'htmlbars-inline-precompile';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
@@ -19,8 +20,8 @@ module('Integration | Component | onChange', function(hooks) {
 
         {{#attach-popover id='attachment'
                           hideOn='click'
-                          isShown=isShown
-                          onChange=(action (mut isShown))
+                          isShown=this.isShown
+                          onChange=(action (mut this.isShown))
                           showOn='click'}}
           showOn click
         {{/attach-popover}}

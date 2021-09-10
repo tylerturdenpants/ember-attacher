@@ -7,6 +7,16 @@ import { render, find } from '@ember/test-helpers';
 module('Integration | Component | ember attacher', function(hooks) {
   setupRenderingTest(hooks);
 
+  test('it leaves no content', async function(assert) {
+    await render(hbs`
+      <div id='wrapper'>{{#attach-popover}}{{/attach-popover}}</div>
+    `);
+
+    const wrapper = find('#wrapper');
+
+    assert.equal(wrapper.textContent, '');
+  });
+
   test('it renders', async function(assert) {
     assert.expect(2);
 
