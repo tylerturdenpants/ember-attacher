@@ -80,7 +80,7 @@
     "ember-in-element-polyfill": "^1.0.1"
   },
   "engines": {
-    "node": "10.* || >= 12.*"
+    "node": "10.* || 12.* || >= 14.*"
   },
   "ember-addon": {
     "configPath": "tests/dummy/config",
