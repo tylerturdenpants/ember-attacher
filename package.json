@@ -39,11 +39,11 @@
     "ember-decorators": "^6.1.1",
     "ember-popper": "^0.11.3",
     "ember-truth-helpers": "^3.0.0",
-    "sass": "^1.35.2"
+    "sass": "^1.49.9"
   },
   "devDependencies": {
     "@ember/optional-features": "^2.0.0",
-    "@ember/test-helpers": "~2.2.8",
+    "@ember/test-helpers": "^2.4.0",
     "@html-next/flexi-default-styles": "^2.2.0",
     "babel-eslint": "^10.1.0",
     "broccoli-asset-rev": "^3.0.0",
