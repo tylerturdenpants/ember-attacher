@@ -57,7 +57,7 @@
     "ember-disable-prototype-extensions": "^1.1.3",
     "ember-export-application-global": "^2.0.1",
     "ember-load-initializers": "^2.1.2",
-    "ember-maybe-import-regenerator": "^0.1.6",
+    "ember-maybe-import-regenerator": "^1.0.0",
     "ember-power-select": "^4.1.5",
     "ember-qunit": "~5.1.3",
     "ember-raf-test-waiter": "^0.1.0",
@@ -79,7 +79,8 @@
   },
   "resolutions": {
     "@embroider/util": "^0.40.0",
-    "ember-in-element-polyfill": "^1.0.1"
+    "ember-in-element-polyfill": "^1.0.1",
+    "**/ember-raf-scheduler": "0.3.0"
   },
   "engines": {
     "node": "12.* || 14.* || >= 16"
