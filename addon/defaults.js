@@ -1,6 +1,7 @@
 export default {
   animation: 'fill',
   arrow: false,
+  autoUpdate: false,
   flip: null,
   hideDelay: 0,
   hideDuration: 300,
@@ -9,15 +10,15 @@ export default {
   isOffset: false,
   isShown: false,
   lazyRender: false,
-  modifiers: null,
+  middleware: null,
   placement: 'top',
-  popperContainer: '.ember-application',
-  popperOptions: null,
+  floatingElementContainer: '.ember-application',
+  floatingUiOptions: null,
   renderInPlace: false,
   showDelay: 0,
   showDuration: 300,
   showOn: 'mouseenter focus',
   style: null,
-  tooltipClass: 'ember-attacher-popper ember-attacher-tooltip',
+  tooltipClass: 'ember-attacher-floating ember-attacher-tooltip',
   useCapture: false
 };

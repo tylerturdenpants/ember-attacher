@@ -90,6 +90,12 @@ Below is a list of all available options, along with their defaults.
 
   // Whether or not an arrow will be displayed next to the attachment.
   arrow: false,
+    
+  // Add listeners that will automatically call an update function
+  // Pass `true` to use the Floating UI default options or Options object to override them
+  // Example: { ancestorScroll: false }
+  // For more details see https://floating-ui.com/docs/autoUpdate 
+  autoUpdate: false,
 
   // A class that will be applied to the attachment.
   class: null,
@@ -139,18 +145,18 @@ Below is a list of all available options, along with their defaults.
   placement: 'top',
 
   // The container where the attachment's DOM will be inserted.
-  popperContainer: '.ember-application',
+  floatingElementContainer: '.ember-application',
 
-  // An options object that will be passed to Popper.js, the positioning library.
-  popperOptions: null,
+  // An options object that will be passed to Floating UI, the positioning library.
+  floatingUiOptions: null,
 
   // NOT RECOMMENDED: We currently allow you to pass an explicit target, but this may be removed
   // in a future release.
   // Please provide your thoughts here: https://github.com/kybishop/ember-attacher/issues/109
-  popperTarget: null,
+  explicitTarget: null,
 
   // Whether or not to render the attachment in place in the DOM, as opposed to
-  // on the popperContainer. NOTE: Rendering in place can cause z-index issues.
+  // on the floatingElementContainer. NOTE: Rendering in place can cause z-index issues.
   renderInPlace: false,
 
   // The delay, in milliseconds, before the attachment will be shown.
@@ -282,7 +288,7 @@ See the [Contributing](CONTRIBUTING.md) guide for details.
 
 Attachments are composed of two containers:
 
-* [An outer container](https://github.com/kybishop/ember-attacher/blob/master/addon/templates/components/attach-popover.hbs#L2) for positioning (via [ember-popper](https://github.com/kybishop/ember-popper)/[popper.js](https://github.com/FezVrasta/popper.js)).
+* [An outer container](https://github.com/kybishop/ember-attacher/blob/master/addon/templates/components/attach-popover.hbs#L2) for positioning (via [floating-ui](https://github.com/floating-ui/floating-ui).
 * [An inner container](https://github.com/kybishop/ember-attacher/blob/master/addon/templates/components/attach-popover.hbs#L12) for the content. This is the container that is animated.
 
 The outer container is positioned right next to the target via the CSS `transform` property. The inner container is required because animations also use `transform`, which would otherwise conflict with the container's position.
@@ -300,8 +306,8 @@ Note that animations require an implementation for each position (left, right, t
 * [tippy.js](https://github.com/atomiks/tippyjs), the library that inspired
   ember-attacher.
 
-* [popper.js](https://github.com/FezVrasta/popper.js), the library that powers
-  positioning (via [ember-popper](https://github.com/kybishop/ember-popper))
+* [floating-ui](https://github.com/floating-ui/floating-ui), the library that powers
+  positioning
 
 * [ember-tooltips](https://github.com/sir-dunxalot/ember-tooltips), the addon that
   influenced much of ember-attacher's API.

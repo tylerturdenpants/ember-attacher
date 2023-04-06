@@ -1,4 +1,9 @@
 .ember-attacher {
+  width: max-content;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
   perspective: 800px;
   transition-timing-function: cubic-bezier(.165, .84, .44, 1);
   z-index: 9999;

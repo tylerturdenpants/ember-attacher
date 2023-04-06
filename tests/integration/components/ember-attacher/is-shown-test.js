@@ -66,9 +66,9 @@ module('Integration | Component | isShown', function(hooks) {
         Click me, captain!
 
         {{#attach-popover id='attachment'
-                          hideOn=hideOn
-                          isShown=isShown
-                          showOn=showOn}}
+                          hideOn=this.hideOn
+                          isShown=this.isShown
+                          showOn=this.showOn}}
           isShown w/ hideOn/ShowOn of 'none'
 
           <button id="close" {{action 'closePopover'}}>
@@ -117,10 +117,10 @@ module('Integration | Component | isShown', function(hooks) {
         Click me, captain!
 
         {{#attach-popover id='attachment'
-                          hideOn=hideOn
-                          isShown=isShown
+                          hideOn=this.hideOn
+                          isShown=this.isShown
                           lazyRender=true
-                          showOn=showOn}}
+                          showOn=this.showOn}}
           isShown w/ hideOn/ShowOn of 'none'
 
           <button id="close" {{action 'closePopover'}}>
@@ -175,17 +175,17 @@ module('Integration | Component | isShown', function(hooks) {
       <button id="openParent" {{action 'openParentPopover'}}>
         Open parent
 
-        {{#attach-popover hideOn=hideOn
+        {{#attach-popover hideOn=this.hideOn
                           id='parent'
-                          isShown=parentIsShown
-                          showOn=showOn}}
+                          isShown=this.parentIsShown
+                          showOn=this.showOn}}
           <button id="openChild" {{action 'openChildPopover'}}>
             Open child
 
             {{#attach-popover hideDuration=0
                               hideOn='none'
                               id='child'
-                              isShown=childIsShown
+                              isShown=this.childIsShown
                               showOn='none'}}
               <button id="closeChild" {{action 'closeChildPopover'}}>
                 Close child
@@ -199,22 +199,22 @@ module('Integration | Component | isShown', function(hooks) {
     const childAttacher = find('#child');
     const parentAttacher = find('#parent');
 
-    assert.equal(parentAttacher.style.display, 'none', 'parent initially hidden');
-    assert.equal(childAttacher.style.display, 'none', 'child initially hidden');
+    assert.equal(getComputedStyle(parentAttacher).display, 'none', 'parent initially hidden');
+    assert.equal(getComputedStyle(childAttacher).display, 'none', 'child initially hidden');
 
     await click('#openParent');
 
-    assert.equal(parentAttacher.style.display, '', 'parent shown');
+    assert.equal(getComputedStyle(parentAttacher).display, 'block', 'parent shown');
 
-    assert.equal(childAttacher.style.display, 'none', 'child still hidden');
+    assert.equal(getComputedStyle(childAttacher).display, 'none', 'child still hidden');
 
     await click(parentAttacher.querySelector('#openChild'));
 
-    assert.equal(childAttacher.style.display, '', 'child shown');
+    assert.equal(getComputedStyle(childAttacher).display, 'block', 'child shown');
 
     await click('#closeChild');
 
-    assert.equal(parentAttacher.style.display, '', 'parent still shown');
-    assert.equal(childAttacher.style.display, 'none', 'child hidden');
+    assert.equal(getComputedStyle(parentAttacher).display, 'block', 'parent still shown');
+    assert.equal(getComputedStyle(childAttacher).display, 'none', 'child hidden');
   });
 });

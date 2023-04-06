@@ -3,6 +3,7 @@ import Service from '@ember/service';
 export default Service.extend({
   animation: 'shift',
   arrow: false,
+  autoUpdate: false,
   hideDelay: 0,
   hideDuration: 300,
   hideOn: 'click',

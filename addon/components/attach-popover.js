@@ -10,8 +10,12 @@ import { getOwner } from '@ember/application';
 import { guidFor } from '@ember/object/internals';
 import { htmlSafe, isHTMLSafe } from '@ember/string';
 import { stripInProduction } from 'ember-attacher/-debug/helpers';
-import { warn } from '@ember/debug';
-import { isEmpty } from '@ember/utils';
+import { warn, assert } from '@ember/debug';
+import { isEmpty, typeOf } from '@ember/utils';
+import { autoUpdate, computePosition, arrow, flip } from '@floating-ui/dom';
+import { buildWaiter } from '@ember/test-waiters';
+
+const animationTestWaiter = buildWaiter('attach-popover');
 
 @classic
 @templateLayout(layout)
@@ -35,9 +39,9 @@ export default class AttachPopover extends Component {
   lazyRender = DEFAULTS.lazyRender;
   onChange = null;
   placement = DEFAULTS.placement;
-  popperContainer = DEFAULTS.popperContainer;
-  popperOptions = DEFAULTS.popperOptions;
-  popperTarget = null;
+  floatingElementContainer = DEFAULTS.floatingElementContainer;
+  floatingUiOptions = DEFAULTS.floatingUiOptions;
+  explicitTarget = null;
   renderInPlace = DEFAULTS.renderInPlace;
   showDelay = DEFAULTS.showDelay;
   showDuration = DEFAULTS.showDuration;
@@ -45,41 +49,16 @@ export default class AttachPopover extends Component {
   style = DEFAULTS.style;
   useCapture = DEFAULTS.useCapture;
 
+  _arrowElement = null;
+  _floatingElement = null;
+
   // Exposed via the named yield to enable custom hide events
   @action
   hide() {
     this._hide();
   }
 
-  @action
-  _registerAPI(api) {
-    this._disableEventListeners = api.disableEventListeners;
-    this._enableEventListeners = api.enableEventListeners;
-    this._popperElement = api.popperElement;
-    this._update = api.update;
-
-    if (!this.isDestroying && !this.isDestroyed) {
-      if (this.registerAPI !== undefined) {
-        this.registerAPI(api);
-      }
-
-      if (this._isHidden) {
-        // Hide the attachment until it has been positioned,
-        // preventing jank during initial positioning
-        this._popperElement.style.visibility = 'hidden';
-
-        // The attachment has no width if initially hidden. This can cause it to be positioned so
-        // far to the right that it overflows the screen until enough updates fix its position.
-        // We avoid this by positioning initially hidden elements in the top left of the screen.
-        // The attachment will then correctly update its position from the first this._show()
-        this._popperElement.style.transform = null;
-
-        this._popperElement.style.display = this.isShown ? '' : 'none';
-      }
-    }
-  }
-
-  // The circle element needs a special duration that is slightly faster than the popper's
+  // The circle element needs a special duration that is slightly faster than the floating element's
   // transition, this prevents text from appearing outside the circle as it fills the background
   @computed('_transitionDuration')
   get _circleTransitionDuration() {
@@ -133,33 +112,63 @@ export default class AttachPopover extends Component {
     return hideOn === null ? [] : hideOn.split(' ');
   }
 
-  @computed('arrow', 'flip', 'modifiers')
-  get _modifiers() {
-    // Copy the modifiers since we might write to the provided hash
-    const modifiers
-      = this.modifiers ? Object.assign({}, this.modifiers) : {};
+  // eslint-disable-next-line ember/require-computed-property-dependencies
+  @computed('arrow', 'flip', 'middleware')
+  get _middleware() {
+    // Copy the middleware since we might write to the provided array
+    const middleware
+      = this.middleware ? [...this.middleware] : [];
 
-    const arrow = this.arrow;
-    if (typeof(arrow) === 'boolean' && !modifiers.arrow) {
-      modifiers.arrow = { enabled: arrow };
+    if (!!this.arrow && !middleware.find(name => name === 'arrow')) {
+      middleware.push(arrow({ element: this._arrowElement }));
     }
 
     const flipString = this.flip;
     if (flipString) {
-      const flipModifier = { behavior: flipString.split(' ') };
-      if (!modifiers.flip) {
-        modifiers.flip = flipModifier;
-      } else if (!modifiers.flip.behavior) {
-        // Copy the flip modifier since we are altering the provided hash
-        modifiers.flip = Object.assign({}, modifiers.flip, flipModifier);
+      const flipOptions = { fallbackPlacements: flipString.split(' ') };
+      const flipMiddleware = middleware.find(name => name === 'flip');
+      if (!flipMiddleware) {
+        middleware.push(flip(flipOptions));
+      } else if (!flipMiddleware.fallbackPlacements) {
+        Object.assign({}, flipMiddleware, flipOptions);
       }
     }
 
-    return modifiers;
+    return middleware;
+  }
+
+  @computed('_parentFinder.parentNode', '_renderInPlace', 'floatingElementContainer')
+  get _floatingElementContainer() {
+    const maybeContainer = this.floatingElementContainer;
+    const renderInPlace = this._renderInPlace;
+    let floatingElementContainer;
+
+    if (renderInPlace) {
+      floatingElementContainer = this._parentFinder.parentNode;
+    } else if (maybeContainer instanceof Element) {
+      floatingElementContainer = maybeContainer;
+    } else if (typeof maybeContainer === 'string') {
+      const selector = maybeContainer;
+      const possibleContainers = self.document.querySelectorAll(selector);
+
+      assert(`floatingElementContainer selector "${selector}" found `
+        + `${possibleContainers.length} possible containers when there should be exactly 1`, possibleContainers.length === 1);
+
+      floatingElementContainer = possibleContainers[0];
+    }
+
+    return floatingElementContainer;
+  }
+
+  @computed('renderInPlace')
+  get _renderInPlace() {
+    // self.document is undefined in Fastboot, so we have to render in
+    // place for the floating element to show up at all.
+    return self.document ? !!this.renderInPlace : true;
   }
 
   _setIsVisibleAfterDelay(isVisible, delay) {
-    if (!this._popperElement) {
+    if (!this._floatingElement) {
       this._animationTimeout = requestAnimationFrame(() => {
         this._animationTimeout = this._setIsVisibleAfterDelay(isVisible, delay);
       });
@@ -169,27 +178,28 @@ export default class AttachPopover extends Component {
     const onChange = this.onChange;
 
     if (delay) {
+      const showDelayToken = animationTestWaiter.beginAsync();
       this._delayedVisibilityToggle = later(this, () => {
         this._animationTimeout = requestAnimationFrame(() => {
           if (!this.isDestroyed && !this.isDestroying) {
-            this._popperElement.style.display = isVisible ? '' : 'none';
+            this._floatingElement.style.display = isVisible ? 'block' : 'none';
 
             // Prevent jank by making the attachment invisible until positioned.
             // The visibility style will be toggled by this._startShowAnimation()
-            this._popperElement.style.visibility = isVisible ? 'hidden' : '';
+            this._floatingElement.style.visibility = isVisible ? 'hidden' : '';
 
             if (onChange) {
               onChange(isVisible);
             }
           }
+          animationTestWaiter.endAsync(showDelayToken);
         });
       }, delay);
     } else {
-      this._popperElement.style.display = isVisible ? '' : 'none';
-
+      this._floatingElement.style.display = isVisible ? 'block' : 'none';
       // Prevent jank by making the attachment invisible until positioned.
       // The visibility style will be toggled by this._startShowAnimation()
-      this._popperElement.style.visibility = isVisible ? 'hidden' : '';
+      this._floatingElement.style.visibility = isVisible ? 'hidden' : '';
 
       if (onChange) {
         onChange(isVisible);
@@ -221,15 +231,16 @@ export default class AttachPopover extends Component {
     super.init(...arguments);
 
     // Used to determine the attachments initial parent element
+    // eslint-disable-next-line ember/no-assignment-of-untracked-properties-used-in-tracking-contexts
     this._parentFinder = self.document ? self.document.createTextNode('') : '';
 
-    // Holds the current popper target so event listeners can be removed if the target changes
+    // Holds the current floating ui target so event listeners can be removed if the target changes
     this._currentTarget = null;
 
     // The debounced _hide() and _show() are stored here so they can be cancelled when necessary
     this._delayedVisibilityToggle = null;
 
-    this.id = this.id || `${guidFor(this)}-popper`;
+    this.id = this.id || `${guidFor(this)}-floating`;
 
     // The final source of truth on whether or not all _hide() or _show() actions have completed
     this._isHidden = true;
@@ -346,7 +357,7 @@ export default class AttachPopover extends Component {
   _initializeAttacher() {
     this._removeEventListeners();
 
-    this.set('_currentTarget', this.popperTarget || this._parentFinder.parentNode);
+    this.set('_currentTarget', this.explicitTarget || this._parentFinder.parentNode);
 
     this._addListenersForShowEvents();
 
@@ -375,7 +386,7 @@ export default class AttachPopover extends Component {
   willDestroyElement() {
     super.willDestroyElement(...arguments);
 
-    cancelAnimationFrame(this._animationTimeout);
+    this._cancelAnimation();
     cancel(this._delayedVisibilityToggle);
 
     this._removeEventListeners();
@@ -399,7 +410,7 @@ export default class AttachPopover extends Component {
       });
   }
 
-  @observes('hideOn', 'showOn', 'popperTarget')
+  @observes('hideOn', 'showOn', 'explicitTarget')
   _targetOrTriggersChanged() {
     this._initializeAttacher();
   }
@@ -436,7 +447,7 @@ export default class AttachPopover extends Component {
   }
 
   _show() {
-    cancelAnimationFrame(this._animationTimeout);
+    this._cancelAnimation();
 
     if (!this._currentTarget) {
       return;
@@ -456,39 +467,41 @@ export default class AttachPopover extends Component {
     // `display: none` => `display: ''` is not transition-able.
     // All included animations set opaque: 0, so the attachment is still effectively hidden until
     // the final RAF occurs.
+    const testWaiterToken = animationTestWaiter.beginAsync();
     this._animationTimeout = requestAnimationFrame(() => {
       if (this.isDestroyed || this.isDestroying || !this._currentTarget) {
+        animationTestWaiter.endAsync(testWaiterToken);
         return;
       }
 
-      const popperElement = this._popperElement;
+      const floatingElement = this._floatingElement;
 
       // Wait until the element is visible before continuing
-      if (!popperElement || popperElement.style.display === 'none') {
+      if (!floatingElement || floatingElement.style.display === 'none') {
+        animationTestWaiter.endAsync(testWaiterToken);
         this._animationTimeout = this._startShowAnimation();
-
         return;
       }
 
-      this._enableEventListeners();
       this._update();
 
       // Wait for the above positioning to take effect before starting the show animation,
       // else the positioning itself will be animated, causing animation glitches.
       this._animationTimeout = requestAnimationFrame(() => {
         if (this.isDestroyed || this.isDestroying || !this._currentTarget) {
+          animationTestWaiter.endAsync(testWaiterToken);
           return;
         }
-
         run(() => {
+          animationTestWaiter.endAsync(testWaiterToken);
           if (this.isDestroyed || this.isDestroying || !this._currentTarget) {
             return;
           }
-          // Make the popper element visible now that it has been positioned
-          popperElement.style.visibility = '';
+          // Make the floating element visible now that it has been positioned
+          floatingElement.style.visibility = '';
           this.set('_transitionDuration', parseInt(this.showDuration));
           this.set('_isStartingAnimation', true);
-          popperElement.setAttribute('aria-hidden', 'false');
+          floatingElement.setAttribute('aria-hidden', 'false');
         });
 
         this._isHidden = false;
@@ -509,18 +522,21 @@ export default class AttachPopover extends Component {
   }
 
   _hide() {
-    if (!this._popperElement) {
+    if (!this._floatingElement) {
+      const token = animationTestWaiter.beginAsync();
       this._animationTimeout = requestAnimationFrame(() => {
+        animationTestWaiter.endAsync(token);
         this._animationTimeout = this._hide();
       });
       return;
     }
 
-    cancelAnimationFrame(this._animationTimeout);
+    this._cancelAnimation();
 
     this._removeListenersForHideEvents();
-
+    const token = animationTestWaiter.beginAsync();
     this._animationTimeout = requestAnimationFrame(() => {
+      animationTestWaiter.endAsync(token);
       // Avoid a race condition where we attempt to hide after the component is being destroyed.
       if (this.isDestroyed || this.isDestroying) {
         return;
@@ -535,13 +551,10 @@ export default class AttachPopover extends Component {
 
         this.set('_transitionDuration', hideDuration);
         this.set('_isStartingAnimation', false);
-        this._popperElement.setAttribute('aria-hidden', 'true');
-
+        this._floatingElement.setAttribute('aria-hidden', 'true');
         // Wait for any animations to complete before hiding the attachment
         this._setIsVisibleAfterDelay(false, hideDuration);
       });
-
-      this._disableEventListeners();
 
       this._isHidden = true;
     });
@@ -628,10 +641,10 @@ export default class AttachPopover extends Component {
       return;
     }
 
-    // If cursor is not on the attachment or target, hide the popover
+    // If cursor is not on the attachment or target, hide the floating element
     if (!target.contains(event.target)
       && !(this.isOffset && this._isCursorBetweenTargetAndAttachment(event))
-      && (this._popperElement && !this._popperElement.contains(event.target))) {
+      && (this._floatingElement && !this._floatingElement.contains(event.target))) {
       // Remove this listener before hiding the attachment
       delete this._hideListenersOnDocumentByEvent.mousemove;
       document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment, this.useCapture);
@@ -648,7 +661,7 @@ export default class AttachPopover extends Component {
 
     const { clientX, clientY } = event;
 
-    const attachmentPosition = this._popperElement.getBoundingClientRect();
+    const attachmentPosition = this._floatingElement.getBoundingClientRect();
     const targetPosition = this._currentTarget.getBoundingClientRect();
 
     const isBetweenLeftAndRight = clientX > Math.min(attachmentPosition.left, targetPosition.left)
@@ -692,7 +705,7 @@ export default class AttachPopover extends Component {
     const targetReceivedClick = this._currentTarget.contains(event.target);
 
     if (this.interactive) {
-      if (!targetReceivedClick && !this._popperElement.contains(event.target)) {
+      if (!targetReceivedClick && !this._floatingElement.contains(event.target)) {
         this._hideAfterDelay();
       }
     } else if (!targetReceivedClick) {
@@ -718,7 +731,7 @@ export default class AttachPopover extends Component {
     const targetContainsFocus = this._currentTarget.contains(event.relatedTarget);
 
     if (this.interactive) {
-      if (!targetContainsFocus && !this._popperElement.contains(event.relatedTarget)) {
+      if (!targetContainsFocus && !this._floatingElement.contains(event.relatedTarget)) {
         this._hideAfterDelay();
       }
     } else if (!targetContainsFocus) {
@@ -761,5 +774,67 @@ export default class AttachPopover extends Component {
         delete this._hideListenersOnTargetByEvent[eventType];
       }
     });
+  }
+
+  @action
+  didInsertFloatingElement(floatingElement) {
+    this._floatingElement = floatingElement;
+  }
+
+  @action
+  didInsertArrow(element) {
+    this._arrowElement = element;
+  }
+
+  @action
+  didUpdateOptions() {
+    this._update();
+  }
+
+  @action
+  willDestroyFloatingElement() {
+    this._cleanup?.();
+  }
+
+  _update() {
+    this._cleanup?.();
+    if (this.autoUpdate) {
+      this._cleanup = autoUpdate(
+        this._currentTarget,
+        this._floatingElement,
+        this._updatePosition,
+        typeOf(this.autoUpdate) === 'object' ? this.autoUpdate : undefined
+      );
+    } else {
+      this._updatePosition();
+    }
+  }
+
+  @action
+  _updatePosition() {
+    const computePositionToken = animationTestWaiter.beginAsync();
+    computePosition(this._currentTarget, this._floatingElement, {
+      ...this.floatingUiOptions,
+      middleware: this._middleware,
+      placement: this.placement
+    }).then(({ x, y, placement, middlewareData }) => {
+      animationTestWaiter.endAsync(computePositionToken)
+      Object.assign(this._floatingElement.style, { left: `${x}px`, top: `${y}px`, });
+
+      if (middlewareData.arrow) {
+        const { x, y } = middlewareData.arrow;
+
+        Object.assign(this._arrowElement.style, {
+          left: x != null ? `${x}px` : '',
+          top: y != null ? `${y}px` : '',
+        });
+      }
+      this._floatingElement.setAttribute('x-placement', placement);
+    });
+  }
+
+  _cancelAnimation() {
+    cancelAnimationFrame(this._animationTimeout);
+    animationTestWaiter.reset();
   }
 }

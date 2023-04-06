@@ -31,16 +31,16 @@ export default class AttachTooltip extends AttachPopover {
     this._currentTarget.setAttribute('aria-describedby', this.id);
   }
 
-  @observes('popperTarget')
-  popperTargetChanged() {
+  @observes('explicitTarget')
+  explicitTargetChanged() {
     const oldTarget = this._currentTarget;
     if (oldTarget) {
       oldTarget.removeAttribute('aria-describedby');
     }
 
-    super.popperTargetChanged;
+    super.explicitTargetChanged;
 
-    this.popperTarget.setAttribute('aria-describedby', this.id);
+    this.explicitTarget.setAttribute('aria-describedby', this.id);
   }
 
   willDestroyElement() {

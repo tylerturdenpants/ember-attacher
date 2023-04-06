@@ -52,7 +52,7 @@ module('Integration | Component | showOn', function(hooks) {
 
     await render(hbs`
         <button id="target">
-          {{#attach-popover id='attachment' hideOn='click' showOn=showOn}}
+          {{#attach-popover id='attachment' hideOn='click' showOn=this.showOn}}
             showOn mouseenter
           {{/attach-popover}}
         </button>
@@ -82,7 +82,7 @@ module('Integration | Component | showOn', function(hooks) {
 
     await render(hbs`
         <button id="target">
-          {{#attach-popover id='attachment' hideOn='click' showOn=showOn}}
+          {{#attach-popover id='attachment' hideOn='click' showOn=this.showOn}}
             showOn mouseenter
           {{/attach-popover}}
         </button>

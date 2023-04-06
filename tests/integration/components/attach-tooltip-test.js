@@ -58,7 +58,7 @@ module('Integration | Component | attach tooltip', function(hooks) {
     const tooltipWithClass = find('#tooltip-with-class > .ember-attacher-tooltip');
     assert.contains(
       tooltipWithClass.className.split(' '),
-      'ember-attacher-popper ember-attacher-tooltip some-class'.split(' '),
+      'ember-attacher-floating ember-attacher-tooltip some-class'.split(' '),
       'it adds the default classes to tooltips with a class'
     );
 
@@ -66,7 +66,7 @@ module('Integration | Component | attach tooltip', function(hooks) {
 
     assert.contains(
       tooltipWithNoClass.className.split(' '),
-      'ember-attacher-popper ember-attacher-tooltip'.split(' '),
+      'ember-attacher-floating ember-attacher-tooltip'.split(' '),
       'it adds the defaults classes to tooltips with no class'
     );
   });
@@ -145,7 +145,7 @@ module('Integration | Component | attach tooltip', function(hooks) {
     this.set('style', htmlSafe('cursor: pointer;'));
     await render(hbs`
       <div>
-        {{#attach-tooltip id='tooltip-with-style' style=style}}
+        {{#attach-tooltip id='tooltip-with-style' style=this.style}}
           tooltip text
         {{/attach-tooltip}}
       </div>
@@ -185,7 +185,7 @@ module('Integration | Component | attach tooltip', function(hooks) {
 
     await render(hbs`
       <div id="target">
-        {{#if showTooltip}}
+        {{#if this.showTooltip}}
           {{#attach-tooltip id='attachment'}}
             tooltip text
           {{/attach-tooltip}}

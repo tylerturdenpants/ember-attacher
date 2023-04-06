@@ -98,8 +98,8 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
         {{#attach-popover id='attachment'
                           hideOn='mouseleave'
                           interactive=true
-                          isShown=isShown
-                          onChange=(action (mut isShown)) as |attacher|}}
+                          isShown=this.isShown
+                          onChange=(action (mut this.isShown)) as |attacher|}}
           hideOn mouseleave
 
           <button id="manual-hide" {{action attacher.hide}}>hide</button>
