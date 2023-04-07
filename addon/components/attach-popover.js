@@ -113,13 +113,13 @@ export default class AttachPopover extends Component {
   }
 
   // eslint-disable-next-line ember/require-computed-property-dependencies
-  @computed('arrow', 'flip', 'middleware')
+  @computed('arrow', 'flip', 'middleware', '_arrowElement')
   get _middleware() {
     // Copy the middleware since we might write to the provided array
     const middleware
       = this.middleware ? [...this.middleware] : [];
 
-    if (!!this.arrow && !middleware.find(name => name === 'arrow')) {
+    if (this.arrow && this._arrowElement && !middleware.find(name => name === 'arrow')) {
       middleware.push(arrow({ element: this._arrowElement }));
     }
 
@@ -170,17 +170,16 @@ export default class AttachPopover extends Component {
   _setIsVisibleAfterDelay(isVisible, delay) {
     if (!this._floatingElement) {
       this._animationTimeout = requestAnimationFrame(() => {
-        this._animationTimeout = this._setIsVisibleAfterDelay(isVisible, delay);
+        this._setIsVisibleAfterDelay(isVisible, delay);
       });
-
       return;
     }
     const onChange = this.onChange;
 
     if (delay) {
-      const showDelayToken = animationTestWaiter.beginAsync();
       this._delayedVisibilityToggle = later(this, () => {
         this._animationTimeout = requestAnimationFrame(() => {
+          animationTestWaiter.endAsync(this._animationTimeout);
           if (!this.isDestroyed && !this.isDestroying) {
             this._floatingElement.style.display = isVisible ? 'block' : 'none';
 
@@ -192,8 +191,8 @@ export default class AttachPopover extends Component {
               onChange(isVisible);
             }
           }
-          animationTestWaiter.endAsync(showDelayToken);
         });
+        animationTestWaiter.beginAsync(this._animationTimeout);
       }, delay);
     } else {
       this._floatingElement.style.display = isVisible ? 'block' : 'none';
@@ -467,10 +466,9 @@ export default class AttachPopover extends Component {
     // `display: none` => `display: ''` is not transition-able.
     // All included animations set opaque: 0, so the attachment is still effectively hidden until
     // the final RAF occurs.
-    const testWaiterToken = animationTestWaiter.beginAsync();
     this._animationTimeout = requestAnimationFrame(() => {
+      animationTestWaiter.endAsync(this._animationTimeout);
       if (this.isDestroyed || this.isDestroying || !this._currentTarget) {
-        animationTestWaiter.endAsync(testWaiterToken);
         return;
       }
 
@@ -478,8 +476,7 @@ export default class AttachPopover extends Component {
 
       // Wait until the element is visible before continuing
       if (!floatingElement || floatingElement.style.display === 'none') {
-        animationTestWaiter.endAsync(testWaiterToken);
-        this._animationTimeout = this._startShowAnimation();
+        this._startShowAnimation();
         return;
       }
 
@@ -488,12 +485,11 @@ export default class AttachPopover extends Component {
       // Wait for the above positioning to take effect before starting the show animation,
       // else the positioning itself will be animated, causing animation glitches.
       this._animationTimeout = requestAnimationFrame(() => {
+        animationTestWaiter.endAsync(this._animationTimeout);
         if (this.isDestroyed || this.isDestroying || !this._currentTarget) {
-          animationTestWaiter.endAsync(testWaiterToken);
           return;
         }
         run(() => {
-          animationTestWaiter.endAsync(testWaiterToken);
           if (this.isDestroyed || this.isDestroying || !this._currentTarget) {
             return;
           }
@@ -506,7 +502,9 @@ export default class AttachPopover extends Component {
 
         this._isHidden = false;
       });
+      animationTestWaiter.beginAsync(this._animationTimeout);
     });
+    animationTestWaiter.beginAsync(this._animationTimeout);
   }
 
   /**
@@ -523,20 +521,19 @@ export default class AttachPopover extends Component {
 
   _hide() {
     if (!this._floatingElement) {
-      const token = animationTestWaiter.beginAsync();
       this._animationTimeout = requestAnimationFrame(() => {
-        animationTestWaiter.endAsync(token);
+        animationTestWaiter.endAsync(this._animationTimeout);
         this._animationTimeout = this._hide();
       });
+      animationTestWaiter.beginAsync(this._animationTimeout);
       return;
     }
 
     this._cancelAnimation();
 
     this._removeListenersForHideEvents();
-    const token = animationTestWaiter.beginAsync();
     this._animationTimeout = requestAnimationFrame(() => {
-      animationTestWaiter.endAsync(token);
+      animationTestWaiter.endAsync(this._animationTimeout);
       // Avoid a race condition where we attempt to hide after the component is being destroyed.
       if (this.isDestroyed || this.isDestroying) {
         return;
@@ -558,6 +555,7 @@ export default class AttachPopover extends Component {
 
       this._isHidden = true;
     });
+    animationTestWaiter.beginAsync(this._animationTimeout);
   }
 
   /**
@@ -783,7 +781,7 @@ export default class AttachPopover extends Component {
 
   @action
   didInsertArrow(element) {
-    this._arrowElement = element;
+    this.set('_arrowElement', element);
   }
 
   @action
@@ -818,7 +816,7 @@ export default class AttachPopover extends Component {
       middleware: this._middleware,
       placement: this.placement
     }).then(({ x, y, placement, middlewareData }) => {
-      animationTestWaiter.endAsync(computePositionToken)
+      animationTestWaiter.endAsync(computePositionToken);
       Object.assign(this._floatingElement.style, { left: `${x}px`, top: `${y}px`, });
 
       if (middlewareData.arrow) {
@@ -835,6 +833,9 @@ export default class AttachPopover extends Component {
 
   _cancelAnimation() {
     cancelAnimationFrame(this._animationTimeout);
-    animationTestWaiter.reset();
+
+    if (animationTestWaiter.items.get(this._animationTimeout)) {
+      animationTestWaiter.endAsync(this._animationTimeout);
+    }
   }
 }

@@ -71,17 +71,15 @@ module('Integration | Component | hideOn "focusout"', function(hooks) {
 
     assert.equal(isVisible(attachment), true, 'Now shown');
 
-    const targetInsideAttachment = find('#attachment-focus-me')
-    await focus(targetInsideAttachment)
-    await waitUntil(() => {
-      if (document.activeElement === targetInsideAttachment) return true
-
-      focus(targetInsideAttachment)
-    });
+    await focus('#attachment-focus-me');
 
     await settled();
 
-    await waitUntil(() => isVisible(attachment) === false);
+    await waitUntil(() => {
+      if (!isVisible(attachment)) return true;
+
+      focus('#attachment-focus-me');
+    }, { timeout: 1000 });
 
     assert.equal(isVisible(attachment), false, 'hidden again');
   });

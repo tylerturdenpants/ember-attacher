@@ -10,7 +10,7 @@
       {{did-update this.didUpdateOptions this.autoUpdate this.placement this._renderInPlace this._currentTarget this._middleware}}
       {{will-destroy this.willDestroyFloatingElement}}
     >
-      <div class="{{this._class}}" style="{{this._style}}">
+      <div class={{this._class}} style={{this._style}}>
         {{yield (hash hide=(action 'hide'))}}
         {{#if this.arrow}}
           <div x-arrow {{did-insert this.didInsertArrow}}></div>
