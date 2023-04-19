@@ -20,9 +20,9 @@
 
 ----
 
-* Ember.js v3.12 or above
+* Ember.js v3.16 or above
 * Ember CLI v3.13 or above
-* Node.js v10 or above
+* Node.js v12 or above
 
 Tooltips and popovers made easy.
 Just drop an `{{#attach-tooltip}}` or `{{#attach-popover}}` in a parent and your popper is ready to go!
@@ -48,7 +48,7 @@ Just drop an `{{#attach-tooltip}}` or `{{#attach-popover}}` in a parent and your
 </button>
 ```
 
-See [the example site](https://kybishop.github.io/ember-attacher/) for a demonstration of all
+See [the example site](https://tylerturdenpants.github.io/ember-attacher/) for a demonstration of all
 available options.
 
 ## Installation
@@ -56,6 +56,8 @@ available options.
 ```bash
 ember install ember-attacher
 ```
+
+For Ember.js below the v3.20 you may need to install [@ember/render-modifiers](https://github.com/emberjs/ember-render-modifiers) (`ember install @ember/render-modifiers`).
 
 ## Components
 
@@ -288,7 +290,7 @@ See the [Contributing](CONTRIBUTING.md) guide for details.
 
 Attachments are composed of two containers:
 
-* [An outer container](https://github.com/kybishop/ember-attacher/blob/master/addon/templates/components/attach-popover.hbs#L2) for positioning (via [floating-ui](https://github.com/floating-ui/floating-ui).
+* [An outer container](https://github.com/kybishop/ember-attacher/blob/master/addon/templates/components/attach-popover.hbs#L2) for positioning (via [floating-ui](https://github.com/floating-ui/floating-ui)).
 * [An inner container](https://github.com/kybishop/ember-attacher/blob/master/addon/templates/components/attach-popover.hbs#L12) for the content. This is the container that is animated.
 
 The outer container is positioned right next to the target via the CSS `transform` property. The inner container is required because animations also use `transform`, which would otherwise conflict with the container's position.

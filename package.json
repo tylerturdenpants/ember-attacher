@@ -47,6 +47,8 @@
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "~2.9.3",
     "@ember/test-waiters": "^3.0.2",
+    "@glimmer/component": "^1.0.0",
+    "@glimmer/tracking": "^1.0.0",
     "@html-next/flexi-default-styles": "^2.2.0",
     "babel-eslint": "^10.1.0",
     "broccoli-asset-rev": "^3.0.0",
@@ -86,9 +88,12 @@
   "engines": {
     "node": ">= 12.*"
   },
+  "ember": {
+    "edition": "octane"
+  },
   "ember-addon": {
     "configPath": "tests/dummy/config",
-    "demoURL": "https://kybishop.github.io/ember-attacher/"
+    "demoURL": "https://tylerturdenpants.github.io/ember-attacher/"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
