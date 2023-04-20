@@ -25,7 +25,7 @@
 * Node.js v12 or above
 
 Tooltips and popovers made easy.
-Just drop an `{{#attach-tooltip}}` or `{{#attach-popover}}` in a parent and your popper is ready to go!
+Just drop an `{{#attach-tooltip}}` or `{{#attach-popover}}` in a parent and your floating element is ready to go!
 
 ```hbs
 <button>
@@ -39,7 +39,7 @@ Just drop an `{{#attach-tooltip}}` or `{{#attach-popover}}` in a parent and your
 <button class="other-button">
   No click me!
 
-  {{#attach-popover class="ember-attacher-popper"
+  {{#attach-popover class="ember-attacher"
                     hideOn='click'
                     isShown=true
                     showOn='click'}}
@@ -57,7 +57,8 @@ available options.
 ember install ember-attacher
 ```
 
-For Ember.js below the v3.20 you may need to install [@ember/render-modifiers](https://github.com/emberjs/ember-render-modifiers) (`ember install @ember/render-modifiers`).
+If you're upgrading from 1.x to 2.x [see the upgrade guide](./docs/upgrade-guide-2.0.md).
+
 
 ## Components
 
@@ -67,13 +68,13 @@ A popover attacher.
 
 * Has no default class or roles.
 * Does not modify the target in any way.
-* Adds `aria-hidden` attribute to the popper element
+* Adds `aria-hidden` attribute to the floating element
 
 ### `{{#attach-tooltip}}`
 
 A tooltip attacher. Subclass of `{{#attach-popover}}`
 
-* Has the default class `'ember-attacher-popper ember-attacher-tooltip'`
+* Has the default class `'ember-attacher-floating ember-attacher-tooltip'`
   * The default tooltip classes can be modified by altering the `tooltipClass`
     default. See [here](#user-defined-defaults) for details on editing default values.
 
@@ -135,8 +136,8 @@ Below is a list of all available options, along with their defaults.
   // Useful for performance reasons, but will hide your attachment from search engines.
   lazyRender: false,
 
-  // An options object that will be merged into popperOptions.
-  modifiers: null,
+  // A middleware array that will be merged into computePosition options
+  middleware: null,
 
   // A function to be fired when the attachment's visibility changes. The new visibility is passed
   // to the function as an arg.
@@ -149,7 +150,7 @@ Below is a list of all available options, along with their defaults.
   // The container where the attachment's DOM will be inserted.
   floatingElementContainer: '.ember-application',
 
-  // An options object that will be passed to Floating UI, the positioning library.
+  // An options object that will be passed to Floating UI "computePosition" function.
   floatingUiOptions: null,
 
   // NOT RECOMMENDED: We currently allow you to pass an explicit target, but this may be removed

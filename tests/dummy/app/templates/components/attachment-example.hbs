@@ -2,7 +2,7 @@
   <p>Drop an <span class="no-wrap">\{{#attach-tooltip}}</span> or <span class="no-wrap">\{{#attach-popover}}</span> in any element or component to get started.</p>
 </div>
 <div data-element-centered class="section">
-  <div data-element-centered class="popper-area justify-around col-lg-10 col-md-12 col-sm-16 col-lm-20 col-xs-24">
+  <div data-element-centered class="floating-area justify-around col-lg-10 col-md-12 col-sm-16 col-lm-20 col-xs-24">
     <button class="hover-me">
       Tooltip me, captain!
 
@@ -30,7 +30,7 @@
       {{#attach-popover animation=popoverData.animation
                         arrow=popoverData.arrow
                         autoUpdate=popoverData.autoUpdate
-                        class="ember-attacher-popper custom-popover-css"
+                        class="ember-attacher-popover custom-popover-css"
                         hideDelay=popoverData.hideDelay
                         hideDuration=popoverData.hideDuration
                         hideOn=popoverData.hideOn
@@ -92,7 +92,7 @@
             {{#attach-tooltip animation='shift'}}
               {{#if this.isConfiguringTooltip}}
                 This component has the default settings. The \{{attach-tooltip}} component
-                automatically gains the ember-attacher-popper and ember-attacher-tooltip classes.
+                automatically gains the ember-attacher-floating and ember-attacher-tooltip classes.
                 It also modifies the target element's aria-describedby to point to the tooltip.
                 For manual control, use \{{attach-popover}} instead.
               {{else}}
@@ -277,10 +277,10 @@
           {{#attach-tooltip animation="shift"}}
             Elements that exist deep within the document tree are given an implicitly lower z-index
             value than elements that aren't as deep in the tree; this has the effect of hiding our
-            popper behind less-nested elements. Due to the way z-indexing works, we cannot simply
-            add a higher z-index value to our popper. To avoid this issue, we render the element
+            floating element behind less-nested elements. Due to the way z-indexing works, we cannot simply
+            add a higher z-index value to our floating element. To avoid this issue, we render the element
             on the document body, giving it the highest default z-index value. Toggling
-            renderInPlace will prevent the popper from being rendered elsewhere, but may cause the
+            renderInPlace will prevent the floating element from being rendered elsewhere, but may cause the
             aforementioned z-index issues.
           {{/attach-tooltip}}
         </span>
@@ -355,14 +355,14 @@
 
                   {{#attach-tooltip}}
                     The \{{attach-tooltip}} component automatically adds
-                    ember-attacher-popper and ember-attacher-tooltip to the class string.
+                    ember-attacher-floating and ember-attacher-tooltip to the class string.
                   {{/attach-tooltip}}
                 </span>
                 ='optional-class-here'}}
               </div>
             </div>
           {{else}}
-            <div data-element-hbox><div data-element-centered class="flexi-fit">class="ember-attacher-popper custom-popover-css"</div></div>
+            <div data-element-hbox><div data-element-centered class="flexi-fit">class="ember-attacher-floating custom-popover-css"</div></div>
             <div data-element-hbox><div data-element-centered class="flexi-fit">as |attacher|}}</div></div>
           {{/if}}
         </vbox>
@@ -410,6 +410,6 @@
   <h2>Credits</h2>
   <div data-element-vbox class="col-md-12 col-sm-16 col-lm-20 col-xs-24 flexi-fit">
     <p>Ember-attacher was inspired by tippy.js and ember-tooltips.</p>
-    <p>It was built with love to provide a tooltip and popover addon based on popper.js, a modern replacement to tether.js, while taking advantage of everything Ember.js has to offer.</p>
+    <p>It was built with love to provide a tooltip and popover addon based on floating-ui, a modern replacement to tether.js, while taking advantage of everything Ember.js has to offer.</p>
   </div>
 </div>
