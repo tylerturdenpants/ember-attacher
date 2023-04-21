@@ -2,12 +2,13 @@
   <p>Drop an <span class="no-wrap">\{{#attach-tooltip}}</span> or <span class="no-wrap">\{{#attach-popover}}</span> in any element or component to get started.</p>
 </div>
 <div data-element-centered class="section">
-  <div data-element-centered class="popper-area justify-around col-lg-10 col-md-12 col-sm-16 col-lm-20 col-xs-24">
+  <div data-element-centered class="floating-area justify-around col-lg-10 col-md-12 col-sm-16 col-lm-20 col-xs-24">
     <button class="hover-me">
       Tooltip me, captain!
 
       {{#attach-tooltip animation=tooltipData.animation
                         arrow=tooltipData.arrow
+                        autoUpdate=tooltipData.autoUpdate
                         hideDelay=tooltipData.hideDelay
                         hideDuration=tooltipData.hideDuration
                         hideOn=tooltipData.hideOn
@@ -15,7 +16,6 @@
                         isShown=tooltipData.isShown
                         onChange=(action (mut tooltipData.isShown))
                         placement=tooltipData.placement
-                        registerAPI=(action 'log')
                         renderInPlace=tooltipData.renderInPlace
                         showDelay=tooltipData.showDelay
                         showDuration=tooltipData.showDuration
@@ -29,7 +29,8 @@
 
       {{#attach-popover animation=popoverData.animation
                         arrow=popoverData.arrow
-                        class="ember-attacher-popper custom-popover-css"
+                        autoUpdate=popoverData.autoUpdate
+                        class="ember-attacher-popover custom-popover-css"
                         hideDelay=popoverData.hideDelay
                         hideDuration=popoverData.hideDuration
                         hideOn=popoverData.hideOn
@@ -38,7 +39,6 @@
                         lazyRender=popoverData.lazyRender
                         onChange=(action (mut popoverData.isShown))
                         placement=popoverData.placement
-                        registerAPI=(action 'log')
                         renderInPlace=popoverData.renderInPlace
                         showDelay=popoverData.showDelay
                         showDuration=popoverData.showDuration
@@ -65,10 +65,10 @@
 <div data-element-centered class="edit-section">
   <div data-element-vbox class="fit-lm">
     <div data-element-hbox class="nav-bar">
-      <div data-element-centered class="col-xs-12 nav{{if isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' true}}>
+      <div data-element-centered class="col-xs-12 nav{{if this.isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' true}}>
         \{{#attach-tooltip}}
       </div>
-      <div data-element-centered  class="col-xs-12 nav{{unless isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' false}}>
+      <div data-element-centered  class="col-xs-12 nav{{unless this.isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' false}}>
         \{{#attach-popover}}
       </div>
     </div>
@@ -78,7 +78,7 @@
     <div data-element-hbox>
       <div data-element-centered class="flexi-fit">
         &nbsp;&nbsp;
-        {{if isConfiguringTooltip 'Tooltip me, captain!' 'Click me, captain!'}}
+        {{if this.isConfiguringTooltip 'Tooltip me, captain!' 'Click me, captain!'}}
       </div>
     </div>
     <div data-element-hbox>&nbsp;</div>
@@ -87,12 +87,12 @@
         <div data-element-centered class="flexi-fit">
           &nbsp;&nbsp;\{{
           <span class="underlined">
-            {{if isConfiguringTooltip '#attach-tooltip' '#attach-popover'}}
+            {{if this.isConfiguringTooltip '#attach-tooltip' '#attach-popover'}}
 
             {{#attach-tooltip animation='shift'}}
-              {{#if isConfiguringTooltip}}
+              {{#if this.isConfiguringTooltip}}
                 This component has the default settings. The \{{attach-tooltip}} component
-                automatically gains the ember-attacher-popper and ember-attacher-tooltip classes.
+                automatically gains the ember-attacher-floating and ember-attacher-tooltip classes.
                 It also modifies the target element's aria-describedby to point to the tooltip.
                 For manual control, use \{{attach-popover}} instead.
               {{else}}
@@ -255,18 +255,17 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          registerAPI
+          autoUpdate
 
           {{#attach-tooltip animation='shift'}}
-            <p>RegisterAPI allows you to pass an action that will be called once the attachment has
-            been positioned, and any time the Popper.js instance must be recreated (from changing
-            options on the attachment).</p>
-            <p>RegisterAPI allows you to capture the element used for positioning,
-            the parent element, and various functions related to positioning, such as scheduleUpdate
-            and disableEventListeners. See the readme for a full description of RegisterAPI.</p>
+            The floating element can detach from the reference element if the user scrolls or resizes the screen, so its position needs to be updated again to ensure it stays anchored.
+            To solve this, autoUpdate adds listeners that will automatically call an update function
           {{/attach-tooltip}}
         </span>
-        =(action (mut log))
+        =
+        <button class="button medium" {{action "toggleAutoUpdate"}}>
+          {{service.autoUpdate}}
+        </button>
       </div>
     </div>
     <div data-element-hbox>
@@ -278,10 +277,10 @@
           {{#attach-tooltip animation="shift"}}
             Elements that exist deep within the document tree are given an implicitly lower z-index
             value than elements that aren't as deep in the tree; this has the effect of hiding our
-            popper behind less-nested elements. Due to the way z-indexing works, we cannot simply
-            add a higher z-index value to our popper. To avoid this issue, we render the element
+            floating element behind less-nested elements. Due to the way z-indexing works, we cannot simply
+            add a higher z-index value to our floating element. To avoid this issue, we render the element
             on the document body, giving it the highest default z-index value. Toggling
-            renderInPlace will prevent the popper from being rendered elsewhere, but may cause the
+            renderInPlace will prevent the floating element from being rendered elsewhere, but may cause the
             aforementioned z-index issues.
           {{/attach-tooltip}}
         </span>
@@ -356,14 +355,14 @@
 
                   {{#attach-tooltip}}
                     The \{{attach-tooltip}} component automatically adds
-                    ember-attacher-popper and ember-attacher-tooltip to the class string.
+                    ember-attacher-floating and ember-attacher-tooltip to the class string.
                   {{/attach-tooltip}}
                 </span>
                 ='optional-class-here'}}
               </div>
             </div>
           {{else}}
-            <div data-element-hbox><div data-element-centered class="flexi-fit">class="ember-attacher-popper custom-popover-css"</div></div>
+            <div data-element-hbox><div data-element-centered class="flexi-fit">class="ember-attacher-floating custom-popover-css"</div></div>
             <div data-element-hbox><div data-element-centered class="flexi-fit">as |attacher|}}</div></div>
           {{/if}}
         </vbox>
@@ -411,6 +410,6 @@
   <h2>Credits</h2>
   <div data-element-vbox class="col-md-12 col-sm-16 col-lm-20 col-xs-24 flexi-fit">
     <p>Ember-attacher was inspired by tippy.js and ember-tooltips.</p>
-    <p>It was built with love to provide a tooltip and popover addon based on popper.js, a modern replacement to tether.js, while taking advantage of everything Ember.js has to offer.</p>
+    <p>It was built with love to provide a tooltip and popover addon based on floating-ui, a modern replacement to tether.js, while taking advantage of everything Ember.js has to offer.</p>
   </div>
 </div>

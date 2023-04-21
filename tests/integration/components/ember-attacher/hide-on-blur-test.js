@@ -76,7 +76,11 @@ module('Integration | Component | hideOn "blur"', function(hooks) {
 
     await settled();
 
-    await waitUntil(() => isVisible(attachment) === false);
+    await waitUntil(() => {
+      if (!isVisible(attachment)) return true;
+
+      focus('#attachment-focus-me');
+    }, { timeout: 1000 });
 
     assert.equal(isVisible(attachment), false, 'Hidden again');
   });

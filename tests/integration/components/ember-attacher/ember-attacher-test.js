@@ -23,7 +23,7 @@ module('Integration | Component | ember attacher', function(hooks) {
     await render(hbs`
       <div>
         {{#attach-popover id='attachment'}}
-          popper text
+          floating text
         {{/attach-popover}}
       </div>
     `);
@@ -32,7 +32,7 @@ module('Integration | Component | ember attacher', function(hooks) {
 
     assert.dom('div[x-circle]', attachment).exists('div[x-circle] exists');
 
-    assert.ok(attachment.innerHTML.includes('popper text'));
+    assert.ok(attachment.innerHTML.includes('floating text'));
   });
 
   test('uses the user-supplied popover class over global config class', async function(assert) {
@@ -75,7 +75,7 @@ module('Integration | Component | ember attacher', function(hooks) {
     await render(hbs`
       <div>
         {{#attach-popover id='attachment'}}
-          popper text
+          floating text
         {{/attach-popover}}
       </div>
     `);

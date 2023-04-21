@@ -1,25 +1,24 @@
 {{unbound this._parentFinder}}
 
 {{~#if (and this._currentTarget (or (not this.lazyRender) this._mustRender))}}
-  {{~#ember-popper ariaRole=this.ariaRole
-                  class="ember-attacher"
-                  eventsEnabled=false
-                  id=this.id
-                  modifiers=this._modifiers
-                  placement=this.placement
-                  popperContainer=this.popperContainer
-                  popperTarget=this._currentTarget
-                  registerAPI=(action '_registerAPI')
-                  renderInPlace=this.renderInPlace as |emberPopper|~}}
-    <div class="{{this._class}}" style="{{this._style}}">
-      {{yield (hash emberPopper=emberPopper hide=(action 'hide'))}}
-
-      {{#if this.arrow}}
-        <div x-arrow></div>
-      {{/if}}
-      {{#if (eq this.animation 'fill')}}
-        <div x-circle style="{{this._circleTransitionDuration}}"></div>
-      {{/if}}
+  {{#in-element this._floatingElementContainer insertBefore=null}}
+    <div
+      class="ember-attacher"
+      id={{this.id}}
+      role={{this.ariaRole}}
+      {{did-insert this.didInsertFloatingElement}}
+      {{did-update this.didUpdateOptions this.autoUpdate this.placement this._renderInPlace this._currentTarget this._middleware}}
+      {{will-destroy this.willDestroyFloatingElement}}
+    >
+      <div class={{this._class}} style={{this._style}}>
+        {{yield (hash hide=(action 'hide'))}}
+        {{#if this.arrow}}
+          <div x-arrow {{did-insert this.didInsertArrow}}></div>
+        {{/if}}
+        {{#if (eq this.animation 'fill')}}
+          <div x-circle style="{{this._circleTransitionDuration}}"></div>
+        {{/if}}
+      </div>
     </div>
-  {{~/ember-popper}}
+  {{/in-element}}
 {{~/if~}}

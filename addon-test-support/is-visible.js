@@ -1,7 +1,7 @@
 export function isVisible(selector, contextEl) {
   const attachment = typeof(selector) === 'string' ? getAttachment(selector, contextEl) : selector;
 
-  return attachment.style.display !== 'none';
+  return getComputedStyle(attachment).display !== 'none';
 }
 
 function getAttachment(selectorOrElement = '', contextEl) {

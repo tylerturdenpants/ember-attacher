@@ -20,12 +20,12 @@
 
 ----
 
-* Ember.js v3.12 or above
+* Ember.js v3.16 or above
 * Ember CLI v3.13 or above
-* Node.js v10 or above
+* Node.js v12 or above
 
 Tooltips and popovers made easy.
-Just drop an `{{#attach-tooltip}}` or `{{#attach-popover}}` in a parent and your popper is ready to go!
+Just drop an `{{#attach-tooltip}}` or `{{#attach-popover}}` in a parent and your floating element is ready to go!
 
 ```hbs
 <button>
@@ -39,7 +39,7 @@ Just drop an `{{#attach-tooltip}}` or `{{#attach-popover}}` in a parent and your
 <button class="other-button">
   No click me!
 
-  {{#attach-popover class="ember-attacher-popper"
+  {{#attach-popover class="ember-attacher"
                     hideOn='click'
                     isShown=true
                     showOn='click'}}
@@ -48,7 +48,7 @@ Just drop an `{{#attach-tooltip}}` or `{{#attach-popover}}` in a parent and your
 </button>
 ```
 
-See [the example site](https://kybishop.github.io/ember-attacher/) for a demonstration of all
+See [the example site](https://tylerturdenpants.github.io/ember-attacher/) for a demonstration of all
 available options.
 
 ## Installation
@@ -56,6 +56,9 @@ available options.
 ```bash
 ember install ember-attacher
 ```
+
+If you're upgrading from 1.x to 2.x [see the upgrade guide](./docs/upgrade-guide-2.0.md).
+
 
 ## Components
 
@@ -65,13 +68,13 @@ A popover attacher.
 
 * Has no default class or roles.
 * Does not modify the target in any way.
-* Adds `aria-hidden` attribute to the popper element
+* Adds `aria-hidden` attribute to the floating element
 
 ### `{{#attach-tooltip}}`
 
 A tooltip attacher. Subclass of `{{#attach-popover}}`
 
-* Has the default class `'ember-attacher-popper ember-attacher-tooltip'`
+* Has the default class `'ember-attacher-floating ember-attacher-tooltip'`
   * The default tooltip classes can be modified by altering the `tooltipClass`
     default. See [here](#user-defined-defaults) for details on editing default values.
 
@@ -90,6 +93,12 @@ Below is a list of all available options, along with their defaults.
 
   // Whether or not an arrow will be displayed next to the attachment.
   arrow: false,
+    
+  // Add listeners that will automatically call an update function
+  // Pass `true` to use the Floating UI default options or Options object to override them
+  // Example: { ancestorScroll: false }
+  // For more details see https://floating-ui.com/docs/autoUpdate 
+  autoUpdate: false,
 
   // A class that will be applied to the attachment.
   class: null,
@@ -127,8 +136,8 @@ Below is a list of all available options, along with their defaults.
   // Useful for performance reasons, but will hide your attachment from search engines.
   lazyRender: false,
 
-  // An options object that will be merged into popperOptions.
-  modifiers: null,
+  // A middleware array that will be merged into computePosition options
+  middleware: null,
 
   // A function to be fired when the attachment's visibility changes. The new visibility is passed
   // to the function as an arg.
@@ -139,18 +148,18 @@ Below is a list of all available options, along with their defaults.
   placement: 'top',
 
   // The container where the attachment's DOM will be inserted.
-  popperContainer: '.ember-application',
+  floatingElementContainer: '.ember-application',
 
-  // An options object that will be passed to Popper.js, the positioning library.
-  popperOptions: null,
+  // An options object that will be passed to Floating UI "computePosition" function.
+  floatingUiOptions: null,
 
   // NOT RECOMMENDED: We currently allow you to pass an explicit target, but this may be removed
   // in a future release.
   // Please provide your thoughts here: https://github.com/kybishop/ember-attacher/issues/109
-  popperTarget: null,
+  explicitTarget: null,
 
   // Whether or not to render the attachment in place in the DOM, as opposed to
-  // on the popperContainer. NOTE: Rendering in place can cause z-index issues.
+  // on the floatingElementContainer. NOTE: Rendering in place can cause z-index issues.
   renderInPlace: false,
 
   // The delay, in milliseconds, before the attachment will be shown.
@@ -282,7 +291,7 @@ See the [Contributing](CONTRIBUTING.md) guide for details.
 
 Attachments are composed of two containers:
 
-* [An outer container](https://github.com/kybishop/ember-attacher/blob/master/addon/templates/components/attach-popover.hbs#L2) for positioning (via [ember-popper](https://github.com/kybishop/ember-popper)/[popper.js](https://github.com/FezVrasta/popper.js)).
+* [An outer container](https://github.com/kybishop/ember-attacher/blob/master/addon/templates/components/attach-popover.hbs#L2) for positioning (via [floating-ui](https://github.com/floating-ui/floating-ui)).
 * [An inner container](https://github.com/kybishop/ember-attacher/blob/master/addon/templates/components/attach-popover.hbs#L12) for the content. This is the container that is animated.
 
 The outer container is positioned right next to the target via the CSS `transform` property. The inner container is required because animations also use `transform`, which would otherwise conflict with the container's position.
@@ -300,8 +309,8 @@ Note that animations require an implementation for each position (left, right, t
 * [tippy.js](https://github.com/atomiks/tippyjs), the library that inspired
   ember-attacher.
 
-* [popper.js](https://github.com/FezVrasta/popper.js), the library that powers
-  positioning (via [ember-popper](https://github.com/kybishop/ember-popper))
+* [floating-ui](https://github.com/floating-ui/floating-ui), the library that powers
+  positioning
 
 * [ember-tooltips](https://github.com/sir-dunxalot/ember-tooltips), the addon that
   influenced much of ember-attacher's API.
