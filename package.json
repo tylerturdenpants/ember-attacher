@@ -70,7 +70,7 @@
     "ember-svg-jar": "^2.3.3",
     "ember-try": "^1.4.0",
     "eslint": "^7.26.0",
-    "eslint-plugin-ember": "^9.6.0",
+    "eslint-plugin-ember": "^11.5.2",
     "eslint-plugin-node": "^11.1.0",
     "flexi": "^2.1.0",
     "loader.js": "^4.7.0",
