@@ -1,16 +1,16 @@
-import Component from '@ember/component';
-import { computed } from '@ember/object';
-import layout from '../templates/components/attachment-example';
+import Component from '@glimmer/component';
+import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
+import { tracked } from '@glimmer/tracking';
 
-export default Component.extend({
-  layout,
-  popoverData: service(),
-  tooltipData: service(),
+export default class AttachmentExample extends Component {
+  @service popoverData;
+  @service tooltipData;
 
-  init() {
-    this._super(...arguments);
+  @tracked isConfiguringTooltip = true;
 
+  constructor() {
+    super(...arguments);
     this.animationOptions = [
       'fade',
       'fill',
@@ -27,41 +27,44 @@ export default Component.extend({
       'top', 'top-start', 'top-end',
     ];
     this.showOnOptions = ['click', 'mouseenter focus'];
-  },
-
-  isConfiguringTooltip: true,
-
-  service: computed('isConfiguringTooltip', function() {
-    return this.isConfiguringTooltip ? this.tooltipData : this.popoverData;
-  }),
-
-  actions: {
-    toggleArrow() {
-      this.service.toggleProperty('arrow');
-    },
-
-    toggleAutoUpdate() {
-      this.service.toggleProperty('autoUpdate');
-    },
-
-    toggleInteractive() {
-      this.service.toggleProperty('interactive');
-    },
-
-    toggleIsShown() {
-      this.service.toggleProperty('isShown');
-    },
-
-    toggleLazyRender() {
-      this.service.toggleProperty('lazyRender');
-    },
-
-    toggleRenderInPlace() {
-      this.service.toggleProperty('renderInPlace');
-    },
-
-    setIsConfiguringTooltip(bool) {
-      this.set('isConfiguringTooltip', bool);
-    }
   }
-});
+
+  get service() {
+    return this.isConfiguringTooltip ? this.tooltipData : this.popoverData;
+  }
+
+  @action
+  toggleArrow() {
+    this.service.toggleProperty('arrow');
+  }
+
+  @action
+  toggleAutoUpdate() {
+    this.service.toggleProperty('autoUpdate');
+  }
+
+  @action
+  toggleInteractive() {
+    this.service.toggleProperty('interactive');
+  }
+
+  @action
+  toggleIsShown() {
+    this.service.toggleProperty('isShown');
+  }
+
+  @action
+  toggleLazyRender() {
+    this.service.toggleProperty('lazyRender');
+  }
+
+  @action
+  toggleRenderInPlace() {
+    this.service.toggleProperty('renderInPlace');
+  }
+
+  @action
+  setIsConfiguringTooltip(bool) {
+    this.isConfiguringTooltip = bool;
+  }
+}

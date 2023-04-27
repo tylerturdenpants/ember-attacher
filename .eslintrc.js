@@ -1,7 +1,8 @@
 module.exports = {
   root: true,
-  parser: 'babel-eslint',
+  parser: '@babel/eslint-parser',
   parserOptions: {
+    requireConfigFile: false,
     ecmaVersion: 2018,
     sourceType: 'module',
     ecmaFeatures: {
@@ -9,11 +10,13 @@ module.exports = {
     }
   },
   plugins: [
-    'ember'
+    'ember',
+    'decorator-position',
   ],
   extends: [
     'eslint:recommended',
-    'plugin:ember/recommended'
+    'plugin:ember/recommended',
+    'plugin:decorator-position/ember'
   ],
   env: {
     browser: true

@@ -274,6 +274,7 @@ export default class AttachPopover extends Component {
     this._setUserSuppliedDefaults();
   }
 
+  // eslint-disable-next-line ember/no-component-lifecycle-hooks
   didReceiveAttrs() {
     super.didReceiveAttrs(...arguments);
 
@@ -308,6 +309,7 @@ export default class AttachPopover extends Component {
     });
   }
 
+  // eslint-disable-next-line ember/no-component-lifecycle-hooks
   didUpdateAttrs() {
     super.didUpdateAttrs(...arguments);
 
@@ -351,6 +353,7 @@ export default class AttachPopover extends Component {
     }
   }
 
+  // eslint-disable-next-line ember/no-component-lifecycle-hooks
   didInsertElement() {
     super.didInsertElement(...arguments);
 
@@ -386,6 +389,7 @@ export default class AttachPopover extends Component {
     });
   }
 
+  // eslint-disable-next-line ember/no-component-lifecycle-hooks
   willDestroyElement() {
     super.willDestroyElement(...arguments);
 
