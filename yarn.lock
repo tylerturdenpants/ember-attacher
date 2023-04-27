@@ -2694,7 +2694,7 @@
     semver "^7.3.5"
     typescript-memoize "^1.0.1"
 
-"@embroider/util@^0.39.1 || ^0.40.0 || ^0.41.0 || ^1.0.0", "@embroider/util@^0.40.0", "@embroider/util@^1.0.0", "@embroider/util@^1.2.0", "@embroider/util@^1.9.0":
+"@embroider/util@^0.39.1 || ^0.40.0 || ^0.41.0 || ^1.0.0":
   version "0.40.0"
   resolved "https://registry.yarnpkg.com/@embroider/util/-/util-0.40.0.tgz#437df92cd816405ae5b511bca7237db5a0126da0"
   integrity sha512-S/UOY0s0+ZzeQTBAJ1BB42LjCYqxt6Fo+Q7nGCUt1SGtSOpFV+l6q0oNQyOeVTZwj0A+WdYe32EZPlbholfrWg==
@@ -2702,6 +2702,15 @@
     "@embroider/macros" "0.40.0"
     broccoli-funnel ef4/broccoli-funnel#c70d060076e14793e8495571f304a976afc754ac
     ember-cli-babel "^7.23.1"
+
+"@embroider/util@^1.0.0", "@embroider/util@^1.2.0", "@embroider/util@^1.9.0":
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/@embroider/util/-/util-1.10.0.tgz#8320d73651e7f5d48dac1b71fb9e6d21cac7c803"
+  integrity sha512-utAFKoq6ajI27jyqjvX3PiGL4m+ZyGVlVNbSbE/nOqi2llRyAkh5ltH1WkIK7jhdwQFJouo1NpOSj9J3/HDa3A==
+  dependencies:
+    "@embroider/macros" "^1.10.0"
+    broccoli-funnel "^3.0.5"
+    ember-cli-babel "^7.26.11"
 
 "@eslint/eslintrc@^0.4.1":
   version "0.4.1"
