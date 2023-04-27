@@ -1,4 +1,4 @@
-import hbs from 'htmlbars-inline-precompile';
+import { hbs } from 'ember-cli-htmlbars';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';

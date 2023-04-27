@@ -7083,7 +7083,7 @@ ember-cli-htmlbars@^5.3.1, ember-cli-htmlbars@^5.7.1:
     strip-bom "^4.0.0"
     walk-sync "^2.2.0"
 
-ember-cli-htmlbars@^6.0.0, ember-cli-htmlbars@^6.0.1, ember-cli-htmlbars@^6.1.1:
+ember-cli-htmlbars@^6.0.0, ember-cli-htmlbars@^6.0.1, ember-cli-htmlbars@^6.1.1, ember-cli-htmlbars@~6.2.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/ember-cli-htmlbars/-/ember-cli-htmlbars-6.2.0.tgz#18ec48ee1c93f9eed862a64eb24a9d14604f1dfc"
   integrity sha512-j5EGixjGau23HrqRiW/JjoAovg5UBHfjbyN7wX5ekE90knIEqUUj1z/Mo/cTx/J2VepQ2lE6HdXW9LWQ/WdMtw==
