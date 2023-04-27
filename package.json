@@ -1,6 +1,6 @@
 {
   "name": "ember-attacher",
-  "version": "2.0.0-beta-1",
+  "version": "2.1.0",
   "description": "Tooltips and popovers for Ember.js apps",
   "keywords": [
     "ember-addon",
@@ -49,6 +49,7 @@
     "@glimmer/component": "^1.0.0",
     "@glimmer/tracking": "^1.0.0",
     "@html-next/flexi-default-styles": "^2.2.0",
+    "@release-it-plugins/lerna-changelog": "^5.0.0",
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "~3.26.1",
     "ember-cli-dependency-checker": "~3.3.1",
@@ -76,10 +77,9 @@
     "loader.js": "^4.7.0",
     "qunit": "~2.19.4",
     "qunit-dom": "~2.0.0",
-    "release-it": "^14.10.0",
-    "release-it-lerna-changelog": "^3.1.0",
+    "release-it": "~15.10.1",
     "sass": "^1.62.1",
-    "webpack": "~5.79.0"
+    "webpack": "~5.81.0"
   },
   "resolutions": {
     "ember-in-element-polyfill": "^1.0.1",
@@ -100,7 +100,7 @@
   },
   "release-it": {
     "plugins": {
-      "release-it-lerna-changelog": {
+      "@release-it-plugins/lerna-changelog": {
         "infile": "CHANGELOG.md"
       }
     },
