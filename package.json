@@ -38,8 +38,7 @@
     "ember-cli-htmlbars": "^5.7.1",
     "ember-cli-sass": "~11.0.1",
     "ember-decorators": "^6.1.1",
-    "ember-in-element-polyfill": "~1.0.1",
-    "ember-truth-helpers": "^3.0.0"
+    "ember-in-element-polyfill": "~1.0.1"
   },
   "devDependencies": {
     "@ember/optional-features": "^2.0.0",
@@ -66,6 +65,7 @@
     "ember-source": "~3.27.5",
     "ember-source-channel-url": "^3.0.0",
     "ember-svg-jar": "^2.3.3",
+    "ember-truth-helpers": "^3.1.1",
     "ember-try": "^1.4.0",
     "eslint": "^7.26.0",
     "eslint-plugin-ember": "~11.5.2",

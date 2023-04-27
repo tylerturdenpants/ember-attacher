@@ -15,7 +15,7 @@
         {{#if this.arrow}}
           <div x-arrow {{did-insert this.didInsertArrow}}></div>
         {{/if}}
-        {{#if (eq this.animation 'fill')}}
+        {{#if this.isFillAnimation}}
           <div x-circle style="{{this._circleTransitionDuration}}"></div>
         {{/if}}
       </div>
