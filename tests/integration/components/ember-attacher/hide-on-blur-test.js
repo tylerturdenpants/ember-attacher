@@ -3,7 +3,7 @@ import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
-import { render, click, find, focus, waitUntil, settled } from '@ember/test-helpers';
+import { render, click, find, focus, waitUntil } from '@ember/test-helpers';
 
 module('Integration | Component | hideOn "blur"', function(hooks) {
   setupRenderingTest(hooks);
@@ -31,13 +31,9 @@ module('Integration | Component | hideOn "blur"', function(hooks) {
 
     await click('#click-toggle');
 
-    await settled();
-
     assert.equal(isVisible(attachment), true, 'Now shown');
 
     await focus('#focus-me');
-
-    await settled();
 
     await waitUntil(() => isVisible(attachment) === false);
 
@@ -67,13 +63,9 @@ module('Integration | Component | hideOn "blur"', function(hooks) {
 
     await click('#click-toggle');
 
-    await settled();
-
     assert.equal(isVisible(attachment), true, 'Now shown');
 
     await focus('#attachment-focus-me');
-
-    await settled();
 
     await waitUntil(() => {
       if (!isVisible(attachment)) return true;
@@ -108,8 +100,6 @@ module('Integration | Component | hideOn "blur"', function(hooks) {
 
     await click('#click-toggle');
 
-    await settled();
-
     assert.equal(isVisible(attachment), true, 'Now shown');
 
     await focus('#attachment-focus-me');
@@ -121,8 +111,6 @@ module('Integration | Component | hideOn "blur"', function(hooks) {
     await waitUntil(() => isVisible(attachment));
 
     await focus('#outer-focus-me');
-
-    await settled();
 
     await waitUntil(() => isVisible(attachment) === false);
 
