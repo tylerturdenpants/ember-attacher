@@ -9,6 +9,7 @@
       {{did-insert this.didInsertFloatingElement}}
       {{did-update this.didUpdateOptions this.autoUpdate this.placement this._renderInPlace this._currentTarget this._middleware}}
       {{will-destroy this.willDestroyFloatingElement}}
+      ...attributes
     >
       <div class={{this._class}} style={{this._style}}>
         {{yield (hash hide=(action 'hide'))}}

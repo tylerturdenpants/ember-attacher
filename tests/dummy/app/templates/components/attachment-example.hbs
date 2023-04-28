@@ -6,47 +6,53 @@
     <button class="hover-me">
       Tooltip me, captain!
 
-      {{#attach-tooltip animation=tooltipData.animation
-                        arrow=tooltipData.arrow
-                        autoUpdate=tooltipData.autoUpdate
-                        hideDelay=tooltipData.hideDelay
-                        hideDuration=tooltipData.hideDuration
-                        hideOn=tooltipData.hideOn
-                        interactive=tooltipData.interactive
-                        isShown=tooltipData.isShown
-                        onChange=(action (mut tooltipData.isShown))
-                        placement=tooltipData.placement
-                        renderInPlace=tooltipData.renderInPlace
-                        showDelay=tooltipData.showDelay
-                        showDuration=tooltipData.showDuration
-                        showOn=tooltipData.showOn}}
+      <AttachTooltip
+        @animation={{tooltipData.animation}}
+        @arrow={{tooltipData.arrow}}
+        @autoUpdate={{tooltipData.autoUpdate}}
+        @hideDelay={{tooltipData.hideDelay}}
+        @hideDuration={{tooltipData.hideDuration}}
+        @hideOn={{tooltipData.hideOn}}
+        @interactive={{tooltipData.interactive}}
+        @isShown={{tooltipData.isShown}}
+        @onChange={{action (mut tooltipData.isShown)}}
+        @placement={{tooltipData.placement}}
+        @renderInPlace={{tooltipData.renderInPlace}}
+        @showDelay={{tooltipData.showDelay}}
+        @showDuration={{tooltipData.showDuration}}
+        @showOn={{tooltipData.showOn}}
+        data-test-demo-tooltip
+      >
         Hello world!
-      {{/attach-tooltip}}
+      </AttachTooltip>
     </button>
 
     <button class="hover-me">
       Click me, captain!
 
-      {{#attach-popover animation=popoverData.animation
-                        arrow=popoverData.arrow
-                        autoUpdate=popoverData.autoUpdate
-                        class="ember-attacher-popover custom-popover-css"
-                        hideDelay=popoverData.hideDelay
-                        hideDuration=popoverData.hideDuration
-                        hideOn=popoverData.hideOn
-                        interactive=popoverData.interactive
-                        isShown=popoverData.isShown
-                        lazyRender=popoverData.lazyRender
-                        onChange=(action (mut popoverData.isShown))
-                        placement=popoverData.placement
-                        renderInPlace=popoverData.renderInPlace
-                        showDelay=popoverData.showDelay
-                        showDuration=popoverData.showDuration
-                        showOn=popoverData.showOn as |emberAttacher|}}
+      <AttachPopover
+        @animation={{popoverData.animation}}
+        @arrow={{popoverData.arrow}}
+        @autoUpdate={{popoverData.autoUpdate}}
+        @class="ember-attacher-popover custom-popover-css"
+        @hideDelay={{popoverData.hideDelay}}
+        @hideDuration={{popoverData.hideDuration}}
+        @hideOn={{popoverData.hideOn}}
+        @interactive={{popoverData.interactive}}
+        @isShown={{popoverData.isShown}}
+        @lazyRender={{popoverData.lazyRender}}
+        @onChange={{action (mut popoverData.isShown)}}
+        @placement={{popoverData.placement}}
+        @renderInPlace={{popoverData.renderInPlace}}
+        @showDelay={{popoverData.showDelay}}
+        @showDuration={{popoverData.showDuration}}
+        @showOn={{popoverData.showOn}}
+        data-test-demo-popover as |emberAttacher|
+      >
         <p>Popovers and tooltips, oh my!</p>
 
         <button {{action emberAttacher.hide}}>Close</button>
-      {{/attach-popover}}
+      </AttachPopover>
     </button>
   </div>
 </div>
