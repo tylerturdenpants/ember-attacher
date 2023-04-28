@@ -1,10 +1,8 @@
-/* eslint-disable ember/no-settled-after-test-helper */
-import hbs from 'htmlbars-inline-precompile';
+import { hbs } from 'ember-cli-htmlbars';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-
-import { render, click, settled } from '@ember/test-helpers';
+import { render, click } from '@ember/test-helpers';
 
 module('Integration | Component | hideOn "click"', function(hooks) {
   setupRenderingTest(hooks);
@@ -27,8 +25,6 @@ module('Integration | Component | hideOn "click"', function(hooks) {
     assert.equal(isVisible('#attachment'), true, 'Initially shown');
 
     await click('#click-toggle');
-
-    await settled();
 
     assert.equal(isVisible('#attachment'), false, 'Now hidden');
   });

@@ -2,6 +2,8 @@ import classic from 'ember-classic-decorator';
 import { tagName, layout as templateLayout } from '@ember-decorators/component';
 import { observes } from '@ember-decorators/object';
 import { action, computed } from '@ember/object';
+import { equal } from '@ember/object/computed';
+// eslint-disable-next-line ember/no-classic-components
 import Component from '@ember/component';
 import DEFAULTS from '../defaults';
 import layout from '../templates/components/attach-popover';
@@ -21,6 +23,8 @@ const animationTestWaiter = buildWaiter('attach-popover');
 @templateLayout(layout)
 @tagName('')
 export default class AttachPopover extends Component {
+  @equal('animation', 'fill') isFillAnimation;
+
   configKey = 'popover';
   /**
    * ================== PUBLIC CONFIG OPTIONS ==================
@@ -270,6 +274,7 @@ export default class AttachPopover extends Component {
     this._setUserSuppliedDefaults();
   }
 
+  // eslint-disable-next-line ember/no-component-lifecycle-hooks
   didReceiveAttrs() {
     super.didReceiveAttrs(...arguments);
 
@@ -304,6 +309,7 @@ export default class AttachPopover extends Component {
     });
   }
 
+  // eslint-disable-next-line ember/no-component-lifecycle-hooks
   didUpdateAttrs() {
     super.didUpdateAttrs(...arguments);
 
@@ -347,6 +353,7 @@ export default class AttachPopover extends Component {
     }
   }
 
+  // eslint-disable-next-line ember/no-component-lifecycle-hooks
   didInsertElement() {
     super.didInsertElement(...arguments);
 
@@ -382,6 +389,7 @@ export default class AttachPopover extends Component {
     });
   }
 
+  // eslint-disable-next-line ember/no-component-lifecycle-hooks
   willDestroyElement() {
     super.willDestroyElement(...arguments);
 

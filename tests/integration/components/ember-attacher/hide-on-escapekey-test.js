@@ -1,10 +1,8 @@
-/* eslint-disable ember/no-settled-after-test-helper */
-import hbs from 'htmlbars-inline-precompile';
+import { hbs } from 'ember-cli-htmlbars';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-
-import { render, find, triggerKeyEvent, waitUntil, settled } from '@ember/test-helpers';
+import { render, triggerKeyEvent, waitUntil, waitFor } from '@ember/test-helpers';
 
 module('Integration | Component | hideOn "escapekey"', function(hooks) {
   setupRenderingTest(hooks);
@@ -22,14 +20,12 @@ module('Integration | Component | hideOn "escapekey"', function(hooks) {
       </div>
     `);
 
-    const attachment = find('#attachment');
+    const attachment = await waitFor('#attachment');
 
     assert.equal(isVisible(attachment), true, 'Initially shown');
 
     // Press escape key (keyCode === 27)
     await triggerKeyEvent(document, 'keydown', 27);
-
-    await settled();
 
     await waitUntil(() => isVisible(attachment) === false);
 
