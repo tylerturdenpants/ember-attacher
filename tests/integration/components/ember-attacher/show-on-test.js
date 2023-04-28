@@ -1,10 +1,9 @@
-/* eslint-disable ember/no-settled-after-test-helper */
 import { hbs } from 'ember-cli-htmlbars';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 
-import { render, click, find, triggerEvent, settled } from '@ember/test-helpers';
+import { render, click, find, triggerEvent } from '@ember/test-helpers';
 
 module('Integration | Component | showOn', function(hooks) {
   setupRenderingTest(hooks);
@@ -28,19 +27,19 @@ module('Integration | Component | showOn', function(hooks) {
 
     await triggerEvent('#target', 'mouseenter');
 
-    await settled();
+
 
     assert.equal(isVisible(attachment), true, 'Now shown');
 
     await click('#target');
 
-    await settled();
+
 
     assert.equal(isVisible(attachment), false, 'Hidden again');
 
     await triggerEvent('#target', 'focus');
 
-    await settled();
+
 
     assert.equal(isVisible(attachment), true, 'Shown again');
   });
@@ -64,13 +63,13 @@ module('Integration | Component | showOn', function(hooks) {
 
     await triggerEvent('#target', 'mouseenter');
 
-    await settled();
+
 
     assert.equal(isVisible(attachment), false, 'Still hidden after mouseenter');
 
     await triggerEvent('#target', 'focus');
 
-    await settled();
+
 
     assert.equal(isVisible(attachment), false, 'Still hidden after focus');
   });
@@ -94,13 +93,13 @@ module('Integration | Component | showOn', function(hooks) {
 
     await triggerEvent('#target', 'mouseenter');
 
-    await settled();
+
 
     assert.equal(isVisible(attachment), false, 'Still hidden after mouseenter');
 
     await triggerEvent('#target', 'focus');
 
-    await settled();
+
 
     assert.equal(isVisible(attachment), false, 'Still hidden after focus');
   });

@@ -1,4 +1,3 @@
-/* eslint-disable ember/no-settled-after-test-helper */
 import { hbs } from 'ember-cli-htmlbars';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';

@@ -1,10 +1,8 @@
-/* eslint-disable ember/no-settled-after-test-helper */
 import { hbs } from 'ember-cli-htmlbars';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-
-import { render, settled, click, find, triggerEvent } from '@ember/test-helpers';
+import { render, settled, click, find, triggerEvent, waitFor } from '@ember/test-helpers';
 
 module('Integration | Component | hideOn "mouseleave"', function(hooks) {
   setupRenderingTest(hooks);
@@ -22,16 +20,13 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
       </div>
     `);
 
-    // Wait for initial show()
-    await settled();
-
-    const attachment = find('#attachment');
+    const attachment = await waitFor('#attachment');
 
     assert.equal(isVisible(attachment), true, 'Initially shown');
 
     await triggerEvent('#target', 'mouseleave');
 
-    await settled();
+
 
     assert.equal(isVisible(attachment), false, 'Now hidden');
   });
@@ -54,32 +49,25 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
       <div id='outside'></div>
     `);
 
-    // Wait for initial show()
-    await settled();
-
-    const attachment = find('#attachment');
-    const target = find('#target');
+    const attachment = await waitFor('#attachment');
+    const target = await waitFor('#target');
 
     assert.equal(isVisible(attachment), true, 'Initially shown');
 
     await triggerEvent(target, 'mouseleave');
-    await settled();
 
     // Sanity check still shown
     assert.equal(isVisible(attachment), true, 'Still shown after mouseleave');
 
     await triggerEvent(attachment, 'mousemove');
-    await settled();
 
     assert.equal(isVisible(attachment), true, 'Still shown after mousemove into attachment');
 
     await triggerEvent(find('#other'), 'mousemove');
-    await settled();
 
     assert.equal(isVisible(attachment), true, 'Still shown after mousemove into target');
 
     await triggerEvent(find('#outside'), 'mousemove');
-    await settled();
 
     assert.equal(isVisible(attachment),
                  false,
@@ -108,16 +96,11 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
 
       <div id='outside'></div>
     `);
-
-    // Wait for initial show()
-    await settled();
-
-    const attachment = find('#attachment');
+    const attachment = await waitFor('#attachment');
 
     assert.equal(isVisible(attachment), true, 'Initially shown');
 
     await click('#manual-hide');
-    await settled();
 
     assert.equal(isVisible(attachment), false, 'Hidden after manual hide');
 
@@ -128,13 +111,13 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
     await settled();
 
     await triggerEvent('#target', 'mouseleave');
-    await settled();
+
 
     // Sanity check. Also note how the mouseleave didn't trigger a hide event
     assert.equal(isVisible(attachment), true, 'Shown again');
 
     await triggerEvent(find('#outside'), 'mousemove');
-    await settled();
+
 
     assert.equal(isVisible(attachment), false, 'Hidden after mousemove');
   });
@@ -162,7 +145,7 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
     `);
 
     // Wait for initial show()
-    await settled();
+
 
     const attachment = find('#attachment');
     const target = find('#target');
@@ -170,7 +153,7 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
     assert.equal(isVisible(attachment), true, 'Initially shown');
 
     await triggerEvent(target, 'mouseleave');
-    await settled();
+
 
     // Sanity check still shown
     assert.equal(isVisible(attachment), true, 'Still shown after mouseleave');
@@ -183,7 +166,7 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
                          clientX: attachmentPosition.left + 1,
                          clientY: attachmentPosition.top - 1
                        });
-    await settled();
+
 
     assert.equal(isVisible(attachment), false, 'Hidden after mousemove between');
   });
@@ -213,7 +196,7 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
     `);
 
     // Wait for initial show()
-    await settled();
+
 
     const attachment = find('#attachment');
     const target = find('#target');
@@ -221,7 +204,7 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
     assert.equal(isVisible(attachment), true, 'Initially shown');
 
     await triggerEvent(target, 'mouseleave');
-    await settled();
+
 
     // Sanity check still shown
     assert.equal(isVisible(attachment), true, 'Still shown after mouseleave');
@@ -234,7 +217,7 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
                          clientX: attachmentPosition.left + 1,
                          clientY: attachmentPosition.top - 1
                        });
-    await settled();
+
 
     assert.equal(isVisible(attachment), true, 'Still shown after mousemove into between');
 
@@ -244,7 +227,7 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
                          clientX: attachmentPosition.left - 1,
                          clientY: attachmentPosition.bottom + 1
                        });
-    await settled();
+
 
     assert.equal(isVisible(attachment), false, 'hidden after mousemove outside');
   });

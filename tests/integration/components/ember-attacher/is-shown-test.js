@@ -1,10 +1,8 @@
-/* eslint-disable ember/no-settled-after-test-helper */
 import { hbs } from 'ember-cli-htmlbars';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-
-import { render, click, find, settled } from '@ember/test-helpers';
+import { render, click, find, settled, waitFor } from '@ember/test-helpers';
 
 module('Integration | Component | isShown', function(hooks) {
   setupRenderingTest(hooks);
@@ -35,8 +33,6 @@ module('Integration | Component | isShown', function(hooks) {
     assert.equal(isVisible(attachment), true, 'Initially shown');
 
     await click('#toggle-show');
-
-    await settled();
 
     assert.equal(isVisible(attachment), false, 'Now hidden');
 
@@ -79,19 +75,15 @@ module('Integration | Component | isShown', function(hooks) {
       </button>
     `);
 
-    const attachment = find('#attachment');
+    const attachment = await waitFor('#attachment');
 
     assert.equal(isVisible(attachment), false, 'Initially hidden');
 
     await click('#open');
 
-    await settled();
-
     assert.equal(isVisible(attachment), true, 'Now shown');
 
     await click('#close');
-
-    await settled();
 
     assert.equal(isVisible(attachment), false, 'Hidden again');
   });
@@ -142,8 +134,6 @@ module('Integration | Component | isShown', function(hooks) {
     assert.equal(isVisible(attachment), true, 'Now shown');
 
     await click('#close');
-
-    await settled();
 
     assert.equal(isVisible(attachment), false, 'Hidden again');
   });
