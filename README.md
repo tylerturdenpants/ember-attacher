@@ -25,26 +25,28 @@
 * Node.js v12 or above
 
 Tooltips and popovers made easy.
-Just drop an `{{#attach-tooltip}}` or `{{#attach-popover}}` in a parent and your floating element is ready to go!
+Just drop an `<AttachTooltip/>` or `<AttachPopover/>` in a parent and your floating element is ready to go!
 
 ```hbs
 <button>
   Click me
 
-  {{#attach-tooltip}}
+  <AttachTooltip>
     I'm a tooltip!
-  {{/attach-tooltip}}
+  </AttachTooltip>
 </button>
 
 <button class="other-button">
   No click me!
 
-  {{#attach-popover class="ember-attacher"
-                    hideOn='click'
-                    isShown=true
-                    showOn='click'}}
+  <AttachPopover 
+      @class='ember-attacher'
+      @hideOn='click'
+      @isShown={{true}}
+      @showOn='click'
+  >
     I'm a popover!
-  {{/attach-popover}}
+  </AttachPopover>
 </button>
 ```
 
@@ -62,7 +64,7 @@ If you're upgrading from 1.x to 2.x [see the upgrade guide](./docs/upgrade-guide
 
 ## Components
 
-### `{{#attach-popover}}`
+### `<AttachPopover/>`
 
 A popover attacher.
 
@@ -70,9 +72,9 @@ A popover attacher.
 * Does not modify the target in any way.
 * Adds `aria-hidden` attribute to the floating element
 
-### `{{#attach-tooltip}}`
+### `<AttachTooltip/>`
 
-A tooltip attacher. Subclass of `{{#attach-popover}}`
+A tooltip attacher. Subclass of `<AttachPopover/>`
 
 * Has the default class `'ember-attacher-floating ember-attacher-tooltip'`
   * The default tooltip classes can be modified by altering the `tooltipClass`
@@ -182,7 +184,7 @@ Below is a list of all available options, along with their defaults.
 
 ## User-defined defaults
 
-User-defined defaults can be set in the consuming app or addon's config/environment.js. These defaults will be applied to every `{{#attach-popover}}` and `{{#attach-tooltip}}`
+User-defined defaults can be set in the consuming app or addon's config/environment.js. These defaults will be applied to every `<AttachPopover/>` and `<AttachTooltip/>`
 
 ```javascript
 // config/environment.js
@@ -262,11 +264,13 @@ test('example', async function(assert) {
     <button id="toggle">
       Click me, captain!
 
-      {{#attach-popover id='attachment'
-                        hideOn='click'
-                        showOn='click'}}
+      <AttachPopover 
+          @id='attachment'
+          @hideOn='click'
+          @showOn='click'
+      >
         Click-toggled popover
-      {{/attach-popover}}
+      <AttachPopover/>
     </button>
   `);
 
