@@ -41,7 +41,7 @@
     "ember-in-element-polyfill": "~1.0.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.21.4",
+    "@babel/core": "^7.21.5",
     "@babel/eslint-parser": "^7.21.3",
     "@ember/optional-features": "^2.0.0",
     "@ember/string": "^3.0.1",
