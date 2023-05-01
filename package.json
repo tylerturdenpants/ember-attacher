@@ -78,7 +78,7 @@
     "loader.js": "^4.7.0",
     "qunit": "~2.19.4",
     "qunit-dom": "~2.0.0",
-    "release-it": "~15.10.1",
+    "release-it": "~15.10.2",
     "sass": "^1.62.1",
     "webpack": "~5.81.0"
   },
