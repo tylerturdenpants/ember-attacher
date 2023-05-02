@@ -1,17 +1,18 @@
-import classic from 'ember-classic-decorator';
-import { observes } from '@ember-decorators/object';
-import { computed } from '@ember/object';
+import { action } from '@ember/object';
 import AttachPopover from './attach-popover';
 import DEFAULTS from '../defaults';
+import layout from '../templates/components/attach-popover';
+import { setComponentTemplate } from '@ember/component';
 
-@classic
-export default class AttachTooltip extends AttachPopover {
+class AttachTooltip extends AttachPopover {
   configKey = 'tooltip';
-  ariaRole = 'tooltip';
 
-  @computed('_config.tooltipClass')
+  get ariaRole() {
+    return this.args.ariaRole || 'tooltip';
+  }
+
   get class() {
-    return this._config.tooltipClass || DEFAULTS.tooltipClass;
+    return `${this._config.tooltipClass || DEFAULTS.tooltipClass} ${this.args.class}`;
   }
 
   set class(value) {
@@ -20,31 +21,23 @@ export default class AttachTooltip extends AttachPopover {
     // eslint-disable-next-line no-setter-return
     return `${tooltipClass} ${value}`;
   }
-
-  didInsertElement() {
-    super.didInsertElement(...arguments);
-
-    if (!this._currentTarget) {
-      return;
-    }
-
-    this._currentTarget.setAttribute('aria-describedby', this.id);
+  _initializeAttacher() {
+    super._initializeAttacher();
+    this._currentTarget?.setAttribute('aria-describedby', this.id);
   }
 
-  @observes('explicitTarget')
+  @action
   explicitTargetChanged() {
     const oldTarget = this._currentTarget;
     if (oldTarget) {
       oldTarget.removeAttribute('aria-describedby');
     }
 
-    super.explicitTargetChanged;
-
-    this.explicitTarget.setAttribute('aria-describedby', this.id);
+    this.explicitTarget?.setAttribute('aria-describedby', this.id);
   }
 
-  willDestroyElement() {
-    super.willDestroyElement(...arguments);
+  willDestroy() {
+    super.willDestroy(...arguments);
 
     const target = this._currentTarget;
     if (target) {
@@ -52,3 +45,5 @@ export default class AttachTooltip extends AttachPopover {
     }
   }
 }
+
+export default setComponentTemplate(layout, AttachTooltip);

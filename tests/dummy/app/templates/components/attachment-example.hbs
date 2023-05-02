@@ -7,20 +7,20 @@
       Tooltip me, captain!
 
       <AttachTooltip
-        @animation={{tooltipData.animation}}
-        @arrow={{tooltipData.arrow}}
-        @autoUpdate={{tooltipData.autoUpdate}}
-        @hideDelay={{tooltipData.hideDelay}}
-        @hideDuration={{tooltipData.hideDuration}}
-        @hideOn={{tooltipData.hideOn}}
-        @interactive={{tooltipData.interactive}}
-        @isShown={{tooltipData.isShown}}
-        @onChange={{action (mut tooltipData.isShown)}}
-        @placement={{tooltipData.placement}}
-        @renderInPlace={{tooltipData.renderInPlace}}
-        @showDelay={{tooltipData.showDelay}}
-        @showDuration={{tooltipData.showDuration}}
-        @showOn={{tooltipData.showOn}}
+        @animation={{this.tooltipData.animation}}
+        @arrow={{this.tooltipData.arrow}}
+        @autoUpdate={{this.tooltipData.autoUpdate}}
+        @hideDelay={{this.tooltipData.hideDelay}}
+        @hideDuration={{this.tooltipData.hideDuration}}
+        @hideOn={{this.tooltipData.hideOn}}
+        @interactive={{this.tooltipData.interactive}}
+        @isShown={{this.tooltipData.isShown}}
+        @onChange={{action (mut this.tooltipData.isShown)}}
+        @placement={{this.tooltipData.placement}}
+        @renderInPlace={{this.tooltipData.renderInPlace}}
+        @showDelay={{this.tooltipData.showDelay}}
+        @showDuration={{this.tooltipData.showDuration}}
+        @showOn={{this.tooltipData.showOn}}
         data-test-demo-tooltip
       >
         Hello world!
@@ -31,22 +31,22 @@
       Click me, captain!
 
       <AttachPopover
-        @animation={{popoverData.animation}}
-        @arrow={{popoverData.arrow}}
-        @autoUpdate={{popoverData.autoUpdate}}
+        @animation={{this.popoverData.animation}}
+        @arrow={{this.popoverData.arrow}}
+        @autoUpdate={{this.popoverData.autoUpdate}}
         @class="ember-attacher-popover custom-popover-css"
-        @hideDelay={{popoverData.hideDelay}}
-        @hideDuration={{popoverData.hideDuration}}
-        @hideOn={{popoverData.hideOn}}
-        @interactive={{popoverData.interactive}}
-        @isShown={{popoverData.isShown}}
-        @lazyRender={{popoverData.lazyRender}}
-        @onChange={{action (mut popoverData.isShown)}}
-        @placement={{popoverData.placement}}
-        @renderInPlace={{popoverData.renderInPlace}}
-        @showDelay={{popoverData.showDelay}}
-        @showDuration={{popoverData.showDuration}}
-        @showOn={{popoverData.showOn}}
+        @hideDelay={{this.popoverData.hideDelay}}
+        @hideDuration={{this.popoverData.hideDuration}}
+        @hideOn={{this.popoverData.hideOn}}
+        @interactive={{this.popoverData.interactive}}
+        @isShown={{this.popoverData.isShown}}
+        @lazyRender={{this.popoverData.lazyRender}}
+        @onChange={{action (mut this.popoverData.isShown)}}
+        @placement={{this.popoverData.placement}}
+        @renderInPlace={{this.popoverData.renderInPlace}}
+        @showDelay={{this.popoverData.showDelay}}
+        @showDuration={{this.popoverData.showDuration}}
+        @showOn={{this.popoverData.showOn}}
         data-test-demo-popover as |emberAttacher|
       >
         <p>Popovers and tooltips, oh my!</p>
@@ -56,13 +56,13 @@
     </button>
   </div>
 </div>
-{{#if (and service.arrow (eq service.animation "fill"))}}
+{{#if (and this.service.arrow (eq this.service.animation "fill"))}}
   <div data-element-centered class="section">
     <h2>Warning: `animation: "fill"` is not compatible with `arrow: true`</h2>
   </div>
 {{/if}}
 
-{{#if service.renderInPlace}}
+{{#if this.service.renderInPlace}}
   <div data-element-centered class="section flexi-fit flexi-vertical">
     <h3>Note: renderInPlace can cause z-index issues.</h3>
     <h3>Hover over the renderInPlace attr for more details.</h3>
@@ -114,10 +114,10 @@
         <div data-element-box class="hidden-lm fit-xs">&nbsp;&nbsp;&nbsp;&nbsp;</div>
         <div data-element-centered class="flexi-fit">
           animation="<PowerSelect
-                      @onChange={{action (mut service.animation)}}
-                      @options={{animationOptions}}
+                      @onChange={{action (mut this.service.animation)}}
+                      @options={{this.animationOptions}}
                       @searchEnabled={{false}}
-                      @selected={{service.animation}}
+                      @selected={{this.service.animation}}
                       @triggerClass="button large" as |animationOption|
                      >
                       {{animationOption}}
@@ -128,7 +128,7 @@
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
-        arrow=<button class="button medium" {{action "toggleArrow"}}>{{service.arrow}}</button>
+        arrow=<button class="button medium" {{action "toggleArrow"}}>{{this.service.arrow}}</button>
       </div>
     </div>
     <div data-element-hbox>
@@ -140,7 +140,7 @@
                           placeholder="0"
                           step="100"
                           type="number"
-                          value=service.hideDelay}}
+                          value=this.service.hideDelay}}
       </div>
     </div>
     <div data-element-hbox>
@@ -159,7 +159,7 @@
                  placeholder="0"
                  step="100"
                  type="number"
-                 value=service.hideDuration}}
+                 value=this.service.hideDuration}}
       </div>
     </div>
     <div data-element-hbox>
@@ -175,10 +175,10 @@
           {{/attach-tooltip}}
         </span>
         ="<PowerSelect
-            @onChange={{action (mut service.hideOn)}}
+            @onChange={{action (mut this.service.hideOn)}}
             @options={{hideOnOptions}}
             @searchEnabled={{false}}
-            @selected={{service.hideOn}}
+            @selected={{this.service.hideOn}}
             @triggerClass="button xlarge" as |hideOnOption|
           >
             {{hideOnOption}}
@@ -197,7 +197,7 @@
         </span>
         =
         <button class="button medium" {{action "toggleInteractive"}}>
-          {{service.interactive}}
+          {{this.service.interactive}}
         </button>
       </div>
     </div>
@@ -212,7 +212,7 @@
           {{/attach-tooltip}}
         </span>
         =
-        <button class="button medium" {{action "toggleIsShown"}}>{{service.isShown}}</button>
+        <button class="button medium" {{action "toggleIsShown"}}>{{this.service.isShown}}</button>
       </div>
     </div>
     <div data-element-hbox>
@@ -227,7 +227,7 @@
           {{/attach-tooltip}}
         </span>
         =
-        <button class="button medium" {{action "toggleLazyRender"}}>{{service.lazyRender}}</button>
+        <button class="button medium" {{action "toggleLazyRender"}}>{{this.service.lazyRender}}</button>
       </div>
     </div>
     <div data-element-hbox>
@@ -247,10 +247,10 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         placement="<PowerSelect
-                    @onChange={{action (mut service.placement)}}
+                    @onChange={{action (mut this.service.placement)}}
                     @options={{placementOptions}}
                     @searchEnabled={{false}}
-                    @selected={{service.placement}}
+                    @selected={{this.service.placement}}
                     @triggerClass="button large" as |placementOption|
                   >
                     {{placementOption}}
@@ -270,7 +270,7 @@
         </span>
         =
         <button class="button medium" {{action "toggleAutoUpdate"}}>
-          {{service.autoUpdate}}
+          {{this.service.autoUpdate}}
         </button>
       </div>
     </div>
@@ -292,7 +292,7 @@
         </span>
         =
         <button class="button medium" {{action "toggleRenderInPlace"}}>
-          {{service.renderInPlace}}
+          {{this.service.renderInPlace}}
         </button>
       </div>
     </div>
@@ -305,7 +305,7 @@
                           placeholder="0"
                           step="100"
                           type="number"
-                          value=service.showDelay}}
+                          value=this.service.showDelay}}
       </div>
     </div>
     <div data-element-hbox>
@@ -324,7 +324,7 @@
                  placeholder="0"
                  step="100"
                  type="number"
-                 value=service.showDuration}}
+                 value=this.service.showDuration}}
       </div>
     </div>
     <div data-element-hbox>
@@ -339,10 +339,10 @@
           {{/attach-tooltip}}
         </span>
         ="<PowerSelect
-            @onChange={{action (mut service.showOn)}}
+            @onChange={{action (mut this.service.showOn)}}
             @options={{showOnOptions}}
             @searchEnabled={{false}}
-            @selected={{service.showOn}}
+            @selected={{this.service.showOn}}
             @triggerClass="button xlarge" as |showOnOption|
           >
             {{showOnOption}}
@@ -374,7 +374,7 @@
         </vbox>
       </div>
     </div>
-    {{#if isConfiguringTooltip}}
+    {{#if this.isConfiguringTooltip}}
       <div data-element-hbox>&nbsp;&nbsp;&nbsp;&nbsp;Hello world!</div>
     {{else}}
       <div data-element-vbox>
@@ -404,7 +404,7 @@
       </div>
     {{/if}}
     <div data-element-hbox>
-      &nbsp;&nbsp;\{{/{{if isConfiguringTooltip 'attach-tooltip}}' 'attach-popover}}'}}
+      &nbsp;&nbsp;\{{/{{if this.isConfiguringTooltip 'attach-tooltip}}' 'attach-popover}}'}}
     </div>
     <div data-element-hbox>
       <div data-element-centered class="flexi-fit">&lt;\button></div>

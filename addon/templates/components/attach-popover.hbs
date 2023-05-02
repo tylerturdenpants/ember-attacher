@@ -1,4 +1,6 @@
-{{unbound this._parentFinder}}
+{{#unless this.parentElement}}
+  <div {{did-insert this.onParentFinderInsert}} />
+{{/unless}}
 
 {{~#if (and this._currentTarget (or (not this.lazyRender) this._mustRender))}}
   {{#in-element this._floatingElementContainer insertBefore=null}}
@@ -7,6 +9,9 @@
       id={{this.id}}
       role={{this.ariaRole}}
       {{did-insert this.didInsertFloatingElement}}
+      {{did-update this._isShownChanged this.isShown}}
+      {{did-update this.explicitTargetChanged @explicitTarget}}
+      {{did-update this._ensureArgumentsAreValid this.animation this.arrow this.useCapture}}
       {{did-update this.didUpdateOptions this.autoUpdate this.placement this._renderInPlace this._currentTarget this._middleware}}
       {{will-destroy this.willDestroyFloatingElement}}
       ...attributes
