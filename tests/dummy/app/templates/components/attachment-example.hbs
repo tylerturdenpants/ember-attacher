@@ -1,5 +1,8 @@
 <div data-element-centered class="section top-section">
-  <p>Drop an <span class="no-wrap">\{{#attach-tooltip}}</span> or <span class="no-wrap">\{{#attach-popover}}</span> in any element or component to get started.</p>
+  <p>
+    Drop an <span class="no-wrap"><code>&lt;AttachTooltip&gt;</code></span>
+    or <span class="no-wrap"><code>&lt;AttachPopover&gt;</code></span> in any element or component to get started.
+  </p>
 </div>
 <div data-element-centered class="section">
   <div data-element-centered class="floating-area justify-around col-lg-10 col-md-12 col-sm-16 col-lm-20 col-xs-24">
@@ -72,10 +75,10 @@
   <div data-element-vbox class="fit-lm">
     <div data-element-hbox class="nav-bar">
       <div data-element-centered class="col-xs-12 nav{{if this.isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' true}}>
-        \{{#attach-tooltip}}
+        <code>&lt;AttachTooltip&gt;</code>
       </div>
       <div data-element-centered  class="col-xs-12 nav{{unless this.isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' false}}>
-        \{{#attach-popover}}
+        <code>&lt;AttachPopover&gt;</code>
       </div>
     </div>
 
@@ -91,18 +94,18 @@
     <div data-element-box class="flexi-fit horizontal-lm">
       <div data-element-hbox class="no-wrap flexi-fit">
         <div data-element-centered class="flexi-fit">
-          &nbsp;&nbsp;\{{
+          &nbsp;&nbsp;&lt;
           <span class="underlined">
-            {{if this.isConfiguringTooltip '#attach-tooltip' '#attach-popover'}}
+            {{if this.isConfiguringTooltip 'AttachTooltip' 'AttachPopover'}}
 
             {{#attach-tooltip animation='shift'}}
               {{#if this.isConfiguringTooltip}}
-                This component has the default settings. The \{{attach-tooltip}} component
+                This component has the default settings. The &lt;AttachTooltip&gt; component
                 automatically gains the ember-attacher-floating and ember-attacher-tooltip classes.
                 It also modifies the target element's aria-describedby to point to the tooltip.
-                For manual control, use \{{attach-popover}} instead.
+                For manual control, use &lt;AttachPopover&gt; instead.
               {{else}}
-                This is a click-triggered \{{attach-popover}}. Unlike \{{attach-tooltip}}, it does
+                This is a click-triggered &lt;AttachPopover&gt;. Unlike &lt;AttachTooltip&gt;, it does
                 not modify the target's aria-describedby, or have any default classes.
               {{/if}}
             {{/attach-tooltip}}
@@ -113,7 +116,7 @@
       <div data-element-hbox class="flexi-fit">
         <div data-element-box class="hidden-lm fit-xs">&nbsp;&nbsp;&nbsp;&nbsp;</div>
         <div data-element-centered class="flexi-fit">
-          animation="<PowerSelect
+          @animation="<PowerSelect
                       @onChange={{action (mut this.service.animation)}}
                       @options={{this.animationOptions}}
                       @searchEnabled={{false}}
@@ -128,13 +131,13 @@
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
-        arrow=<button class="button medium" {{action "toggleArrow"}}>{{this.service.arrow}}</button>
+        @arrow=<button class="button medium" {{action "toggleArrow"}}>{{this.service.arrow}}</button>
       </div>
     </div>
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
-        hideDelay={{input class="button medium"
+        @hideDelay={{input class="button medium"
                           min="0"
                           pattern="[0-9]"
                           placeholder="0"
@@ -147,7 +150,7 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          hideDuration
+          @hideDuration
 
           {{#attach-tooltip}}
             How long the hide animation will take.
@@ -166,7 +169,7 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          hideOn
+          @hideOn
 
           {{#attach-tooltip animation='shift'}}
             Any combination of "blur", "click", "clickout", "escapekey", and "mouseleave".
@@ -189,7 +192,7 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          interactive
+          @interactive
 
           {{#attach-tooltip}}
             Interactive tooltips will not close when clicked or hovered over.
@@ -205,7 +208,7 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          isShown
+          @isShown
 
           {{#attach-tooltip}}
             Manually controls whether or not the attacher should be open or closed.
@@ -220,7 +223,7 @@
       <div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          lazyRender
+          @lazyRender
 
           {{#attach-tooltip}}
             If you want ember-attacher to postpone rendering until first interacted.
@@ -234,7 +237,7 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          onChange
+          @onChange
 
           {{#attach-tooltip}}
             An action to be fired when the attachment's visibility changes.
@@ -246,7 +249,7 @@
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
-        placement="<PowerSelect
+        @placement="<PowerSelect
                     @onChange={{action (mut this.service.placement)}}
                     @options={{placementOptions}}
                     @searchEnabled={{false}}
@@ -261,7 +264,7 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          autoUpdate
+          @autoUpdate
 
           {{#attach-tooltip animation='shift'}}
             The floating element can detach from the reference element if the user scrolls or resizes the screen, so its position needs to be updated again to ensure it stays anchored.
@@ -278,7 +281,7 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          renderInPlace
+          @renderInPlace
 
           {{#attach-tooltip animation="shift"}}
             Elements that exist deep within the document tree are given an implicitly lower z-index
@@ -299,7 +302,7 @@
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
-        showDelay={{input class="button medium"
+        @showDelay={{input class="button medium"
                           min="0"
                           pattern="[0-9]"
                           placeholder="0"
@@ -312,7 +315,7 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          showDuration
+          @showDuration
 
           {{#attach-tooltip}}
             How long the show animation will take.
@@ -331,7 +334,7 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          showOn
+          @showOn
 
           {{#attach-tooltip}}
             For performance reasons, we recommend using some combination of "mouseenter", "focus",
@@ -353,23 +356,23 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <vbox>
-          {{#if isConfiguringTooltip}}
+          {{#if this.isConfiguringTooltip}}
             <div data-element-hbox>
               <div data-element-centered class="flexi-fit">
                 <span class="underlined">
-                  class
+                  @class
 
-                  {{#attach-tooltip}}
-                    The \{{attach-tooltip}} component automatically adds
+                  <AttachTooltip>
+                    The &lt;AttachTooltip&gt; component automatically adds
                     ember-attacher-floating and ember-attacher-tooltip to the class string.
-                  {{/attach-tooltip}}
+                  </AttachTooltip>
                 </span>
-                ='optional-class-here'}}
+                ='optional-class-here'&gt;
               </div>
             </div>
           {{else}}
             <div data-element-hbox><div data-element-centered class="flexi-fit">class="ember-attacher-floating custom-popover-css"</div></div>
-            <div data-element-hbox><div data-element-centered class="flexi-fit">as |attacher|}}</div></div>
+            <div data-element-hbox><div data-element-centered class="flexi-fit">as |attacher|&gt;</div></div>
           {{/if}}
         </vbox>
       </div>
@@ -404,7 +407,7 @@
       </div>
     {{/if}}
     <div data-element-hbox>
-      &nbsp;&nbsp;\{{/{{if this.isConfiguringTooltip 'attach-tooltip}}' 'attach-popover}}'}}
+      &nbsp;&nbsp;&lt;\\{{if this.isConfiguringTooltip 'AttachTooltip' 'AttachPopover'}}&gt;
     </div>
     <div data-element-hbox>
       <div data-element-centered class="flexi-fit">&lt;\button></div>

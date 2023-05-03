@@ -11,16 +11,10 @@ class AttachTooltip extends AttachPopover {
     return this.args.ariaRole || 'tooltip';
   }
 
-  get class() {
-    return `${this._config.tooltipClass || DEFAULTS.tooltipClass} ${this.args.class}`;
+  get _class() {
+    return `${super._class} ${this._config.tooltipClass || DEFAULTS.tooltipClass}`
   }
 
-  set class(value) {
-    const tooltipClass = this._config.tooltipClass || DEFAULTS.tooltipClass;
-
-    // eslint-disable-next-line no-setter-return
-    return `${tooltipClass} ${value}`;
-  }
   _initializeAttacher() {
     super._initializeAttacher();
     this._currentTarget?.setAttribute('aria-describedby', this.id);

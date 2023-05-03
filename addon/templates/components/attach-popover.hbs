@@ -1,8 +1,8 @@
-{{#unless this.parentElement}}
-  <div {{did-insert this.onParentFinderInsert}} />
-{{/unless}}
+{{~#unless this.renderFloatingElement}}
+  <wbr hidden {{did-insert this.onParentFinderInsert}} {{did-update this._isShownChanged this.isShown}}/>
+{{~/unless~}}
 
-{{~#if (and this._currentTarget (or (not this.lazyRender) this._mustRender))}}
+{{~#if this.renderFloatingElement}}
   {{#in-element this._floatingElementContainer insertBefore=null}}
     <div
       class="ember-attacher"
@@ -12,7 +12,8 @@
       {{did-update this._isShownChanged this.isShown}}
       {{did-update this.explicitTargetChanged @explicitTarget}}
       {{did-update this._ensureArgumentsAreValid this.animation this.arrow this.useCapture}}
-      {{did-update this.didUpdateOptions this.autoUpdate this.placement this._renderInPlace this._currentTarget this._middleware}}
+      {{did-update this.didUpdateOptions this.autoUpdate this.placement this._renderInPlace this._currentTarget
+                   this._middleware}}
       {{will-destroy this.willDestroyFloatingElement}}
       ...attributes
     >

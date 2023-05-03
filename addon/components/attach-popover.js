@@ -1,4 +1,3 @@
-import { set } from '@ember/object';
 import { action } from '@ember/object';
 import Component from '@glimmer/component';
 import { cancel, debounce, later, next, run } from '@ember/runloop';
@@ -15,7 +14,6 @@ import DEFAULTS from '../defaults';
 
 const animationTestWaiter = buildWaiter('attach-popover');
 
-// @templateLayout(layout)
 export default class AttachPopover extends Component {
   @tracked parentNotFound = true;
   @tracked parentElement = null;
@@ -27,6 +25,7 @@ export default class AttachPopover extends Component {
   @tracked _transitionDuration = 0;
   _floatingElement = null;
   configKey = 'popover';
+
   /**
    * ================== PUBLIC CONFIG OPTIONS ==================
    */
@@ -46,21 +45,26 @@ export default class AttachPopover extends Component {
     return this.args.hideDelay ?? this._config.hideDelay ?? DEFAULTS.hideDelay;
   }
 
-  hideDuration = DEFAULTS.hideDuration;
+  get hideDuration() {
+    return this.args.hideDuration ?? this._config.hideDuration ?? DEFAULTS.hideDuration;
+  }
 
   get hideOn() {
     return this.args.hideOn || this._config.hideOn || DEFAULTS.hideOn;
   }
 
   get interactive() {
-    return this.args.interactive || this._config.interactive || DEFAULTS.interactive;
+    return this.args.interactive ?? this._config.interactive ?? DEFAULTS.interactive;
   }
 
-  isOffset = DEFAULTS.isOffset;
+  get isOffset() {
+    return this.args.isOffset ?? this._config.isOffset ?? DEFAULTS.interactive;
+  }
 
   get isShown() {
     return this.args.isShown ?? this._config.isShown ?? DEFAULTS.isShown;
   }
+
   get lazyRender() {
     return this.args.lazyRender ?? this._config.lazyRender ?? DEFAULTS.lazyRender;
   }
@@ -73,16 +77,29 @@ export default class AttachPopover extends Component {
     return this.args.floatingElementContainer || this._config.floatingElementContainer || DEFAULTS.floatingElementContainer;
   }
 
-  floatingUiOptions = DEFAULTS.floatingUiOptions;
+  get class() {
+    return this.args.class || this._config.class;
+  }
+
+  get floatingUiOptions() {
+    return this.args.floatingUiOptions || this._config.floatingUiOptions || DEFAULTS.floatingUiOptions;
+  }
+
   get renderInPlace() {
     return this.args.renderInPlace ?? this._config.renderInPlace ?? DEFAULTS.renderInPlace;
   }
-  showDelay = DEFAULTS.showDelay;
-  showDuration = DEFAULTS.showDuration;
+
+  get showDelay() {
+    return this.args.showDelay ?? this._config.showDelay ?? DEFAULTS.showDelay;
+  }
+
+  get showDuration() {
+    return this.args.showDuration ?? this._config.showDuration ?? DEFAULTS.showDuration;
+  }
 
   get showOn() {
     if (this.args.showOn === null) {
-      return null
+      return null;
     }
 
     return this.args.showOn ?? this._config.showOn ?? DEFAULTS.showOn;
@@ -96,18 +113,20 @@ export default class AttachPopover extends Component {
     return this.args.useCapture ?? this._config.useCapture ?? DEFAULTS.useCapture;
   }
 
-  // Exposed via the named yield to enable custom hide events
-  @action
-  hide() {
-    this._hide();
-  }
-
   get _currentTarget() {
     return this.args.explicitTarget || this.parentElement;
   }
 
   get isFillAnimation() {
     return this.animation === 'fill';
+  }
+
+  get renderFloatingElement() {
+    return this._currentTarget && (!this.lazyRender || this._mustRender)
+  }
+
+  get id() {
+    return this.args.id || `${guidFor(this)}-floating`;
   }
 
   // The circle element needs a special duration that is slightly faster than the floating element's
@@ -122,7 +141,7 @@ export default class AttachPopover extends Component {
     const showOrHideClass = `ember-attacher-${this._isStartingAnimation ? 'show' : 'hide'}`;
     const arrowClass = `ember-attacher-${this.arrow ? 'with' : 'without'}-arrow`;
 
-    return [`ember-attacher-${this.animation}`, this.class ?? '' ,showOrHideClass, arrowClass].filter(Boolean).join(' ');
+    return [`ember-attacher-${this.animation}`, this.class || '', showOrHideClass, arrowClass].filter(Boolean).join(' ');
   }
 
   get _style() {
@@ -259,10 +278,16 @@ export default class AttachPopover extends Component {
     return showOn === null ? [] : showOn.split(' ');
   }
 
+  // Exposed via the named yield to enable custom hide events
+  @action
+  hide() {
+    this._hide();
+  }
+
   @action
   onParentFinderInsert(element) {
     this.parentElement = element.parentElement;
-    this._initializeAttacher()
+    this._initializeAttacher();
   }
 
   @action
@@ -303,38 +328,8 @@ export default class AttachPopover extends Component {
     });
   }
 
-  _setUserSuppliedDefaults() {
-    const userDefaults = this._config;
 
-    // Exit early if no custom defaults are found
-    if (!Object.keys(userDefaults).length) {
-      return;
-    }
 
-    const args = this.args || {};
-
-    for (const key in userDefaults) {
-      stripInProduction(() => {
-        // eslint-disable-next-line no-prototype-builtins
-        if (!['popover','tooltip', 'class'].includes(key) && !DEFAULTS.hasOwnProperty(key)) {
-          warn(`Unknown property given as an ember-attacher default: ${key}`, { id: 700152 });
-        }
-      });
-
-      // Don't override args manually passed into the component
-      if (args[key] === undefined) {
-        if (key === 'arrow') {
-          set(this, 'arrow', userDefaults[key]);
-        } else {
-          this[key] = userDefaults[key];
-        }
-      }
-    }
-  }
-
-  get id() {
-    return this.args.id || `${guidFor(this)}-floating`;
-  }
   constructor() {
     super(...arguments);
 
@@ -367,7 +362,6 @@ export default class AttachPopover extends Component {
     this._show = this._show.bind(this);
     this._showAfterDelay = this._showAfterDelay.bind(this);
 
-    this._setUserSuppliedDefaults();
     this._lastUseCaptureArgumentValue = this.useCapture;
   }
 
@@ -386,7 +380,6 @@ export default class AttachPopover extends Component {
   }
 
   _addListenersForShowEvents() {
-
     if (!this._currentTarget) {
       return;
     }
@@ -426,7 +419,7 @@ export default class AttachPopover extends Component {
 
   @action
   _targetOrTriggersChanged() {
-    console.log('_targetOrTriggersChanged!')
+    console.log('_targetOrTriggersChanged!');
     this._initializeAttacher();
   }
 
