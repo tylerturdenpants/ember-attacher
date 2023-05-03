@@ -293,29 +293,7 @@ export default class AttachPopover extends Component {
   @action
   _ensureArgumentsAreValid() {
     stripInProduction(() => {
-      // eslint-disable-next-line ember/no-attrs-in-components
-      const attrs = this.args || {};
-      const userDefaults = this._config;
-
-      let arrow;
-      if (attrs.arrow !== undefined) {
-        arrow = attrs.arrow;
-      } else if (userDefaults.arrow !== undefined) {
-        arrow = userDefaults.arrow;
-      } else {
-        arrow = DEFAULTS.arrow;
-      }
-
-      let animation;
-      if (attrs.animation !== undefined) {
-        animation = attrs.animation;
-      } else if (userDefaults.animation !== undefined) {
-        animation = userDefaults.animation;
-      } else {
-        animation = DEFAULTS.animation;
-      }
-
-      if (arrow && animation === 'fill') {
+      if (this.arrow && this.isFillAnimation) {
         warn('Animation: \'fill\' is not compatible with arrow: true', { id: 70015 });
       }
 
@@ -424,7 +402,7 @@ export default class AttachPopover extends Component {
   }
 
   @action
-  _isShownChanged() {
+  onIsShownChange() {
     const isShown = this.isShown;
 
     if (isShown === true && this._isHidden) {
@@ -794,7 +772,8 @@ export default class AttachPopover extends Component {
   }
 
   @action
-  didUpdateOptions() {
+  onOptionsChange() {
+    this._ensureArgumentsAreValid();
     this._update();
   }
 

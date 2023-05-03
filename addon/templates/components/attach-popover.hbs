@@ -1,5 +1,5 @@
 {{~#unless this.renderFloatingElement}}
-  <wbr hidden {{did-insert this.onParentFinderInsert}} {{did-update this._isShownChanged this.isShown}}/>
+  <wbr hidden {{did-insert this.onParentFinderInsert}} {{did-update this.onIsShownChange this.isShown}}/>
 {{~/unless~}}
 
 {{~#if this.renderFloatingElement}}
@@ -9,11 +9,9 @@
       id={{this.id}}
       role={{this.ariaRole}}
       {{did-insert this.didInsertFloatingElement}}
-      {{did-update this._isShownChanged this.isShown}}
-      {{did-update this.explicitTargetChanged @explicitTarget}}
-      {{did-update this._ensureArgumentsAreValid this.animation this.arrow this.useCapture}}
-      {{did-update this.didUpdateOptions this.autoUpdate this.placement this._renderInPlace this._currentTarget
-                   this._middleware}}
+      {{did-update this.onIsShownChange this.isShown}}
+      {{did-update this.onExplicitTargetChange @explicitTarget}}
+      {{did-update this.onOptionsChange this.autoUpdate this.animation this.arrow this.useCapture this.placement this._renderInPlace this._currentTarget this._middleware}}
       {{will-destroy this.willDestroyFloatingElement}}
       ...attributes
     >

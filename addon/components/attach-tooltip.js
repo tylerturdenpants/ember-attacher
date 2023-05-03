@@ -21,7 +21,7 @@ class AttachTooltip extends AttachPopover {
   }
 
   @action
-  explicitTargetChanged() {
+  onExplicitTargetChange() {
     const oldTarget = this._currentTarget;
     if (oldTarget) {
       oldTarget.removeAttribute('aria-describedby');
