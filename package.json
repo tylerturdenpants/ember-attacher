@@ -33,11 +33,9 @@
     "babel-plugin-filter-imports": "^4.0.0",
     "broccoli-funnel": "~3.0.8",
     "ember-auto-import": "~2.6.3",
-    "ember-classic-decorator": "~3.0.1",
     "ember-cli-babel": "^7.26.10",
     "ember-cli-htmlbars": "~6.2.0",
     "ember-cli-sass": "~11.0.1",
-    "ember-decorators": "^6.1.1",
     "ember-in-element-polyfill": "~1.0.1"
   },
   "devDependencies": {
