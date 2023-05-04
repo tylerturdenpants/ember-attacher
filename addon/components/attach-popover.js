@@ -19,7 +19,7 @@ export default class AttachPopover extends Component {
   @tracked parentElement = null;
   @tracked _isStartingAnimation = false;
   @tracked _arrowElement = null;
-
+  @tracked _currentTarget = null;
   // This is set to true when the popover is shown in order to override lazyRender=false
   @tracked _mustRender = false;
   @tracked _transitionDuration = 0;
@@ -111,10 +111,6 @@ export default class AttachPopover extends Component {
 
   get useCapture() {
     return this.args.useCapture ?? this._config.useCapture ?? DEFAULTS.useCapture;
-  }
-
-  get _currentTarget() {
-    return this.args.explicitTarget || this.parentElement;
   }
 
   get isFillAnimation() {
@@ -345,7 +341,7 @@ export default class AttachPopover extends Component {
 
   _initializeAttacher() {
     this._removeEventListeners();
-
+    this._currentTarget = this.args.explicitTarget || this.parentElement;
     this._addListenersForShowEvents();
 
     if (!this._isHidden || this.isShown) {
@@ -396,8 +392,7 @@ export default class AttachPopover extends Component {
   }
 
   @action
-  _targetOrTriggersChanged() {
-    console.log('_targetOrTriggersChanged!');
+  onTargetOrTriggerChanged() {
     this._initializeAttacher();
   }
 

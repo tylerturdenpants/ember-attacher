@@ -10,7 +10,7 @@
       role={{this.ariaRole}}
       {{did-insert this.didInsertFloatingElement}}
       {{did-update this.onIsShownChange this.isShown}}
-      {{did-update this.onExplicitTargetChange @explicitTarget}}
+      {{did-update this.onTargetOrTriggerChanged this.hideOn this.showOn @explicitTarget}}
       {{did-update this.onOptionsChange this.autoUpdate this.animation this.arrow this.useCapture this.placement this._renderInPlace this._currentTarget this._middleware}}
       {{will-destroy this.willDestroyFloatingElement}}
       ...attributes

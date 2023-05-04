@@ -1,4 +1,3 @@
-import { action } from '@ember/object';
 import AttachPopover from './attach-popover';
 import DEFAULTS from '../defaults';
 import layout from '../templates/components/attach-popover';
@@ -17,17 +16,13 @@ class AttachTooltip extends AttachPopover {
 
   _initializeAttacher() {
     super._initializeAttacher();
-    this._currentTarget?.setAttribute('aria-describedby', this.id);
-  }
 
-  @action
-  onExplicitTargetChange() {
-    const oldTarget = this._currentTarget;
-    if (oldTarget) {
-      oldTarget.removeAttribute('aria-describedby');
+    if (this._currentTarget?.getAttribute('aria-describedby') != this.id) {
+      const oldTarget = document.querySelector(`[aria-describedby="${this.id}"]`);
+
+      oldTarget?.removeAttribute('aria-describedby')
+      this._currentTarget?.setAttribute('aria-describedby', this.id);
     }
-
-    this.explicitTarget?.setAttribute('aria-describedby', this.id);
   }
 
   willDestroy() {
