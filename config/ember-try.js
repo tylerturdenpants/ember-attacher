@@ -12,7 +12,8 @@ module.exports = async function() {
           devDependencies: {
             'ember-source': '~3.16.0',
             '@ember/render-modifiers': '^1.0.2',
-            'ember-qunit': '~5.1.5'
+            'ember-qunit': '~5.1.5',
+            'ember-maybe-in-element': '2.0.1'
           },
         },
       },
