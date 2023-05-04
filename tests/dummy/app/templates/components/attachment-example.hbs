@@ -116,15 +116,15 @@
       <div data-element-hbox class="flexi-fit">
         <div data-element-box class="hidden-lm fit-xs">&nbsp;&nbsp;&nbsp;&nbsp;</div>
         <div data-element-centered class="flexi-fit">
-          @animation="<PowerSelect
-                      @onChange={{action (mut this.service.animation)}}
-                      @options={{this.animationOptions}}
-                      @searchEnabled={{false}}
-                      @selected={{this.service.animation}}
-                      @triggerClass="button large" as |animationOption|
-                     >
-                      {{animationOption}}
-                     </PowerSelect>"
+          @animation="
+          <select {{on "change" this.updateAnimation}} class="button large">
+            {{#each this.animationOptions as |animationOption|}}
+              <option selected={{eq this.service.animation animationOption}} value="{{animationOption}}">
+                {{animationOption}}
+              </option>
+            {{/each}}
+          </select>
+          "
         </div>
       </div>
     </div>
@@ -137,13 +137,13 @@
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
-        @hideDelay={{input class="button medium"
+        @hideDelay=<Input class="button medium"
                           min="0"
                           pattern="[0-9]"
                           placeholder="0"
                           step="100"
-                          type="number"
-                          value=this.service.hideDelay}}
+                          @type="number"
+                          @value={{this.service.hideDelay}} />
       </div>
     </div>
     <div data-element-hbox>
@@ -156,13 +156,13 @@
             How long the hide animation will take.
           {{/attach-tooltip}}
         </span>
-        ={{input class="button medium"
+        =<Input class="button medium"
                  min="0"
                  pattern="[0-9]"
                  placeholder="0"
                  step="100"
-                 type="number"
-                 value=this.service.hideDuration}}
+                 @type="number"
+                 @value={{this.service.hideDuration}} />
       </div>
     </div>
     <div data-element-hbox>
@@ -177,15 +177,14 @@
             <p>escapekey: hides the attachment when the user presses the escape key</p>
           {{/attach-tooltip}}
         </span>
-        ="<PowerSelect
-            @onChange={{action (mut this.service.hideOn)}}
-            @options={{hideOnOptions}}
-            @searchEnabled={{false}}
-            @selected={{this.service.hideOn}}
-            @triggerClass="button xlarge" as |hideOnOption|
-          >
-            {{hideOnOption}}
-          </PowerSelect>"
+        ="
+        <select {{on "change" this.updateHideOn}} class="button xlarge">
+          {{#each this.hideOnOptions as |hideOnOption|}}
+            <option selected={{eq this.service.hideOn hideOnOption}} value="{{hideOnOption}}">
+              {{hideOnOption}}
+            </option>
+          {{/each}}
+        </select>"
       </div>
     </div>
     <div data-element-hbox>
@@ -249,15 +248,14 @@
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
-        @placement="<PowerSelect
-                    @onChange={{action (mut this.service.placement)}}
-                    @options={{placementOptions}}
-                    @searchEnabled={{false}}
-                    @selected={{this.service.placement}}
-                    @triggerClass="button large" as |placementOption|
-                  >
-                    {{placementOption}}
-                  </PowerSelect>"
+        @placement="
+        <select {{on "change" this.updatePlacement}} class="button large">
+          {{#each this.placementOptions as |placementOption|}}
+            <option selected={{eq this.service.placement placementOption}} value="{{placementOption}}">
+              {{placementOption}}
+            </option>
+          {{/each}}
+        </select>"
       </div>
     </div>
     <div data-element-hbox>
@@ -302,13 +300,13 @@
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
-        @showDelay={{input class="button medium"
+        @showDelay=<Input class="button medium"
                           min="0"
                           pattern="[0-9]"
                           placeholder="0"
                           step="100"
-                          type="number"
-                          value=this.service.showDelay}}
+                          @type="number"
+                          @value={{this.service.showDelay}}/>
       </div>
     </div>
     <div data-element-hbox>
@@ -321,13 +319,13 @@
             How long the show animation will take.
           {{/attach-tooltip}}
         </span>
-        ={{input class="button medium"
+        =<Input class="button medium"
                  min="0"
                  pattern="[0-9]"
                  placeholder="0"
                  step="100"
-                 type="number"
-                 value=this.service.showDuration}}
+                 @type="number"
+                 @value={{this.service.showDuration}} />
       </div>
     </div>
     <div data-element-hbox>
@@ -341,15 +339,14 @@
             and "click", though you can use any event listener you want.
           {{/attach-tooltip}}
         </span>
-        ="<PowerSelect
-            @onChange={{action (mut this.service.showOn)}}
-            @options={{showOnOptions}}
-            @searchEnabled={{false}}
-            @selected={{this.service.showOn}}
-            @triggerClass="button xlarge" as |showOnOption|
-          >
-            {{showOnOption}}
-          </PowerSelect>"
+        ="
+        <select {{on "change" this.updateShowOn}} class="button large">
+          {{#each this.showOnOptions as |showOnOption|}}
+            <option selected={{eq this.service.showOn showOnOption}} value="{{showOnOption}}">
+              {{showOnOption}}
+            </option>
+          {{/each}}
+        </select>"
       </div>
     </div>
     <div data-element-hbox>

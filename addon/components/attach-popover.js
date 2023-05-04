@@ -118,7 +118,7 @@ export default class AttachPopover extends Component {
   }
 
   get renderFloatingElement() {
-    return this._currentTarget && (!this.lazyRender || this._mustRender)
+    return (this.renderInPlace || this._currentTarget) && (!this.lazyRender || this._mustRender);
   }
 
   get id() {
@@ -303,7 +303,6 @@ export default class AttachPopover extends Component {
   }
 
 
-
   constructor() {
     super(...arguments);
 
@@ -392,7 +391,7 @@ export default class AttachPopover extends Component {
   }
 
   @action
-  onTargetOrTriggerChanged() {
+  onTargetOrTriggerChange() {
     this._initializeAttacher();
   }
 
@@ -759,6 +758,11 @@ export default class AttachPopover extends Component {
   @action
   didInsertFloatingElement(floatingElement) {
     this._floatingElement = floatingElement;
+
+    if (this.renderInPlace) {
+      this.parentElement = floatingElement.parentElement;
+      this._initializeAttacher();
+    }
   }
 
   @action

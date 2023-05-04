@@ -42,6 +42,7 @@
     "@babel/core": "^7.21.4",
     "@babel/eslint-parser": "^7.21.8",
     "@ember/optional-features": "^2.0.0",
+    "@ember/render-modifiers": "^2.0.5",
     "@ember/string": "^3.0.1",
     "@ember/test-helpers": "~2.9.3",
     "@ember/test-waiters": "^3.0.2",
@@ -60,7 +61,7 @@
     "ember-export-application-global": "^2.0.1",
     "ember-load-initializers": "^2.1.2",
     "ember-maybe-import-regenerator": "^1.0.0",
-    "ember-power-select": "~5.0.4",
+    "ember-maybe-in-element": "^2.1.0",
     "ember-qunit": "^6.2.0",
     "ember-resolver": "~10.0.0",
     "ember-source": "~3.28.11",
@@ -81,8 +82,7 @@
     "webpack": "~5.82.1"
   },
   "resolutions": {
-    "ember-in-element-polyfill": "^1.0.1",
-    "ember-maybe-in-element": "2.0.1"
+    "ember-in-element-polyfill": "^1.0.1"
   },
   "engines": {
     "node": ">= 12.*"

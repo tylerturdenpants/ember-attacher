@@ -67,4 +67,24 @@ export default class AttachmentExample extends Component {
   setIsConfiguringTooltip(bool) {
     this.isConfiguringTooltip = bool;
   }
+
+  @action
+  updateAnimation({ target }) {
+    this.service.set('animation', target.value);
+  }
+
+  @action
+  updateHideOn({ target }) {
+    this.service.set('hideOn', target.value);
+  }
+
+  @action
+  updatePlacement({ target }) {
+    this.service.set('placement', target.value);
+  }
+
+  @action
+  updateShowOn({ target }) {
+    this.service.set('showOn', target.value);
+  }
 }

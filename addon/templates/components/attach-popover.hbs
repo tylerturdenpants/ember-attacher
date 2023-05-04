@@ -3,14 +3,14 @@
 {{~/unless~}}
 
 {{~#if this.renderFloatingElement}}
-  {{#in-element this._floatingElementContainer insertBefore=null}}
+  {{~#maybe-in-element destinationElement=this._floatingElementContainer renderInPlace=@renderInPlace}}
     <div
       class="ember-attacher"
       id={{this.id}}
       role={{this.ariaRole}}
       {{did-insert this.didInsertFloatingElement}}
       {{did-update this.onIsShownChange this.isShown}}
-      {{did-update this.onTargetOrTriggerChanged this.hideOn this.showOn @explicitTarget}}
+      {{did-update this.onTargetOrTriggerChange this.hideOn this.showOn @explicitTarget}}
       {{did-update this.onOptionsChange this.autoUpdate this.animation this.arrow this.useCapture this.placement this._renderInPlace this._currentTarget this._middleware}}
       {{will-destroy this.willDestroyFloatingElement}}
       ...attributes
@@ -25,5 +25,5 @@
         {{/if}}
       </div>
     </div>
-  {{/in-element}}
+  {{~/maybe-in-element}}
 {{~/if~}}
