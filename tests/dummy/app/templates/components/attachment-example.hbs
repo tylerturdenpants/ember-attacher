@@ -1,5 +1,8 @@
 <div data-element-centered class="section top-section">
-  <p>Drop an <span class="no-wrap">\{{#attach-tooltip}}</span> or <span class="no-wrap">\{{#attach-popover}}</span> in any element or component to get started.</p>
+  <p>
+    Drop an <span class="no-wrap"><code>&lt;AttachTooltip&gt;</code></span>
+    or <span class="no-wrap"><code>&lt;AttachPopover&gt;</code></span> in any element or component to get started.
+  </p>
 </div>
 <div data-element-centered class="section">
   <div data-element-centered class="floating-area justify-around col-lg-10 col-md-12 col-sm-16 col-lm-20 col-xs-24">
@@ -7,20 +10,20 @@
       Tooltip me, captain!
 
       <AttachTooltip
-        @animation={{tooltipData.animation}}
-        @arrow={{tooltipData.arrow}}
-        @autoUpdate={{tooltipData.autoUpdate}}
-        @hideDelay={{tooltipData.hideDelay}}
-        @hideDuration={{tooltipData.hideDuration}}
-        @hideOn={{tooltipData.hideOn}}
-        @interactive={{tooltipData.interactive}}
-        @isShown={{tooltipData.isShown}}
-        @onChange={{action (mut tooltipData.isShown)}}
-        @placement={{tooltipData.placement}}
-        @renderInPlace={{tooltipData.renderInPlace}}
-        @showDelay={{tooltipData.showDelay}}
-        @showDuration={{tooltipData.showDuration}}
-        @showOn={{tooltipData.showOn}}
+        @animation={{this.tooltipData.animation}}
+        @arrow={{this.tooltipData.arrow}}
+        @autoUpdate={{this.tooltipData.autoUpdate}}
+        @hideDelay={{this.tooltipData.hideDelay}}
+        @hideDuration={{this.tooltipData.hideDuration}}
+        @hideOn={{this.tooltipData.hideOn}}
+        @interactive={{this.tooltipData.interactive}}
+        @isShown={{this.tooltipData.isShown}}
+        @onChange={{action (mut this.tooltipData.isShown)}}
+        @placement={{this.tooltipData.placement}}
+        @renderInPlace={{this.tooltipData.renderInPlace}}
+        @showDelay={{this.tooltipData.showDelay}}
+        @showDuration={{this.tooltipData.showDuration}}
+        @showOn={{this.tooltipData.showOn}}
         data-test-demo-tooltip
       >
         Hello world!
@@ -31,22 +34,22 @@
       Click me, captain!
 
       <AttachPopover
-        @animation={{popoverData.animation}}
-        @arrow={{popoverData.arrow}}
-        @autoUpdate={{popoverData.autoUpdate}}
+        @animation={{this.popoverData.animation}}
+        @arrow={{this.popoverData.arrow}}
+        @autoUpdate={{this.popoverData.autoUpdate}}
         @class="ember-attacher-popover custom-popover-css"
-        @hideDelay={{popoverData.hideDelay}}
-        @hideDuration={{popoverData.hideDuration}}
-        @hideOn={{popoverData.hideOn}}
-        @interactive={{popoverData.interactive}}
-        @isShown={{popoverData.isShown}}
-        @lazyRender={{popoverData.lazyRender}}
-        @onChange={{action (mut popoverData.isShown)}}
-        @placement={{popoverData.placement}}
-        @renderInPlace={{popoverData.renderInPlace}}
-        @showDelay={{popoverData.showDelay}}
-        @showDuration={{popoverData.showDuration}}
-        @showOn={{popoverData.showOn}}
+        @hideDelay={{this.popoverData.hideDelay}}
+        @hideDuration={{this.popoverData.hideDuration}}
+        @hideOn={{this.popoverData.hideOn}}
+        @interactive={{this.popoverData.interactive}}
+        @isShown={{this.popoverData.isShown}}
+        @lazyRender={{this.popoverData.lazyRender}}
+        @onChange={{action (mut this.popoverData.isShown)}}
+        @placement={{this.popoverData.placement}}
+        @renderInPlace={{this.popoverData.renderInPlace}}
+        @showDelay={{this.popoverData.showDelay}}
+        @showDuration={{this.popoverData.showDuration}}
+        @showOn={{this.popoverData.showOn}}
         data-test-demo-popover as |emberAttacher|
       >
         <p>Popovers and tooltips, oh my!</p>
@@ -56,13 +59,13 @@
     </button>
   </div>
 </div>
-{{#if (and service.arrow (eq service.animation "fill"))}}
+{{#if (and this.service.arrow (eq this.service.animation "fill"))}}
   <div data-element-centered class="section">
     <h2>Warning: `animation: "fill"` is not compatible with `arrow: true`</h2>
   </div>
 {{/if}}
 
-{{#if service.renderInPlace}}
+{{#if this.service.renderInPlace}}
   <div data-element-centered class="section flexi-fit flexi-vertical">
     <h3>Note: renderInPlace can cause z-index issues.</h3>
     <h3>Hover over the renderInPlace attr for more details.</h3>
@@ -72,10 +75,10 @@
   <div data-element-vbox class="fit-lm">
     <div data-element-hbox class="nav-bar">
       <div data-element-centered class="col-xs-12 nav{{if this.isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' true}}>
-        \{{#attach-tooltip}}
+        <code>&lt;AttachTooltip&gt;</code>
       </div>
       <div data-element-centered  class="col-xs-12 nav{{unless this.isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' false}}>
-        \{{#attach-popover}}
+        <code>&lt;AttachPopover&gt;</code>
       </div>
     </div>
 
@@ -91,18 +94,18 @@
     <div data-element-box class="flexi-fit horizontal-lm">
       <div data-element-hbox class="no-wrap flexi-fit">
         <div data-element-centered class="flexi-fit">
-          &nbsp;&nbsp;\{{
+          &nbsp;&nbsp;&lt;
           <span class="underlined">
-            {{if this.isConfiguringTooltip '#attach-tooltip' '#attach-popover'}}
+            {{if this.isConfiguringTooltip 'AttachTooltip' 'AttachPopover'}}
 
             {{#attach-tooltip animation='shift'}}
               {{#if this.isConfiguringTooltip}}
-                This component has the default settings. The \{{attach-tooltip}} component
+                This component has the default settings. The &lt;AttachTooltip&gt; component
                 automatically gains the ember-attacher-floating and ember-attacher-tooltip classes.
                 It also modifies the target element's aria-describedby to point to the tooltip.
-                For manual control, use \{{attach-popover}} instead.
+                For manual control, use &lt;AttachPopover&gt; instead.
               {{else}}
-                This is a click-triggered \{{attach-popover}}. Unlike \{{attach-tooltip}}, it does
+                This is a click-triggered &lt;AttachPopover&gt;. Unlike &lt;AttachTooltip&gt;, it does
                 not modify the target's aria-describedby, or have any default classes.
               {{/if}}
             {{/attach-tooltip}}
@@ -113,60 +116,60 @@
       <div data-element-hbox class="flexi-fit">
         <div data-element-box class="hidden-lm fit-xs">&nbsp;&nbsp;&nbsp;&nbsp;</div>
         <div data-element-centered class="flexi-fit">
-          animation="<PowerSelect
-                      @onChange={{action (mut service.animation)}}
-                      @options={{animationOptions}}
-                      @searchEnabled={{false}}
-                      @selected={{service.animation}}
-                      @triggerClass="button large" as |animationOption|
-                     >
-                      {{animationOption}}
-                     </PowerSelect>"
+          @animation="
+          <select {{on "change" this.updateAnimation}} class="button large">
+            {{#each this.animationOptions as |animationOption|}}
+              <option selected={{eq this.service.animation animationOption}} value="{{animationOption}}">
+                {{animationOption}}
+              </option>
+            {{/each}}
+          </select>
+          "
         </div>
       </div>
     </div>
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
-        arrow=<button class="button medium" {{action "toggleArrow"}}>{{service.arrow}}</button>
+        @arrow=<button class="button medium" {{action "toggleArrow"}}>{{this.service.arrow}}</button>
       </div>
     </div>
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
-        hideDelay={{input class="button medium"
+        @hideDelay=<Input class="button medium"
                           min="0"
                           pattern="[0-9]"
                           placeholder="0"
                           step="100"
-                          type="number"
-                          value=service.hideDelay}}
+                          @type="number"
+                          @value={{this.service.hideDelay}} />
       </div>
     </div>
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          hideDuration
+          @hideDuration
 
           {{#attach-tooltip}}
             How long the hide animation will take.
           {{/attach-tooltip}}
         </span>
-        ={{input class="button medium"
+        =<Input class="button medium"
                  min="0"
                  pattern="[0-9]"
                  placeholder="0"
                  step="100"
-                 type="number"
-                 value=service.hideDuration}}
+                 @type="number"
+                 @value={{this.service.hideDuration}} />
       </div>
     </div>
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          hideOn
+          @hideOn
 
           {{#attach-tooltip animation='shift'}}
             Any combination of "blur", "click", "clickout", "escapekey", and "mouseleave".
@@ -174,22 +177,21 @@
             <p>escapekey: hides the attachment when the user presses the escape key</p>
           {{/attach-tooltip}}
         </span>
-        ="<PowerSelect
-            @onChange={{action (mut service.hideOn)}}
-            @options={{hideOnOptions}}
-            @searchEnabled={{false}}
-            @selected={{service.hideOn}}
-            @triggerClass="button xlarge" as |hideOnOption|
-          >
-            {{hideOnOption}}
-          </PowerSelect>"
+        ="
+        <select {{on "change" this.updateHideOn}} class="button xlarge">
+          {{#each this.hideOnOptions as |hideOnOption|}}
+            <option selected={{eq this.service.hideOn hideOnOption}} value="{{hideOnOption}}">
+              {{hideOnOption}}
+            </option>
+          {{/each}}
+        </select>"
       </div>
     </div>
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          interactive
+          @interactive
 
           {{#attach-tooltip}}
             Interactive tooltips will not close when clicked or hovered over.
@@ -197,7 +199,7 @@
         </span>
         =
         <button class="button medium" {{action "toggleInteractive"}}>
-          {{service.interactive}}
+          {{this.service.interactive}}
         </button>
       </div>
     </div>
@@ -205,14 +207,14 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          isShown
+          @isShown
 
           {{#attach-tooltip}}
             Manually controls whether or not the attacher should be open or closed.
           {{/attach-tooltip}}
         </span>
         =
-        <button class="button medium" {{action "toggleIsShown"}}>{{service.isShown}}</button>
+        <button class="button medium" {{action "toggleIsShown"}}>{{this.service.isShown}}</button>
       </div>
     </div>
     <div data-element-hbox>
@@ -220,21 +222,21 @@
       <div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          lazyRender
+          @lazyRender
 
           {{#attach-tooltip}}
             If you want ember-attacher to postpone rendering until first interacted.
           {{/attach-tooltip}}
         </span>
         =
-        <button class="button medium" {{action "toggleLazyRender"}}>{{service.lazyRender}}</button>
+        <button class="button medium" {{action "toggleLazyRender"}}>{{this.service.lazyRender}}</button>
       </div>
     </div>
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          onChange
+          @onChange
 
           {{#attach-tooltip}}
             An action to be fired when the attachment's visibility changes.
@@ -246,22 +248,21 @@
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
-        placement="<PowerSelect
-                    @onChange={{action (mut service.placement)}}
-                    @options={{placementOptions}}
-                    @searchEnabled={{false}}
-                    @selected={{service.placement}}
-                    @triggerClass="button large" as |placementOption|
-                  >
-                    {{placementOption}}
-                  </PowerSelect>"
+        @placement="
+        <select {{on "change" this.updatePlacement}} class="button large">
+          {{#each this.placementOptions as |placementOption|}}
+            <option selected={{eq this.service.placement placementOption}} value="{{placementOption}}">
+              {{placementOption}}
+            </option>
+          {{/each}}
+        </select>"
       </div>
     </div>
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          autoUpdate
+          @autoUpdate
 
           {{#attach-tooltip animation='shift'}}
             The floating element can detach from the reference element if the user scrolls or resizes the screen, so its position needs to be updated again to ensure it stays anchored.
@@ -270,7 +271,7 @@
         </span>
         =
         <button class="button medium" {{action "toggleAutoUpdate"}}>
-          {{service.autoUpdate}}
+          {{this.service.autoUpdate}}
         </button>
       </div>
     </div>
@@ -278,7 +279,7 @@
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          renderInPlace
+          @renderInPlace
 
           {{#attach-tooltip animation="shift"}}
             Elements that exist deep within the document tree are given an implicitly lower z-index
@@ -292,89 +293,88 @@
         </span>
         =
         <button class="button medium" {{action "toggleRenderInPlace"}}>
-          {{service.renderInPlace}}
+          {{this.service.renderInPlace}}
         </button>
       </div>
     </div>
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
-        showDelay={{input class="button medium"
+        @showDelay=<Input class="button medium"
                           min="0"
                           pattern="[0-9]"
                           placeholder="0"
                           step="100"
-                          type="number"
-                          value=service.showDelay}}
+                          @type="number"
+                          @value={{this.service.showDelay}}/>
       </div>
     </div>
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          showDuration
+          @showDuration
 
           {{#attach-tooltip}}
             How long the show animation will take.
           {{/attach-tooltip}}
         </span>
-        ={{input class="button medium"
+        =<Input class="button medium"
                  min="0"
                  pattern="[0-9]"
                  placeholder="0"
                  step="100"
-                 type="number"
-                 value=service.showDuration}}
+                 @type="number"
+                 @value={{this.service.showDuration}} />
       </div>
     </div>
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <span class="underlined">
-          showOn
+          @showOn
 
           {{#attach-tooltip}}
             For performance reasons, we recommend using some combination of "mouseenter", "focus",
             and "click", though you can use any event listener you want.
           {{/attach-tooltip}}
         </span>
-        ="<PowerSelect
-            @onChange={{action (mut service.showOn)}}
-            @options={{showOnOptions}}
-            @searchEnabled={{false}}
-            @selected={{service.showOn}}
-            @triggerClass="button xlarge" as |showOnOption|
-          >
-            {{showOnOption}}
-          </PowerSelect>"
+        ="
+        <select {{on "change" this.updateShowOn}} class="button large">
+          {{#each this.showOnOptions as |showOnOption|}}
+            <option selected={{eq this.service.showOn showOnOption}} value="{{showOnOption}}">
+              {{showOnOption}}
+            </option>
+          {{/each}}
+        </select>"
       </div>
     </div>
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
         <vbox>
-          {{#if isConfiguringTooltip}}
+          {{#if this.isConfiguringTooltip}}
             <div data-element-hbox>
               <div data-element-centered class="flexi-fit">
                 <span class="underlined">
-                  class
+                  @class
 
-                  {{#attach-tooltip}}
-                    The \{{attach-tooltip}} component automatically adds
+                  <AttachTooltip>
+                    The &lt;AttachTooltip&gt; component automatically adds
                     ember-attacher-floating and ember-attacher-tooltip to the class string.
-                  {{/attach-tooltip}}
+                  </AttachTooltip>
                 </span>
-                ='optional-class-here'}}
+                ='optional-class-here'&gt;
               </div>
             </div>
           {{else}}
             <div data-element-hbox><div data-element-centered class="flexi-fit">class="ember-attacher-floating custom-popover-css"</div></div>
-            <div data-element-hbox><div data-element-centered class="flexi-fit">as |attacher|}}</div></div>
+            <div data-element-hbox><div data-element-centered class="flexi-fit">as |attacher|&gt;</div></div>
           {{/if}}
         </vbox>
       </div>
     </div>
-    {{#if isConfiguringTooltip}}
+    {{#if this.isConfiguringTooltip}}
       <div data-element-hbox>&nbsp;&nbsp;&nbsp;&nbsp;Hello world!</div>
     {{else}}
       <div data-element-vbox>
@@ -404,7 +404,7 @@
       </div>
     {{/if}}
     <div data-element-hbox>
-      &nbsp;&nbsp;\{{/{{if isConfiguringTooltip 'attach-tooltip}}' 'attach-popover}}'}}
+      &nbsp;&nbsp;&lt;\\{{if this.isConfiguringTooltip 'AttachTooltip' 'AttachPopover'}}&gt;
     </div>
     <div data-element-hbox>
       <div data-element-centered class="flexi-fit">&lt;\button></div>

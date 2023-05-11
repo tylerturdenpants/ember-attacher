@@ -1,50 +1,32 @@
-import classic from 'ember-classic-decorator';
-import { observes } from '@ember-decorators/object';
-import { computed } from '@ember/object';
 import AttachPopover from './attach-popover';
 import DEFAULTS from '../defaults';
+import layout from '../templates/components/attach-popover';
+import { setComponentTemplate } from '@ember/component';
 
-@classic
-export default class AttachTooltip extends AttachPopover {
+class AttachTooltip extends AttachPopover {
   configKey = 'tooltip';
-  ariaRole = 'tooltip';
 
-  @computed('_config.tooltipClass')
-  get class() {
-    return this._config.tooltipClass || DEFAULTS.tooltipClass;
+  get ariaRole() {
+    return this.args.ariaRole || 'tooltip';
   }
 
-  set class(value) {
-    const tooltipClass = this._config.tooltipClass || DEFAULTS.tooltipClass;
-
-    // eslint-disable-next-line no-setter-return
-    return `${tooltipClass} ${value}`;
+  get _class() {
+    return `${super._class} ${this._config.tooltipClass || DEFAULTS.tooltipClass}`
   }
 
-  didInsertElement() {
-    super.didInsertElement(...arguments);
+  _initializeAttacher() {
+    super._initializeAttacher();
 
-    if (!this._currentTarget) {
-      return;
+    if (this._currentTarget?.getAttribute('aria-describedby') != this.id) {
+      const oldTarget = document.querySelector(`[aria-describedby="${this.id}"]`);
+
+      oldTarget?.removeAttribute('aria-describedby')
+      this._currentTarget?.setAttribute('aria-describedby', this.id);
     }
-
-    this._currentTarget.setAttribute('aria-describedby', this.id);
   }
 
-  @observes('explicitTarget')
-  explicitTargetChanged() {
-    const oldTarget = this._currentTarget;
-    if (oldTarget) {
-      oldTarget.removeAttribute('aria-describedby');
-    }
-
-    super.explicitTargetChanged;
-
-    this.explicitTarget.setAttribute('aria-describedby', this.id);
-  }
-
-  willDestroyElement() {
-    super.willDestroyElement(...arguments);
+  willDestroy() {
+    super.willDestroy(...arguments);
 
     const target = this._currentTarget;
     if (target) {
@@ -52,3 +34,5 @@ export default class AttachTooltip extends AttachPopover {
     }
   }
 }
+
+export default setComponentTemplate(layout, AttachTooltip);

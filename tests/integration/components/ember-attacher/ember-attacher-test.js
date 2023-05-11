@@ -1,16 +1,13 @@
 import { hbs } from 'ember-cli-htmlbars';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-
 import { render, find } from '@ember/test-helpers';
 
 module('Integration | Component | ember attacher', function(hooks) {
   setupRenderingTest(hooks);
 
   test('it leaves no content', async function(assert) {
-    await render(hbs`
-      <div id='wrapper'>{{#attach-popover}}{{/attach-popover}}</div>
-    `);
+    await render(hbs`<div id='wrapper'><AttachPopover /></div>`);
 
     const wrapper = find('#wrapper');
 

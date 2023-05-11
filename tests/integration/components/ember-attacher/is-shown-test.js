@@ -127,7 +127,7 @@ module('Integration | Component | isShown', function(hooks) {
 
     await click('#open');
 
-    const attachment = find('#attachment');
+    const attachment = await waitFor('#attachment');
 
     await settled();
 

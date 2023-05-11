@@ -1,13 +1,17 @@
-{{unbound this._parentFinder}}
+{{~#unless this.renderFloatingElement}}
+  <meta hidden {{did-insert this.onParentFinderInsert}} {{did-update this.onIsShownChange this.isShown}}/>
+{{~/unless~}}
 
-{{~#if (and this._currentTarget (or (not this.lazyRender) this._mustRender))}}
-  {{#in-element this._floatingElementContainer insertBefore=null}}
+{{~#if this.renderFloatingElement}}
+  {{~#maybe-in-element destinationElement=this._floatingElementContainer renderInPlace=@renderInPlace}}
     <div
       class="ember-attacher"
       id={{this.id}}
       role={{this.ariaRole}}
       {{did-insert this.didInsertFloatingElement}}
-      {{did-update this.didUpdateOptions this.autoUpdate this.placement this._renderInPlace this._currentTarget this._middleware}}
+      {{did-update this.onIsShownChange this.isShown}}
+      {{did-update this.onTargetOrTriggerChange this.hideOn this.showOn @explicitTarget}}
+      {{did-update this.onOptionsChange this.autoUpdate this.animation this.arrow this.useCapture this.placement this._renderInPlace this._currentTarget this._middleware}}
       {{will-destroy this.willDestroyFloatingElement}}
       ...attributes
     >
@@ -21,5 +25,5 @@
         {{/if}}
       </div>
     </div>
-  {{/in-element}}
+  {{~/maybe-in-element}}
 {{~/if~}}

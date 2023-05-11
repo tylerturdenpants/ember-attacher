@@ -1,12 +1,5 @@
-import classic from 'ember-classic-decorator';
-import { tagName, layout as templateLayout } from '@ember-decorators/component';
-import { observes } from '@ember-decorators/object';
-import { action, computed } from '@ember/object';
-import { equal } from '@ember/object/computed';
-// eslint-disable-next-line ember/no-classic-components
-import Component from '@ember/component';
-import DEFAULTS from '../defaults';
-import layout from '../templates/components/attach-popover';
+import { action } from '@ember/object';
+import Component from '@glimmer/component';
 import { cancel, debounce, later, next, run } from '@ember/runloop';
 import { getOwner } from '@ember/application';
 import { guidFor } from '@ember/object/internals';
@@ -16,70 +9,141 @@ import { warn, assert } from '@ember/debug';
 import { isEmpty, typeOf } from '@ember/utils';
 import { autoUpdate, computePosition, arrow, flip } from '@floating-ui/dom';
 import { buildWaiter } from '@ember/test-waiters';
+import { tracked } from '@glimmer/tracking';
+import DEFAULTS from '../defaults';
 
 const animationTestWaiter = buildWaiter('attach-popover');
 
-@classic
-@templateLayout(layout)
-@tagName('')
 export default class AttachPopover extends Component {
-  @equal('animation', 'fill') isFillAnimation;
-
+  @tracked parentNotFound = true;
+  @tracked parentElement = null;
+  @tracked _isStartingAnimation = false;
+  @tracked _arrowElement = null;
+  @tracked _currentTarget = null;
+  // This is set to true when the popover is shown in order to override lazyRender=false
+  @tracked _mustRender = false;
+  @tracked _transitionDuration = 0;
+  _floatingElement = null;
   configKey = 'popover';
+
   /**
    * ================== PUBLIC CONFIG OPTIONS ==================
    */
+  get arrow() {
+    return this.args.arrow ?? this._config.arrow ?? DEFAULTS.arrow;
+  }
 
-  animation = DEFAULTS.animation;
+  get autoUpdate() {
+    return this.args.autoUpdate ?? this._config.autoUpdate ?? DEFAULTS.autoUpdate;
+  }
 
-  arrow = DEFAULTS.arrow;
-  flip = DEFAULTS.flip;
-  hideDelay = DEFAULTS.hideDelay;
-  hideDuration = DEFAULTS.hideDuration;
-  hideOn = DEFAULTS.hideOn;
-  interactive = DEFAULTS.interactive;
-  isOffset = DEFAULTS.isOffset;
-  isShown = DEFAULTS.isShown;
-  lazyRender = DEFAULTS.lazyRender;
-  onChange = null;
-  placement = DEFAULTS.placement;
-  floatingElementContainer = DEFAULTS.floatingElementContainer;
-  floatingUiOptions = DEFAULTS.floatingUiOptions;
-  explicitTarget = null;
-  renderInPlace = DEFAULTS.renderInPlace;
-  showDelay = DEFAULTS.showDelay;
-  showDuration = DEFAULTS.showDuration;
-  showOn = DEFAULTS.showOn;
-  style = DEFAULTS.style;
-  useCapture = DEFAULTS.useCapture;
+  get animation() {
+    return this.args.animation || this._config.animation || DEFAULTS.animation;
+  }
 
-  _arrowElement = null;
-  _floatingElement = null;
+  get flip() {
+    return this.args.flip ?? this._config.flip ?? DEFAULTS.flip;
+  }
 
-  // Exposed via the named yield to enable custom hide events
-  @action
-  hide() {
-    this._hide();
+  get hideDelay() {
+    return this.args.hideDelay ?? this._config.hideDelay ?? DEFAULTS.hideDelay;
+  }
+
+  get hideDuration() {
+    return this.args.hideDuration ?? this._config.hideDuration ?? DEFAULTS.hideDuration;
+  }
+
+  get hideOn() {
+    return this.args.hideOn || this._config.hideOn || DEFAULTS.hideOn;
+  }
+
+  get interactive() {
+    return this.args.interactive ?? this._config.interactive ?? DEFAULTS.interactive;
+  }
+
+  get isOffset() {
+    return this.args.isOffset ?? this._config.isOffset ?? DEFAULTS.interactive;
+  }
+
+  get isShown() {
+    return this.args.isShown ?? this._config.isShown ?? DEFAULTS.isShown;
+  }
+
+  get lazyRender() {
+    return this.args.lazyRender ?? this._config.lazyRender ?? DEFAULTS.lazyRender;
+  }
+
+  get placement() {
+    return this.args.placement ?? this._config.placement ?? DEFAULTS.placement;
+  }
+
+  get floatingElementContainer() {
+    return this.args.floatingElementContainer || this._config.floatingElementContainer || DEFAULTS.floatingElementContainer;
+  }
+
+  get class() {
+    return this.args.class || this._config.class;
+  }
+
+  get floatingUiOptions() {
+    return this.args.floatingUiOptions || this._config.floatingUiOptions || DEFAULTS.floatingUiOptions;
+  }
+
+  get renderInPlace() {
+    return this.args.renderInPlace ?? this._config.renderInPlace ?? DEFAULTS.renderInPlace;
+  }
+
+  get showDelay() {
+    return this.args.showDelay ?? this._config.showDelay ?? DEFAULTS.showDelay;
+  }
+
+  get showDuration() {
+    return this.args.showDuration ?? this._config.showDuration ?? DEFAULTS.showDuration;
+  }
+
+  get showOn() {
+    if (this.args.showOn === null) {
+      return null;
+    }
+
+    return this.args.showOn ?? this._config.showOn ?? DEFAULTS.showOn;
+  }
+
+  get style() {
+    return this.args.style ?? this._config.style ?? DEFAULTS.style;
+  }
+
+  get useCapture() {
+    return this.args.useCapture ?? this._config.useCapture ?? DEFAULTS.useCapture;
+  }
+
+  get isFillAnimation() {
+    return this.animation === 'fill';
+  }
+
+  get renderFloatingElement() {
+    return (this.renderInPlace || this._currentTarget) && (!this.lazyRender || this._mustRender);
+  }
+
+  get id() {
+    return this.args.id || `${guidFor(this)}-floating`;
   }
 
   // The circle element needs a special duration that is slightly faster than the floating element's
   // transition, this prevents text from appearing outside the circle as it fills the background
-  @computed('_transitionDuration')
   get _circleTransitionDuration() {
     return htmlSafe(
       `transition-duration: ${Math.round(this._transitionDuration / 1.25)}ms`
     );
   }
 
-  @computed('class', 'arrow', 'animation', '_isStartingAnimation')
   get _class() {
     const showOrHideClass = `ember-attacher-${this._isStartingAnimation ? 'show' : 'hide'}`;
     const arrowClass = `ember-attacher-${this.arrow ? 'with' : 'without'}-arrow`;
 
-    return `ember-attacher-${this.animation} ${this.class || ''} ${showOrHideClass} ${arrowClass}`;
+    return [`ember-attacher-${this.animation}`, this.class || '', showOrHideClass, arrowClass].filter(Boolean).join(' ');
   }
 
-  @computed('style', '_transitionDuration')
   get _style() {
     const style = this.style;
     const transitionDuration = this._transitionDuration;
@@ -97,7 +161,6 @@ export default class AttachPopover extends Component {
     return getOwner(this).resolveRegistration('config:environment').emberAttacher || {};
   }
 
-  @computed('_envConfig', 'configKey')
   get _config() {
     return {
       ...this._envConfig,
@@ -105,7 +168,6 @@ export default class AttachPopover extends Component {
     };
   }
 
-  @computed('hideOn')
   get _hideOn() {
     let hideOn = this.hideOn;
 
@@ -116,12 +178,10 @@ export default class AttachPopover extends Component {
     return hideOn === null ? [] : hideOn.split(' ');
   }
 
-  // eslint-disable-next-line ember/require-computed-property-dependencies
-  @computed('arrow', 'flip', 'middleware', '_arrowElement')
   get _middleware() {
     // Copy the middleware since we might write to the provided array
     const middleware
-      = this.middleware ? [...this.middleware] : [];
+      = this.args.middleware ? [...this.args.middleware] : [];
 
     if (this.arrow && this._arrowElement && !middleware.find(name => name === 'arrow')) {
       middleware.push(arrow({ element: this._arrowElement }));
@@ -141,14 +201,13 @@ export default class AttachPopover extends Component {
     return middleware;
   }
 
-  @computed('_parentFinder.parentNode', '_renderInPlace', 'floatingElementContainer')
   get _floatingElementContainer() {
     const maybeContainer = this.floatingElementContainer;
     const renderInPlace = this._renderInPlace;
     let floatingElementContainer;
 
     if (renderInPlace) {
-      floatingElementContainer = this._parentFinder.parentNode;
+      floatingElementContainer = this.parentElement;
     } else if (maybeContainer instanceof Element) {
       floatingElementContainer = maybeContainer;
     } else if (typeof maybeContainer === 'string') {
@@ -164,7 +223,6 @@ export default class AttachPopover extends Component {
     return floatingElementContainer;
   }
 
-  @computed('renderInPlace')
   get _renderInPlace() {
     // self.document is undefined in Fastboot, so we have to render in
     // place for the floating element to show up at all.
@@ -178,7 +236,7 @@ export default class AttachPopover extends Component {
       });
       return;
     }
-    const onChange = this.onChange;
+    const onChange = this.args.onChange;
 
     if (delay) {
       this._delayedVisibilityToggle = later(this, () => {
@@ -210,10 +268,6 @@ export default class AttachPopover extends Component {
     }
   }
 
-  // This is set to true when the popover is shown in order to override lazyRender=false
-  _mustRender = false;
-
-  @computed('showOn')
   get _showOn() {
     let showOn = this.showOn;
 
@@ -224,26 +278,40 @@ export default class AttachPopover extends Component {
     return showOn === null ? [] : showOn.split(' ');
   }
 
-  _transitionDuration = 0;
+  // Exposed via the named yield to enable custom hide events
+  @action
+  hide() {
+    this._hide();
+  }
 
-  /**
-   * ================== LIFECYCLE HOOKS ==================
-   */
+  @action
+  onParentFinderInsert(element) {
+    this.parentElement = element.parentElement;
+    this._initializeAttacher();
+  }
 
-  init() {
-    super.init(...arguments);
+  @action
+  _ensureArgumentsAreValid() {
+    stripInProduction(() => {
+      if (this.arrow && this.isFillAnimation) {
+        warn('Animation: \'fill\' is not compatible with arrow: true', { id: 70015 });
+      }
 
-    // Used to determine the attachments initial parent element
-    // eslint-disable-next-line ember/no-assignment-of-untracked-properties-used-in-tracking-contexts
-    this._parentFinder = self.document ? self.document.createTextNode('') : '';
+      if (this.useCapture !== this._lastUseCaptureArgumentValue) {
+        warn(
+          'The value of the useCapture argument was mutated',
+          { id: 'ember-attacher.use-capture-mutated' }
+        );
+      }
+    });
+  }
 
-    // Holds the current floating ui target so event listeners can be removed if the target changes
-    this._currentTarget = null;
+
+  constructor() {
+    super(...arguments);
 
     // The debounced _hide() and _show() are stored here so they can be cancelled when necessary
     this._delayedVisibilityToggle = null;
-
-    this.id = this.id || `${guidFor(this)}-floating`;
 
     // The final source of truth on whether or not all _hide() or _show() actions have completed
     this._isHidden = true;
@@ -271,100 +339,12 @@ export default class AttachPopover extends Component {
     this._show = this._show.bind(this);
     this._showAfterDelay = this._showAfterDelay.bind(this);
 
-    this._setUserSuppliedDefaults();
-  }
-
-  // eslint-disable-next-line ember/no-component-lifecycle-hooks
-  didReceiveAttrs() {
-    super.didReceiveAttrs(...arguments);
-
-    stripInProduction(() => {
-      // eslint-disable-next-line ember/no-attrs-in-components
-      const attrs = this.attrs || {};
-      const userDefaults = this._config;
-
-      let arrow;
-      if (attrs.arrow !== undefined) {
-        arrow = attrs.arrow.value;
-      } else if (userDefaults.arrow !== undefined) {
-        arrow = userDefaults.arrow;
-      } else {
-        arrow = DEFAULTS.arrow;
-      }
-
-      let animation;
-      if (attrs.animation !== undefined) {
-        animation = attrs.animation.value;
-      } else if (userDefaults.animation !== undefined) {
-        animation = userDefaults.animation;
-      } else {
-        animation = DEFAULTS.animation;
-      }
-
-      if (arrow && animation === 'fill') {
-        warn('Animation: \'fill\' is not compatible with arrow: true', { id: 70015 });
-      }
-
-      this._lastUseCaptureArgumentValue = this.useCapture;
-    });
-  }
-
-  // eslint-disable-next-line ember/no-component-lifecycle-hooks
-  didUpdateAttrs() {
-    super.didUpdateAttrs(...arguments);
-
-    stripInProduction(() => {
-      if (this.useCapture !== this._lastUseCaptureArgumentValue) {
-        warn(
-          'The value of the useCapture argument was mutated',
-          { id: 'ember-attacher.use-capture-mutated' }
-        );
-      }
-    })
-  }
-
-  _setUserSuppliedDefaults() {
-    const userDefaults = this._config;
-
-    // Exit early if no custom defaults are found
-    if (!Object.keys(userDefaults).length) {
-      return;
-    }
-
-    // eslint-disable-next-line ember/no-attrs-in-components
-    const attrs = this.attrs || {};
-
-    for (const key in userDefaults) {
-      stripInProduction(() => {
-        // eslint-disable-next-line no-prototype-builtins
-        if (!['popover','tooltip', 'class'].includes(key) && !DEFAULTS.hasOwnProperty(key)) {
-          warn(`Unknown property given as an ember-attacher default: ${key}`, { id: 700152 });
-        }
-      });
-
-      // Don't override attrs manually passed into the component
-      if (attrs[key] === undefined) {
-        if (key === 'arrow') {
-          this.set('arrow', userDefaults[key]);
-        } else {
-          this[key] = userDefaults[key];
-        }
-      }
-    }
-  }
-
-  // eslint-disable-next-line ember/no-component-lifecycle-hooks
-  didInsertElement() {
-    super.didInsertElement(...arguments);
-
-    this._initializeAttacher();
+    this._lastUseCaptureArgumentValue = this.useCapture;
   }
 
   _initializeAttacher() {
     this._removeEventListeners();
-
-    this.set('_currentTarget', this.explicitTarget || this._parentFinder.parentNode);
-
+    this._currentTarget = this.args.explicitTarget || this.parentElement;
     this._addListenersForShowEvents();
 
     if (!this._isHidden || this.isShown) {
@@ -377,7 +357,6 @@ export default class AttachPopover extends Component {
   }
 
   _addListenersForShowEvents() {
-
     if (!this._currentTarget) {
       return;
     }
@@ -389,9 +368,8 @@ export default class AttachPopover extends Component {
     });
   }
 
-  // eslint-disable-next-line ember/no-component-lifecycle-hooks
-  willDestroyElement() {
-    super.willDestroyElement(...arguments);
+  willDestroy() {
+    super.willDestroy(...arguments);
 
     this._cancelAnimation();
     cancel(this._delayedVisibilityToggle);
@@ -404,7 +382,6 @@ export default class AttachPopover extends Component {
       document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType], this.useCapture);
       delete this._hideListenersOnDocumentByEvent[eventType];
     });
-
     if (!this._currentTarget) {
       return;
     }
@@ -417,13 +394,13 @@ export default class AttachPopover extends Component {
       });
   }
 
-  @observes('hideOn', 'showOn', 'explicitTarget')
-  _targetOrTriggersChanged() {
+  @action
+  onTargetOrTriggerChange() {
     this._initializeAttacher();
   }
 
-  @observes('isShown')
-  _isShownChanged() {
+  @action
+  onIsShownChange() {
     const isShown = this.isShown;
 
     if (isShown === true && this._isHidden) {
@@ -444,7 +421,7 @@ export default class AttachPopover extends Component {
   _showAfterDelay() {
     cancel(this._delayedVisibilityToggle);
 
-    this.set('_mustRender', true);
+    this._mustRender = true;
 
     this._addListenersForHideEvents();
 
@@ -460,7 +437,7 @@ export default class AttachPopover extends Component {
       return;
     }
 
-    this.set('_mustRender', true);
+    this._mustRender = true;
 
     // Make the attachment visible immediately so transition animations can take place
     this._setIsVisibleAfterDelay(true, 0);
@@ -503,8 +480,8 @@ export default class AttachPopover extends Component {
           }
           // Make the floating element visible now that it has been positioned
           floatingElement.style.visibility = '';
-          this.set('_transitionDuration', parseInt(this.showDuration));
-          this.set('_isStartingAnimation', true);
+          this._transitionDuration = parseInt(this.showDuration);
+          this._isStartingAnimation = true;
           floatingElement.setAttribute('aria-hidden', 'false');
         });
 
@@ -554,8 +531,8 @@ export default class AttachPopover extends Component {
           return;
         }
 
-        this.set('_transitionDuration', hideDuration);
-        this.set('_isStartingAnimation', false);
+        this._transitionDuration = hideDuration;
+        this._isStartingAnimation = false;
         this._floatingElement.setAttribute('aria-hidden', 'true');
         // Wait for any animations to complete before hiding the attachment
         this._setIsVisibleAfterDelay(false, hideDuration);
@@ -785,15 +762,21 @@ export default class AttachPopover extends Component {
   @action
   didInsertFloatingElement(floatingElement) {
     this._floatingElement = floatingElement;
+
+    if (this.renderInPlace) {
+      this.parentElement = floatingElement.parentElement;
+      this._initializeAttacher();
+    }
   }
 
   @action
   didInsertArrow(element) {
-    this.set('_arrowElement', element);
+    this._arrowElement = element;
   }
 
   @action
-  didUpdateOptions() {
+  onOptionsChange() {
+    this._ensureArgumentsAreValid();
     this._update();
   }
 
