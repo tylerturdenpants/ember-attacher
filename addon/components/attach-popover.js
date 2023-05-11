@@ -33,6 +33,10 @@ export default class AttachPopover extends Component {
     return this.args.arrow ?? this._config.arrow ?? DEFAULTS.arrow;
   }
 
+  get autoUpdate() {
+    return this.args.autoUpdate ?? this._config.autoUpdate ?? DEFAULTS.autoUpdate;
+  }
+
   get animation() {
     return this.args.animation || this._config.animation || DEFAULTS.animation;
   }
