@@ -80,7 +80,7 @@
     "qunit-dom": "~2.0.0",
     "release-it": "~15.10.1",
     "sass": "^1.62.1",
-    "webpack": "~5.82.0"
+    "webpack": "~5.82.1"
   },
   "resolutions": {
     "ember-in-element-polyfill": "^1.0.1",
