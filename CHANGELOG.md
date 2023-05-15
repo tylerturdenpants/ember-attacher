@@ -1,3 +1,23 @@
+
+## v2.0.1 (2023-05-15)
+
+#### :boom: Breaking Change
+* [#772](https://github.com/tylerturdenpants/ember-attacher/pull/772) Convert to Glimmer component ([@pzubar](https://github.com/pzubar))
+* [#743](https://github.com/tylerturdenpants/ember-attacher/pull/743) Migration to the Floating UI ([@pzubar](https://github.com/pzubar))
+
+#### :rocket: Enhancement
+* [#772](https://github.com/tylerturdenpants/ember-attacher/pull/772) Convert to Glimmer component ([@pzubar](https://github.com/pzubar))
+* [#759](https://github.com/tylerturdenpants/ember-attacher/pull/759) Bump dependencies ([@pzubar](https://github.com/pzubar))
+* [#743](https://github.com/tylerturdenpants/ember-attacher/pull/743) Migration to the Floating UI ([@pzubar](https://github.com/pzubar))
+* [#561](https://github.com/tylerturdenpants/ember-attacher/pull/561) Avoid forcing dart ([@kmccullough](https://github.com/kmccullough))
+
+#### :house: Internal
+* [#759](https://github.com/tylerturdenpants/ember-attacher/pull/759) Bump dependencies ([@pzubar](https://github.com/pzubar))
+
+#### Committers: 2
+- Kerry McCullough ([@kmccullough](https://github.com/kmccullough))
+- Petro Zubar ([@pzubar](https://github.com/pzubar))
+
 ## v1.3.0 (2021-09-09)
 
 #### :rocket: Enhancement
