@@ -5,16 +5,15 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
     requireConfigFile: false,
-    babelOptions: {
-      plugins: [
-        ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
-      ],
-    },
   },
-  plugins: ['ember'],
+  plugins: [
+    'ember',
+    'decorator-position',
+  ],
   extends: [
     'eslint:recommended',
     'plugin:ember/recommended',
+    'plugin:decorator-position/ember'
   ],
   env: {
     browser: true
@@ -58,10 +57,13 @@ module.exports = {
       },
       extends: ['plugin:n/recommended'],
     },
+    // test files
     {
-      // test files
-      files: ['tests/**/*-test.{js,ts}'],
-      extends: ['plugin:qunit/recommended'],
-    },
+      files: ['tests/**/*.js'],
+      excludedFiles: ['tests/dummy/**/*.js'],
+      env: {
+        embertest: true
+      }
+    }
   ],
 };

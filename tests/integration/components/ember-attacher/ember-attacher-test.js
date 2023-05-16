@@ -10,7 +10,6 @@ module('Integration | Component | ember attacher', function(hooks) {
     await render(hbs`<div id='wrapper'><AttachPopover /></div>`);
 
     const wrapper = find('#wrapper');
-    debugger;
 
     assert.equal(wrapper.textContent, '');
   });
