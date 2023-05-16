@@ -168,7 +168,8 @@ module('Integration | Component | isShown', function(hooks) {
         {{#attach-popover hideOn=this.hideOn
                           id='parent'
                           isShown=this.parentIsShown
-                          showOn=this.showOn}}
+                          showOn=this.showOn
+                          interactive=true}}
           <button id="openChild" {{action 'openChildPopover'}}>
             Open child
 

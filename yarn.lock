@@ -5665,7 +5665,7 @@ ember-cli-babel@^7.1.2, ember-cli-babel@^7.13.0, ember-cli-babel@^7.13.2, ember-
     rimraf "^3.0.1"
     semver "^5.5.0"
 
-ember-cli-babel@^7.10.0, ember-cli-babel@^7.26.11:
+ember-cli-babel@^7.10.0, ember-cli-babel@^7.21.0, ember-cli-babel@^7.26.11:
   version "7.26.11"
   resolved "https://registry.yarnpkg.com/ember-cli-babel/-/ember-cli-babel-7.26.11.tgz#50da0fe4dcd99aada499843940fec75076249a9f"
   integrity sha512-JJYeYjiz/JTn34q7F5DSOjkkZqy8qwFOOxXfE6pe9yEJqWGu4qErKxlz8I22JoVEQ/aBUO+OcKTpmctvykM9YA==
@@ -5724,6 +5724,28 @@ ember-cli-github-pages@^0.2.2:
   dependencies:
     ember-cli-version-checker "^2.1.0"
     rsvp "^4.7.0"
+
+ember-cli-htmlbars@^5.2.0:
+  version "5.7.2"
+  resolved "https://registry.yarnpkg.com/ember-cli-htmlbars/-/ember-cli-htmlbars-5.7.2.tgz#e0cd2fb3c20d85fe4c3e228e6f0590ee1c645ba8"
+  integrity sha512-Uj6R+3TtBV5RZoJY14oZn/sNPnc+UgmC8nb5rI4P3fR/gYoyTFIZSXiIM7zl++IpMoIrocxOrgt+mhonKphgGg==
+  dependencies:
+    "@ember/edition-utils" "^1.2.0"
+    babel-plugin-htmlbars-inline-precompile "^5.0.0"
+    broccoli-debug "^0.6.5"
+    broccoli-persistent-filter "^3.1.2"
+    broccoli-plugin "^4.0.3"
+    common-tags "^1.8.0"
+    ember-cli-babel-plugin-helpers "^1.1.1"
+    ember-cli-version-checker "^5.1.2"
+    fs-tree-diff "^2.0.1"
+    hash-for-dep "^1.5.1"
+    heimdalljs-logger "^0.1.10"
+    json-stable-stringify "^1.0.1"
+    semver "^7.3.4"
+    silent-error "^1.1.1"
+    strip-bom "^4.0.0"
+    walk-sync "^2.2.0"
 
 ember-cli-htmlbars@^5.3.1, ember-cli-htmlbars@^5.7.1:
   version "5.7.1"
@@ -6059,7 +6081,7 @@ ember-destroyable-polyfill@^2.0.3:
     ember-cli-version-checker "^5.1.1"
     ember-compatibility-helpers "^1.2.1"
 
-ember-in-element-polyfill@^1.0.1, ember-in-element-polyfill@~1.0.1:
+ember-in-element-polyfill@^1.0.0, ember-in-element-polyfill@^1.0.1, ember-in-element-polyfill@~1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/ember-in-element-polyfill/-/ember-in-element-polyfill-1.0.1.tgz#143504445bb4301656a2eaad42644d684f5164dd"
   integrity sha512-eHs+7D7PuQr8a1DPqsJTsEyo3FZ1XuH6WEZaEBPDa9s0xLlwByCNKl8hi1EbXOgvgEZNHHi9Rh0vjxyfakrlgg==
@@ -6077,14 +6099,15 @@ ember-load-initializers@^2.1.2:
     ember-cli-babel "^7.13.0"
     ember-cli-typescript "^2.0.2"
 
-ember-maybe-in-element@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/ember-maybe-in-element/-/ember-maybe-in-element-2.1.0.tgz#f7bd8e41ca90a4f8038d919a9c135cbe7a7f271b"
-  integrity sha512-6WAzPbf4BNQIQzkur2+zRJJJ/PKQoujIYgFjrpj3fOPy8iRlxVUm0/B41qbFyg1LE6bVbg0cWbuESWEvJ9Rswg==
+ember-maybe-in-element@2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/ember-maybe-in-element/-/ember-maybe-in-element-2.0.1.tgz#fa3a26cc2c522a27129d6528b400b9c820943be6"
+  integrity sha512-Mp/HTVOGu9H7kWoq5xncVLEvPFgRuHdsqWyZ1v/gBA8Y3d2q2LdrmDK9Zg59i+cCs4oa9LrMeFyKMAbBS3vyDw==
   dependencies:
-    ember-cli-babel "^7.26.11"
-    ember-cli-htmlbars "^6.1.1"
-    ember-cli-version-checker "^5.1.2"
+    ember-cli-babel "^7.21.0"
+    ember-cli-htmlbars "^5.2.0"
+    ember-cli-version-checker "^5.1.1"
+    ember-in-element-polyfill "^1.0.0"
 
 ember-modifier-manager-polyfill@^1.2.0:
   version "1.2.0"
