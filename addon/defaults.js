@@ -20,5 +20,6 @@ export default {
   showOn: 'mouseenter focus',
   style: null,
   tooltipClass: 'ember-attacher-floating ember-attacher-tooltip',
-  useCapture: false
+  useCapture: false,
+  overflowPadding: 5
 };

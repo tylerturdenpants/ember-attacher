@@ -7,7 +7,7 @@ import { htmlSafe, isHTMLSafe } from '@ember/template';
 import { stripInProduction } from 'ember-attacher/-debug/helpers';
 import { warn, assert } from '@ember/debug';
 import { isEmpty, typeOf } from '@ember/utils';
-import { autoUpdate, computePosition, arrow, flip } from '@floating-ui/dom';
+import { autoUpdate, computePosition, arrow, flip, limitShift, shift } from '@floating-ui/dom';
 import { buildWaiter } from '@ember/test-waiters';
 import { tracked } from '@glimmer/tracking';
 import DEFAULTS from '../defaults';
@@ -62,7 +62,7 @@ export default class AttachPopover extends Component {
   }
 
   get isOffset() {
-    return this.args.isOffset ?? this._config.isOffset ?? DEFAULTS.interactive;
+    return this.args.isOffset ?? this._config.isOffset ?? DEFAULTS.isOffset;
   }
 
   get isShown() {
@@ -129,6 +129,10 @@ export default class AttachPopover extends Component {
     return this.args.id || `${guidFor(this)}-floating`;
   }
 
+  get overflowPadding() {
+    return this.args.overflowPadding ?? this._config.overflowPadding ?? DEFAULTS.overflowPadding;
+  }
+
   // The circle element needs a special duration that is slightly faster than the floating element's
   // transition, this prevents text from appearing outside the circle as it fills the background
   get _circleTransitionDuration() {
@@ -180,12 +184,7 @@ export default class AttachPopover extends Component {
 
   get _middleware() {
     // Copy the middleware since we might write to the provided array
-    const middleware
-      = this.args.middleware ? [...this.args.middleware] : [];
-
-    if (this.arrow && this._arrowElement && !middleware.find(name => name === 'arrow')) {
-      middleware.push(arrow({ element: this._arrowElement }));
-    }
+    const middleware = this.args.middleware ? [...this.args.middleware] : [];
 
     const flipString = this.flip;
     if (flipString) {
@@ -196,6 +195,16 @@ export default class AttachPopover extends Component {
       } else if (!flipMiddleware.fallbackPlacements) {
         Object.assign({}, flipMiddleware, flipOptions);
       }
+    } else if (this.overflowPadding !== false) {
+      middleware.push(flip());
+    }
+
+    if (this.overflowPadding !== false && !middleware.find(name => name === 'shift')) {
+      middleware.push(shift({ limiter: limitShift(), padding: this.overflowPadding }))
+    }
+
+    if (this.arrow && this._arrowElement && !middleware.find(name => name === 'arrow')) {
+      middleware.push(arrow({ element: this._arrowElement }));
     }
 
     return middleware;

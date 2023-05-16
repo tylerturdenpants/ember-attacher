@@ -178,7 +178,10 @@ Below is a list of all available options, along with their defaults.
   // than the bubbling phase. This should be set to true when there are elements on the page that
   // are stopping event propagation in the bubbling phase, and as a result preventing correct
   // showing and hiding of popovers and tooltips.
-  useCapture: false
+  useCapture: false,
+
+  // The default padding if collision happens. Set "false" if no collision prevention needed 
+  overflowPadding: 5 
 }
 ```
 
