@@ -44,7 +44,7 @@
     "@babel/eslint-parser": "^7.21.8",
     "@ember/optional-features": "^2.0.0",
     "@ember/render-modifiers": "^2.0.5",
-    "@ember/string": "^3.0.1",
+    "@ember/string": "^3.1.0",
     "@ember/test-helpers": "~2.9.3",
     "@ember/test-waiters": "^3.0.2",
     "@glimmer/component": "^1.0.0",
