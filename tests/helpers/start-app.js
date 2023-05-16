@@ -1,5 +1,5 @@
 import Application from '../../app';
-import config from '../../config/environment';
+import config from 'dummy/config/environment';
 import { merge } from '@ember/polyfills';
 import { run } from '@ember/runloop';
 
