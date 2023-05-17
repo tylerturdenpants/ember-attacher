@@ -5789,10 +5789,10 @@ ember-cli-htmlbars@^6.1.1, ember-cli-htmlbars@~6.2.0:
     silent-error "^1.1.1"
     walk-sync "^2.2.0"
 
-ember-cli-inject-live-reload@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/ember-cli-inject-live-reload/-/ember-cli-inject-live-reload-2.0.2.tgz#95edb543b386239d35959e5ea9579f5382976ac7"
-  integrity sha512-HDD6o/kBHT/kUtazklU0OW23q2jigIN42QmcpFdXUSvJ2/2SYA6yIqSUxWfJgISmtn5gTNZ2KPq1p3dLkhJxSQ==
+ember-cli-inject-live-reload@~2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/ember-cli-inject-live-reload/-/ember-cli-inject-live-reload-2.1.0.tgz#ef63c733c133024d5726405a3c247fa12e88a385"
+  integrity sha512-YV5wYRD5PJHmxaxaJt18u6LE6Y+wo455BnmcpN+hGNlChy2piM9/GMvYgTAz/8Vin8RJ5KekqP/w/NEaRndc/A==
   dependencies:
     clean-base-url "^1.0.0"
     ember-cli-version-checker "^3.1.3"
@@ -6081,7 +6081,7 @@ ember-destroyable-polyfill@^2.0.3:
     ember-cli-version-checker "^5.1.1"
     ember-compatibility-helpers "^1.2.1"
 
-ember-in-element-polyfill@^1.0.0, ember-in-element-polyfill@^1.0.1, ember-in-element-polyfill@~1.0.1:
+ember-in-element-polyfill@^1.0.1, ember-in-element-polyfill@~1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/ember-in-element-polyfill/-/ember-in-element-polyfill-1.0.1.tgz#143504445bb4301656a2eaad42644d684f5164dd"
   integrity sha512-eHs+7D7PuQr8a1DPqsJTsEyo3FZ1XuH6WEZaEBPDa9s0xLlwByCNKl8hi1EbXOgvgEZNHHi9Rh0vjxyfakrlgg==
@@ -6099,15 +6099,15 @@ ember-load-initializers@^2.1.2:
     ember-cli-babel "^7.13.0"
     ember-cli-typescript "^2.0.2"
 
-ember-maybe-in-element@2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/ember-maybe-in-element/-/ember-maybe-in-element-2.0.1.tgz#fa3a26cc2c522a27129d6528b400b9c820943be6"
-  integrity sha512-Mp/HTVOGu9H7kWoq5xncVLEvPFgRuHdsqWyZ1v/gBA8Y3d2q2LdrmDK9Zg59i+cCs4oa9LrMeFyKMAbBS3vyDw==
+ember-maybe-in-element@2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/ember-maybe-in-element/-/ember-maybe-in-element-2.0.3.tgz#640ea56b492bdacd1c41c128c2163d933c18c3ec"
+  integrity sha512-XKuBYPYELwsEmDnJXI7aNSZtt/SKGgRZNMFhASODLz7j0OHSNrcJtjo5Wam/alxIjUIYVjEnMnOzqBLMfJnQkQ==
   dependencies:
     ember-cli-babel "^7.21.0"
     ember-cli-htmlbars "^5.2.0"
     ember-cli-version-checker "^5.1.1"
-    ember-in-element-polyfill "^1.0.0"
+    ember-in-element-polyfill "^1.0.1"
 
 ember-modifier-manager-polyfill@^1.2.0:
   version "1.2.0"
@@ -13374,9 +13374,9 @@ vary@^1, vary@~1.1.2:
   integrity sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=
 
 vm2@^3.9.17:
-  version "3.9.17"
-  resolved "https://registry.yarnpkg.com/vm2/-/vm2-3.9.17.tgz#251b165ff8a0e034942b5181057305e39570aeab"
-  integrity sha512-AqwtCnZ/ERcX+AVj9vUsphY56YANXxRuqMb7GsDtAr0m0PcQX3u0Aj3KWiXM0YAHy7i6JEeHrwOnwXbGYgRpAw==
+  version "3.9.19"
+  resolved "https://registry.yarnpkg.com/vm2/-/vm2-3.9.19.tgz#be1e1d7a106122c6c492b4d51c2e8b93d3ed6a4a"
+  integrity sha512-J637XF0DHDMV57R6JyVsTak7nIL8gy5KH4r1HiwWLf/4GBbb5MKL5y7LpmF4A8E2nR6XmzpmMFQ7V7ppPTmUQg==
   dependencies:
     acorn "^8.7.0"
     acorn-walk "^8.2.0"

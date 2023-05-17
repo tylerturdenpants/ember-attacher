@@ -7,7 +7,7 @@
     "tooltips",
     "popovers"
   ],
-  "repository": "https://github.com/kybishop/ember-attacher",
+  "repository": "https://github.com/tylerturdenpants/ember-attacher",
   "license": "MIT",
   "author": {
     "name": "Kyle Bishop",
@@ -37,7 +37,7 @@
     "ember-cli-htmlbars": "~6.2.0",
     "ember-cli-sass": "~11.0.1",
     "ember-in-element-polyfill": "~1.0.1",
-    "ember-maybe-in-element": "2.0.1",
+    "ember-maybe-in-element": "2.0.3",
     "sass": "^1.62.1"
   },
   "devDependencies": {
@@ -57,7 +57,7 @@
     "ember-cli": "~4.12.1",
     "ember-cli-dependency-checker": "~3.3.1",
     "ember-cli-github-pages": "^0.2.2",
-    "ember-cli-inject-live-reload": "^2.0.2",
+    "ember-cli-inject-live-reload": "~2.1.0",
     "ember-cli-sri": "^2.1.1",
     "ember-cli-terser": "^4.0.2",
     "ember-load-initializers": "^2.1.2",
