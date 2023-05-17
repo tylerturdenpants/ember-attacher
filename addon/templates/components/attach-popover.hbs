@@ -2,8 +2,8 @@
   <meta hidden {{did-insert this.onParentFinderInsert}} {{did-update this.onIsShownChange this.isShown}}/>
 {{~/unless~}}
 
-{{~#if this.renderFloatingElement}}
-  {{~#maybe-in-element destinationElement=this._floatingElementContainer renderInPlace=@renderInPlace}}
+{{~#if this.renderFloatingElement~}}
+  <MaybeInElement @destinationElement={{this._floatingElementContainer}} @renderInPlace={{@renderInPlace}}>
     <div
       class="ember-attacher"
       id={{this.id}}
@@ -25,5 +25,5 @@
         {{/if}}
       </div>
     </div>
-  {{~/maybe-in-element}}
+  </MaybeInElement>
 {{~/if~}}
