@@ -2192,10 +2192,10 @@
     semver "^7.3.5"
     typescript-memoize "^1.0.1"
 
-"@embroider/test-setup@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@embroider/test-setup/-/test-setup-2.1.1.tgz#1cf613f479ed120fdc5d71cb834c8fb71514cce1"
-  integrity sha512-t81a2z2OEFAOZVbV7wkgiDuCyZ3ajD7J7J+keaTfNSRiXoQgeFFASEECYq1TCsH8m/R+xHMRiY59apF2FIeFhw==
+"@embroider/test-setup@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@embroider/test-setup/-/test-setup-3.0.0.tgz#0d9951215f07f29e7471b187f5e95b68686e7860"
+  integrity sha512-JnbcYs2xPDPayfYCMjG5M8t1i3j2sTXt2YT2JeoZ266RtnK6TM50gV6Q15v9wJUhyT4DjjEShKUd0k8v1lBquA==
   dependencies:
     lodash "^4.17.21"
     resolve "^1.20.0"
@@ -8455,13 +8455,6 @@ is-core-module@^2.11.0:
   dependencies:
     has "^1.0.3"
 
-is-core-module@^2.2.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/is-core-module/-/is-core-module-2.4.0.tgz#8e9fc8e15027b011418026e98f0e6f4d86305cc1"
-  integrity sha512-6A2fkfq1rfeQZjxrZJGerpLCTHRNEBiSgnu0+obeJpEPZRUooHgsizvzv0ZjJwOz3iWIHdJtVWJ/tmPr3D21/A==
-  dependencies:
-    has "^1.0.3"
-
 is-data-descriptor@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/is-data-descriptor/-/is-data-descriptor-0.1.4.tgz#0b5ee648388e2c860282e793f1856fec3f301b56"
@@ -10923,7 +10916,7 @@ path-key@^4.0.0:
   resolved "https://registry.yarnpkg.com/path-key/-/path-key-4.0.0.tgz#295588dc3aee64154f877adb9d780b81c554bf18"
   integrity sha512-haREypq7xkM7ErfgIyA0z+Bj4AGKlMSdlQE2jvJo6huWD1EdkKYV+G/T4nq0YEF2vgTT8kqMFKo1uHn950r4SQ==
 
-path-parse@^1.0.6, path-parse@^1.0.7:
+path-parse@^1.0.7:
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/path-parse/-/path-parse-1.0.7.tgz#fbc114b60ca42b30d9daf5858e4bd68bbedb6735"
   integrity sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==
@@ -11688,15 +11681,7 @@ resolve-url@^0.2.1:
   resolved "https://registry.yarnpkg.com/resolve-url/-/resolve-url-0.2.1.tgz#2c637fe77c893afd2a663fe21aa9080068e2052a"
   integrity sha1-LGN/53yJOv0qZj/iGqkIAGjiBSo=
 
-resolve@^1.1.6, resolve@^1.10.0, resolve@^1.11.1, resolve@^1.13.1, resolve@^1.14.2, resolve@^1.17.0, resolve@^1.3.3, resolve@^1.4.0, resolve@^1.5.0:
-  version "1.20.0"
-  resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.20.0.tgz#629a013fb3f70755d6f0b7935cc1c2c5378b1975"
-  integrity sha512-wENBPt4ySzg4ybFQW2TT1zMQucPK95HSh/nq2CFTZVOGut2+pQvSsgtda4d26YrYcr067wjbmzOG8byDPBX63A==
-  dependencies:
-    is-core-module "^2.2.0"
-    path-parse "^1.0.6"
-
-resolve@^1.20.0, resolve@^1.22.0, resolve@^1.22.1:
+resolve@^1.1.6, resolve@^1.10.0, resolve@^1.11.1, resolve@^1.13.1, resolve@^1.14.2, resolve@^1.17.0, resolve@^1.20.0, resolve@^1.22.0, resolve@^1.22.1, resolve@^1.3.3, resolve@^1.4.0, resolve@^1.5.0:
   version "1.22.2"
   resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.22.2.tgz#0ed0943d4e301867955766c9f3e1ae6d01c6845f"
   integrity sha512-Sb+mjNHOULsBv818T40qSPeRiuWLyaGMa5ewydRLFimneixmVy2zdivRl+AF6jaYPC8ERxGDmFSiqui6SfPd+g==
