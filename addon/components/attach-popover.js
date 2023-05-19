@@ -517,7 +517,7 @@ export default class AttachPopover extends Component {
     if (!this._floatingElement) {
       this._animationTimeout = requestAnimationFrame(() => {
         animationTestWaiter.endAsync(this._animationTimeout);
-        this._animationTimeout = this._hide();
+        this._hide();
       });
       animationTestWaiter.beginAsync(this._animationTimeout);
       return;
