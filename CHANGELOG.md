@@ -1,4 +1,21 @@
 
+
+## v2.0.3 (2023-05-22)
+
+#### :rocket: Enhancement
+* [#790](https://github.com/tylerturdenpants/ember-attacher/pull/790) Bump ember-maybe-in-element to supress build-time warning ([@pzubar](https://github.com/pzubar))
+* [#784](https://github.com/tylerturdenpants/ember-attacher/pull/784) Prevent overflow by default ([@pzubar](https://github.com/pzubar))
+
+#### :bug: Bug Fix
+* [#794](https://github.com/tylerturdenpants/ember-attacher/pull/794) Fix test error caused by wrong endAsync call ([@pzubar](https://github.com/pzubar))
+* [#784](https://github.com/tylerturdenpants/ember-attacher/pull/784) Prevent overflow by default ([@pzubar](https://github.com/pzubar))
+
+#### :house: Internal
+* [#783](https://github.com/tylerturdenpants/ember-attacher/pull/783) Upgrade Ember to v4 ([@pzubar](https://github.com/pzubar))
+
+#### Committers: 1
+- Petro Zubar ([@pzubar](https://github.com/pzubar))
+
 ## v2.0.1 (2023-05-15)
 
 #### :boom: Breaking Change
