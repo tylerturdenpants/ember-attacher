@@ -14,8 +14,6 @@
 
   The addon's dummy application needs a serious upgrade.  I [@tylerturdenpants](https://github.com/tylerturdenpants) have removed as much orf the support on flexi and flexi styles that I can, but the dummy app will still produces warnings regarding SASS division.
 
-  Additionally, this app likely has support beyond ember 3.24, but test fail locally since not all babel related issues during testing have been resolved.
-
   As the only supporter of this addon, a father, and a full time employee at a software company, I really need the help to fully pull flexi out and to revamp the dummy app.  Once these blockers are removed I can do the work to bring this addon into the future.
 
 ----
