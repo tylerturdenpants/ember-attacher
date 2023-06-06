@@ -77,7 +77,7 @@
     "qunit": "~2.19.4",
     "qunit-dom": "~2.0.0",
     "release-it": "~15.11.0",
-    "webpack": "~5.82.1"
+    "webpack": "~5.85.1"
   },
   "resolutions": {
     "ember-in-element-polyfill": "^1.0.1"
