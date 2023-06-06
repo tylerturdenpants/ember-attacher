@@ -7,8 +7,17 @@ const Funnel = require('broccoli-funnel');
 module.exports = {
   name: require('./package').name,
 
-  included(app) {
+  included(parent) {
     this._super.included.apply(this, arguments);
+    let app = this.app;
+
+    while (!app && parent) {
+      if (parent.app) {
+        app = parent.app;
+      } else {
+        parent = parent.parent;
+      }
+    }
 
     this._env = app.env;
     this._setupBabelOptions(app.env);
