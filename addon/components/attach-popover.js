@@ -832,6 +832,10 @@ export default class AttachPopover extends Component {
   }
 
   _cancelAnimation() {
+    if (typeof cancelAnimationFrame !== 'function') {
+      return;
+    }
+
     cancelAnimationFrame(this._animationTimeout);
 
     stripInProduction(() => {
