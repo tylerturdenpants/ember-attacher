@@ -70,7 +70,7 @@
     "ember-try": "~3.0.0-beta.1",
     "eslint": "~8.43.0",
     "eslint-plugin-decorator-position": "^5.0.2",
-    "eslint-plugin-ember": "~11.5.2",
+    "eslint-plugin-ember": "~11.9.0",
     "eslint-plugin-n": "^15.7.0",
     "flexi": "^2.1.0",
     "loader.js": "^4.7.0",
