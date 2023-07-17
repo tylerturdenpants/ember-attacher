@@ -41,8 +41,8 @@
     "sass": "^1.62.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.5",
-    "@babel/eslint-parser": "^7.22.5",
+    "@babel/core": "^7.22.9",
+    "@babel/eslint-parser": "^7.22.9",
     "@ember/optional-features": "^2.0.0",
     "@ember/render-modifiers": "^2.0.5",
     "@ember/string": "^3.0.1",
@@ -65,7 +65,7 @@
     "ember-resolver": "~10.0.0",
     "ember-source": "~4.12.3",
     "ember-source-channel-url": "^3.0.0",
-    "ember-svg-jar": "~2.4.2",
+    "ember-svg-jar": "~2.4.3",
     "ember-truth-helpers": "^3.1.1",
     "ember-try": "~3.0.0-beta.1",
     "eslint": "~8.43.0",
