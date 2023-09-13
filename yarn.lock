@@ -5398,10 +5398,10 @@ ember-source@~4.12.3:
     semver "^7.3.8"
     silent-error "^1.1.1"
 
-ember-svg-jar@~2.4.4:
-  version "2.4.4"
-  resolved "https://registry.yarnpkg.com/ember-svg-jar/-/ember-svg-jar-2.4.4.tgz#eaa6b11d678659dd39d0b1fe194664de0cc2d2ed"
-  integrity sha512-hzSMuyc6A4FbPBaT9JFYicInq+hVJCgS+1EeoK1zQSMEITiEEzjOGCrAd31GZh8L3g8GOLxpdNBpv982D4loyA==
+ember-svg-jar@~2.4.6:
+  version "2.4.6"
+  resolved "https://registry.yarnpkg.com/ember-svg-jar/-/ember-svg-jar-2.4.6.tgz#2d03779a7a6d8cf33ecdd1c3cb59b1ae93e39e54"
+  integrity sha512-W+t6sRAiPhRl4imGKEMWsQDiCV8Nl2GRwzUpqZ1a+CZoW+2aCkF+kcngeDlHn5XzT16bQXg/QYXUvwtKJlSLfg==
   dependencies:
     "@embroider/macros" "^1.12.2"
     broccoli-caching-writer "^3.0.3"
