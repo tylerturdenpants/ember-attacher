@@ -41,7 +41,7 @@
     "sass": "^1.69.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.17",
+    "@babel/core": "^7.23.0",
     "@babel/eslint-parser": "^7.22.15",
     "@babel/helper-get-function-arity": "^7.16.7",
     "@ember/optional-features": "^2.0.0",
