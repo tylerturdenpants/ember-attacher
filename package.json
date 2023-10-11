@@ -70,7 +70,7 @@
     "ember-svg-jar": "~2.4.6",
     "ember-truth-helpers": "^3.1.1",
     "ember-try": "~3.0.0",
-    "eslint": "~8.50.0",
+    "eslint": "~8.51.0",
     "eslint-plugin-decorator-position": "^5.0.2",
     "eslint-plugin-ember": "~11.11.1",
     "eslint-plugin-n": "^16.1.0",
