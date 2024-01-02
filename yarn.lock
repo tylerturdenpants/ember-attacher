@@ -1368,10 +1368,10 @@
     ember-cli-htmlbars "^6.1.1"
     ember-destroyable-polyfill "^2.0.3"
 
-"@ember/test-waiters@^3.0.0", "@ember/test-waiters@^3.0.2":
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/@ember/test-waiters/-/test-waiters-3.0.2.tgz#5b950c580a1891ed1d4ee64f9c6bacf49a15ea6f"
-  integrity sha512-H8Q3Xy9rlqhDKnQpwt2pzAYDouww4TZIGSI1pZJhM7mQIGufQKuB0ijzn/yugA6Z+bNdjYp1HioP8Y4hn2zazQ==
+"@ember/test-waiters@^3.0.0", "@ember/test-waiters@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@ember/test-waiters/-/test-waiters-3.1.0.tgz#61399919cbf793978da0b8bfdfdb7bca0cb80e9e"
+  integrity sha512-bb9h95ktG2wKY9+ja1sdsFBdOms2lB19VWs8wmNpzgHv1NCetonBoV5jHBV4DHt0uS1tg9z66cZqhUVlYs96KQ==
   dependencies:
     calculate-cache-key-for-tree "^2.0.0"
     ember-cli-babel "^7.26.6"
