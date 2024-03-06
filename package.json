@@ -29,16 +29,15 @@
     "test:all": "ember try:each"
   },
   "dependencies": {
-    "@floating-ui/dom": "^1.5.4",
+    "@floating-ui/dom": "^1.6.3",
     "babel-plugin-filter-imports": "^4.0.0",
     "broccoli-funnel": "~3.0.8",
     "ember-auto-import": "^2.7.0",
     "ember-cli-babel": "^7.26.11",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-sass": "^11.0.1",
-    "ember-in-element-polyfill": "~1.0.1",
-    "ember-maybe-in-element": "2.0.3",
-    "sass": "^1.69.5"
+    "ember-maybe-in-element": "^2.1.0",
+    "sass": "^1.71.1"
   },
   "devDependencies": {
     "@babel/core": "^7.23.7",
@@ -81,9 +80,6 @@
     "qunit-dom": "~3.0.0",
     "release-it": "~15.11.0",
     "webpack": "~5.89.0"
-  },
-  "resolutions": {
-    "ember-in-element-polyfill": "^1.0.1"
   },
   "engines": {
     "node": "16.* || >= 18"
