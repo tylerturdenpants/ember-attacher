@@ -1,5 +1,14 @@
 
 
+
+## v3.0.0 (2024-03-06)
+
+#### :boom: Breaking Change
+* [#843](https://github.com/tylerturdenpants/ember-attacher/pull/843) Drop ember-in-element-polyfill from dependencies ([@pzubar](https://github.com/pzubar))
+
+#### Committers: 1
+- Petro Zubar ([@pzubar](https://github.com/pzubar))
+
 ## v2.0.8 (2024-01-16)
 
 #### :rocket: Enhancement
