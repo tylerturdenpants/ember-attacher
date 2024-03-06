@@ -1,5 +1,5 @@
 {{~#unless this.renderFloatingElement}}
-  <meta hidden {{did-insert this.onParentFinderInsert}} {{did-update this.onIsShownChange this.isShown}}/>
+  <meta hidden {{this.onParentFinderInsert}} {{this.onIsShownChange this.isShown}}/>
 {{~/unless~}}
 
 {{~#if this.renderFloatingElement~}}
@@ -8,17 +8,16 @@
       class="ember-attacher"
       id={{this.id}}
       role={{this.ariaRole}}
-      {{did-insert this.didInsertFloatingElement}}
-      {{did-update this.onIsShownChange this.isShown}}
-      {{did-update this.onTargetOrTriggerChange this.hideOn this.showOn @explicitTarget}}
-      {{did-update this.onOptionsChange this.autoUpdate this.animation this.arrow this.useCapture this.placement this._renderInPlace this._currentTarget this._middleware}}
-      {{will-destroy this.willDestroyFloatingElement}}
+      {{this.onIsShownChange this.isShown}}
+      {{this.onTargetOrTriggerChange this.hideOn this.showOn @explicitTarget}}
+      {{this.onOptionsChange this.arrow this.useCapture this.autoUpdate this.animation this.placement this._renderInPlace this._currentTarget this._middleware}}
+      {{this.initializeAttacher}}
       ...attributes
     >
       <div class={{this._class}} style={{this._style}}>
-        {{yield (hash hide=(action 'hide'))}}
+        {{yield (hash hide=this.hide)}}
         {{#if this.arrow}}
-          <div x-arrow {{did-insert this.didInsertArrow}}></div>
+          <div x-arrow {{this.didInsertArrow}}></div>
         {{/if}}
         {{#if this.isFillAnimation}}
           <div x-circle style="{{this._circleTransitionDuration}}"></div>
