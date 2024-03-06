@@ -32,7 +32,7 @@
     "@floating-ui/dom": "^1.6.3",
     "babel-plugin-filter-imports": "^4.0.0",
     "broccoli-funnel": "~3.0.8",
-    "ember-auto-import": "^2.7.0",
+    "ember-auto-import": "^2.7.2",
     "ember-cli-babel": "^7.26.11",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-sass": "^11.0.1",
