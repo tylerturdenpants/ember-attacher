@@ -33,7 +33,7 @@
     "babel-plugin-filter-imports": "^4.0.0",
     "broccoli-funnel": "~3.0.8",
     "ember-auto-import": "^2.7.2",
-    "ember-cli-babel": "^7.26.11",
+    "ember-cli-babel": "^8.2.0",
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-sass": "^11.0.1",
     "ember-maybe-in-element": "^2.1.0",
