@@ -3,33 +3,9 @@
 
 
 ## v3.1.0 (2024-03-07)
-
-#### :boom: Breaking Change
-* [#843](https://github.com/tylerturdenpants/ember-attacher/pull/843) Drop ember-in-element-polyfill from dependencies ([@pzubar](https://github.com/pzubar))
-
 #### :rocket: Enhancement
+* [#932](https://github.com/tylerturdenpants/ember-attacher/pull/932) Drop `@ember/render-modifiers` ([@pzubar](https://github.com/pzubar))
 * [#887](https://github.com/tylerturdenpants/ember-attacher/pull/887) [chore]: Bump ember-cli-babel from 7.26.11 to 8.2.0 ([@dependabot[bot]](https://github.com/apps/dependabot))
-* [#820](https://github.com/tylerturdenpants/ember-attacher/pull/820) Fix the "cancelAnimationFrame is not defined" error in fastboot ([@pzubar](https://github.com/pzubar))
-* [#790](https://github.com/tylerturdenpants/ember-attacher/pull/790) Bump ember-maybe-in-element to supress build-time warning ([@pzubar](https://github.com/pzubar))
-* [#784](https://github.com/tylerturdenpants/ember-attacher/pull/784) Prevent overflow by default ([@pzubar](https://github.com/pzubar))
-
-#### :bug: Bug Fix
-* [#820](https://github.com/tylerturdenpants/ember-attacher/pull/820) Fix the "cancelAnimationFrame is not defined" error in fastboot ([@pzubar](https://github.com/pzubar))
-* [#807](https://github.com/tylerturdenpants/ember-attacher/pull/807) Fix the stripInProduction for the apps and the runtime error ([@pzubar](https://github.com/pzubar))
-* [#794](https://github.com/tylerturdenpants/ember-attacher/pull/794) Fix test error caused by wrong endAsync call ([@pzubar](https://github.com/pzubar))
-* [#784](https://github.com/tylerturdenpants/ember-attacher/pull/784) Prevent overflow by default ([@pzubar](https://github.com/pzubar))
-
-#### :house: Internal
-* [#867](https://github.com/tylerturdenpants/ember-attacher/pull/867) [chore]: Bump ember-truth-helpers from 3.1.1 to 4.0.3 ([@dependabot[bot]](https://github.com/apps/dependabot))
-* [#928](https://github.com/tylerturdenpants/ember-attacher/pull/928) [chore]: Bump ip from 1.1.8 to 1.1.9 ([@dependabot[bot]](https://github.com/apps/dependabot))
-* [#827](https://github.com/tylerturdenpants/ember-attacher/pull/827) [chore]: Bump @ember/test-helpers from 2.9.3 to 2.9.4 ([@dependabot[bot]](https://github.com/apps/dependabot))
-* [#786](https://github.com/tylerturdenpants/ember-attacher/pull/786) [chore]: Bump @ember/string from 3.0.1 to 3.1.1 ([@dependabot[bot]](https://github.com/apps/dependabot))
-* [#833](https://github.com/tylerturdenpants/ember-attacher/pull/833) [chore]: Bump ember-source from 4.12.0 to 4.12.3 ([@dependabot[bot]](https://github.com/apps/dependabot))
-* [#834](https://github.com/tylerturdenpants/ember-attacher/pull/834) [chore]: Bump eslint-plugin-ember from 11.5.2 to 11.10.0 ([@dependabot[bot]](https://github.com/apps/dependabot))
-* [#835](https://github.com/tylerturdenpants/ember-attacher/pull/835) [chore]: Bump semver from 5.7.1 to 5.7.2 ([@dependabot[bot]](https://github.com/apps/dependabot))
-* [#819](https://github.com/tylerturdenpants/ember-attacher/pull/819) [chore]: Bump eslint from 8.40.0 to 8.43.0 ([@dependabot[bot]](https://github.com/apps/dependabot))
-* [#811](https://github.com/tylerturdenpants/ember-attacher/pull/811) Remove the "beyond ember 3.24" support note ([@pzubar](https://github.com/pzubar))
-* [#783](https://github.com/tylerturdenpants/ember-attacher/pull/783) Upgrade Ember to v4 ([@pzubar](https://github.com/pzubar))
 
 #### Committers: 1
 - Petro Zubar ([@pzubar](https://github.com/pzubar))
