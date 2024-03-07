@@ -1,6 +1,15 @@
 
 
 
+
+## v3.1.0 (2024-03-07)
+#### :rocket: Enhancement
+* [#932](https://github.com/tylerturdenpants/ember-attacher/pull/932) Drop `@ember/render-modifiers` ([@pzubar](https://github.com/pzubar))
+* [#887](https://github.com/tylerturdenpants/ember-attacher/pull/887) [chore]: Bump ember-cli-babel from 7.26.11 to 8.2.0 ([@dependabot[bot]](https://github.com/apps/dependabot))
+
+#### Committers: 1
+- Petro Zubar ([@pzubar](https://github.com/pzubar))
+
 ## v3.0.0 (2024-03-06)
 
 #### :boom: Breaking Change
