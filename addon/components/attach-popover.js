@@ -1,6 +1,6 @@
 import { action } from '@ember/object';
 import Component from '@glimmer/component';
-import { cancel, debounce, later, next, run, once } from '@ember/runloop';
+import { cancel, debounce, later, next, run } from '@ember/runloop';
 import { getOwner } from '@ember/application';
 import { guidFor } from '@ember/object/internals';
 import { htmlSafe, isHTMLSafe } from '@ember/template';
@@ -10,7 +10,6 @@ import { isEmpty, typeOf } from '@ember/utils';
 import { autoUpdate, computePosition, arrow, flip, limitShift, shift } from '@floating-ui/dom';
 import { buildWaiter } from '@ember/test-waiters';
 import { tracked } from '@glimmer/tracking';
-import { modifier } from 'ember-modifier';
 import DEFAULTS from '../defaults';
 
 const animationTestWaiter = buildWaiter('attach-popover');
@@ -294,18 +293,20 @@ export default class AttachPopover extends Component {
     this._hide();
   }
 
-  onParentFinderInsert = modifier((element) => {
+  @action
+  onParentFinderInsert(element) {
     this.parentElement = element.parentElement;
-    once(this, '_initializeAttacher')
-  });
+    this._initializeAttacher();
+  }
 
-  _ensureArgumentsAreValid([arrow, useCapture]) {
+  @action
+  _ensureArgumentsAreValid() {
     stripInProduction(() => {
-      if (arrow && this.isFillAnimation) {
+      if (this.arrow && this.isFillAnimation) {
         warn('Animation: \'fill\' is not compatible with arrow: true', { id: 70015 });
       }
 
-      if (useCapture !== this._lastUseCaptureArgumentValue) {
+      if (this.useCapture !== this._lastUseCaptureArgumentValue) {
         warn(
           'The value of the useCapture argument was mutated',
           { id: 'ember-attacher.use-capture-mutated' }
@@ -402,11 +403,15 @@ export default class AttachPopover extends Component {
       });
   }
 
-  onTargetOrTriggerChange = modifier((_, _positional) => {
-    once(this, '_initializeAttacher', ..._positional);
-  });
+  @action
+  onTargetOrTriggerChange() {
+    this._initializeAttacher();
+  }
 
-  onIsShownChange = modifier((_, [isShown]) => {
+  @action
+  onIsShownChange() {
+    const isShown = this.isShown;
+
     if (isShown === true && this._isHidden) {
       this._show();
 
@@ -416,18 +421,7 @@ export default class AttachPopover extends Component {
     } else if (isShown === false && !this._isHidden) {
       this._hide();
     }
-  });
-
-  initializeAttacher = modifier((floatingElement) => {
-    this._floatingElement = floatingElement;
-
-    if (this.renderInPlace) {
-      this.parentElement = floatingElement.parentElement;
-      once(this, '_initializeAttacher');
-    }
-
-    return () => this._cleanup?.();
-  });
+  }
 
   /**
    * ================== SHOW ATTACHMENT LOGIC ==================
@@ -774,14 +768,31 @@ export default class AttachPopover extends Component {
     });
   }
 
-  didInsertArrow = modifier((element) => {
-    this._arrowElement = element;
-  })
+  @action
+  didInsertFloatingElement(floatingElement) {
+    this._floatingElement = floatingElement;
 
-  onOptionsChange = modifier((_, positional) => {
-    this._ensureArgumentsAreValid(positional);
-    once(this, '_update')
-  })
+    if (this.renderInPlace) {
+      this.parentElement = floatingElement.parentElement;
+      this._initializeAttacher();
+    }
+  }
+
+  @action
+  didInsertArrow(element) {
+    this._arrowElement = element;
+  }
+
+  @action
+  onOptionsChange() {
+    this._ensureArgumentsAreValid();
+    this._update();
+  }
+
+  @action
+  willDestroyFloatingElement() {
+    this._cleanup?.();
+  }
 
   _update() {
     this._cleanup?.();
