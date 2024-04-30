@@ -1,6 +1,6 @@
 {
   "name": "ember-attacher",
-  "version": "3.1.0",
+  "version": "3.0.0",
   "description": "Tooltips and popovers for Ember.js apps",
   "keywords": [
     "ember-addon",
@@ -37,7 +37,6 @@
     "ember-cli-htmlbars": "^6.3.0",
     "ember-cli-sass": "^11.0.1",
     "ember-maybe-in-element": "^2.1.0",
-    "ember-modifier": "^4.1.0",
     "sass": "^1.72.0"
   },
   "devDependencies": {
@@ -46,6 +45,7 @@
     "@babel/helper-get-function-arity": "^7.16.7",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@ember/optional-features": "^2.0.0",
+    "@ember/render-modifiers": "^2.0.5",
     "@ember/string": "^3.1.1",
     "@ember/test-helpers": "~2.9.4",
     "@ember/test-waiters": "^3.1.0",
