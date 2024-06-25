@@ -29,7 +29,7 @@
     "test:all": "ember try:each"
   },
   "dependencies": {
-    "@floating-ui/dom": "^1.6.3",
+    "@floating-ui/dom": "^1.6.6",
     "babel-plugin-filter-imports": "^4.0.0",
     "broccoli-funnel": "~3.0.8",
     "ember-auto-import": "^2.7.2",
