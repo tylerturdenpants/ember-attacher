@@ -18,7 +18,7 @@
         @hideOn={{this.tooltipData.hideOn}}
         @interactive={{this.tooltipData.interactive}}
         @isShown={{this.tooltipData.isShown}}
-        @onChange={{action (mut this.tooltipData.isShown)}}
+        @onChange={{fn (mut this.tooltipData.isShown)}}
         @placement={{this.tooltipData.placement}}
         @renderInPlace={{this.tooltipData.renderInPlace}}
         @showDelay={{this.tooltipData.showDelay}}
@@ -44,7 +44,7 @@
         @interactive={{this.popoverData.interactive}}
         @isShown={{this.popoverData.isShown}}
         @lazyRender={{this.popoverData.lazyRender}}
-        @onChange={{action (mut this.popoverData.isShown)}}
+        @onChange={{fn (mut this.popoverData.isShown)}}
         @placement={{this.popoverData.placement}}
         @renderInPlace={{this.popoverData.renderInPlace}}
         @showDelay={{this.popoverData.showDelay}}
@@ -54,7 +54,7 @@
       >
         <p>Popovers and tooltips, oh my!</p>
 
-        <button {{action emberAttacher.hide}}>Close</button>
+        <button {{on 'click' emberAttacher.hide}}>Close</button>
       </AttachPopover>
     </button>
   </div>
@@ -74,10 +74,10 @@
 <div data-element-centered class="edit-section">
   <div data-element-vbox class="fit-lm">
     <div data-element-hbox class="nav-bar">
-      <div data-element-centered class="col-xs-12 nav{{if this.isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' true}}>
+      <div data-element-centered class="col-xs-12 nav{{if this.isConfiguringTooltip ' active'}}" {{on 'click' (fn this.setIsConfiguringTooltip true)}}>
         <code>&lt;AttachTooltip&gt;</code>
       </div>
-      <div data-element-centered  class="col-xs-12 nav{{unless this.isConfiguringTooltip ' active'}}" {{action 'setIsConfiguringTooltip' false}}>
+      <div data-element-centered  class="col-xs-12 nav{{unless this.isConfiguringTooltip ' active'}}" {{on 'click' (fn this.setIsConfiguringTooltip false)}}>
         <code>&lt;AttachPopover&gt;</code>
       </div>
     </div>
@@ -131,7 +131,7 @@
     <div data-element-hbox>
       &nbsp;&nbsp;&nbsp;&nbsp;<div data-element-box class="flexi-fit horizontal-lm">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div data-element-centered class="flexi-fit">
-        @arrow=<button class="button medium" {{action "toggleArrow"}}>{{this.service.arrow}}</button>
+        @arrow=<button class="button medium" {{on 'click' this.toggleArrow}}>{{this.service.arrow}}</button>
       </div>
     </div>
     <div data-element-hbox>
@@ -198,7 +198,7 @@
           {{/attach-tooltip}}
         </span>
         =
-        <button class="button medium" {{action "toggleInteractive"}}>
+        <button class="button medium" {{on 'click' this.toggleInteractive}}>
           {{this.service.interactive}}
         </button>
       </div>
@@ -214,7 +214,7 @@
           {{/attach-tooltip}}
         </span>
         =
-        <button class="button medium" {{action "toggleIsShown"}}>{{this.service.isShown}}</button>
+        <button class="button medium" {{on 'click' this.toggleIsShown}}>{{this.service.isShown}}</button>
       </div>
     </div>
     <div data-element-hbox>
@@ -229,7 +229,7 @@
           {{/attach-tooltip}}
         </span>
         =
-        <button class="button medium" {{action "toggleLazyRender"}}>{{this.service.lazyRender}}</button>
+        <button class="button medium" {{on 'click' this.toggleLazyRender}}>{{this.service.lazyRender}}</button>
       </div>
     </div>
     <div data-element-hbox>
@@ -270,7 +270,7 @@
           {{/attach-tooltip}}
         </span>
         =
-        <button class="button medium" {{action "toggleAutoUpdate"}}>
+        <button class="button medium" {{on 'click' this.toggleAutoUpdate}}>
           {{this.service.autoUpdate}}
         </button>
       </div>
@@ -292,7 +292,7 @@
           {{/attach-tooltip}}
         </span>
         =
-        <button class="button medium" {{action "toggleRenderInPlace"}}>
+        <button class="button medium" {{on 'click' this.toggleRenderInPlace}}>
           {{this.service.renderInPlace}}
         </button>
       </div>
@@ -386,7 +386,7 @@
         <div data-element-hbox>
           &nbsp;&nbsp;&nbsp;&nbsp;
           <div data-element-centered class="flexi-fit">
-            &lt;button \{{action attacher.hide}}>
+            &lt;button \{{on 'click' attacher.hide}}>
           </div>
         </div>
         <div data-element-hbox>

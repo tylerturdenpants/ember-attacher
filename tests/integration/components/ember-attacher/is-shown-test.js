@@ -7,11 +7,6 @@ import { render, click, find, settled, waitFor } from '@ember/test-helpers';
 module('Integration | Component | isShown', function(hooks) {
   setupRenderingTest(hooks);
 
-  hooks.beforeEach(function() {
-    this.actions = {};
-    this.send = (actionName, ...args) => this.actions[actionName].apply(this, args);
-  });
-
   test('isShown works with showOn/hideOn set to "click"', async function(assert) {
     assert.expect(3);
 
@@ -44,11 +39,11 @@ module('Integration | Component | isShown', function(hooks) {
   test('isShown works with showOn/hideOn set to `null`', async function(assert) {
     assert.expect(3);
 
-    this.actions.closePopover = () => {
+    this.closePopover = () => {
       this.set('isShown', false);
     };
 
-    this.actions.openPopover = () => {
+    this.openPopover = () => {
       this.set('isShown', true);
     };
 
@@ -58,7 +53,7 @@ module('Integration | Component | isShown', function(hooks) {
     this.set('showOn', null);
 
     await render(hbs`
-      <button id="open" {{action 'openPopover'}}>
+      <button id="open" {{on 'click' this.openPopover}}>
         Click me, captain!
 
         {{#attach-popover id='attachment'
@@ -67,7 +62,7 @@ module('Integration | Component | isShown', function(hooks) {
                           showOn=this.showOn}}
           isShown w/ hideOn/ShowOn of 'none'
 
-          <button id="close" {{action 'closePopover'}}>
+          <button id="close" {{on 'click' this.closePopover}}>
             Close
           </button>
 
@@ -91,11 +86,11 @@ module('Integration | Component | isShown', function(hooks) {
   test('isShown works with showOn/hideOn set to `null` with lazyRender', async function(assert) {
     assert.expect(3);
 
-    this.actions.closePopover = () => {
+    this.closePopover = () => {
       this.set('isShown', false);
     };
 
-    this.actions.openPopover = () => {
+    this.openPopover = () => {
       this.set('isShown', true);
     };
 
@@ -105,7 +100,7 @@ module('Integration | Component | isShown', function(hooks) {
     this.set('showOn', null);
 
     await render(hbs`
-      <button id="open" {{action 'openPopover'}}>
+      <button id="open" {{on 'click' this.openPopover}}>
         Click me, captain!
 
         {{#attach-popover id='attachment'
@@ -115,7 +110,7 @@ module('Integration | Component | isShown', function(hooks) {
                           showOn=this.showOn}}
           isShown w/ hideOn/ShowOn of 'none'
 
-          <button id="close" {{action 'closePopover'}}>
+          <button id="close" {{on 'click' this.closePopover}}>
             Close
           </button>
 
@@ -141,15 +136,15 @@ module('Integration | Component | isShown', function(hooks) {
   test('nested attachers open and close as expected', async function(assert) {
     assert.expect(7);
 
-    this.actions.openParentPopover = () => {
+    this.openParentPopover = () => {
       this.set('parentIsShown', true);
     };
 
-    this.actions.closeChildPopover = () => {
+    this.closeChildPopover = () => {
       this.set('childIsShown', false);
     };
 
-    this.actions.openChildPopover = () => {
+    this.openChildPopover = () => {
       this.set('childIsShown', true);
     };
 
@@ -162,7 +157,7 @@ module('Integration | Component | isShown', function(hooks) {
     });
 
     await render(hbs`
-      <button id="openParent" {{action 'openParentPopover'}}>
+      <button id="openParent" {{on 'click' this.openParentPopover}}>
         Open parent
 
         {{#attach-popover hideOn=this.hideOn
@@ -170,7 +165,7 @@ module('Integration | Component | isShown', function(hooks) {
                           isShown=this.parentIsShown
                           showOn=this.showOn
                           interactive=true}}
-          <button id="openChild" {{action 'openChildPopover'}}>
+          <button id="openChild" {{on 'click' this.openChildPopover}}>
             Open child
 
             {{#attach-popover hideDuration=0
@@ -178,7 +173,7 @@ module('Integration | Component | isShown', function(hooks) {
                               id='child'
                               isShown=this.childIsShown
                               showOn='none'}}
-              <button id="closeChild" {{action 'closeChildPopover'}}>
+              <button id="closeChild" {{on 'click' this.closeChildPopover}}>
                 Close child
               </button>
             {{/attach-popover}}
