@@ -11,7 +11,7 @@ module('Integration | Component | useCapture "true"', function(hooks) {
     assert.expect(2);
 
     await render(hbs`
-      <div id="click-out-target" {{action (mut this.unusedVar) bubbles=false}}>
+      <div id="click-out-target" {{on 'click' (fn (mut this.unusedVar) bubbles=false)}}>
       </div>
 
       <button>

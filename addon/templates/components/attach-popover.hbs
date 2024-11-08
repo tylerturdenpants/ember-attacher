@@ -16,7 +16,7 @@
       ...attributes
     >
       <div class={{this._class}} style={{this._style}}>
-        {{yield (hash hide=(action 'hide'))}}
+        {{yield (hash hide=this.hide)}}
         {{#if this.arrow}}
           <div x-arrow {{did-insert this.didInsertArrow}}></div>
         {{/if}}
