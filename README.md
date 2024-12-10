@@ -37,7 +37,7 @@ Just drop an `<AttachTooltip/>` or `<AttachPopover/>` in a parent and your float
 <button class="other-button">
   No click me!
 
-  <AttachPopover
+  <AttachPopover 
       @class='ember-attacher'
       @hideOn='click'
       @isShown={{true}}
@@ -93,11 +93,11 @@ Below is a list of all available options, along with their defaults.
 
   // Whether or not an arrow will be displayed next to the attachment.
   arrow: false,
-
+    
   // Add listeners that will automatically call an update function
   // Pass `true` to use the Floating UI default options or Options object to override them
   // Example: { ancestorScroll: false }
-  // For more details see https://floating-ui.com/docs/autoUpdate
+  // For more details see https://floating-ui.com/docs/autoUpdate 
   autoUpdate: false,
 
   // A class that will be applied to the attachment.
@@ -178,8 +178,8 @@ Below is a list of all available options, along with their defaults.
   // showing and hiding of popovers and tooltips.
   useCapture: false,
 
-  // The default padding if collision happens. Set "false" if no collision prevention needed
-  overflowPadding: 5
+  // The default padding if collision happens. Set "false" if no collision prevention needed 
+  overflowPadding: 5 
 }
 ```
 
@@ -265,7 +265,7 @@ test('example', async function(assert) {
     <button id="toggle">
       Click me, captain!
 
-      <AttachPopover
+      <AttachPopover 
           @id='attachment'
           @hideOn='click'
           @showOn='click'
