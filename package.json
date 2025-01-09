@@ -29,6 +29,7 @@
     "test:all": "ember try:each"
   },
   "dependencies": {
+    "@ember/test-waiters": "^3.1.0",
     "@floating-ui/dom": "^1.6.12",
     "babel-plugin-filter-imports": "^4.0.0",
     "broccoli-funnel": "~3.0.8",
@@ -48,7 +49,6 @@
     "@ember/render-modifiers": "^2.0.5",
     "@ember/string": "^3.1.1",
     "@ember/test-helpers": "~2.9.4",
-    "@ember/test-waiters": "^3.1.0",
     "@embroider/test-setup": "^3.0.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",

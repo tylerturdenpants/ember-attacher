@@ -18,7 +18,7 @@
 
 ----
 
-* Ember.js v3.20 or above
+* Ember.js v3.20 through v5.12
 * Ember CLI v3.13 or above
 * Node.js v12 or above
 
