@@ -1311,38 +1311,21 @@
   resolved "https://registry.yarnpkg.com/@glimmer/env/-/env-0.1.7.tgz#fd2d2b55a9029c6b37a6c935e8c8871ae70dfa07"
   integrity sha512-JKF/a9I9jw6fGoz8kA7LEQslrwJ5jms5CXhu/aqkBWk+PmZ6pTl8mlb/eJ/5ujBGTiQzBhy5AIWF712iA+4/mw==
 
-"@glimmer/global-context@0.84.3":
-  version "0.84.3"
-  resolved "https://registry.yarnpkg.com/@glimmer/global-context/-/global-context-0.84.3.tgz#f8bf2cda9562716f2ddf3f96837e7559600635c4"
-  integrity sha512-8Oy9Wg5IZxMEeAnVmzD2NkObf89BeHoFSzJgJROE/deutd3rxg83mvlOez4zBBGYwnTb+VGU2LYRpet92egJjA==
-  dependencies:
-    "@glimmer/env" "^0.1.7"
-
-"@glimmer/interfaces@0.84.3":
-  version "0.84.3"
-  resolved "https://registry.yarnpkg.com/@glimmer/interfaces/-/interfaces-0.84.3.tgz#629777a4abe373b0785656f6c8d08989f5784805"
-  integrity sha512-dk32ykoNojt0mvEaIW6Vli5MGTbQo58uy3Epj7ahCgTHmWOKuw/0G83f2UmFprRwFx689YTXG38I/vbpltEjzg==
+"@glimmer/interfaces@0.92.3":
+  version "0.92.3"
+  resolved "https://registry.yarnpkg.com/@glimmer/interfaces/-/interfaces-0.92.3.tgz#dd2e8d9df59fcebf2fa35a78cc2353738b09d762"
+  integrity sha512-QwQeA01N+0h+TAi/J7iUnZtRuJy+093hNyagxDQBA6b1wCBw+q+al9+O6gmbWlkWE7EifzmNE1nnrgcecJBlJQ==
   dependencies:
     "@simple-dom/interface" "^1.4.0"
 
-"@glimmer/reference@^0.84.3":
-  version "0.84.3"
-  resolved "https://registry.yarnpkg.com/@glimmer/reference/-/reference-0.84.3.tgz#6420ad9c102633ac83939fd1b2457269d21fb632"
-  integrity sha512-lV+p/aWPVC8vUjmlvYVU7WQJsLh319SdXuAWoX/SE3pq340BJlAJiEcAc6q52y9JNhT57gMwtjMX96W5Xcx/qw==
+"@glimmer/syntax@^0.92.0":
+  version "0.92.3"
+  resolved "https://registry.yarnpkg.com/@glimmer/syntax/-/syntax-0.92.3.tgz#0b0923d37469509fcc46243678c7ef8cb41a17de"
+  integrity sha512-7wPKQmULyXCYf0KvbPmfrs/skPISH2QGR9atCnmDWnHyLv5SSZVLm1P0Ctrpta6+Ci3uGQb7hGk0IjsLEavcYQ==
   dependencies:
-    "@glimmer/env" "^0.1.7"
-    "@glimmer/global-context" "0.84.3"
-    "@glimmer/interfaces" "0.84.3"
-    "@glimmer/util" "0.84.3"
-    "@glimmer/validator" "0.84.3"
-
-"@glimmer/syntax@^0.84.2", "@glimmer/syntax@^0.84.3":
-  version "0.84.3"
-  resolved "https://registry.yarnpkg.com/@glimmer/syntax/-/syntax-0.84.3.tgz#4045a1708cef7fd810cff42fe6deeba40c7286d0"
-  integrity sha512-ioVbTic6ZisLxqTgRBL2PCjYZTFIwobifCustrozRU2xGDiYvVIL0vt25h2c1ioDsX59UgVlDkIK4YTAQQSd2A==
-  dependencies:
-    "@glimmer/interfaces" "0.84.3"
-    "@glimmer/util" "0.84.3"
+    "@glimmer/interfaces" "0.92.3"
+    "@glimmer/util" "0.92.3"
+    "@glimmer/wire-format" "0.92.3"
     "@handlebars/parser" "~2.0.0"
     simple-html-tokenizer "^0.5.11"
 
@@ -1354,27 +1337,18 @@
     "@glimmer/env" "^0.1.7"
     "@glimmer/validator" "^0.44.0"
 
-"@glimmer/util@0.84.3":
-  version "0.84.3"
-  resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.84.3.tgz#9ae0166982c0b48aa94b02d6ba8c2c81976ade4b"
-  integrity sha512-qFkh6s16ZSRuu2rfz3T4Wp0fylFj3HBsONGXQcrAdZjdUaIS6v3pNj6mecJ71qRgcym9Hbaq/7/fefIwECUiKw==
+"@glimmer/util@0.92.3":
+  version "0.92.3"
+  resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.92.3.tgz#ac97cf68118d9868b405a2078e3b28603d0ccf57"
+  integrity sha512-K1oH93gGU36slycxJ9CcFpUTsdOc4XQ6RuZFu5oRsxFYtEF5PSu7ik11h58fyeoaWOr1ebfkyAMawbeI2AJ5GA==
   dependencies:
     "@glimmer/env" "0.1.7"
-    "@glimmer/interfaces" "0.84.3"
-    "@simple-dom/interface" "^1.4.0"
+    "@glimmer/interfaces" "0.92.3"
 
 "@glimmer/util@^0.44.0":
   version "0.44.0"
   resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.44.0.tgz#45df98d73812440206ae7bda87cfe04aaae21ed9"
   integrity sha512-duAsm30uVK9jSysElCbLyU6QQYO2X9iLDLBIBUcCqck9qN1o3tK2qWiHbGK5d6g8E2AJ4H88UrfElkyaJlGrwg==
-
-"@glimmer/validator@0.84.3", "@glimmer/validator@^0.84.3":
-  version "0.84.3"
-  resolved "https://registry.yarnpkg.com/@glimmer/validator/-/validator-0.84.3.tgz#cd83b7f9ab78953f23cc11a32d83d7f729c54df2"
-  integrity sha512-RTBV4TokUB0vI31UC7ikpV7lOYpWUlyqaKV//pRC4pexYMlmqnVhkFrdiimB/R1XyNdUOQUmnIAcdic39NkbhQ==
-  dependencies:
-    "@glimmer/env" "^0.1.7"
-    "@glimmer/global-context" "0.84.3"
 
 "@glimmer/validator@^0.44.0":
   version "0.44.0"
@@ -1387,6 +1361,14 @@
   integrity sha512-HS2dEbJ3CgXn56wk/5QdudM7rE3vtNMvPIoG7Rrg+GhkGMNxBCIRxOeEF2g520j9rwlA2LAZFpc7MCDMFbTjNA==
   dependencies:
     babel-plugin-debug-macros "^0.3.4"
+
+"@glimmer/wire-format@0.92.3":
+  version "0.92.3"
+  resolved "https://registry.yarnpkg.com/@glimmer/wire-format/-/wire-format-0.92.3.tgz#0d6d51d657193c806763fa059c0345e6376f461f"
+  integrity sha512-gFz81Q9+V7Xs0X8mSq6y8qacHm0dPaGJo2/Bfcsdow1hLOKNgTCLr4XeDBhRML8f6I6Gk9ugH4QDxyIOXOpC4w==
+  dependencies:
+    "@glimmer/interfaces" "0.92.3"
+    "@glimmer/util" "0.92.3"
 
 "@handlebars/parser@~2.0.0":
   version "2.0.0"
@@ -1501,7 +1483,7 @@
   resolved "https://registry.yarnpkg.com/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.4.14.tgz#add4c98d341472a289190b424efbdb096991bb24"
   integrity sha512-XPSJHWmi394fuUuzDnGz1wiKqWfo1yXecHQMRf2l6hztTO+nPru658AyDngaBe7isIxEkRsPR3FZh+s7iVa4Uw==
 
-"@jridgewell/sourcemap-codec@^1.4.10", "@jridgewell/sourcemap-codec@^1.4.13", "@jridgewell/sourcemap-codec@^1.4.14":
+"@jridgewell/sourcemap-codec@^1.4.10", "@jridgewell/sourcemap-codec@^1.4.14":
   version "1.4.15"
   resolved "https://registry.yarnpkg.com/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.4.15.tgz#d7c6e6755c78567a951e04ab52ef0fd26de59f32"
   integrity sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==
@@ -2569,11 +2551,6 @@ available-typed-arrays@^1.0.5:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/available-typed-arrays/-/available-typed-arrays-1.0.5.tgz#92f95616501069d07d10edb2fc37d3e1c65123b7"
   integrity sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw==
-
-babel-import-util@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/babel-import-util/-/babel-import-util-0.2.0.tgz#b468bb679919601a3570f9e317536c54f2862e23"
-  integrity sha512-CtWYYHU/MgK88rxMrLfkD356dApswtR/kWZ/c6JifG1m10e7tBBrs/366dFzWMAoqYmG5/JSh+94tUSpIwh+ag==
 
 babel-import-util@^1.1.0, babel-import-util@^1.3.0:
   version "1.3.0"
@@ -3992,11 +3969,6 @@ colors@1.0.3:
   resolved "https://registry.yarnpkg.com/colors/-/colors-1.0.3.tgz#0433f44d809680fdeb60ed260f1b0c262e82a40b"
   integrity sha1-BDP0TYCWgP3rYO0mDxsMJi6CpAs=
 
-colors@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/colors/-/colors-1.4.0.tgz#c50491479d4c1bdaed2c9ced32cf7c7dc2360f78"
-  integrity sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA==
-
 commander@2.8.x:
   version "2.8.1"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.8.1.tgz#06be367febfda0c330aa1e2a072d3dc9762425d4"
@@ -4018,11 +3990,6 @@ commander@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/commander/-/commander-4.1.1.tgz#9fd602bd936294e9e9ef46a3f4d6964044b18068"
   integrity sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==
-
-commander@^8.3.0:
-  version "8.3.0"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-8.3.0.tgz#4837ea1b2da67b9c616a67afbb0fafee567bca66"
-  integrity sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==
 
 common-tags@^1.8.0:
   version "1.8.0"
@@ -4134,6 +4101,11 @@ content-disposition@0.5.4:
   integrity sha512-FveZTNuGw04cxlAiWbzi6zTAL/lhehaWbTtgluJh4/E95DqMwTmha3KZN1aAWA8cFIhHzMZUvLevkw5Rqk+tSQ==
   dependencies:
     safe-buffer "5.2.1"
+
+content-tag@^2.0.1:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/content-tag/-/content-tag-2.0.3.tgz#52b72285256ae0aa49e86b1b5923764df472d61c"
+  integrity sha512-htLIdtfhhKW2fHlFLnZH7GFzHSdSpHhDLrWVswkNiiPMZ5uXq5JfrGboQKFhNQuAAFF8VNB2EYUj3MsdJrKKpg==
 
 content-type@~1.0.4:
   version "1.0.4"
@@ -4312,12 +4284,12 @@ css-tree@1.0.0-alpha.33:
     mdn-data "2.0.4"
     source-map "^0.5.3"
 
-css-tree@^2.0.4:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/css-tree/-/css-tree-2.3.1.tgz#10264ce1e5442e8572fc82fbe490644ff54b5c20"
-  integrity sha512-6Fv1DV/TYw//QF5IzQdqsNDjx/wc8TrMBZsqjL9eW01tWb7R7k/mq+/VXfJCl7SoD5emsJop9cOByJZfs8hYIw==
+css-tree@^3.0.1:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/css-tree/-/css-tree-3.1.0.tgz#7aabc035f4e66b5c86f54570d55e05b1346eb0fd"
+  integrity sha512-0eW44TGN5SQXU1mWSkKwFstI/22X2bG1nYzZTYMAWjylYURhse752YgbE4Cx46AC+bAvI+/dYTPRk1LqSUnu6w==
   dependencies:
-    mdn-data "2.0.30"
+    mdn-data "2.12.2"
     source-map-js "^1.0.1"
 
 css-what@^3.2.1:
@@ -5160,6 +5132,19 @@ ember-destroyable-polyfill@^2.0.3:
     ember-cli-version-checker "^5.1.1"
     ember-compatibility-helpers "^1.2.1"
 
+ember-eslint-parser@^0.5.9:
+  version "0.5.9"
+  resolved "https://registry.yarnpkg.com/ember-eslint-parser/-/ember-eslint-parser-0.5.9.tgz#f942c4863866e24a6243c390f743cbe0354d68a6"
+  integrity sha512-IW4/3cEiFp49M2LiKyzi7VcT1egogOe8UxQ9eUKTooenC7Q4qNhzTD6rOZ8j51m8iJC+8hCzjbNCa3K4CN0Hhg==
+  dependencies:
+    "@babel/eslint-parser" "^7.23.10"
+    "@glimmer/syntax" "^0.92.0"
+    content-tag "^2.0.1"
+    eslint-scope "^7.2.2"
+    html-tags "^3.3.1"
+    mathml-tag-names "^2.1.3"
+    svg-tags "^1.0.0"
+
 ember-functions-as-helper-polyfill@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/ember-functions-as-helper-polyfill/-/ember-functions-as-helper-polyfill-2.1.2.tgz#5f7a7c7f87b87d4df785c53d1ee0810693c89b6b"
@@ -5217,10 +5202,10 @@ ember-resolver@~11.0.1:
   dependencies:
     ember-cli-babel "^7.26.11"
 
-ember-rfc176-data@^0.3.15, ember-rfc176-data@^0.3.17:
-  version "0.3.17"
-  resolved "https://registry.yarnpkg.com/ember-rfc176-data/-/ember-rfc176-data-0.3.17.tgz#d4fc6c33abd6ef7b3440c107a28e04417b49860a"
-  integrity sha512-EVzTTKqxv9FZbEh6Ktw56YyWRAA0MijKvl7H8C06wVF+8f/cRRz3dXxa4nkwjzyVwx4rzKGuIGq77hxJAQhWWw==
+ember-rfc176-data@^0.3.17, ember-rfc176-data@^0.3.18:
+  version "0.3.18"
+  resolved "https://registry.yarnpkg.com/ember-rfc176-data/-/ember-rfc176-data-0.3.18.tgz#bb6fdcef49999981317ea81b6cc9210fb4108d65"
+  integrity sha512-JtuLoYGSjay1W3MQAxt3eINWXNYYQliK90tLwtb8aeCuQK8zKGCRbBodVIrkcTqshULMnRuTOS6t1P7oQk3g6Q==
 
 ember-router-generator@^2.0.0:
   version "2.0.0"
@@ -5291,38 +5276,6 @@ ember-svg-jar@^2.6.0:
     ember-cli-htmlbars "^5.7.1"
     lodash "^4.17.15"
     safe-stable-stringify "^2.2.0"
-
-ember-template-imports@^3.4.2:
-  version "3.4.2"
-  resolved "https://registry.yarnpkg.com/ember-template-imports/-/ember-template-imports-3.4.2.tgz#6cf7de7d4b8348a0fddf3aaec4947aa1211289e6"
-  integrity sha512-OS8TUVG2kQYYwP3netunLVfeijPoOKIs1SvPQRTNOQX4Pu8xGGBEZmrv0U1YTnQn12Eg+p6w/0UdGbUnITjyzw==
-  dependencies:
-    babel-import-util "^0.2.0"
-    broccoli-stew "^3.0.0"
-    ember-cli-babel-plugin-helpers "^1.1.1"
-    ember-cli-version-checker "^5.1.2"
-    line-column "^1.0.2"
-    magic-string "^0.25.7"
-    parse-static-imports "^1.1.0"
-    string.prototype.matchall "^4.0.6"
-    validate-peer-dependencies "^1.1.0"
-
-ember-template-recast@^6.1.4:
-  version "6.1.4"
-  resolved "https://registry.yarnpkg.com/ember-template-recast/-/ember-template-recast-6.1.4.tgz#e964c184adfd876878009f8aa0b84c95633fce20"
-  integrity sha512-fCh+rOK6z+/tsdkTbOE+e7f84P6ObnIRQrCCrnu21E4X05hPeradikIkRMhJdxn4NWrxitfZskQDd37TR/lsNQ==
-  dependencies:
-    "@glimmer/reference" "^0.84.3"
-    "@glimmer/syntax" "^0.84.3"
-    "@glimmer/validator" "^0.84.3"
-    async-promise-queue "^1.0.5"
-    colors "^1.4.0"
-    commander "^8.3.0"
-    globby "^11.0.3"
-    ora "^5.4.0"
-    slash "^3.0.0"
-    tmp "^0.2.1"
-    workerpool "^6.4.0"
 
 ember-truth-helpers@^4.0.3:
   version "4.0.3"
@@ -5638,22 +5591,19 @@ eslint-plugin-decorator-position@^5.0.2:
     ember-rfc176-data "^0.3.17"
     snake-case "^3.0.4"
 
-eslint-plugin-ember@~11.11.1:
-  version "11.11.1"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-ember/-/eslint-plugin-ember-11.11.1.tgz#bc49d76ed8ec43e646d222f15181f4d18c3c3218"
-  integrity sha512-dvsDa4LkDkGqCE2bzBIguRMi1g40JVwRWMSHmn8S7toRDxSOU3M7yromgi5eSAJX2O2vEvJZ9QnR15YDbvNfVQ==
+eslint-plugin-ember@~12.5.0:
+  version "12.5.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-ember/-/eslint-plugin-ember-12.5.0.tgz#23bc7300f1a32a6af6db4d876553d2891df1f4fe"
+  integrity sha512-DBUzsaKWDVXsujAZPpRir0O7owdlCoVzZmtaJm7g7iQeSrNtcRWI7AItsTqKSsws1XeAySH0sPsQItMdDCb9Fg==
   dependencies:
     "@ember-data/rfc395-data" "^0.0.4"
-    "@glimmer/syntax" "^0.84.2"
-    css-tree "^2.0.4"
-    ember-rfc176-data "^0.3.15"
-    ember-template-imports "^3.4.2"
-    ember-template-recast "^6.1.4"
+    css-tree "^3.0.1"
+    ember-eslint-parser "^0.5.9"
+    ember-rfc176-data "^0.3.18"
     eslint-utils "^3.0.0"
-    estraverse "^5.2.0"
-    lodash.camelcase "^4.1.1"
+    estraverse "^5.3.0"
+    lodash.camelcase "^4.3.0"
     lodash.kebabcase "^4.1.1"
-    magic-string "^0.30.0"
     requireindex "^1.2.0"
     snake-case "^3.0.3"
 
@@ -5803,10 +5753,10 @@ estraverse@^4.1.1, estraverse@^4.2.0:
   resolved "https://registry.yarnpkg.com/estraverse/-/estraverse-4.3.0.tgz#398ad3f3c5a24948be7725e83d11a7de28cdbd1d"
   integrity sha512-39nnKffWz8xN1BU/2c79n9nB9HDzo0niYUqx6xyqUnyoAnQyyWpOTdZEeiCch8BBu515t4wp9ZmgVfVhn9EBpw==
 
-estraverse@^5.1.0, estraverse@^5.2.0:
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/estraverse/-/estraverse-5.2.0.tgz#307df42547e6cc7324d3cf03c155d5cdb8c53880"
-  integrity sha512-BxbNGGNm0RyRYvUdHpIwv9IWzeM9XClbOxwoATuFdOE7ZE6wHL+HQ5T8hoPM+zHvmKzzsEqhgy0GrQ5X13afiQ==
+estraverse@^5.1.0, estraverse@^5.2.0, estraverse@^5.3.0:
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/estraverse/-/estraverse-5.3.0.tgz#2eea5290702f26ab8fe5370370ff86c965d21123"
+  integrity sha512-MMdARuVEQziNTeJD8DgMqmhwR11BRQ/cBP+pLtYdSTnf3MIO8fFeiINEbX36ZdNlfU/7A9f3gUw49B3oQsvwBA==
 
 esutils@^2.0.2:
   version "2.0.3"
@@ -6021,7 +5971,7 @@ fast-deep-equal@^3.1.1, fast-deep-equal@^3.1.3:
   resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz#3a7d56b559d6cbc3eb512325244e619a65c6c525"
   integrity sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==
 
-fast-glob@^3.0.3, fast-glob@^3.2.11, fast-glob@^3.2.9:
+fast-glob@^3.0.3, fast-glob@^3.2.11:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/fast-glob/-/fast-glob-3.3.0.tgz#7c40cb491e1e2ed5664749e87bfb516dbe8727c0"
   integrity sha512-ChDuvbOypPuNjO8yIDf36x7BlZX1smcUMTTcyoIjycexOxd6DFsKsg21qVBzEmr3G7fUKIRy2/psii+CIUt7FA==
@@ -6800,18 +6750,6 @@ globby@13.1.4:
     merge2 "^1.4.1"
     slash "^4.0.0"
 
-globby@^11.0.3:
-  version "11.1.0"
-  resolved "https://registry.yarnpkg.com/globby/-/globby-11.1.0.tgz#bd4be98bb042f83d796f7e3811991fbe82a0d34b"
-  integrity sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==
-  dependencies:
-    array-union "^2.1.0"
-    dir-glob "^3.0.1"
-    fast-glob "^3.2.9"
-    ignore "^5.2.0"
-    merge2 "^1.4.1"
-    slash "^3.0.0"
-
 globrex@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/globrex/-/globrex-0.1.2.tgz#dd5d9ec826232730cd6793a5e33a9302985e6098"
@@ -7078,6 +7016,11 @@ hosted-git-info@^6.0.0:
   integrity sha512-r0EI+HBMcXadMrugk0GCQ+6BQV39PiWAZVfq7oIckeGiN7sjRGyQxPdft3nQekFTCQbYxLBH+/axZMeH8UX6+w==
   dependencies:
     lru-cache "^7.5.1"
+
+html-tags@^3.3.1:
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/html-tags/-/html-tags-3.3.1.tgz#a04026a18c882e4bba8a01a3d39cfe465d40b5ce"
+  integrity sha512-ztqyC3kLto0e9WbNp0aeP+M3kTt+nbaIveGmUxAtZa+8iFgKLUOD4YKM5j+f3QD89bra7UeumolZHKuOXnTmeQ==
 
 htmlparser2@^9.1.0:
   version "9.1.0"
@@ -8268,7 +8211,7 @@ lodash.assignin@^4.1.0:
   resolved "https://registry.yarnpkg.com/lodash.assignin/-/lodash.assignin-4.2.0.tgz#ba8df5fb841eb0a3e8044232b0e263a8dc6a28a2"
   integrity sha1-uo31+4QesKPoBEIysOJjqNxqKKI=
 
-lodash.camelcase@^4.1.1:
+lodash.camelcase@^4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/lodash.camelcase/-/lodash.camelcase-4.3.0.tgz#b28aa6288a2b9fc651035c7711f65ab6190331a6"
   integrity sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==
@@ -8483,13 +8426,6 @@ magic-string@^0.25.7:
   dependencies:
     sourcemap-codec "^1.4.4"
 
-magic-string@^0.30.0:
-  version "0.30.0"
-  resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.30.0.tgz#fd58a4748c5c4547338a424e90fa5dd17f4de529"
-  integrity sha512-LA+31JYDJLs82r2ScLrlz1GjSgu66ZV518eyWT+S8VhyQn/JL0u9MeBOvQMGYiPk1DBiSN9DDMOcXvigJZaViQ==
-  dependencies:
-    "@jridgewell/sourcemap-codec" "^1.4.13"
-
 make-dir@^3.0.0, make-dir@^3.0.2, make-dir@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/make-dir/-/make-dir-3.1.0.tgz#415e967046b3a7f1d185277d84aa58203726a13f"
@@ -8581,6 +8517,11 @@ matcher-collection@^2.0.0, matcher-collection@^2.0.1:
     "@types/minimatch" "^3.0.3"
     minimatch "^3.0.2"
 
+mathml-tag-names@^2.1.3:
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/mathml-tag-names/-/mathml-tag-names-2.1.3.tgz#4ddadd67308e780cf16a47685878ee27b736a0a3"
+  integrity sha512-APMBEanjybaPzUrfqU0IMU5I0AswKMH7k8OTLs0vvV4KZpExkTkY87nR/zpbuTPj+gARop7aGUbl11pnDfW6xg==
+
 mdast-util-from-markdown@^1.2.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/mdast-util-from-markdown/-/mdast-util-from-markdown-1.3.0.tgz#0214124154f26154a2b3f9d401155509be45e894"
@@ -8606,15 +8547,15 @@ mdast-util-to-string@^3.1.0:
   dependencies:
     "@types/mdast" "^3.0.0"
 
-mdn-data@2.0.30:
-  version "2.0.30"
-  resolved "https://registry.yarnpkg.com/mdn-data/-/mdn-data-2.0.30.tgz#ce4df6f80af6cfbe218ecd5c552ba13c4dfa08cc"
-  integrity sha512-GaqWWShW4kv/G9IEucWScBx9G1/vsFZZJUO+tD26M8J8z3Kw5RDQjaoZe03YAClgeS/SWPOcb4nkFBTEi5DUEA==
-
 mdn-data@2.0.4:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/mdn-data/-/mdn-data-2.0.4.tgz#699b3c38ac6f1d728091a64650b65d388502fd5b"
   integrity sha512-iV3XNKw06j5Q7mi6h+9vbx23Tv7JkjEVgKHW4pimwyDGWm0OIQntJJ+u1C6mg6mK1EaTv42XQ7w76yuzH7M2cA==
+
+mdn-data@2.12.2:
+  version "2.12.2"
+  resolved "https://registry.yarnpkg.com/mdn-data/-/mdn-data-2.12.2.tgz#9ae6c41a9e65adf61318b32bff7b64fbfb13f8cf"
+  integrity sha512-IEn+pegP1aManZuckezWCO+XZQDplx1366JoVhTpMpBB1sPey/SbveZQUosKiKiGYjg1wH4pMlNgXbCiYgihQA==
 
 mdn-data@~1.1.0:
   version "1.1.4"
@@ -9558,7 +9499,7 @@ ora@^3.4.0:
     strip-ansi "^5.2.0"
     wcwidth "^1.0.1"
 
-ora@^5.4.0, ora@^5.4.1:
+ora@^5.4.1:
   version "5.4.1"
   resolved "https://registry.yarnpkg.com/ora/-/ora-5.4.1.tgz#1b2678426af4ac4a509008e5e4ac9e9959db9e18"
   integrity sha512-5b6Y85tPxZZ7QytO+BQzysW31HJku27cRIlkbAXaNx+BdcVi+LlRFmVXzeF6a7JCwJpyw5c4b+YSVImQIrBpuQ==
@@ -11319,7 +11260,7 @@ string-width@^5.0.1, string-width@^5.1.2:
     emoji-regex "^9.2.2"
     strip-ansi "^7.0.1"
 
-string.prototype.matchall@^4.0.5, string.prototype.matchall@^4.0.6:
+string.prototype.matchall@^4.0.5:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/string.prototype.matchall/-/string.prototype.matchall-4.0.8.tgz#3bf85722021816dcd1bf38bb714915887ca79fd3"
   integrity sha512-6zOCOcJ+RJAQshcTvXPHoxoQGONa3e/Lqx90wUA+wEzX78sg5Bo+1tQo4N0pohS0erG9qtCqJDjNCQBjeWVxyg==
@@ -11487,6 +11428,11 @@ supports-preserve-symlinks-flag@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
+
+svg-tags@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/svg-tags/-/svg-tags-1.0.0.tgz#58f71cee3bd519b59d4b2a843b6c7de64ac04764"
+  integrity sha512-ovssysQTa+luh7A5Weu3Rta6FJlFBBbInjOh722LIt6klpU2/HtdUbszju/G4devcvk8PGt7FCLv5wftu3THUA==
 
 svgo@1.3.0:
   version "1.3.0"
@@ -12153,14 +12099,6 @@ validate-npm-package-name@^5.0.0:
   integrity sha512-YuKoXDAhBYxY7SfOKxHBDoSyENFeW5VvIIQp2TGQuit8gpK6MnWaQelBKxso72DoxTZfZdcP3W90LqpSkgPzLQ==
   dependencies:
     builtins "^5.0.0"
-
-validate-peer-dependencies@^1.1.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/validate-peer-dependencies/-/validate-peer-dependencies-1.2.0.tgz#22aab93c514f4fda457d36c80685e8b1160d2036"
-  integrity sha512-nd2HUpKc6RWblPZQ2GDuI65sxJ2n/UqZwSBVtj64xlWjMx0m7ZB2m9b2JS3v1f+n9VWH/dd1CMhkHfP6pIdckA==
-  dependencies:
-    resolve-package-path "^3.1.0"
-    semver "^7.3.2"
 
 validate-peer-dependencies@^2.0.0, validate-peer-dependencies@^2.2.0:
   version "2.2.0"
