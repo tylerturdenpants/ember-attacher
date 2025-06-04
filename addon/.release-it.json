@@ -1,0 +1,9 @@
+{
+  "git": {
+    "tagName": "v${version}"
+  },
+  "github": {
+    "release": false,
+    "web": true
+  }
+}

@@ -1,0 +1,29 @@
+{{~#unless this.renderFloatingElement}}
+  <meta hidden {{did-insert this.onParentFinderInsert}} {{did-update this.onIsShownChange this.isShown}}/>
+{{~/unless~}}
+
+{{~#if this.renderFloatingElement~}}
+  <MaybeInElement @destinationElement={{this._floatingElementContainer}} @renderInPlace={{@renderInPlace}}>
+    <div
+      class="ember-attacher"
+      id={{this.id}}
+      role={{@ariaRole}}
+      {{did-insert this.didInsertFloatingElement}}
+      {{did-update this.onIsShownChange this.isShown}}
+      {{did-update this.onTargetOrTriggerChange this.hideOn this.showOn @explicitTarget}}
+      {{did-update this.onOptionsChange this.autoUpdate this.animation this.arrow this.useCapture this.placement this._renderInPlace this._currentTarget this._middleware}}
+      {{will-destroy this.willDestroyFloatingElement}}
+      ...attributes
+    >
+      <div class={{this._class}} style={{this._style}}>
+        {{yield (hash hide=this.hide)}}
+        {{#if this.arrow}}
+          <div x-arrow {{did-insert this.didInsertArrow}}></div>
+        {{/if}}
+        {{#if this.isFillAnimation}}
+          <div x-circle style="{{this._circleTransitionDuration}}"></div>
+        {{/if}}
+      </div>
+    </div>
+  </MaybeInElement>
+{{~/if~}}

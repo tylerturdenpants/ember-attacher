@@ -1,0 +1,141 @@
+@use "sass:list";
+@use "mixins";
+@use "variables";
+
+.ember-attacher {
+  width: max-content;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+  perspective: 800px;
+  transition-timing-function: cubic-bezier(.165, .84, .44, 1);
+  z-index: 9999;
+
+  @each $position in variables.$positions {
+    &[x-placement^=#{$position}] {
+      div[x-arrow] {
+        @include mixins.arrow($position, 10px);
+      }
+
+      div[x-circle] {
+        @include mixins.circle-transform-hide($position);
+        opacity: 0;
+        transform-origin: list.nth(variables.$circle-origins, list.index(variables.$positions, $position));
+      }
+
+      > .ember-attacher-fill {
+        @include mixins.ember-attacher-hide-transform($position, 'shift');
+        opacity: 0;
+      }
+
+      > .ember-attacher-none {
+        @include mixins.ember-attacher-hide-transform($position, 'none');
+        opacity: 1;
+
+      }
+
+      > .ember-attacher-fade {
+        @include mixins.ember-attacher-show-transform($position, 'fade');
+        opacity: 0;
+      }
+
+      > .ember-attacher-shift {
+        @include mixins.ember-attacher-hide-transform($position, 'shift');
+        opacity: 0;
+      }
+
+      > .ember-attacher-scale {
+        @include mixins.ember-attacher-hide-transform($position, 'scale');
+        opacity: 0;
+      }
+
+      > .ember-attacher-perspective {
+        @include mixins.ember-attacher-hide-transform($position, 'perspective');
+        opacity: 0;
+        transform-origin: list.nth(variables.$origins, list.index(variables.$positions, $position));
+      }
+
+      > .ember-attacher-show {
+        > div[x-circle] {
+          opacity: 1;
+          transform: scale(1.2) translate(-50%, -50%);
+        }
+
+        &.ember-attacher-fade,
+        &.ember-attacher-fill,
+        &.ember-attacher-none,
+        &.ember-attacher-shift {
+          @include mixins.ember-attacher-show-transform($position, 'fade');
+          opacity: 1;
+        }
+
+        &.ember-attacher-scale {
+          @include mixins.ember-attacher-show-transform($position, 'scale');
+          opacity: 1;
+        }
+
+        &.ember-attacher-perspective {
+          @include mixins.ember-attacher-show-transform($position, 'perspective');
+          opacity: 1;
+        }
+      }
+    }
+  }
+}
+
+.ember-attacher-tooltip {
+  background-color: #333;
+  border-radius: 4px;
+  color: #fff;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  max-width: 400px;
+  padding: .5rem 1rem;
+  position: relative;
+  text-align: center;
+  will-change: transform;
+
+  &.ember-attacher-fill {
+    background-color: transparent;
+    overflow: hidden;
+  }
+
+  > div[x-arrow] {
+    background-color: #333;
+    border: 1px solid;
+    border-color: transparent transparent #333 #333;
+    height: 10px;
+    position: absolute;
+    width: 10px;
+    z-index: -1;
+  }
+
+  > div[x-circle] {
+    background-color: #333;
+    border-radius: 50%;
+    left: 50%;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    transition: all ease-out;
+    width: 120%;
+    width: calc(100% + 2rem);
+    will-change: transform;
+    z-index: -1;
+
+    &::before {
+      content: '';
+      padding-top: 100%;
+      padding-top: calc(75% + 2rem);
+      float: left;
+    }
+  }
+}
+
+@media (max-width: 450px) {
+  .ember-attacher-tooltip {
+    max-width: 96%;
+    max-width: calc(100% - 42px);
+  }
+}
