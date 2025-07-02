@@ -4,6 +4,7 @@
     "addon",
     "test-app"
   ],
+  "name": "ember-attacher",
   "scripts": {
     "test": "pnpm -r test",
     "lint": "pnpm -r lint"
