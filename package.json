@@ -8,13 +8,5 @@
   "scripts": {
     "test": "pnpm -r test",
     "lint": "pnpm -r lint"
-  },
-  "pnpm": {
-    "overrides": {
-      "lerna-changelog": "^2.0.0"
-    },
-    "patchedDependencies": {
-      "lerna-changelog@2.2.0": "patches/lerna-changelog@2.2.0.patch"
-    }
   }
 }
