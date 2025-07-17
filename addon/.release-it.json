@@ -5,5 +5,8 @@
   "github": {
     "release": false,
     "web": true
+  },
+  "plugins": {
+    "release-it-pnpm": {}
   }
 }
