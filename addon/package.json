@@ -8,9 +8,9 @@
     "popovers"
   ],
   "scripts": {
-    "build": "rollup --config",
-    "prepublishOnly": "rollup --config",
-    "start": "rollup --config --watch",
+    "build": "rollup --config rollup.config.mjs",
+    "prepublishOnly": "rollup --config rollup.config.mjs",
+    "start": "rollup --config rollup.config.mjs --watch",
     "lint": "eslint ."
   },
   "exports": {
