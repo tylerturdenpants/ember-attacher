@@ -1,6 +1,6 @@
 {
   "name": "ember-attacher",
-  "version": "4.0.0-beta.1",
+  "version": "4.0.0",
   "description": "Tooltips and popovers for Ember.js apps",
   "keywords": [
     "ember-addon",
@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "rollup --config rollup.config.mjs",
-    "prepublishOnly": "rollup --config rollup.config.mjs",
+    "prepublishOnly": "pnpm run build",
     "start": "rollup --config rollup.config.mjs --watch",
     "lint": "eslint ."
   },
@@ -17,7 +17,8 @@
     ".": "./dist/index.js",
     "./*": "./dist/*",
     "./test-support": "./dist/test-support/index.js",
-    "./addon-main.js": "./addon-main.js"
+    "./addon-main.js": "./addon-main.js",
+    "./styles": "./dist/styles/ember-attacher.css"
   },
   "files": [
     "addon-main.js",
@@ -51,6 +52,9 @@
     "type": "addon",
     "version": 2,
     "demoURL": "https://tylerturdenpants.github.io/ember-attacher/",
+    "implicit-styles": [
+      "./dist/styles/ember-attacher.css"
+    ],
     "app-js": {
       "./components/attach-popover.js": "./dist/_app_/components/attach-popover.js",
       "./components/attach-tooltip.js": "./dist/_app_/components/attach-tooltip.js",
@@ -69,6 +73,7 @@
     "@rollup/plugin-babel": "^6.0.4",
     "release-it": "^17.0.0",
     "release-it-pnpm": "^4.6.6",
-    "rollup": "^4.44.1"
+    "rollup": "^4.44.1",
+    "sass": "^1.94.2"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "test-app",
-  "version": "3.2.0",
+  "version": "4.0.0",
   "description": "Tooltips and popovers for Ember.js apps",
   "keywords": [
     "tooltips",
@@ -47,7 +47,7 @@
     "@html-next/flexi-default-styles": "^3.0.0-alpha.1",
     "babel-plugin-dynamic-import-node": "^2.3.3",
     "broccoli-asset-rev": "^3.0.0",
-    "ember-attacher": "3.2.0",
+    "ember-attacher": "4.0.0",
     "ember-cli": "~4.12.1",
     "ember-cli-babel": "^8.2.0",
     "ember-cli-dependency-checker": "~3.3.2",
