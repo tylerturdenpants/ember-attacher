@@ -1,0 +1,79 @@
+{
+  "name": "ember-attacher",
+  "version": "4.0.0",
+  "description": "Tooltips and popovers for Ember.js apps",
+  "keywords": [
+    "ember-addon",
+    "tooltips",
+    "popovers"
+  ],
+  "scripts": {
+    "build": "rollup --config rollup.config.mjs",
+    "prepublishOnly": "pnpm run build",
+    "start": "rollup --config rollup.config.mjs --watch",
+    "lint": "eslint ."
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./*": "./dist/*",
+    "./test-support": "./dist/test-support/index.js",
+    "./addon-main.js": "./addon-main.js",
+    "./styles": "./dist/styles/ember-attacher.css"
+  },
+  "files": [
+    "addon-main.js",
+    "dist"
+  ],
+  "repository": "https://github.com/tylerturdenpants/ember-attacher",
+  "license": "MIT",
+  "author": {
+    "name": "Kyle Bishop",
+    "email": "kybishop@gmail.com",
+    "url": "http://kybishop.com"
+  },
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "dependencies": {
+    "@ember/test-waiters": "^3.1.0",
+    "@embroider/addon-shim": "^1.10.0",
+    "@floating-ui/dom": "^1.7.2",
+    "ember-maybe-in-element": "^2.1.0"
+  },
+  "engines": {
+    "node": "16.* || >= 18"
+  },
+  "ember": {
+    "edition": "octane"
+  },
+  "ember-addon": {
+    "main": "addon-main.js",
+    "type": "addon",
+    "version": 2,
+    "demoURL": "https://tylerturdenpants.github.io/ember-attacher/",
+    "implicit-styles": [
+      "./dist/styles/ember-attacher.css"
+    ],
+    "app-js": {
+      "./components/attach-popover.js": "./dist/_app_/components/attach-popover.js",
+      "./components/attach-tooltip.js": "./dist/_app_/components/attach-tooltip.js",
+      "./components/basic-attacher.js": "./dist/_app_/components/basic-attacher.js"
+    }
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/plugin-proposal-decorators": "^7.28.0",
+    "@babel/plugin-transform-class-properties": "^7.27.1",
+    "@embroider/addon-dev": "^8.1.0",
+    "@release-it-plugins/lerna-changelog": "^6.1.0",
+    "@rollup/plugin-babel": "^6.0.4",
+    "release-it": "^17.0.0",
+    "release-it-pnpm": "^4.6.6",
+    "rollup": "^4.44.1",
+    "sass": "^1.94.2"
+  }
+}

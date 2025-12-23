@@ -18,18 +18,26 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Install Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: yarn
+          cache: pnpm
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install
       - name: Lint
-        run: yarn lint
+        run: pnpm lint
       - name: Run Tests
-        run: yarn test
+        working-directory: test-app
+        run: pnpm test
 
   floating:
     name: "Floating Dependencies"
@@ -37,15 +45,23 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: yarn
+          cache: 'pnpm'
       - name: Install Dependencies
-        run: yarn install --no-lockfile
+        run: pnpm install
       - name: Run Tests
-        run: yarn test
+        working-directory: test-app
+        run: pnpm test
 
   try-scenarios:
     name: ${{ matrix.try-scenario }}
@@ -66,13 +82,24 @@ jobs:
           - embroider-optimized
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: |
+            - recursive: true
+              args: [--frozen-lockfile, --strict-peer-dependencies]
+
       - name: Install Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: yarn
+          cache: pnpm
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install
       - name: Run Tests
         run: ./node_modules/.bin/ember try:one ${{ matrix.try-scenario }}
+        working-directory: test-app
