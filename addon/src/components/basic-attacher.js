@@ -12,6 +12,7 @@ import { buildWaiter } from '@ember/test-waiters';
 import { tracked } from '@glimmer/tracking';
 import { modifier } from 'ember-modifier';
 import DEFAULTS from '../defaults';
+import MaybeInElement from './basic-attacher/maybe-in-element.gjs';
 
 const animationTestWaiter = buildWaiter('basic-attacher');
 
@@ -54,6 +55,8 @@ function onUpdate(fn) {
 }
 
 export default class BasicAttacher extends Component {
+  MaybeInElement = MaybeInElement;
+
   @tracked parentNotFound = true;
   @tracked parentElement = null;
   @tracked _isStartingAnimation = false;

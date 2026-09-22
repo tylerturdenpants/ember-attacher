@@ -70,10 +70,13 @@ export default {
     // Converts .hbs files to JS
     addon.hbs(),
 
+    // Compile <template> in .gjs files
+    addon.gjs(),
+
     // Run JS through Babel so the template colocation plugin wires templates to components
     babel({
       babelHelpers: 'bundled',
-      extensions: ['.js', '.ts'],
+      extensions: ['.js', '.gjs', '.ts'],
       configFile: './babel.config.json',
     }),
 

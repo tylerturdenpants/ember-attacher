@@ -29,7 +29,6 @@
   "dependencies": {
     "ember-auto-import": "^2.13.1",
     "ember-cli-sass": "^11.0.1",
-    "ember-maybe-in-element": "^2.1.0",
     "sass": "^1.104.1"
   },
   "devDependencies": {

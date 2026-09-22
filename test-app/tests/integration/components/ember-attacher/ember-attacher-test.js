@@ -85,4 +85,41 @@ module('Integration | Component | ember attacher', function(hooks) {
       'it adds the user-supplied default classes'
     );
   });
+
+  test('teleports the floating element to the default container', async function(assert) {
+    await render(hbs`
+      <div id="target">
+        {{#attach-popover id='attachment'}}
+          floating text
+        {{/attach-popover}}
+      </div>
+    `);
+
+    const attachment = find('#attachment');
+
+    assert.ok(attachment, 'floating element exists');
+    assert.strictEqual(
+      attachment.parentElement,
+      document.querySelector('.ember-application'),
+      'appended to .ember-application rather than replacing it'
+    );
+    assert.dom('#target #attachment').doesNotExist('not left in the target when renderInPlace is false');
+  });
+
+  test('renderInPlace keeps the floating element inside the target', async function(assert) {
+    await render(hbs`
+      <div id="target">
+        {{#attach-popover id='attachment' renderInPlace=true}}
+          floating text
+        {{/attach-popover}}
+      </div>
+    `);
+
+    assert.dom('#target #attachment').exists('rendered in place as a descendant of the target');
+    assert.notStrictEqual(
+      find('#attachment').parentElement,
+      document.querySelector('.ember-application'),
+      'does not teleport to .ember-application'
+    );
+  });
 });

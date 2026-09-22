@@ -40,7 +40,6 @@
     "@ember/test-waiters": "^3.1.0",
     "@embroider/addon-shim": "^1.10.3",
     "@floating-ui/dom": "^1.8.0",
-    "ember-maybe-in-element": "^2.1.0",
     "ember-modifier": "^4.2.2"
   },
   "engines": {
@@ -72,6 +71,7 @@
     "@babel/plugin-proposal-decorators": "^8.0.2",
     "@babel/plugin-transform-class-properties": "^8.0.1",
     "@embroider/addon-dev": "^8.4.0",
+    "babel-plugin-ember-template-compilation": "^2.3.0",
     "@release-it-plugins/lerna-changelog": "^9.0.0",
     "@rollup/plugin-babel": "^7.1.0",
     "eslint": "~9.39.5",

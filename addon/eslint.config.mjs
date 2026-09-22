@@ -28,11 +28,13 @@ export default [
       'package.json.ember-try',
       'package-lock.json.ember-try',
       'yarn.lock.ember-try',
+      '**/*.gjs',
     ],
   },
   ...eslintPluginEmberRecommended,
   ...decoratorPositionRecommended,
   {
+    files: ['**/*.{js,mjs}'],
     languageOptions: {
       parser: babelParser,
       parserOptions: {
