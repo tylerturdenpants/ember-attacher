@@ -3,22 +3,6 @@
   block. Tokens are internal; style via classes and x-placement, not --ea-*.
 */
 
-.ember-attacher-light-theme {
-  background-color: #f3f6f9;
-  border: 1px solid #ced2e2;
-  box-shadow: 0 0 16px -4px rgba(0, 20, 40, 0.2), 0 0 80px -10px rgba(0, 20, 40, 0.3);
-  color: #203d5d;
-
-  > div[x-arrow] {
-    background-color: #f3f6f9;
-    border-color: transparent transparent #ced2e2 #ced2e2;
-  }
-
-  > div[x-circle] {
-    background-color: #f3f6f9;
-  }
-}
-
 .ember-attacher {
   width: max-content;
   position: absolute;
@@ -204,5 +188,22 @@
   .ember-attacher-tooltip {
     max-width: 96%;
     max-width: calc(100% - 42px);
+  }
+}
+
+/* After tooltip chrome so both classes on one element pick up the theme. */
+.ember-attacher-light-theme {
+  background-color: #f3f6f9;
+  border: 1px solid #ced2e2;
+  box-shadow: 0 0 16px -4px rgba(0, 20, 40, 0.2), 0 0 80px -10px rgba(0, 20, 40, 0.3);
+  color: #203d5d;
+
+  > div[x-arrow] {
+    background-color: #f3f6f9;
+    border-color: transparent transparent #ced2e2 #ced2e2;
+  }
+
+  > div[x-circle] {
+    background-color: #f3f6f9;
   }
 }
