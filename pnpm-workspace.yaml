@@ -1,0 +1,6 @@
+packages:
+  - 'addon'
+  - 'test-app'
+allowBuilds:
+  '@parcel/watcher': true
+  core-js: true
