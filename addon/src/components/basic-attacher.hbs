@@ -1,18 +1,18 @@
-{{~#unless this.renderFloatingElement~}}<meta hidden {{on-parent-finder-insert component=this}} {{on-is-shown-change this.isShown component=this}}/>{{~/unless~}}{{~#if this.renderFloatingElement~}}<MaybeInElement @destinationElement={{this._floatingElementContainer}} @renderInPlace={{@renderInPlace}}><div
+{{~#unless this.renderFloatingElement~}}<meta hidden {{this.parentFinder}} {{this.isShownDidUpdate this.isShown}}/>{{~/unless~}}{{~#if this.renderFloatingElement~}}<MaybeInElement @destinationElement={{this._floatingElementContainer}} @renderInPlace={{@renderInPlace}}><div
       class="ember-attacher"
       id={{this.id}}
       role={{@ariaRole}}
-      {{did-insert-floating-element component=this}}
-      {{on-is-shown-change this.isShown component=this}}
-      {{on-target-or-trigger-change this.hideOn this.showOn @explicitTarget component=this}}
-      {{on-options-change this.autoUpdate this.animation this.arrow this.useCapture this.placement this._renderInPlace this._currentTarget this._middleware component=this}}
-      {{will-destroy-floating-element component=this}}
+      {{this.setupFloatingElement}}
+      {{this.isShownDidUpdate this.isShown}}
+      {{this.targetDidUpdate this.hideOn this.showOn @explicitTarget}}
+      {{this.optionsDidUpdate this.autoUpdate this.animation this.arrow this.useCapture this.placement this._renderInPlace this._middleware}}
+      {{this.teardownFloatingElement}}
       ...attributes
     >
       <div class={{this._class}} style={{this._style}}>
         {{yield (hash hide=this.hide)}}
         {{#if this.arrow}}
-          <div x-arrow {{did-insert-arrow component=this}}></div>
+          <div x-arrow {{this.insertArrow}}></div>
         {{/if}}
         {{#if this.isFillAnimation}}
           <div x-circle style="{{this._circleTransitionDuration}}"></div>

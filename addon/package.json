@@ -60,14 +60,7 @@
     "app-js": {
       "./components/attach-popover.js": "./dist/_app_/components/attach-popover.js",
       "./components/attach-tooltip.js": "./dist/_app_/components/attach-tooltip.js",
-      "./components/basic-attacher.js": "./dist/_app_/components/basic-attacher.js",
-      "./modifiers/did-insert-arrow.js": "./dist/_app_/modifiers/did-insert-arrow.js",
-      "./modifiers/did-insert-floating-element.js": "./dist/_app_/modifiers/did-insert-floating-element.js",
-      "./modifiers/on-is-shown-change.js": "./dist/_app_/modifiers/on-is-shown-change.js",
-      "./modifiers/on-options-change.js": "./dist/_app_/modifiers/on-options-change.js",
-      "./modifiers/on-parent-finder-insert.js": "./dist/_app_/modifiers/on-parent-finder-insert.js",
-      "./modifiers/on-target-or-trigger-change.js": "./dist/_app_/modifiers/on-target-or-trigger-change.js",
-      "./modifiers/will-destroy-floating-element.js": "./dist/_app_/modifiers/will-destroy-floating-element.js"
+      "./components/basic-attacher.js": "./dist/_app_/components/basic-attacher.js"
     }
   },
   "publishConfig": {
