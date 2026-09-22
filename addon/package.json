@@ -40,7 +40,8 @@
     "@ember/test-waiters": "^3.1.0",
     "@embroider/addon-shim": "^1.10.3",
     "@floating-ui/dom": "^1.8.0",
-    "ember-maybe-in-element": "^2.1.0"
+    "ember-maybe-in-element": "^2.1.0",
+    "ember-modifier": "^4.2.2"
   },
   "engines": {
     "node": "16.* || >= 18"
