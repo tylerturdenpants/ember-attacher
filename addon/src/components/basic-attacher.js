@@ -1,6 +1,6 @@
 import { action } from '@ember/object';
 import Component from '@glimmer/component';
-import { cancel, debounce, later, next, run } from '@ember/runloop';
+import { cancel, debounce, later, next, run, schedule } from '@ember/runloop';
 import { getOwner } from '@ember/application';
 import { guidFor } from '@ember/object/internals';
 import { htmlSafe, isHTMLSafe } from '@ember/template';
@@ -10,9 +10,48 @@ import { isEmpty, typeOf } from '@ember/utils';
 import { autoUpdate, computePosition, arrow, flip, limitShift, shift } from '@floating-ui/dom';
 import { buildWaiter } from '@ember/test-waiters';
 import { tracked } from '@glimmer/tracking';
+import { modifier } from 'ember-modifier';
 import DEFAULTS from '../defaults';
 
 const animationTestWaiter = buildWaiter('basic-attacher');
+
+function consume(positional) {
+  for (let i = 0; i < positional.length; i++) {
+    void positional[i];
+  }
+}
+
+// Run once per element, after render, so tracked writes do not hit the modifier's tracking frame.
+function onInsert(fn) {
+  const seen = new WeakSet();
+
+  return modifier((element) => {
+    if (seen.has(element)) {
+      return;
+    }
+
+    seen.add(element);
+    const timer = schedule('actions', fn, element);
+    return () => cancel(timer);
+  });
+}
+
+// Skip install ({{did-update}} semantics). Each factory has its own WeakSet so two
+// onUpdate modifiers on the same node do not steal each other's first run.
+function onUpdate(fn) {
+  const seen = new WeakSet();
+
+  return modifier((element, positional) => {
+    consume(positional);
+
+    if (!seen.has(element)) {
+      seen.add(element);
+      return;
+    }
+
+    fn();
+  });
+}
 
 export default class BasicAttacher extends Component {
   @tracked parentNotFound = true;
@@ -20,10 +59,61 @@ export default class BasicAttacher extends Component {
   @tracked _isStartingAnimation = false;
   @tracked _arrowElement = null;
   @tracked _currentTarget = null;
+  // Untracked copy of the node listeners are on. `_removeEventListeners` must
+  // not read `_currentTarget` in the same computation that writes it
+  // (`targetDidUpdate` → `_initializeAttacher` when `@explicitTarget` changes).
+  _listenerTarget = null;
   // This is set to true when the popover is shown in order to override lazyRender=false
   @tracked _mustRender = false;
   @tracked _transitionDuration = 0;
   _floatingElement = null;
+
+  parentFinder = onInsert((element) => {
+    if (this.isDestroyed || this.isDestroying) {
+      return;
+    }
+
+    this.parentElement = element.parentElement;
+    this._initializeAttacher();
+  });
+
+  // Insert + autoUpdate teardown. Must not read tracked state in the modifier
+  // callback (the scheduled fn is fine); a tracked read would re-run this and
+  // fire the destructor before updates.
+  setupFloatingElement = modifier((element) => {
+    const timer = schedule('actions', () => {
+      if (this.isDestroyed || this.isDestroying) {
+        return;
+      }
+
+      this._floatingElement = element;
+
+      if (this.renderInPlace) {
+        this.parentElement = element.parentElement;
+        this._initializeAttacher();
+      }
+    });
+
+    return () => {
+      cancel(timer);
+      this._cleanup?.();
+    };
+  });
+
+  insertArrow = onInsert((element) => {
+    if (this.isDestroyed || this.isDestroying) {
+      return;
+    }
+
+    this._arrowElement = element;
+  });
+
+  isShownDidUpdate = onUpdate(() => this._syncIsShown());
+  targetDidUpdate = onUpdate(() => this._initializeAttacher());
+  optionsDidUpdate = onUpdate(() => {
+    this._ensureArgumentsAreValid();
+    this._update();
+  });
 
   /**
    * ================== PUBLIC CONFIG OPTIONS ==================
@@ -306,13 +396,6 @@ export default class BasicAttacher extends Component {
     this._hide();
   }
 
-  @action
-  onParentFinderInsert(element) {
-    this.parentElement = element.parentElement;
-    this._initializeAttacher();
-  }
-
-  @action
   _ensureArgumentsAreValid() {
     runInDebug(() => {
       if (this.arrow && this.isFillAnimation) {
@@ -365,7 +448,9 @@ export default class BasicAttacher extends Component {
 
   _initializeAttacher() {
     this._removeEventListeners();
-    this._currentTarget = this.args.explicitTarget || this.parentElement;
+    const target = this.args.explicitTarget || this.parentElement;
+    this._listenerTarget = target;
+    this._currentTarget = target;
     this._addListenersForShowEvents();
 
     if (!this._isHidden || this.isShown) {
@@ -409,25 +494,21 @@ export default class BasicAttacher extends Component {
       document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType], this.useCapture);
       delete this._hideListenersOnDocumentByEvent[eventType];
     });
-    if (!this._currentTarget) {
+    const target = this._listenerTarget;
+
+    if (!target) {
       return;
     }
 
     [this._hideListenersOnTargetByEvent, this._showListenersOnTargetByEvent]
       .forEach((eventToListener) => {
         Object.keys(eventToListener).forEach((event) => {
-          this._currentTarget.removeEventListener(event, eventToListener[event], this.useCapture);
+          target.removeEventListener(event, eventToListener[event], this.useCapture);
         });
       });
   }
 
-  @action
-  onTargetOrTriggerChange() {
-    this._initializeAttacher();
-  }
-
-  @action
-  onIsShownChange() {
+  _syncIsShown() {
     const isShown = this.isShown;
 
     if (isShown === true && this._isHidden) {
@@ -784,32 +865,6 @@ export default class BasicAttacher extends Component {
         delete this._hideListenersOnTargetByEvent[eventType];
       }
     });
-  }
-
-  @action
-  didInsertFloatingElement(floatingElement) {
-    this._floatingElement = floatingElement;
-
-    if (this.renderInPlace) {
-      this.parentElement = floatingElement.parentElement;
-      this._initializeAttacher();
-    }
-  }
-
-  @action
-  didInsertArrow(element) {
-    this._arrowElement = element;
-  }
-
-  @action
-  onOptionsChange() {
-    this._ensureArgumentsAreValid();
-    this._update();
-  }
-
-  @action
-  willDestroyFloatingElement() {
-    this._cleanup?.();
   }
 
   _update() {
