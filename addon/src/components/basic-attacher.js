@@ -31,7 +31,8 @@ function onInsert(fn) {
     }
 
     seen.add(element);
-    schedule('actions', fn, element);
+    const timer = schedule('actions', fn, element);
+    return () => cancel(timer);
   });
 }
 
@@ -52,17 +53,15 @@ function onUpdate(fn) {
   });
 }
 
-// Destructor-only. Must not consume tracked state, or the teardown would also run before updates.
-function onTeardown(fn) {
-  return modifier(() => fn);
-}
-
 export default class BasicAttacher extends Component {
   @tracked parentNotFound = true;
   @tracked parentElement = null;
   @tracked _isStartingAnimation = false;
   @tracked _arrowElement = null;
   @tracked _currentTarget = null;
+  // Untracked copy of the node listeners are on. `_removeEventListeners` must
+  // not read `_currentTarget` in the same computation that writes it
+  // (`targetDidUpdate` → `_initializeAttacher` when `@explicitTarget` changes).
   _listenerTarget = null;
   // This is set to true when the popover is shown in order to override lazyRender=false
   @tracked _mustRender = false;
@@ -70,22 +69,42 @@ export default class BasicAttacher extends Component {
   _floatingElement = null;
 
   parentFinder = onInsert((element) => {
+    if (this.isDestroyed || this.isDestroying) {
+      return;
+    }
+
     this.parentElement = element.parentElement;
     this._initializeAttacher();
   });
 
-  setupFloatingElement = onInsert((element) => {
-    this._floatingElement = element;
+  // Insert + autoUpdate teardown. Must not read tracked state in the modifier
+  // callback (the scheduled fn is fine); a tracked read would re-run this and
+  // fire the destructor before updates.
+  setupFloatingElement = modifier((element) => {
+    const timer = schedule('actions', () => {
+      if (this.isDestroyed || this.isDestroying) {
+        return;
+      }
 
-    if (this.renderInPlace) {
-      this.parentElement = element.parentElement;
-      this._initializeAttacher();
-    }
+      this._floatingElement = element;
+
+      if (this.renderInPlace) {
+        this.parentElement = element.parentElement;
+        this._initializeAttacher();
+      }
+    });
+
+    return () => {
+      cancel(timer);
+      this._cleanup?.();
+    };
   });
 
-  teardownFloatingElement = onTeardown(() => this._cleanup?.());
-
   insertArrow = onInsert((element) => {
+    if (this.isDestroyed || this.isDestroying) {
+      return;
+    }
+
     this._arrowElement = element;
   });
 
