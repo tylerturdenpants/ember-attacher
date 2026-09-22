@@ -40,7 +40,8 @@
     "@ember/test-waiters": "^3.1.0",
     "@embroider/addon-shim": "^1.10.0",
     "@floating-ui/dom": "^1.7.2",
-    "ember-maybe-in-element": "^2.1.0"
+    "ember-maybe-in-element": "^2.1.0",
+    "ember-modifier": "^4.2.2"
   },
   "engines": {
     "node": "16.* || >= 18"
@@ -59,7 +60,14 @@
     "app-js": {
       "./components/attach-popover.js": "./dist/_app_/components/attach-popover.js",
       "./components/attach-tooltip.js": "./dist/_app_/components/attach-tooltip.js",
-      "./components/basic-attacher.js": "./dist/_app_/components/basic-attacher.js"
+      "./components/basic-attacher.js": "./dist/_app_/components/basic-attacher.js",
+      "./modifiers/did-insert-arrow.js": "./dist/_app_/modifiers/did-insert-arrow.js",
+      "./modifiers/did-insert-floating-element.js": "./dist/_app_/modifiers/did-insert-floating-element.js",
+      "./modifiers/on-is-shown-change.js": "./dist/_app_/modifiers/on-is-shown-change.js",
+      "./modifiers/on-options-change.js": "./dist/_app_/modifiers/on-options-change.js",
+      "./modifiers/on-parent-finder-insert.js": "./dist/_app_/modifiers/on-parent-finder-insert.js",
+      "./modifiers/on-target-or-trigger-change.js": "./dist/_app_/modifiers/on-target-or-trigger-change.js",
+      "./modifiers/will-destroy-floating-element.js": "./dist/_app_/modifiers/will-destroy-floating-element.js"
     }
   },
   "publishConfig": {

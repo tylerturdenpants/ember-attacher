@@ -52,6 +52,13 @@ export default {
       'components/basic-attacher.js',
       'defaults.js',
       'test-support/index.js',
+      'modifiers/did-insert-arrow.js',
+      'modifiers/did-insert-floating-element.js',
+      'modifiers/on-is-shown-change.js',
+      'modifiers/on-options-change.js',
+      'modifiers/on-parent-finder-insert.js',
+      'modifiers/on-target-or-trigger-change.js',
+      'modifiers/will-destroy-floating-element.js',
     ]),
 
     // These are the modules that will be re-exported by the consuming app
@@ -59,6 +66,13 @@ export default {
       'components/attach-popover.js', 
       'components/attach-tooltip.js',
       'components/basic-attacher.js',
+      'modifiers/did-insert-arrow.js',
+      'modifiers/did-insert-floating-element.js',
+      'modifiers/on-is-shown-change.js',
+      'modifiers/on-options-change.js',
+      'modifiers/on-parent-finder-insert.js',
+      'modifiers/on-target-or-trigger-change.js',
+      'modifiers/will-destroy-floating-element.js',
     ]),
 
     // Include any dependencies in the build

@@ -20,6 +20,7 @@ export default class BasicAttacher extends Component {
   @tracked _isStartingAnimation = false;
   @tracked _arrowElement = null;
   @tracked _currentTarget = null;
+  _listenerTarget = null;
   // This is set to true when the popover is shown in order to override lazyRender=false
   @tracked _mustRender = false;
   @tracked _transitionDuration = 0;
@@ -365,7 +366,9 @@ export default class BasicAttacher extends Component {
 
   _initializeAttacher() {
     this._removeEventListeners();
-    this._currentTarget = this.args.explicitTarget || this.parentElement;
+    const target = this.args.explicitTarget || this.parentElement;
+    this._listenerTarget = target;
+    this._currentTarget = target;
     this._addListenersForShowEvents();
 
     if (!this._isHidden || this.isShown) {
@@ -409,14 +412,16 @@ export default class BasicAttacher extends Component {
       document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType], this.useCapture);
       delete this._hideListenersOnDocumentByEvent[eventType];
     });
-    if (!this._currentTarget) {
+    const target = this._listenerTarget;
+
+    if (!target) {
       return;
     }
 
     [this._hideListenersOnTargetByEvent, this._showListenersOnTargetByEvent]
       .forEach((eventToListener) => {
         Object.keys(eventToListener).forEach((event) => {
-          this._currentTarget.removeEventListener(event, eventToListener[event], this.useCapture);
+          target.removeEventListener(event, eventToListener[event], this.useCapture);
         });
       });
   }
