@@ -1,10 +1,4 @@
-{{~#unless this.renderFloatingElement}}
-  <meta hidden {{did-insert this.onParentFinderInsert}} {{did-update this.onIsShownChange this.isShown}}/>
-{{~/unless~}}
-
-{{~#if this.renderFloatingElement~}}
-  <MaybeInElement @destinationElement={{this._floatingElementContainer}} @renderInPlace={{@renderInPlace}}>
-    <div
+{{~#unless this.renderFloatingElement~}}<meta hidden {{did-insert this.onParentFinderInsert}} {{did-update this.onIsShownChange this.isShown}}/>{{~/unless~}}{{~#if this.renderFloatingElement~}}<MaybeInElement @destinationElement={{this._floatingElementContainer}} @renderInPlace={{@renderInPlace}}><div
       class="ember-attacher"
       id={{this.id}}
       role={{@ariaRole}}
@@ -24,6 +18,4 @@
           <div x-circle style="{{this._circleTransitionDuration}}"></div>
         {{/if}}
       </div>
-    </div>
-  </MaybeInElement>
-{{~/if~}}
+    </div></MaybeInElement>{{~/if~}}

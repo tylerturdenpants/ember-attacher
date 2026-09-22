@@ -53,7 +53,11 @@ export default class BasicAttacher extends Component {
   }
 
   get hideOn() {
-    return this.args.hideOn || this._config.hideOn || DEFAULTS.hideOn;
+    if (this.args.hideOn === null) {
+      return null;
+    }
+
+    return this.args.hideOn ?? this._config.hideOn ?? DEFAULTS.hideOn;
   }
 
   get interactive() {

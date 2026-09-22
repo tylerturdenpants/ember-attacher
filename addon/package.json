@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "build": "rollup --config rollup.config.mjs",
+    "prepare": "pnpm run build",
     "prepublishOnly": "pnpm run build",
     "start": "rollup --config rollup.config.mjs --watch",
     "lint": "eslint ."

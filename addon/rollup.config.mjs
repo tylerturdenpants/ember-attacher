@@ -46,6 +46,7 @@ export default {
   plugins: [
     // These are the modules that will be available as imports from your addon
     addon.publicEntrypoints([
+      'index.js',
       'components/attach-popover.js',
       'components/attach-tooltip.js',
       'components/basic-attacher.js',
