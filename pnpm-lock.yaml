@@ -229,9 +229,6 @@ importers:
       rollup:
         specifier: ^4.63.4
         version: 4.63.4
-      sass:
-        specifier: ^1.104.1
-        version: 1.104.1
 
   test-app:
     dependencies:

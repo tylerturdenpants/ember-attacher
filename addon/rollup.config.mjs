@@ -1,6 +1,6 @@
 import { Addon } from '@embroider/addon-dev/rollup';
 import babel from '@rollup/plugin-babel';
-import * as sass from 'sass';
+import fs from 'fs';
 import path from 'path';
 
 const addon = new Addon({
@@ -8,34 +8,20 @@ const addon = new Addon({
   destDir: 'dist',
 });
 
-const scssEntry = 'src/styles/ember-attacher.scss';
+const cssEntry = 'src/styles/ember-attacher.css';
 
-function scssHandler() {
+function cssHandler() {
   return {
-    name: 'scss-handler',
+    name: 'css-handler',
     buildStart() {
-      this.addWatchFile(path.resolve(scssEntry));
+      this.addWatchFile(path.resolve(cssEntry));
     },
     generateBundle() {
-      const result = sass.compile(path.resolve(scssEntry), {
-        style: 'expanded',
-        sourceMap: false,
-        sourceMapIncludeSources: false,
-      });
-
       this.emitFile({
         type: 'asset',
         fileName: 'styles/ember-attacher.css',
-        source: result.css,
+        source: fs.readFileSync(path.resolve(cssEntry), 'utf8'),
       });
-
-      if (result.sourceMap) {
-        this.emitFile({
-          type: 'asset',
-          fileName: 'styles/ember-attacher.css.map',
-          source: JSON.stringify(result.sourceMap),
-        });
-      }
     },
   };
 }
@@ -64,8 +50,8 @@ export default {
     // Include any dependencies in the build
     addon.dependencies(),
 
-    // Build SCSS into CSS asset in dist/styles
-    scssHandler(),
+    // Copy checked-in CSS into dist/styles (implicit-styles / exports["./styles"])
+    cssHandler(),
 
     // Converts .hbs files to JS
     addon.hbs(),
@@ -83,4 +69,4 @@ export default {
     // Remove leftover build artifacts when starting a new build.
     addon.clean(),
   ],
-}; 
+};

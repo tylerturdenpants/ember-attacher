@@ -1,0 +1,278 @@
+.ember-attacher-light-theme {
+  background-color: #f3f6f9;
+  border: 1px solid #ced2e2;
+  box-shadow: 0 0 16px -4px rgba(0, 20, 40, 0.2), 0 0 80px -10px rgba(0, 20, 40, 0.3);
+  color: #203d5d;
+}
+.ember-attacher-light-theme > div[x-arrow] {
+  background-color: #f3f6f9;
+  border-color: transparent transparent #ced2e2 #ced2e2;
+}
+.ember-attacher-light-theme > div[x-circle] {
+  background-color: #f3f6f9;
+}
+
+.ember-attacher {
+  width: max-content;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+  perspective: 800px;
+  transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+  z-index: 9999;
+}
+.ember-attacher[x-placement^=top] div[x-arrow] {
+  transform: rotate(-45deg);
+  bottom: -5px;
+}
+.ember-attacher[x-placement^=top] div[x-circle] {
+  transform: scale(0) translate(-50%, -50%);
+  opacity: 0;
+  transform-origin: 0% 50%;
+}
+.ember-attacher[x-placement^=top] > .ember-attacher-fill {
+  transform: translateY(0);
+  opacity: 0;
+}
+.ember-attacher[x-placement^=top] > .ember-attacher-none {
+  transform: translateY(-10px);
+  opacity: 1;
+}
+.ember-attacher[x-placement^=top] > .ember-attacher-fade {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+.ember-attacher[x-placement^=top] > .ember-attacher-shift {
+  transform: translateY(0);
+  opacity: 0;
+}
+.ember-attacher[x-placement^=top] > .ember-attacher-scale {
+  transform: translateY(0) scale(0);
+  opacity: 0;
+}
+.ember-attacher[x-placement^=top] > .ember-attacher-perspective {
+  transform: translateY(0) rotateX(90deg);
+  opacity: 0;
+  transform-origin: bottom;
+}
+.ember-attacher[x-placement^=top] > .ember-attacher-show > div[x-circle] {
+  opacity: 1;
+  transform: scale(1.2) translate(-50%, -50%);
+}
+.ember-attacher[x-placement^=top] > .ember-attacher-show.ember-attacher-fade, .ember-attacher[x-placement^=top] > .ember-attacher-show.ember-attacher-fill, .ember-attacher[x-placement^=top] > .ember-attacher-show.ember-attacher-none, .ember-attacher[x-placement^=top] > .ember-attacher-show.ember-attacher-shift {
+  transform: translateY(-10px);
+  opacity: 1;
+}
+.ember-attacher[x-placement^=top] > .ember-attacher-show.ember-attacher-scale {
+  transform: translateY(-10px) scale(1);
+  opacity: 1;
+}
+.ember-attacher[x-placement^=top] > .ember-attacher-show.ember-attacher-perspective {
+  transform: translateY(-10px) rotateX(0);
+  opacity: 1;
+}
+.ember-attacher[x-placement^=bottom] div[x-arrow] {
+  transform: rotate(135deg);
+  top: -5px;
+}
+.ember-attacher[x-placement^=bottom] div[x-circle] {
+  transform: scale(0) translate(-50%, -50%);
+  opacity: 0;
+  transform-origin: 0% -50%;
+}
+.ember-attacher[x-placement^=bottom] > .ember-attacher-fill {
+  transform: translateY(0);
+  opacity: 0;
+}
+.ember-attacher[x-placement^=bottom] > .ember-attacher-none {
+  transform: translateY(10px);
+  opacity: 1;
+}
+.ember-attacher[x-placement^=bottom] > .ember-attacher-fade {
+  transform: translateY(10px);
+  opacity: 0;
+}
+.ember-attacher[x-placement^=bottom] > .ember-attacher-shift {
+  transform: translateY(0);
+  opacity: 0;
+}
+.ember-attacher[x-placement^=bottom] > .ember-attacher-scale {
+  transform: translateY(0) scale(0);
+  opacity: 0;
+}
+.ember-attacher[x-placement^=bottom] > .ember-attacher-perspective {
+  transform: translateY(0) rotateX(-90deg);
+  opacity: 0;
+  transform-origin: top;
+}
+.ember-attacher[x-placement^=bottom] > .ember-attacher-show > div[x-circle] {
+  opacity: 1;
+  transform: scale(1.2) translate(-50%, -50%);
+}
+.ember-attacher[x-placement^=bottom] > .ember-attacher-show.ember-attacher-fade, .ember-attacher[x-placement^=bottom] > .ember-attacher-show.ember-attacher-fill, .ember-attacher[x-placement^=bottom] > .ember-attacher-show.ember-attacher-none, .ember-attacher[x-placement^=bottom] > .ember-attacher-show.ember-attacher-shift {
+  transform: translateY(10px);
+  opacity: 1;
+}
+.ember-attacher[x-placement^=bottom] > .ember-attacher-show.ember-attacher-scale {
+  transform: translateY(10px) scale(1);
+  opacity: 1;
+}
+.ember-attacher[x-placement^=bottom] > .ember-attacher-show.ember-attacher-perspective {
+  transform: translateY(10px) rotateX(0);
+  opacity: 1;
+}
+.ember-attacher[x-placement^=left] div[x-arrow] {
+  transform: rotate(225deg);
+  right: -5px;
+  top: 50%;
+}
+.ember-attacher[x-placement^=left] div[x-circle] {
+  transform: scale(0) translate(-50%, -33%);
+  opacity: 0;
+  transform-origin: 50% 5%;
+}
+.ember-attacher[x-placement^=left] > .ember-attacher-fill {
+  transform: translateX(0);
+  opacity: 0;
+}
+.ember-attacher[x-placement^=left] > .ember-attacher-none {
+  transform: translateX(-10px);
+  opacity: 1;
+}
+.ember-attacher[x-placement^=left] > .ember-attacher-fade {
+  transform: translateX(-10px);
+  opacity: 0;
+}
+.ember-attacher[x-placement^=left] > .ember-attacher-shift {
+  transform: translateX(0);
+  opacity: 0;
+}
+.ember-attacher[x-placement^=left] > .ember-attacher-scale {
+  transform: translateX(0) scale(0);
+  opacity: 0;
+}
+.ember-attacher[x-placement^=left] > .ember-attacher-perspective {
+  transform: translateX(0) rotateY(-90deg);
+  opacity: 0;
+  transform-origin: right;
+}
+.ember-attacher[x-placement^=left] > .ember-attacher-show > div[x-circle] {
+  opacity: 1;
+  transform: scale(1.2) translate(-50%, -50%);
+}
+.ember-attacher[x-placement^=left] > .ember-attacher-show.ember-attacher-fade, .ember-attacher[x-placement^=left] > .ember-attacher-show.ember-attacher-fill, .ember-attacher[x-placement^=left] > .ember-attacher-show.ember-attacher-none, .ember-attacher[x-placement^=left] > .ember-attacher-show.ember-attacher-shift {
+  transform: translateX(-10px);
+  opacity: 1;
+}
+.ember-attacher[x-placement^=left] > .ember-attacher-show.ember-attacher-scale {
+  transform: translateX(-10px) scale(1);
+  opacity: 1;
+}
+.ember-attacher[x-placement^=left] > .ember-attacher-show.ember-attacher-perspective {
+  transform: translateX(-10px) rotateY(0);
+  opacity: 1;
+}
+.ember-attacher[x-placement^=right] div[x-arrow] {
+  transform: rotate(45deg);
+  left: -5px;
+  top: 50%;
+}
+.ember-attacher[x-placement^=right] div[x-circle] {
+  transform: scale(0) translate(-50%, -33%);
+  opacity: 0;
+  transform-origin: -50% 5%;
+}
+.ember-attacher[x-placement^=right] > .ember-attacher-fill {
+  transform: translateX(0);
+  opacity: 0;
+}
+.ember-attacher[x-placement^=right] > .ember-attacher-none {
+  transform: translateX(10px);
+  opacity: 1;
+}
+.ember-attacher[x-placement^=right] > .ember-attacher-fade {
+  transform: translateX(10px);
+  opacity: 0;
+}
+.ember-attacher[x-placement^=right] > .ember-attacher-shift {
+  transform: translateX(0);
+  opacity: 0;
+}
+.ember-attacher[x-placement^=right] > .ember-attacher-scale {
+  transform: translateX(0) scale(0);
+  opacity: 0;
+}
+.ember-attacher[x-placement^=right] > .ember-attacher-perspective {
+  transform: translateX(0) rotateY(90deg);
+  opacity: 0;
+  transform-origin: left;
+}
+.ember-attacher[x-placement^=right] > .ember-attacher-show > div[x-circle] {
+  opacity: 1;
+  transform: scale(1.2) translate(-50%, -50%);
+}
+.ember-attacher[x-placement^=right] > .ember-attacher-show.ember-attacher-fade, .ember-attacher[x-placement^=right] > .ember-attacher-show.ember-attacher-fill, .ember-attacher[x-placement^=right] > .ember-attacher-show.ember-attacher-none, .ember-attacher[x-placement^=right] > .ember-attacher-show.ember-attacher-shift {
+  transform: translateX(10px);
+  opacity: 1;
+}
+.ember-attacher[x-placement^=right] > .ember-attacher-show.ember-attacher-scale {
+  transform: translateX(10px) scale(1);
+  opacity: 1;
+}
+.ember-attacher[x-placement^=right] > .ember-attacher-show.ember-attacher-perspective {
+  transform: translateX(10px) rotateY(0);
+  opacity: 1;
+}
+
+.ember-attacher-tooltip {
+  background-color: #333;
+  border-radius: 4px;
+  color: #fff;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  max-width: 400px;
+  padding: 0.5rem 1rem;
+  position: relative;
+  text-align: center;
+  will-change: transform;
+}
+.ember-attacher-tooltip.ember-attacher-fill {
+  background-color: transparent;
+  overflow: hidden;
+}
+.ember-attacher-tooltip > div[x-arrow] {
+  background-color: #333;
+  border: 1px solid;
+  border-color: transparent transparent #333 #333;
+  height: 10px;
+  position: absolute;
+  width: 10px;
+  z-index: -1;
+}
+.ember-attacher-tooltip > div[x-circle] {
+  background-color: #333;
+  border-radius: 50%;
+  left: 50%;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  transition: all ease-out;
+  width: 120%;
+  width: calc(100% + 2rem);
+  will-change: transform;
+  z-index: -1;
+}
+.ember-attacher-tooltip > div[x-circle]::before {
+  content: "";
+  padding-top: 100%;
+  padding-top: calc(75% + 2rem);
+  float: left;
+}
+
+@media (max-width: 450px) {
+  .ember-attacher-tooltip {
+    max-width: 96%;
+    max-width: calc(100% - 42px);
+  }
+}
