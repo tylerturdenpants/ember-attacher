@@ -1,6 +1,6 @@
 /*
   Placement tokens on [x-placement^=…] feed a single hide/show/arrow/circle
-  block. Tokens are internal; style via classes and x-placement, not --ea-*.
+  block. Tokens are internal; style via classes and x-placement, not --ember-attacher-* custom properties.
 */
 
 .ember-attacher {
@@ -14,53 +14,53 @@
   z-index: 9999;
 
   &[x-placement^=top] {
-    --ea-arrow-rotate: rotate(-45deg);
-    --ea-arrow-bottom: -5px;
-    --ea-circle-hide: scale(0) translate(-50%, -50%);
-    --ea-circle-origin: 0% 50%;
-    --ea-rest: translateY(0);
-    --ea-offset: translateY(-10px);
-    --ea-perspective-hide: rotateX(90deg);
-    --ea-perspective-show: rotateX(0);
-    --ea-perspective-origin: bottom;
+    --ember-attacher-arrow-rotate: rotate(-45deg);
+    --ember-attacher-arrow-bottom: -5px;
+    --ember-attacher-circle-hide: scale(0) translate(-50%, -50%);
+    --ember-attacher-circle-origin: 0% 50%;
+    --ember-attacher-rest: translateY(0);
+    --ember-attacher-offset: translateY(-10px);
+    --ember-attacher-perspective-hide: rotateX(90deg);
+    --ember-attacher-perspective-show: rotateX(0);
+    --ember-attacher-perspective-origin: bottom;
   }
 
   &[x-placement^=bottom] {
-    --ea-arrow-rotate: rotate(135deg);
-    --ea-arrow-top: -5px;
-    --ea-circle-hide: scale(0) translate(-50%, -50%);
-    --ea-circle-origin: 0% -50%;
-    --ea-rest: translateY(0);
-    --ea-offset: translateY(10px);
-    --ea-perspective-hide: rotateX(-90deg);
-    --ea-perspective-show: rotateX(0);
-    --ea-perspective-origin: top;
+    --ember-attacher-arrow-rotate: rotate(135deg);
+    --ember-attacher-arrow-top: -5px;
+    --ember-attacher-circle-hide: scale(0) translate(-50%, -50%);
+    --ember-attacher-circle-origin: 0% -50%;
+    --ember-attacher-rest: translateY(0);
+    --ember-attacher-offset: translateY(10px);
+    --ember-attacher-perspective-hide: rotateX(-90deg);
+    --ember-attacher-perspective-show: rotateX(0);
+    --ember-attacher-perspective-origin: top;
   }
 
   &[x-placement^=left] {
-    --ea-arrow-rotate: rotate(225deg);
-    --ea-arrow-right: -5px;
-    --ea-arrow-top: 50%;
-    --ea-circle-hide: scale(0) translate(-50%, -33%);
-    --ea-circle-origin: 50% 5%;
-    --ea-rest: translateX(0);
-    --ea-offset: translateX(-10px);
-    --ea-perspective-hide: rotateY(-90deg);
-    --ea-perspective-show: rotateY(0);
-    --ea-perspective-origin: right;
+    --ember-attacher-arrow-rotate: rotate(225deg);
+    --ember-attacher-arrow-right: -5px;
+    --ember-attacher-arrow-top: 50%;
+    --ember-attacher-circle-hide: scale(0) translate(-50%, -33%);
+    --ember-attacher-circle-origin: 50% 5%;
+    --ember-attacher-rest: translateX(0);
+    --ember-attacher-offset: translateX(-10px);
+    --ember-attacher-perspective-hide: rotateY(-90deg);
+    --ember-attacher-perspective-show: rotateY(0);
+    --ember-attacher-perspective-origin: right;
   }
 
   &[x-placement^=right] {
-    --ea-arrow-rotate: rotate(45deg);
-    --ea-arrow-left: -5px;
-    --ea-arrow-top: 50%;
-    --ea-circle-hide: scale(0) translate(-50%, -33%);
-    --ea-circle-origin: -50% 5%;
-    --ea-rest: translateX(0);
-    --ea-offset: translateX(10px);
-    --ea-perspective-hide: rotateY(90deg);
-    --ea-perspective-show: rotateY(0);
-    --ea-perspective-origin: left;
+    --ember-attacher-arrow-rotate: rotate(45deg);
+    --ember-attacher-arrow-left: -5px;
+    --ember-attacher-arrow-top: 50%;
+    --ember-attacher-circle-hide: scale(0) translate(-50%, -33%);
+    --ember-attacher-circle-origin: -50% 5%;
+    --ember-attacher-rest: translateX(0);
+    --ember-attacher-offset: translateX(10px);
+    --ember-attacher-perspective-hide: rotateY(90deg);
+    --ember-attacher-perspective-show: rotateY(0);
+    --ember-attacher-perspective-origin: left;
   }
 
   &[x-placement^=top],
@@ -68,44 +68,44 @@
   &[x-placement^=left],
   &[x-placement^=right] {
     div[x-arrow] {
-      transform: var(--ea-arrow-rotate);
-      top: var(--ea-arrow-top, auto);
-      right: var(--ea-arrow-right, auto);
-      bottom: var(--ea-arrow-bottom, auto);
-      left: var(--ea-arrow-left, auto);
+      transform: var(--ember-attacher-arrow-rotate);
+      top: var(--ember-attacher-arrow-top, auto);
+      right: var(--ember-attacher-arrow-right, auto);
+      bottom: var(--ember-attacher-arrow-bottom, auto);
+      left: var(--ember-attacher-arrow-left, auto);
     }
 
     div[x-circle] {
-      transform: var(--ea-circle-hide);
+      transform: var(--ember-attacher-circle-hide);
       opacity: 0;
-      transform-origin: var(--ea-circle-origin);
+      transform-origin: var(--ember-attacher-circle-origin);
     }
 
     > .ember-attacher-fill,
     > .ember-attacher-shift {
-      transform: var(--ea-rest);
+      transform: var(--ember-attacher-rest);
       opacity: 0;
     }
 
     > .ember-attacher-none {
-      transform: var(--ea-offset);
+      transform: var(--ember-attacher-offset);
       opacity: 1;
     }
 
     > .ember-attacher-fade {
-      transform: var(--ea-offset);
+      transform: var(--ember-attacher-offset);
       opacity: 0;
     }
 
     > .ember-attacher-scale {
-      transform: var(--ea-rest) scale(0);
+      transform: var(--ember-attacher-rest) scale(0);
       opacity: 0;
     }
 
     > .ember-attacher-perspective {
-      transform: var(--ea-rest) var(--ea-perspective-hide);
+      transform: var(--ember-attacher-rest) var(--ember-attacher-perspective-hide);
       opacity: 0;
-      transform-origin: var(--ea-perspective-origin);
+      transform-origin: var(--ember-attacher-perspective-origin);
     }
 
     > .ember-attacher-show {
@@ -118,17 +118,17 @@
       &.ember-attacher-fill,
       &.ember-attacher-none,
       &.ember-attacher-shift {
-        transform: var(--ea-offset);
+        transform: var(--ember-attacher-offset);
         opacity: 1;
       }
 
       &.ember-attacher-scale {
-        transform: var(--ea-offset) scale(1);
+        transform: var(--ember-attacher-offset) scale(1);
         opacity: 1;
       }
 
       &.ember-attacher-perspective {
-        transform: var(--ea-offset) var(--ea-perspective-show);
+        transform: var(--ember-attacher-offset) var(--ember-attacher-perspective-show);
         opacity: 1;
       }
     }
