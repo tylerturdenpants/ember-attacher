@@ -12,7 +12,8 @@
     "prepare": "pnpm run build",
     "prepublishOnly": "pnpm run build",
     "start": "rollup --config rollup.config.mjs --watch",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "release": "release-it"
   },
   "exports": {
     ".": "./dist/index.js",
