@@ -45,5 +45,33 @@ export default class StylesGallery extends Component {
       text: 'Fill animation',
       arrow: false,
     },
+    {
+      label: 'shift',
+      placement: 'top',
+      animation: 'shift',
+      text: 'Shift',
+      arrow: true,
+    },
+    {
+      label: 'scale',
+      placement: 'bottom',
+      animation: 'scale',
+      text: 'Scale',
+      arrow: true,
+    },
+    {
+      label: 'none',
+      placement: 'left',
+      animation: 'none',
+      text: 'None',
+      arrow: true,
+    },
+    {
+      label: 'perspective',
+      placement: 'right',
+      animation: 'perspective',
+      text: 'Perspective',
+      arrow: true,
+    },
   ];
 }
