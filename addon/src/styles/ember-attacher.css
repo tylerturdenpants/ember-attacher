@@ -1,9 +1,14 @@
 /*
-  Placement tokens on [x-placement^=…] feed a single hide/show/arrow/circle
-  block. Tokens are internal; style via classes and x-placement, not --ember-attacher-* custom properties.
+  Look tokens on .ember-attacher-tooltip and opt-in .ember-attacher-popover restyle
+  body, .ember-attacher-arrow, and the fill disc together. Defaults match today's hex.
+
+  --ember-attacher-distance (default 10px) is the inner animation gap. Set it on
+  .ember-attacher or an ancestor to change distance without Floating UI offset()
+  middleware. --ember-attacher-offset / --ember-attacher-arrow-rotate stay internal.
 */
 
 .ember-attacher {
+  --ember-attacher-distance: 10px;
   width: max-content;
   position: absolute;
   top: 0;
@@ -19,7 +24,7 @@
     --ember-attacher-circle-hide: scale(0) translate(-50%, -50%);
     --ember-attacher-circle-origin: 0% 50%;
     --ember-attacher-rest: translateY(0);
-    --ember-attacher-offset: translateY(-10px);
+    --ember-attacher-offset: translateY(calc(-1 * var(--ember-attacher-distance)));
     --ember-attacher-perspective-hide: rotateX(90deg);
     --ember-attacher-perspective-show: rotateX(0);
     --ember-attacher-perspective-origin: bottom;
@@ -31,7 +36,7 @@
     --ember-attacher-circle-hide: scale(0) translate(-50%, -50%);
     --ember-attacher-circle-origin: 0% -50%;
     --ember-attacher-rest: translateY(0);
-    --ember-attacher-offset: translateY(10px);
+    --ember-attacher-offset: translateY(var(--ember-attacher-distance));
     --ember-attacher-perspective-hide: rotateX(-90deg);
     --ember-attacher-perspective-show: rotateX(0);
     --ember-attacher-perspective-origin: top;
@@ -44,7 +49,7 @@
     --ember-attacher-circle-hide: scale(0) translate(-50%, -33%);
     --ember-attacher-circle-origin: 50% 5%;
     --ember-attacher-rest: translateX(0);
-    --ember-attacher-offset: translateX(-10px);
+    --ember-attacher-offset: translateX(calc(-1 * var(--ember-attacher-distance)));
     --ember-attacher-perspective-hide: rotateY(-90deg);
     --ember-attacher-perspective-show: rotateY(0);
     --ember-attacher-perspective-origin: right;
@@ -57,7 +62,7 @@
     --ember-attacher-circle-hide: scale(0) translate(-50%, -33%);
     --ember-attacher-circle-origin: -50% 5%;
     --ember-attacher-rest: translateX(0);
-    --ember-attacher-offset: translateX(10px);
+    --ember-attacher-offset: translateX(var(--ember-attacher-distance));
     --ember-attacher-perspective-hide: rotateY(90deg);
     --ember-attacher-perspective-show: rotateY(0);
     --ember-attacher-perspective-origin: left;
@@ -135,14 +140,26 @@
   }
 }
 
-.ember-attacher-tooltip {
-  background-color: #333;
-  border-radius: 4px;
-  color: #fff;
+.ember-attacher-tooltip,
+.ember-attacher-popover {
+  --ember-attacher-fill: #333;
+  --ember-attacher-text: #fff;
+  --ember-attacher-radius: 4px;
+  --ember-attacher-border: var(--ember-attacher-fill);
+  --ember-attacher-padding: 0.5rem 1rem;
+  --ember-attacher-shadow: none;
+  --ember-attacher-max-width: 400px;
+  background-color: var(--ember-attacher-fill);
+  border-color: var(--ember-attacher-border);
+  border-radius: var(--ember-attacher-radius);
+  border-style: solid;
+  border-width: 0;
+  box-shadow: var(--ember-attacher-shadow);
+  color: var(--ember-attacher-text);
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
-  max-width: 400px;
-  padding: 0.5rem 1rem;
+  max-width: var(--ember-attacher-max-width);
+  padding: var(--ember-attacher-padding);
   position: relative;
   text-align: center;
   will-change: transform;
@@ -153,9 +170,9 @@
   }
 
   > .ember-attacher-arrow {
-    background-color: #333;
+    background-color: var(--ember-attacher-fill);
     border: 1px solid;
-    border-color: transparent transparent #333 #333;
+    border-color: transparent transparent var(--ember-attacher-border) var(--ember-attacher-border);
     height: 10px;
     position: absolute;
     width: 10px;
@@ -163,7 +180,7 @@
   }
 
   > div[x-circle] {
-    background-color: #333;
+    background-color: var(--ember-attacher-fill);
     border-radius: 50%;
     left: 50%;
     opacity: 0;
@@ -185,25 +202,18 @@
 }
 
 @media (max-width: 450px) {
-  .ember-attacher-tooltip {
+  .ember-attacher-tooltip,
+  .ember-attacher-popover {
     max-width: 96%;
     max-width: calc(100% - 42px);
   }
 }
 
-/* After tooltip styles so both classes on one element pick up the theme. */
+/* After look styles so both classes on one element pick up the theme. */
 .ember-attacher-light-theme {
-  background-color: #f3f6f9;
-  border: 1px solid #ced2e2;
-  box-shadow: 0 0 16px -4px rgba(0, 20, 40, 0.2), 0 0 80px -10px rgba(0, 20, 40, 0.3);
-  color: #203d5d;
-
-  > .ember-attacher-arrow {
-    background-color: #f3f6f9;
-    border-color: transparent transparent #ced2e2 #ced2e2;
-  }
-
-  > div[x-circle] {
-    background-color: #f3f6f9;
-  }
+  --ember-attacher-fill: #f3f6f9;
+  --ember-attacher-text: #203d5d;
+  --ember-attacher-border: #ced2e2;
+  --ember-attacher-shadow: 0 0 16px -4px rgba(0, 20, 40, 0.2), 0 0 80px -10px rgba(0, 20, 40, 0.3);
+  border-width: 1px;
 }
