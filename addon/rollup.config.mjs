@@ -1,6 +1,7 @@
 import { Addon } from '@embroider/addon-dev/rollup';
 import babel from '@rollup/plugin-babel';
-import * as sass from 'sass';
+import { transform } from 'lightningcss';
+import fs from 'fs';
 import path from 'path';
 
 const addon = new Addon({
@@ -8,34 +9,36 @@ const addon = new Addon({
   destDir: 'dist',
 });
 
-const scssEntry = 'src/styles/ember-attacher.scss';
+const cssFileName = 'styles/ember-attacher.css';
+const cssEntry = `src/${cssFileName}`;
 
-function scssHandler() {
+function cssHandler() {
   return {
-    name: 'scss-handler',
+    name: 'css-handler',
     buildStart() {
-      this.addWatchFile(path.resolve(scssEntry));
+      this.addWatchFile(path.resolve(cssEntry));
     },
     generateBundle() {
-      const result = sass.compile(path.resolve(scssEntry), {
-        style: 'expanded',
+      const source = fs.readFileSync(path.resolve(cssEntry));
+      // Flatten native nesting so implicit-styles stay compatible with older
+      // consumer browserslists (the old sass.compile() output was always flat).
+      const { code } = transform({
+        filename: cssFileName,
+        code: source,
+        minify: false,
         sourceMap: false,
-        sourceMapIncludeSources: false,
+        targets: {
+          chrome: 100 << 16,
+          firefox: 100 << 16,
+          safari: 15 << 16,
+        },
       });
 
       this.emitFile({
         type: 'asset',
-        fileName: 'styles/ember-attacher.css',
-        source: result.css,
+        fileName: cssFileName,
+        source: code.toString(),
       });
-
-      if (result.sourceMap) {
-        this.emitFile({
-          type: 'asset',
-          fileName: 'styles/ember-attacher.css.map',
-          source: JSON.stringify(result.sourceMap),
-        });
-      }
     },
   };
 }
@@ -64,8 +67,8 @@ export default {
     // Include any dependencies in the build
     addon.dependencies(),
 
-    // Build SCSS into CSS asset in dist/styles
-    scssHandler(),
+    // Flatten nested source CSS into dist/styles (implicit-styles / exports["./styles"])
+    cssHandler(),
 
     // Converts .hbs files to JS
     addon.hbs(),
@@ -83,4 +86,4 @@ export default {
     // Remove leftover build artifacts when starting a new build.
     addon.clean(),
   ],
-}; 
+};

@@ -1,0 +1,40 @@
+<div class="styles-gallery section">
+  <div data-element-centered>
+    <h2 class="styles-gallery__title">Shown tooltips — placement gallery</h2>
+    <p class="styles-gallery__lead">
+      Always-open tooltips positioned by Floating UI (same as the live demo).
+      <LinkTo @route="index">Back to interactive demo</LinkTo>
+    </p>
+  </div>
+
+  <div class="styles-gallery__grid">
+    {{#each this.examples as |example|}}
+      <div
+        class="styles-gallery__cell{{if (eq example.placement 'left') ' styles-gallery__cell--left'}}{{if (eq example.placement 'right') ' styles-gallery__cell--right'}}"
+        data-test-styles-gallery-cell={{example.label}}
+      >
+        <button type="button" class="styles-gallery__target hover-me">
+          {{example.label}}
+
+          <AttachTooltip
+            @animation={{example.animation}}
+            @arrow={{example.arrow}}
+            @class={{example.tooltipClass}}
+            @hideDelay={{0}}
+            @hideDuration={{0}}
+            @hideOn={{null}}
+            @isShown={{true}}
+            @overflowPadding={{false}}
+            @placement={{example.placement}}
+            @renderInPlace={{true}}
+            @showDelay={{0}}
+            @showDuration={{0}}
+            @showOn={{null}}
+          >
+            {{example.text}}
+          </AttachTooltip>
+        </button>
+      </div>
+    {{/each}}
+  </div>
+</div>
