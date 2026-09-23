@@ -24,7 +24,7 @@ If you only added these for ember-attacher, you can drop them from the app:
 
 Do not `@import` addon `.scss` / mixins. There is no published Sass API.
 
-Default tooltip classes (`ember-attacher-tooltip`, `.ember-attacher-light-theme`) still apply. Popovers still have **no** packaged look — style `@class` as before. Matching the arrow to the body is still a class on the floating element (same as 3.x).
+Default tooltip classes (`ember-attacher-tooltip`, `.ember-attacher-light-theme`) still apply. `<AttachPopover>` still has **no** default look — do not auto-apply tooltip styles. Opt in with `@class="ember-attacher-popover"` (same tokens as the tooltip). One override of the public CSS variables restyles body, `.ember-attacher-arrow`, and the fill disc. Defaults stay the 4.1.0 hex. See the README Styles section.
 
 Apps that opted out of implicit CSS can:
 
