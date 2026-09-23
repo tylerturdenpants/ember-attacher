@@ -164,11 +164,7 @@ settings:
 
 importers:
 
-  .:
-    devDependencies:
-      lightningcss:
-        specifier: ^1.33.0
-        version: 1.33.0
+  .: {}
 
   addon:
     dependencies:
