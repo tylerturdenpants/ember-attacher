@@ -251,7 +251,7 @@ The full list of editable defaults can be seen [here](https://github.com/kybisho
 
 `ember-attacher` provides CSS for the default tooltip class, `ember-attacher-tooltip` (`ember-attacher/styles`; also injected via `implicit-styles`). `<AttachPopover>` has no packaged look unless you opt in with `@class="ember-attacher-popover"` (same tokens as the tooltip; not applied automatically).
 
-Public look tokens on `.ember-attacher-tooltip` / `.ember-attacher-popover` (defaults are today's hex). One override restyles the body, `.ember-attacher-arrow`, and the fill disc:
+Default token values use `:where()` so an app class can override them even if addon `implicit-styles` load last.
 
 ```css
 .ember-attacher-tooltip,
