@@ -77,6 +77,30 @@ module('Integration | CSS custom properties', function(hooks) {
     assert.strictEqual(getComputedStyle(disc).backgroundColor, 'rgb(10, 20, 30)');
   });
 
+  test('dummy popover token overrides win over packaged defaults', async function(assert) {
+    await render(hbs`
+      <div>
+        <AttachPopover
+          @id="dummy-popover"
+          @animation="fill"
+          @isShown={{true}}
+          @class="ember-attacher-popover custom-popover-css"
+        >
+          dummy look
+        </AttachPopover>
+      </div>
+    `);
+
+    const inner = find('#dummy-popover > .ember-attacher-popover');
+    const disc = inner.querySelector('div[x-circle]');
+
+    assert.strictEqual(cssVar(inner, '--ember-attacher-fill'), '#fff');
+    assert.strictEqual(cssVar(inner, '--ember-attacher-text'), '#333');
+    assert.strictEqual(getComputedStyle(inner).backgroundColor, 'rgba(0, 0, 0, 0)', 'fill animation keeps the body transparent');
+    assert.strictEqual(getComputedStyle(disc).backgroundColor, 'rgb(255, 255, 255)');
+    assert.strictEqual(getComputedStyle(inner).color, 'rgb(51, 51, 51)');
+  });
+
   test('AttachPopover does not get tooltip look unless ember-attacher-popover is opted in', async function(assert) {
     await render(hbs`
       <div>

@@ -140,8 +140,9 @@
   }
 }
 
-.ember-attacher-tooltip,
-.ember-attacher-popover {
+/* :where() keeps default tokens at zero specificity so an app class can override
+   them regardless of whether implicit-styles load before or after app CSS. */
+:where(.ember-attacher-tooltip, .ember-attacher-popover) {
   --ember-attacher-fill: #333;
   --ember-attacher-text: #fff;
   --ember-attacher-radius: 4px;
@@ -149,6 +150,10 @@
   --ember-attacher-padding: 0.5rem 1rem;
   --ember-attacher-shadow: none;
   --ember-attacher-max-width: 400px;
+}
+
+.ember-attacher-tooltip,
+.ember-attacher-popover {
   background-color: var(--ember-attacher-fill);
   border-color: var(--ember-attacher-border);
   border-radius: var(--ember-attacher-radius);
