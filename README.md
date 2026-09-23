@@ -57,7 +57,8 @@ available options.
 ember install ember-attacher
 ```
 
-If you're upgrading from 1.x to 2.x [see the upgrade guide](./docs/upgrade-guide-2.0.md).
+If you're upgrading from **3.x to 4.x**, see the [4.1 upgrade guide](./addon/docs/upgrade-guide-4.1.md).
+If you're upgrading from 1.x to 2.x, see the [2.0 upgrade guide](./addon/docs/upgrade-guide-2.0.md).
 
 
 ## Components
@@ -248,9 +249,9 @@ The full list of editable defaults can be seen [here](https://github.com/kybisho
 
 ## Styles
 
-`ember-attacher` provides [styles](https://github.com/kybishop/ember-attacher/blob/master/addon/styles/addon.scss#L85) for the default tooltip class, `ember-attacher-tooltip`, but no styles are included for `{{attach-popover}}`.
+`ember-attacher` provides CSS for the default tooltip class, `ember-attacher-tooltip` (`ember-attacher/styles`; also injected via `implicit-styles`). No packaged chrome is included for `{{attach-popover}}`.
 
-Example styling for a popover [can be found in the dummy app](https://github.com/kybishop/ember-attacher/blob/master/tests/dummy/app/styles/app.scss#L132). Note how the arrow must also be styled to match the popover (background color, size, etc.)
+Example popover styling lives in the dummy app (`test-app/app/styles`). The arrow still needs the same background as the body unless you share a class. See the [4.1 upgrade guide](./addon/docs/upgrade-guide-4.1.md).
 
 ## Testing
 

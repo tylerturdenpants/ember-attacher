@@ -24,3 +24,7 @@
 * Visit the dummy application at [http://localhost:4200](http://localhost:4200).
 
 For more information on using ember-cli, visit [https://cli.emberjs.com/release/](https://cli.emberjs.com/release/).
+
+## Releasing
+
+Published package is `addon/` (`pnpm release` from that directory). Ship **4.1.0** to npm `latest`; leave **4.0.0** on `beta`. Do not `npm dist-tag add ember-attacher@4.0.0 latest`.
