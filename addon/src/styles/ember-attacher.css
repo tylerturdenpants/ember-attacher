@@ -191,7 +191,7 @@
   }
 }
 
-/* After tooltip chrome so both classes on one element pick up the theme. */
+/* After tooltip styles so both classes on one element pick up the theme. */
 .ember-attacher-light-theme {
   background-color: #f3f6f9;
   border: 1px solid #ced2e2;

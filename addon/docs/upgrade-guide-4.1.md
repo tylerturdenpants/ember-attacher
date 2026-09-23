@@ -7,7 +7,7 @@
 - Packaging is a [v2 Ember addon](https://rfcs.emberjs.com/id/0507-embroider-v2-package-format/) (Embroider-friendly). Your templates stay the same.
 - Nested `<AttachTooltip>` / `<AttachPopover>`, existing args, events, CSS class names, and `environment.js` defaults are unchanged.
 - The addon no longer depends on `ember-cli-sass`, `ember-maybe-in-element`, or `@ember/render-modifiers`.
-- Tooltip chrome ships as CSS, not Sass (`ember-attacher/styles`, also applied via `implicit-styles`).
+- Default tooltip styles ship as CSS, not Sass (`ember-attacher/styles`, also applied via `implicit-styles`).
 
 ## Install
 
@@ -24,7 +24,7 @@ If you only added these for ember-attacher, you can drop them from the app:
 
 Do not `@import` addon `.scss` / mixins. There is no published Sass API.
 
-Default tooltip classes (`ember-attacher-tooltip`, `.ember-attacher-light-theme`) still apply. Popovers still have **no** packaged chrome — style `@class` as before. Matching the arrow to the body is still a class on the floating element (same as 3.x).
+Default tooltip classes (`ember-attacher-tooltip`, `.ember-attacher-light-theme`) still apply. Popovers still have **no** packaged look — style `@class` as before. Matching the arrow to the body is still a class on the floating element (same as 3.x).
 
 Apps that opted out of implicit CSS can:
 

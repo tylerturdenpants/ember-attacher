@@ -249,7 +249,7 @@ The full list of editable defaults can be seen [here](https://github.com/kybisho
 
 ## Styles
 
-`ember-attacher` provides CSS for the default tooltip class, `ember-attacher-tooltip` (`ember-attacher/styles`; also injected via `implicit-styles`). No packaged chrome is included for `{{attach-popover}}`.
+`ember-attacher` provides CSS for the default tooltip class, `ember-attacher-tooltip` (`ember-attacher/styles`; also injected via `implicit-styles`). No packaged look is included for `{{attach-popover}}`.
 
 Example popover styling lives in the dummy app (`test-app/app/styles`). The arrow still needs the same background as the body unless you share a class. See the [4.1 upgrade guide](./addon/docs/upgrade-guide-4.1.md).
 
