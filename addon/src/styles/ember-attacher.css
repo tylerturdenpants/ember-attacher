@@ -67,7 +67,7 @@
   &[x-placement^=bottom],
   &[x-placement^=left],
   &[x-placement^=right] {
-    div[x-arrow] {
+    .ember-attacher-arrow {
       transform: var(--ember-attacher-arrow-rotate);
       top: var(--ember-attacher-arrow-top, auto);
       right: var(--ember-attacher-arrow-right, auto);
@@ -152,7 +152,7 @@
     overflow: hidden;
   }
 
-  > div[x-arrow] {
+  > .ember-attacher-arrow {
     background-color: #333;
     border: 1px solid;
     border-color: transparent transparent #333 #333;
@@ -198,7 +198,7 @@
   box-shadow: 0 0 16px -4px rgba(0, 20, 40, 0.2), 0 0 80px -10px rgba(0, 20, 40, 0.3);
   color: #203d5d;
 
-  > div[x-arrow] {
+  > .ember-attacher-arrow {
     background-color: #f3f6f9;
     border-color: transparent transparent #ced2e2 #ced2e2;
   }

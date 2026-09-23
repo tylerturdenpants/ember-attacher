@@ -11,7 +11,7 @@
       <div class={{this._class}} style={{this._style}}>
         {{yield (hash hide=this.hide)}}
         {{#if this.arrow}}
-          <div x-arrow {{this.insertArrow}}></div>
+          <div class="ember-attacher-arrow" x-arrow {{this.insertArrow}}></div>
         {{/if}}
         {{#if this.isFillAnimation}}
           <div x-circle style="{{this._circleTransitionDuration}}"></div>
