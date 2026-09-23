@@ -5,6 +5,11 @@
       <div data-element-vbox class="col-sm-16 col-lm-14 col-xs-24 align-center">
         <div data-element-centered class="title">ember-attacher</div>
         <div data-element-centered>Tooltips & popovers made easy</div>
+        <div data-element-centered class="styles-gallery__nav">
+          <LinkTo @route="index">Demo</LinkTo>
+          &nbsp;·&nbsp;
+          <LinkTo @route="gallery">CSS gallery</LinkTo>
+        </div>
       </div>
       <div data-element-centered class="justify-between col-sm-4 visible-lm col-lm-5 hidden-xs">
         <div data-element-hbox class="justify-end align-center flexi-fit">
@@ -25,8 +30,8 @@
         <a href="https://github.com/kybishop/ember-attacher" target="_blank" rel="noopener" class="github-link white">{{svg-jar "github"}}</a>
       </div>
     </div>
-    <div data-element-vbox  class="content">
-      <AttachmentExample />
+    <div data-element-vbox class="content">
+      {{outlet}}
     </div>
   </div>
 </div>
