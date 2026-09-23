@@ -1,5 +1,6 @@
 import { Addon } from '@embroider/addon-dev/rollup';
 import babel from '@rollup/plugin-babel';
+import { transform } from 'lightningcss';
 import fs from 'fs';
 import path from 'path';
 
@@ -8,7 +9,8 @@ const addon = new Addon({
   destDir: 'dist',
 });
 
-const cssEntry = 'src/styles/ember-attacher.css';
+const cssFileName = 'styles/ember-attacher.css';
+const cssEntry = `src/${cssFileName}`;
 
 function cssHandler() {
   return {
@@ -17,10 +19,25 @@ function cssHandler() {
       this.addWatchFile(path.resolve(cssEntry));
     },
     generateBundle() {
+      const source = fs.readFileSync(path.resolve(cssEntry));
+      // Flatten native nesting so implicit-styles stay compatible with older
+      // consumer browserslists (the old sass.compile() output was always flat).
+      const { code } = transform({
+        filename: cssFileName,
+        code: source,
+        minify: false,
+        sourceMap: false,
+        targets: {
+          chrome: 100 << 16,
+          firefox: 100 << 16,
+          safari: 15 << 16,
+        },
+      });
+
       this.emitFile({
         type: 'asset',
-        fileName: 'styles/ember-attacher.css',
-        source: fs.readFileSync(path.resolve(cssEntry), 'utf8'),
+        fileName: cssFileName,
+        source: code.toString(),
       });
     },
   };
@@ -50,7 +67,7 @@ export default {
     // Include any dependencies in the build
     addon.dependencies(),
 
-    // Copy checked-in CSS into dist/styles (implicit-styles / exports["./styles"])
+    // Flatten nested source CSS into dist/styles (implicit-styles / exports["./styles"])
     cssHandler(),
 
     // Converts .hbs files to JS
