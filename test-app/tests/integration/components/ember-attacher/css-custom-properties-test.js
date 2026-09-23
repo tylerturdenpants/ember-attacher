@@ -25,7 +25,10 @@ module('Integration | CSS custom properties', function(hooks) {
     assert.strictEqual(cssVar(inner, '--ember-attacher-fill'), '#333');
     assert.strictEqual(cssVar(inner, '--ember-attacher-text'), '#fff');
     assert.strictEqual(cssVar(inner, '--ember-attacher-radius'), '4px');
-    assert.strictEqual(cssVar(inner, '--ember-attacher-padding'), '0.5rem 1rem');
+    assert.strictEqual(
+      cssVar(inner, '--ember-attacher-padding').replace('0.5rem', '.5rem'),
+      '.5rem 1rem'
+    );
     assert.strictEqual(cssVar(inner, '--ember-attacher-shadow'), 'none');
     assert.strictEqual(cssVar(inner, '--ember-attacher-max-width'), '400px');
     assert.strictEqual(getComputedStyle(inner).backgroundColor, 'rgb(51, 51, 51)');
@@ -37,27 +40,40 @@ module('Integration | CSS custom properties', function(hooks) {
 
   test('one fill override restyles body, arrow, and fill disc', async function(assert) {
     await render(hbs`
+      <style>
+        .token-fill-override {
+          --ember-attacher-fill: rgb(10, 20, 30);
+        }
+      </style>
       <div>
         <AttachTooltip
-          @id="override-tooltip"
-          @animation="fill"
+          @id="override-body"
+          @animation="none"
           @arrow={{true}}
           @isShown={{true}}
           @class="token-fill-override"
         >
-          tooltip text
+          body and arrow
+        </AttachTooltip>
+        <AttachTooltip
+          @id="override-disc"
+          @animation="fill"
+          @isShown={{true}}
+          @class="token-fill-override"
+        >
+          fill disc
         </AttachTooltip>
       </div>
     `);
 
-    const inner = find('#override-tooltip > .ember-attacher-tooltip');
-    inner.style.setProperty('--ember-attacher-fill', 'rgb(10, 20, 30)');
+    const bodyInner = find('#override-body > .ember-attacher-tooltip');
+    const arrow = bodyInner.querySelector('.ember-attacher-arrow');
+    const discInner = find('#override-disc > .ember-attacher-tooltip');
+    const disc = discInner.querySelector('div[x-circle]');
 
-    const arrow = inner.querySelector('.ember-attacher-arrow');
-    const disc = inner.querySelector('div[x-circle]');
-
-    assert.strictEqual(getComputedStyle(inner).backgroundColor, 'rgba(0, 0, 0, 0)', 'fill animation keeps the body transparent');
+    assert.strictEqual(getComputedStyle(bodyInner).backgroundColor, 'rgb(10, 20, 30)');
     assert.strictEqual(getComputedStyle(arrow).backgroundColor, 'rgb(10, 20, 30)');
+    assert.strictEqual(getComputedStyle(discInner).backgroundColor, 'rgba(0, 0, 0, 0)', 'fill animation keeps the body transparent');
     assert.strictEqual(getComputedStyle(disc).backgroundColor, 'rgb(10, 20, 30)');
   });
 
