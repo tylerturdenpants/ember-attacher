@@ -1,18 +1,40 @@
 version: 2
 updates:
-- package-ecosystem: npm
-  directory: "/addon"
-  schedule:
-    interval: daily
-    time: "10:00"
-  open-pull-requests-limit: 10
-  versioning-strategy: increase
-  allow:
-  - dependency-name: "@ember/test-waiters"
-  - dependency-name: "@embroider/addon-shim"
-  - dependency-name: "@floating-ui/dom"
-  ignore:
-  - dependency-name: "*"
-    update-types: ["version-update:semver-major"]
-  commit-message:
-    prefix: "[chore]"
+  # pnpm workspace: single lockfile at repo root (pnpm-workspace.yaml).
+  # Do not list /addon or /test-app — Dependabot must run from /.
+  # https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "10:00"
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      ember-attacher-production:
+        dependency-type: production
+        patterns:
+          - "@ember/*"
+          - "@embroider/*"
+          - "@floating-ui/*"
+          - "ember-modifier"
+      test-app-and-tooling:
+        dependency-type: development
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "[chore]"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "10:00"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "[chore]"
