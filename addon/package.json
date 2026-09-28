@@ -83,6 +83,6 @@
     "lightningcss": "^1.33.0",
     "release-it": "^21.1.0",
     "release-it-pnpm": "^4.6.6",
-    "rollup": "^4.63.4"
+    "rollup": "^4.63.5"
   }
 }
