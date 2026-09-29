@@ -12,6 +12,7 @@ import { buildWaiter } from '@ember/test-waiters';
 import { tracked } from '@glimmer/tracking';
 import { modifier } from 'ember-modifier';
 import DEFAULTS from '../defaults';
+import { resolveAttachmentTarget } from '../lib/target-resolution.js';
 import MaybeInElement from './basic-attacher/maybe-in-element.gjs';
 
 const animationTestWaiter = buildWaiter('basic-attacher');
@@ -451,7 +452,10 @@ export default class BasicAttacher extends Component {
 
   _initializeAttacher() {
     this._removeEventListeners();
-    const target = this.args.explicitTarget || this.parentElement;
+    const target = resolveAttachmentTarget({
+      explicitTarget: this.args.explicitTarget,
+      parentElement: this.parentElement,
+    });
     this._listenerTarget = target;
     this._currentTarget = target;
     this._addListenersForShowEvents();
