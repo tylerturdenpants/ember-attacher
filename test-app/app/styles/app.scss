@@ -138,46 +138,15 @@ p {
   transform: translate(0);
 }
 
+/* Opt-in .ember-attacher-popover look; one override restyles body, arrow, and fill disc. */
 .custom-popover-css {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  color: #333;
-  padding: .5rem 1rem;
-  position: relative;
-
-  &.ember-attacher-fill {
-    background-color: transparent;
-    overflow: hidden;
-  }
-
-  > div[x-circle] {
-    background-color: #fff;
-    border-radius: 50%;
-    left: 50%;
-    opacity: 0;
-    overflow: hidden;
-    position: absolute;
-    transition: all ease-out;
-    width: 120%;
-    width: calc(100% + 2rem);
-    will-change: transform;
-    z-index: -1;
-
-    &::before {
-      content: '';
-      padding-top: 100%;
-      padding-top: calc(75% + 2rem);
-      float: left;
-    }
-  }
-
-  > .ember-attacher-arrow {
-    background-color: #fff;
-    height: 10px;
-    position: absolute;
-    width: 10px;
-    z-index: -1;
-  }
+  --ember-attacher-fill: #fff;
+  --ember-attacher-text: #333;
+  --ember-attacher-border: #ddd;
+  --ember-attacher-radius: 0;
+  --ember-attacher-padding: 0.5rem 1rem;
+  --ember-attacher-shadow: none;
+  border-width: 1px;
 }
 
 .no-wrap {
