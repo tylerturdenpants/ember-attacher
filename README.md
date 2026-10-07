@@ -154,9 +154,10 @@ Below is a list of all available options, along with their defaults.
   // An options object that will be passed to Floating UI "computePosition" function.
   floatingUiOptions: null,
 
-  // NOT RECOMMENDED: We currently allow you to pass an explicit target, but this may be removed
-  // in a future release.
-  // Please provide your thoughts here: https://github.com/kybishop/ember-attacher/issues/109
+  // Explicit attachment target. Default remains the parent element when unset.
+  // Accepts an Element, a CSS selector string (exactly one match), or a Floating UI
+  // virtual reference (`{ getBoundingClientRect, contextElement? }`). See #1049.
+  // The block also yields `setReference` and a `reference` modifier for composition.
   explicitTarget: null,
 
   // Whether or not to render the attachment in place in the DOM, as opposed to
