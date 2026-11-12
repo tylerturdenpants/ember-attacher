@@ -59,6 +59,19 @@ function onUpdate(fn) {
   });
 }
 
+function elementContainsEvent(element, event) {
+  if (!element) {
+    return false;
+  }
+
+  const path = typeof event?.composedPath === 'function' ? event.composedPath() : null;
+  if (path && path.length > 0) {
+    return path.includes(element);
+  }
+
+  return Boolean(event?.target && element.contains(event.target));
+}
+
 export default class BasicAttacher extends Component {
   MaybeInElement = MaybeInElement;
 
@@ -881,10 +894,10 @@ export default class BasicAttacher extends Component {
 
   _hideOnClickOut(event) {
     const target = this._listenerTarget;
-    const targetReceivedClick = target ? target.contains(event.target) : false;
+    const targetReceivedClick = elementContainsEvent(target, event);
 
     if (this.interactive) {
-      if (!targetReceivedClick && !this._floatingElement.contains(event.target)) {
+      if (!targetReceivedClick && !elementContainsEvent(this._floatingElement, event)) {
         this._hideAfterDelay();
       }
     } else if (!targetReceivedClick) {
@@ -978,7 +991,9 @@ export default class BasicAttacher extends Component {
 
     const isTargetConnected = isElementTarget(this._currentTarget)
       ? this._currentTarget.isConnected
-      : true;
+      : (this._currentTarget?.contextElement instanceof Element
+        ? this._currentTarget.contextElement.isConnected
+        : true);
 
     if (!isTargetConnected || !this._floatingElement.isConnected) {
       return;
@@ -1009,7 +1024,9 @@ export default class BasicAttacher extends Component {
 
     const isTargetConnected = isElementTarget(this._currentTarget)
       ? this._currentTarget.isConnected
-      : true;
+      : (this._currentTarget?.contextElement instanceof Element
+        ? this._currentTarget.contextElement.isConnected
+        : true);
 
     if (!isTargetConnected || !this._floatingElement.isConnected) {
       // Stop lingering observers if a node detached mid-update.
