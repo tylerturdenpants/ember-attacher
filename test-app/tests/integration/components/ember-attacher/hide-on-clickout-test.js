@@ -134,4 +134,104 @@ module('Integration | Component | hideOn "clickout"', function(hooks) {
 
     delete window.ontouchstart;
   });
+
+  test("with interactive=true: doesn't hide when clicking an element inside the attachment that is removed on click", async function(assert) {
+    this.set('showButton', true);
+    this.set('onButtonClick', () => {
+      this.set('showButton', false);
+    });
+
+    await render(hbs`
+      <div id="parent">
+        <AttachPopover
+          @id="attachment"
+          @hideOn="clickout"
+          @interactive={{true}}
+          @isShown={{true}}
+          @animation="none"
+        >
+          {{#if this.showButton}}
+            <button id="detaching-btn" type="button" {{on "click" this.onButtonClick}}>
+              Click to disappear
+            </button>
+          {{else}}
+            <span id="replacement-text">Replacement content</span>
+          {{/if}}
+        </AttachPopover>
+      </div>
+    `);
+
+    const attachment = find('#attachment');
+    assert.true(isVisible(attachment), 'Initially shown');
+
+    // Click the button, which unmounts itself during the click action
+    await click('#detaching-btn');
+
+    assert.dom('#detaching-btn').doesNotExist('Button was removed from the DOM');
+    assert.dom('#replacement-text').exists('Replacement content is now rendered');
+    assert.true(isVisible(attachment), 'Attachment remains visible even though clicked child detached');
+  });
+
+  test("doesn't hide when clicking an element inside the target that is removed on click", async function(assert) {
+    this.set('showTargetButton', true);
+    this.set('onTargetButtonClick', () => {
+      this.set('showTargetButton', false);
+    });
+
+    await render(hbs`
+      <div id="parent">
+        {{#if this.showTargetButton}}
+          <button id="detaching-target-btn" type="button" {{on "click" this.onTargetButtonClick}}>
+            Target button
+          </button>
+        {{else}}
+          <span id="target-replacement">Target replacement</span>
+        {{/if}}
+
+        <AttachPopover
+          @id="attachment"
+          @hideOn="clickout"
+          @interactive={{true}}
+          @isShown={{true}}
+          @animation="none"
+        >
+          Popover content
+        </AttachPopover>
+      </div>
+    `);
+
+    const attachment = find('#attachment');
+    assert.true(isVisible(attachment), 'Initially shown');
+
+    await click('#detaching-target-btn');
+
+    assert.dom('#detaching-target-btn').doesNotExist('Target button was removed from the DOM');
+    assert.true(isVisible(attachment), 'Attachment remains visible even though clicked target child detached');
+  });
+
+  test('falls back cleanly to contains() when composedPath is unavailable', async function(assert) {
+    await render(hbs`
+      <div id="parent">
+        <AttachPopover
+          @id="attachment"
+          @hideOn="clickout"
+          @interactive={{true}}
+          @isShown={{true}}
+          @animation="none"
+        >
+          <div id="attachment-content">Content</div>
+        </AttachPopover>
+      </div>
+    `);
+
+    const attachment = find('#attachment');
+    assert.true(isVisible(attachment), 'Initially shown');
+
+    // Dispatch a synthetic event without composedPath
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    Object.defineProperty(event, 'composedPath', { value: undefined });
+    find('#attachment-content').dispatchEvent(event);
+
+    assert.true(isVisible(attachment), 'Attachment stays visible when click is inside attachment');
+  });
 });
