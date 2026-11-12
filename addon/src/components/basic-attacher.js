@@ -14,6 +14,7 @@ import { modifier } from 'ember-modifier';
 import DEFAULTS from '../defaults';
 import {
   getListenerTarget,
+  isElementTarget,
   resolveAttachmentTarget,
 } from '../lib/target-resolution.js';
 import MaybeInElement from './basic-attacher/maybe-in-element.gjs';
@@ -366,6 +367,10 @@ export default class BasicAttacher extends Component {
         this._animationTimeout = requestAnimationFrame(() => {
           animationTestWaiter.endAsync(this._animationTimeout);
           if (!this.isDestroyed && !this.isDestroying) {
+            if (!isVisible) {
+              this._cleanup?.();
+              this._cleanup = null;
+            }
             this._floatingElement.style.display = isVisible ? 'block' : 'none';
 
             // Prevent jank by making the attachment invisible until positioned.
@@ -380,6 +385,10 @@ export default class BasicAttacher extends Component {
         animationTestWaiter.beginAsync(this._animationTimeout);
       }, delay);
     } else {
+      if (!isVisible) {
+        this._cleanup?.();
+        this._cleanup = null;
+      }
       this._floatingElement.style.display = isVisible ? 'block' : 'none';
       // Prevent jank by making the attachment invisible until positioned.
       // The visibility style will be toggled by this._startShowAnimation()
@@ -547,6 +556,9 @@ export default class BasicAttacher extends Component {
   willDestroy() {
     super.willDestroy(...arguments);
 
+    this._cleanup?.();
+    this._cleanup = null;
+
     cancel(this._setReferenceTimer);
     this._cancelAnimation();
     cancel(this._delayedVisibilityToggle);
@@ -681,6 +693,9 @@ export default class BasicAttacher extends Component {
   }
 
   _hide() {
+    this._cleanup?.();
+    this._cleanup = null;
+
     if (!this._floatingElement) {
       this._animationTimeout = requestAnimationFrame(() => {
         animationTestWaiter.endAsync(this._animationTimeout);
@@ -939,6 +954,25 @@ export default class BasicAttacher extends Component {
 
   _update() {
     this._cleanup?.();
+    this._cleanup = null;
+
+    if (
+      this.isDestroyed ||
+      this.isDestroying ||
+      !this._currentTarget ||
+      !this._floatingElement
+    ) {
+      return;
+    }
+
+    const isTargetConnected = isElementTarget(this._currentTarget)
+      ? this._currentTarget.isConnected
+      : true;
+
+    if (!isTargetConnected || !this._floatingElement.isConnected) {
+      return;
+    }
+
     if (this.autoUpdate) {
       this._cleanup = autoUpdate(
         this._currentTarget,
@@ -953,25 +987,66 @@ export default class BasicAttacher extends Component {
 
   @action
   _updatePosition() {
+    if (
+      this.isDestroyed ||
+      this.isDestroying ||
+      !this._currentTarget ||
+      !this._floatingElement
+    ) {
+      return;
+    }
+
+    const isTargetConnected = isElementTarget(this._currentTarget)
+      ? this._currentTarget.isConnected
+      : true;
+
+    if (!isTargetConnected || !this._floatingElement.isConnected) {
+      return;
+    }
+
     const computePositionToken = animationTestWaiter.beginAsync();
     computePosition(this._currentTarget, this._floatingElement, {
       ...this.floatingUiOptions,
       middleware: this._middleware,
-      placement: this.placement
-    }).then(({ x, y, placement, middlewareData }) => {
-      animationTestWaiter.endAsync(computePositionToken);
-      Object.assign(this._floatingElement.style, { left: `${x}px`, top: `${y}px`, });
+      placement: this.placement,
+    })
+      .then(({ x, y, placement, middlewareData }) => {
+        animationTestWaiter.endAsync(computePositionToken);
 
-      if (middlewareData.arrow) {
-        const { x, y } = middlewareData.arrow;
+        if (
+          this.isDestroyed ||
+          this.isDestroying ||
+          !this._floatingElement ||
+          !this._floatingElement.isConnected
+        ) {
+          return;
+        }
 
-        Object.assign(this._arrowElement.style, {
-          left: x != null ? `${x}px` : '',
-          top: y != null ? `${y}px` : '',
+        Object.assign(this._floatingElement.style, {
+          left: `${x}px`,
+          top: `${y}px`,
         });
-      }
-      this._floatingElement.setAttribute('x-placement', placement);
-    });
+
+        if (middlewareData.arrow && this._arrowElement) {
+          const { x: arrowX, y: arrowY } = middlewareData.arrow;
+
+          Object.assign(this._arrowElement.style, {
+            left: arrowX != null ? `${arrowX}px` : '',
+            top: arrowY != null ? `${arrowY}px` : '',
+          });
+        }
+
+        this._floatingElement.setAttribute('x-placement', placement);
+      })
+      .catch((error) => {
+        animationTestWaiter.endAsync(computePositionToken);
+
+        if (!this.isDestroyed && !this.isDestroying) {
+          warn(`[ember-attacher] Positioning error: ${error?.message ?? error}`, {
+            id: 'ember-attacher.positioning-error',
+          });
+        }
+      });
   }
 
   _cancelAnimation() {
