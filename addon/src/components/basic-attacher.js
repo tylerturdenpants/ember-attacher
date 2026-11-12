@@ -12,6 +12,10 @@ import { buildWaiter } from '@ember/test-waiters';
 import { tracked } from '@glimmer/tracking';
 import { modifier } from 'ember-modifier';
 import DEFAULTS from '../defaults';
+import {
+  getListenerTarget,
+  resolveAttachmentTarget,
+} from '../lib/target-resolution.js';
 import MaybeInElement from './basic-attacher/maybe-in-element.gjs';
 
 const animationTestWaiter = buildWaiter('basic-attacher');
@@ -451,8 +455,11 @@ export default class BasicAttacher extends Component {
 
   _initializeAttacher() {
     this._removeEventListeners();
-    const target = this.args.explicitTarget || this.parentElement;
-    this._listenerTarget = target;
+    const target = resolveAttachmentTarget(
+      this.args.explicitTarget,
+      this.parentElement
+    );
+    this._listenerTarget = getListenerTarget(target);
     this._currentTarget = target;
     this._addListenersForShowEvents();
 
@@ -469,14 +476,16 @@ export default class BasicAttacher extends Component {
   }
 
   _addListenersForShowEvents() {
-    if (!this._currentTarget) {
+    const target = this._listenerTarget;
+
+    if (!target) {
       return;
     }
 
     this._showOn.forEach((event) => {
       this._showListenersOnTargetByEvent[event] = this._showAfterDelay;
 
-      this._currentTarget.addEventListener(event, this._showAfterDelay, this.useCapture);
+      target.addEventListener(event, this._showAfterDelay, this.useCapture);
     });
   }
 
@@ -660,7 +669,7 @@ export default class BasicAttacher extends Component {
 
   _addListenersForHideEvents() {
     const hideOn = this._hideOn;
-    const target = this._currentTarget;
+    const target = this._listenerTarget;
 
     // Target or component was destroyed
     if (!target || this.isDestroyed || this.isDestroying) {
@@ -729,7 +738,7 @@ export default class BasicAttacher extends Component {
   }
 
   _hideIfMouseOutsideTargetOrAttachment(event) {
-    const target = this._currentTarget;
+    const target = this._listenerTarget;
 
     if (!target) {
       return;
@@ -748,9 +757,8 @@ export default class BasicAttacher extends Component {
   }
 
   _isCursorBetweenTargetAndAttachment(event) {
-
-    if (!this._currentTarget) {
-      return;
+    if (!this._currentTarget || !this._floatingElement) {
+      return false;
     }
 
     const { clientX, clientY } = event;
@@ -796,7 +804,8 @@ export default class BasicAttacher extends Component {
   }
 
   _hideOnClickOut(event) {
-    const targetReceivedClick = this._currentTarget.contains(event.target);
+    const target = this._listenerTarget;
+    const targetReceivedClick = target ? target.contains(event.target) : false;
 
     if (this.interactive) {
       if (!targetReceivedClick && !this._floatingElement.contains(event.target)) {
@@ -818,11 +827,13 @@ export default class BasicAttacher extends Component {
       this._hideAfterDelay();
     }
 
-    if (!this._currentTarget) {
+    const target = this._listenerTarget;
+
+    if (!target) {
       return;
     }
 
-    const targetContainsFocus = this._currentTarget.contains(event.relatedTarget);
+    const targetContainsFocus = target.contains(event.relatedTarget);
 
     if (this.interactive) {
       if (!targetContainsFocus && !this._floatingElement.contains(event.relatedTarget)) {
@@ -840,7 +851,7 @@ export default class BasicAttacher extends Component {
     });
 
     const showOn = this._showOn;
-    const target = this._currentTarget;
+    const target = this._listenerTarget;
 
     // The target was destroyed, nothing to remove listeners from
     if (!target) {
