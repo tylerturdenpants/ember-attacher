@@ -9,9 +9,10 @@
 * Remove legacy Flexi / Sass warning note from README ([#1054](https://github.com/tylerturdenpants/ember-attacher/issues/1054))
 
 #### :house: Internal
+* Drop `ember-cli-sass` and `sass` from `test-app`, converting demo styles to standard CSS ([@pzubar](https://github.com/pzubar))
 * [#1054](https://github.com/tylerturdenpants/ember-attacher/issues/1054) Drop `flexi` and `@html-next/flexi-default-styles`, resolving Sass deprecation warnings in test-app ([@pzubar](https://github.com/pzubar))
 * [#1092](https://github.com/tylerturdenpants/ember-attacher/pull/1092) Moved lifecycle modifiers and DOM helpers out of BasicAttacher into private modules ([@pzubar](https://github.com/pzubar))
-* [#1086](https://github.com/tylerturdenpants/ember-attacher/pull/1086) Bump sass from 1.104.1 to 1.108.1 in test-app ([@dependabot](https://github.com/apps/dependabot) / [@pzubar](https://github.com/pzubar))
+* [#1093](https://github.com/tylerturdenpants/ember-attacher/pull/1093) Bump handlebars from 4.7.8 to 4.7.10 ([@dependabot](https://github.com/apps/dependabot) / [@pzubar](https://github.com/pzubar))
 * [#1092](https://github.com/tylerturdenpants/ember-attacher/pull/1092) Bump fast-uri ([@dependabot](https://github.com/apps/dependabot) / [@pzubar](https://github.com/pzubar))
 * [#1090](https://github.com/tylerturdenpants/ember-attacher/pull/1090) Bump postcss-selector-parser ([@dependabot](https://github.com/apps/dependabot) / [@pzubar](https://github.com/pzubar))
 
