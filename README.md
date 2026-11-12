@@ -249,9 +249,35 @@ The full list of editable defaults can be seen [here](https://github.com/kybisho
 
 ## Styles
 
-`ember-attacher` provides CSS for the default tooltip class, `ember-attacher-tooltip` (`ember-attacher/styles`; also injected via `implicit-styles`). No packaged look is included for `{{attach-popover}}`.
+`ember-attacher` provides CSS for the default tooltip class, `ember-attacher-tooltip` (`ember-attacher/styles`; also injected via `implicit-styles`). `<AttachPopover>` has no packaged look unless you opt in with `@class="ember-attacher-popover"` (same tokens as the tooltip; not applied automatically).
 
-Example popover styling lives in the dummy app (`test-app/app/styles`). The arrow still needs the same background as the body unless you share a class. See the [4.1 upgrade guide](./addon/docs/upgrade-guide-4.1.md).
+Default token values use `:where()` so an app class can override them even if addon `implicit-styles` load last.
+
+```css
+.ember-attacher-tooltip,
+.ember-attacher-popover {
+  --ember-attacher-fill: #333;
+  --ember-attacher-text: #fff;
+  --ember-attacher-radius: 4px;
+  --ember-attacher-border: var(--ember-attacher-fill);
+  --ember-attacher-border-width: 0px; /* set to 1px+ when you need a visible border */
+  --ember-attacher-arrow-size: 10px;
+  --ember-attacher-padding: 0.5rem 1rem;
+  --ember-attacher-shadow: none;
+  --ember-attacher-max-width: 400px;
+  --ember-attacher-font-size: inherit;
+  --ember-attacher-text-align: center;
+}
+```
+
+`.ember-attacher-light-theme` reassigns those same tokens (fill `#f3f6f9`, text `#203d5d`, border `#ced2e2`, `border-width: 1px`, the existing shadow).
+
+Outer wrapper tokens on `.ember-attacher`:
+* `--ember-attacher-distance` (default `10px`): inner animation gap.
+* `--ember-attacher-z-index` (default `9999`): stacking context.
+Set them on `.ember-attacher` or an ancestor container. `--ember-attacher-offset` and `--ember-attacher-arrow-rotate` stay internal.
+
+Dummy popover example: `@class="ember-attacher-popover custom-popover-css"` in `test-app` (token overrides only). See the [4.1 upgrade guide](./addon/docs/upgrade-guide-4.1.md).
 
 ## Testing
 
