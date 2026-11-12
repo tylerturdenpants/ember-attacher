@@ -1,7 +1,7 @@
 import { hbs } from 'ember-cli-htmlbars';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-import { click, find, render, settled } from '@ember/test-helpers';
+import { find, render, settled } from '@ember/test-helpers';
 import { isVisible } from 'ember-attacher';
 
 module('Integration | Component | positioning lifecycle resilience', function (hooks) {
@@ -103,5 +103,45 @@ module('Integration | Component | positioning lifecycle resilience', function (h
 
     assert.false(isVisible(attachment), 'Successfully settled as hidden');
   });
+
+  test('keeps autoUpdate stopped after hide with hideDuration 0', async function (assert) {
+    this.set('isShown', true);
+    this.set('placement', 'top');
+
+    await render(hbs`
+      <div id="target-container">
+        <button id="trigger" type="button">Trigger</button>
+        <AttachPopover
+          @id="zero-duration-attachment"
+          @isShown={{this.isShown}}
+          @autoUpdate={{true}}
+          @animation="none"
+          @hideDuration={{0}}
+          @placement={{this.placement}}
+        >
+          Zero duration content
+        </AttachPopover>
+      </div>
+    `);
+
+    const attachment = find('#zero-duration-attachment');
+    assert.true(isVisible(attachment), 'Attachment is visible');
+
+    this.set('isShown', false);
+    await settled();
+
+    assert.false(isVisible(attachment), 'Attachment is hidden');
+
+    // Force optionsDidUpdate via placement change while hidden — previously this
+    // restarted autoUpdate when hideDuration was 0.
+    this.set('placement', 'bottom');
+    await settled();
+
+    window.dispatchEvent(new Event('resize'));
+    await settled();
+
+    assert.false(isVisible(attachment), 'Attachment remains hidden after options change and resize');
+  });
+
 });
 

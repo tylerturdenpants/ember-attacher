@@ -490,6 +490,9 @@ export default class BasicAttacher extends Component {
     // The final source of truth on whether or not all _hide() or _show() actions have completed
     this._isHidden = true;
 
+    // Blocks _update from (re)starting autoUpdate after hide until the next show.
+    this._positioningSuspended = false;
+
     // Holds a delayed function to toggle the visibility of the attachment.
     // Used to make sure animations can complete before the attachment is hidden.
     this._animationTimeout = null;
@@ -625,6 +628,7 @@ export default class BasicAttacher extends Component {
       return;
     }
 
+    this._positioningSuspended = false;
     this._mustRender = true;
 
     // Make the attachment visible immediately so transition animations can take place
@@ -693,6 +697,7 @@ export default class BasicAttacher extends Component {
   }
 
   _hide() {
+    this._positioningSuspended = true;
     this._cleanup?.();
     this._cleanup = null;
 
@@ -956,9 +961,15 @@ export default class BasicAttacher extends Component {
     this._cleanup?.();
     this._cleanup = null;
 
+    // Suspended after _hide until the next _show. Hide writes tracked state that
+    // re-renders and can re-fire optionsDidUpdate → _update; without this flag
+    // that path restarts autoUpdate (especially with hideDuration: 0). Do not
+    // use _isHidden here — it stays true until late in _startShowAnimation,
+    // after _update must already run.
     if (
       this.isDestroyed ||
       this.isDestroying ||
+      this._positioningSuspended ||
       !this._currentTarget ||
       !this._floatingElement
     ) {
@@ -1001,6 +1012,9 @@ export default class BasicAttacher extends Component {
       : true;
 
     if (!isTargetConnected || !this._floatingElement.isConnected) {
+      // Stop lingering observers if a node detached mid-update.
+      this._cleanup?.();
+      this._cleanup = null;
       return;
     }
 
