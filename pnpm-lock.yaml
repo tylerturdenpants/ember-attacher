@@ -242,8 +242,8 @@ importers:
         specifier: ^11.0.1
         version: 11.0.1(supports-color@8.1.1)
       sass:
-        specifier: ^1.104.1
-        version: 1.104.1
+        specifier: ^1.108.1
+        version: 1.108.2
     devDependencies:
       '@babel/core':
         specifier: ^7.29.13
@@ -272,9 +272,6 @@ importers:
       '@glimmer/tracking':
         specifier: ^1.1.2
         version: 1.1.2
-      '@html-next/flexi-default-styles':
-        specifier: ^3.0.0-alpha.1
-        version: 3.0.0-alpha.1(@babel/core@7.29.13(supports-color@8.1.1))(supports-color@8.1.1)
       babel-plugin-dynamic-import-node:
         specifier: ^2.3.3
         version: 2.3.3
@@ -344,9 +341,6 @@ importers:
       eslint-plugin-n:
         specifier: ^18.5.0
         version: 18.5.0(eslint@9.39.5(jiti@2.7.0)(supports-color@8.1.1))(typescript@6.0.3)
-      flexi:
-        specifier: ^3.0.0-alpha.1
-        version: 3.0.0-alpha.1
       globals:
         specifier: ^17.14.0
         version: 17.14.0
@@ -1842,14 +1836,6 @@ packages:
   '@handlebars/parser@2.2.2':
     resolution: {integrity: sha512-n/SZW+12rwikx/f8YcSv9JCi5p9vn1Bnts9ZtVvfErG4h0gbjHI1H1ZMhVUnaOC7yzFc6PtsCKIK8XeTnL90Gw==}
     engines: {node: ^18 || ^20 || ^22 || >=24}
-
-  '@html-next/flexi-config@3.0.0-alpha.1':
-    resolution: {integrity: sha512-ocwHNS8//arGsKaKcUODamI+ngzOpg6DKCcgZ+RNunhNO5IYAhtmMoX1joCTs+dy3Wel4LLPyoYJz9uhDI0XBw==}
-    engines: {node: 18.* || 20.* || >= 22}
-
-  '@html-next/flexi-default-styles@3.0.0-alpha.1':
-    resolution: {integrity: sha512-g4f0ICkRgM23g5zDQrq6vHXC/HxP1uDkYLDrS764vf67LOUQBS4kUuPauqhgdjyDfmR5+8ESybs6XgjXFg8TMg==}
-    engines: {node: 18.* || 20.* || >= 22}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -5048,10 +5034,6 @@ packages:
   flatted@3.3.3:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
 
-  flexi@3.0.0-alpha.1:
-    resolution: {integrity: sha512-N5m1JgQVRZa94njv+D3YEZXuRzZLFTu4xdk5JUbxHyVP8qyYlhuj8NQ/zFsJruS+8FnyQzis+l9BIBK/kqqdmg==}
-    engines: {node: 18.* || 20.* || >= 22}
-
   follow-redirects@1.15.9:
     resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
     engines: {node: '>=4.0'}
@@ -7689,8 +7671,8 @@ packages:
     engines: {node: 10.* || >= 12.*}
     hasBin: true
 
-  sass@1.104.1:
-    resolution: {integrity: sha512-yDA+1aIG3EHgN4V/BvuhCvu61FF6hEd4e+9DxikUm9U0CAGuvdIZ/UYy7qbOxjhbbWQraoyLlMuzdRGOSV5Bmw==}
+  sass@1.108.2:
+    resolution: {integrity: sha512-kugK8djotnG9HQRPTOf36asKYlxg8rWWsNLYHOgWDIVOiZQqlRfKBgF4XXM6kfw146kIDMvm57B4GIkvDSyTzA==}
     engines: {node: '>=20.19.0'}
     hasBin: true
 
@@ -10722,20 +10704,6 @@ snapshots:
   '@handlebars/parser@2.0.0': {}
 
   '@handlebars/parser@2.2.2': {}
-
-  '@html-next/flexi-config@3.0.0-alpha.1': {}
-
-  '@html-next/flexi-default-styles@3.0.0-alpha.1(@babel/core@7.29.13(supports-color@8.1.1))(supports-color@8.1.1)':
-    dependencies:
-      '@html-next/flexi-config': 3.0.0-alpha.1
-      broccoli-merge-trees: 4.2.0(supports-color@8.1.1)
-      broccoli-plugin: 4.0.7(supports-color@8.1.1)
-      ember-cli-babel: 8.3.2(@babel/core@7.29.13(supports-color@8.1.1))(supports-color@8.1.1)
-      ember-cli-sass: 11.0.1(supports-color@8.1.1)
-      sass: 1.104.1
-    transitivePeerDependencies:
-      - '@babel/core'
-      - supports-color
 
   '@humanfs/core@0.19.2':
     dependencies:
@@ -14740,12 +14708,6 @@ snapshots:
 
   flatted@3.3.3: {}
 
-  flexi@3.0.0-alpha.1:
-    dependencies:
-      chalk: 4.1.2
-      inquirer: 8.2.6
-      semver: 7.7.2
-
   follow-redirects@1.15.9(debug@4.4.1(supports-color@8.1.1)):
     optionalDependencies:
       debug: 4.4.1(supports-color@8.1.1)
@@ -17643,7 +17605,7 @@ snapshots:
       minimist: 1.2.8
       walker: 1.0.8
 
-  sass@1.104.1:
+  sass@1.108.2:
     dependencies:
       chokidar: 5.0.0
       immutable: 5.1.9
