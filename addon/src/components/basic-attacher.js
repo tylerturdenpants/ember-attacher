@@ -66,6 +66,10 @@ export default class BasicAttacher extends Component {
   @tracked _isStartingAnimation = false;
   @tracked _arrowElement = null;
   @tracked _currentTarget = null;
+  // Yielded `setReference` / `reference` registration. Prefer
+  // `@explicitTarget` when that arg is set; otherwise this beats parent.
+  @tracked _registeredTarget = null;
+  _setReferenceTimer = null;
   // Untracked copy of the node listeners are on. `_removeEventListeners` must
   // not read `_currentTarget` in the same computation that writes it
   // (`targetDidUpdate` → `_initializeAttacher` when `@explicitTarget` changes).
@@ -403,6 +407,56 @@ export default class BasicAttacher extends Component {
     this._hide();
   }
 
+  /**
+   * Register an explicit attachment target (Element or Floating UI virtual ref).
+   * Yielded for composition into other modifiers.
+   * Pass `null` to clear and fall back to `@explicitTarget` / parent.
+   *
+   * Calls `_initializeAttacher` directly so registration that happens during the
+   * floating element's first render takes effect before the next user event.
+   *
+   * @param {Element | { getBoundingClientRect: Function } | null | undefined} target
+   */
+  @action
+  setReference(target) {
+    cancel(this._setReferenceTimer);
+
+    // Defer: callers often invoke this from another modifier's
+    // `modify()` (composition). Tracked writes + re-init must not run in
+    // that tracking frame.
+    this._setReferenceTimer = schedule('actions', () => {
+      this._setReferenceTimer = null;
+
+      if (this.isDestroyed || this.isDestroying) {
+        return;
+      }
+
+      const next = target ?? null;
+
+      if (this._registeredTarget === next) {
+        return;
+      }
+
+      this._registeredTarget = next;
+      this._initializeAttacher();
+    });
+  }
+
+  // Always defined on first render so the modifier binding is present immediately.
+  reference = modifier((element) => {
+    this.setReference(element);
+
+    return () => {
+      if (this.isDestroyed || this.isDestroying) {
+        return;
+      }
+
+      if (this._registeredTarget === element) {
+        this.setReference(null);
+      }
+    };
+  });
+
   _ensureArgumentsAreValid() {
     runInDebug(() => {
       if (this.arrow && this.isFillAnimation) {
@@ -455,10 +509,11 @@ export default class BasicAttacher extends Component {
 
   _initializeAttacher() {
     this._removeEventListeners();
-    const target = resolveAttachmentTarget(
-      this.args.explicitTarget,
-      this.parentElement
-    );
+    const target = resolveAttachmentTarget({
+      explicitTarget: this.args.explicitTarget,
+      registeredTarget: this._registeredTarget,
+      parentElement: this.parentElement,
+    });
     this._listenerTarget = getListenerTarget(target);
     this._currentTarget = target;
     this._addListenersForShowEvents();
@@ -492,6 +547,7 @@ export default class BasicAttacher extends Component {
   willDestroy() {
     super.willDestroy(...arguments);
 
+    cancel(this._setReferenceTimer);
     this._cancelAnimation();
     cancel(this._delayedVisibilityToggle);
 
@@ -671,7 +727,7 @@ export default class BasicAttacher extends Component {
     const hideOn = this._hideOn;
     const target = this._listenerTarget;
 
-    // Target or component was destroyed
+    // Target or component was destroyed (virtual refs without contextElement skip listeners)
     if (!target || this.isDestroyed || this.isDestroying) {
       return;
     }

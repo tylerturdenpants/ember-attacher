@@ -9,7 +9,7 @@
       ...attributes
     >
       <div class={{this._class}} style={{this._style}}>
-        {{yield (hash hide=this.hide)}}
+        {{yield (hash hide=this.hide setReference=this.setReference reference=this.reference)}}
         {{#if this.arrow}}
           <div class="ember-attacher-arrow" x-arrow {{this.insertArrow}}></div>
         {{/if}}
