@@ -8,16 +8,6 @@
 
 ## Compatibility
 
-------------------------------------------------------------------------------
-
-***NOTE***
-
-  The addon's dummy application needs a serious upgrade.  I [@tylerturdenpants](https://github.com/tylerturdenpants) have removed as much orf the support on flexi and flexi styles that I can, but the dummy app will still produces warnings regarding SASS division.
-
-  As the only supporter of this addon, a father, and a full time employee at a software company, I really need the help to fully pull flexi out and to revamp the dummy app.  Once these blockers are removed I can do the work to bring this addon into the future.
-
-----
-
 * Ember.js v3.20 through v5.12
 * Ember CLI v3.13 or above
 * Node.js v12 or above
@@ -46,6 +36,16 @@ Just drop an `<AttachTooltip/>` or `<AttachPopover/>` in a parent and your float
     I'm a popover!
   </AttachPopover>
 </button>
+```
+
+You can also target an element outside the parent using `@explicitTarget` (accepting a CSS selector string, an Element, or a Floating UI virtual element):
+
+```hbs
+<button id="external-target">Target</button>
+
+<AttachPopover @explicitTarget="#external-target">
+  I'm attached to #external-target!
+</AttachPopover>
 ```
 
 See [the example site](https://tylerturdenpants.github.io/ember-attacher/) for a demonstration of all
@@ -285,12 +285,12 @@ Dummy popover example: `@class="ember-attacher-popover custom-popover-css"` in `
 Use the `isVisible()` test helper to check if an attachment is visible.
 
 ```javascript
-import { click, find } from 'ember-native-dom-helpers';
-import { isVisible } from 'ember-attacher';
+import { click, find, render } from '@ember/test-helpers';
+import { isVisible } from 'ember-attacher/test-support';
 
 test('example', async function(assert) {
-  this.render(hbs`
-    <button id="toggle">
+  await render(hbs`
+    <button id="toggle" type="button">
       Click me, captain!
 
       <AttachPopover 
@@ -299,20 +299,22 @@ test('example', async function(assert) {
           @showOn='click'
       >
         Click-toggled popover
-      <AttachPopover/>
+      </AttachPopover>
     </button>
   `);
 
   const attachment = find('#attachment');
 
-  assert.equal(isVisible(attachment), false, 'Initially hidden');
+  assert.false(isVisible(attachment), 'Initially hidden');
 
   await click('#toggle');
 
   // You can also pass in a selector
-  assert.equal(isVisible('#attachment'), true, 'Now shown');
+  assert.true(isVisible('#attachment'), 'Now shown');
 });
 ```
+
+`import { isVisible } from 'ember-attacher'` is also supported for backward compatibility.
 
 ## Development setup
 

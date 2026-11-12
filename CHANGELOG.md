@@ -1,3 +1,24 @@
+## v4.2.1 (2026-11-12)
+
+#### :bug: Bug Fix
+* [#1090](https://github.com/tylerturdenpants/ember-attacher/pull/1090) Interactive clickout no longer hides when the clicked node detaches ([@pzubar](https://github.com/pzubar)) — closes [#422](https://github.com/tylerturdenpants/ember-attacher/issues/422) / [#1051](https://github.com/tylerturdenpants/ember-attacher/issues/1051)
+* Positioning checks that a virtual reference `contextElement` is still on the page before updating ([@pzubar](https://github.com/pzubar))
+
+#### :memo: Documentation
+* README: `explicitTarget` and yielded `setReference` / `reference` modifier examples; Testing section recommends `isVisible` from `ember-attacher/test-support` ([#774](https://github.com/tylerturdenpants/ember-attacher/issues/774))
+* Remove legacy Flexi / Sass warning note from README ([#1054](https://github.com/tylerturdenpants/ember-attacher/issues/1054))
+
+#### :house: Internal
+* [#1054](https://github.com/tylerturdenpants/ember-attacher/issues/1054) Drop `flexi` and `@html-next/flexi-default-styles`, resolving Sass deprecation warnings in test-app ([@pzubar](https://github.com/pzubar))
+* [#1092](https://github.com/tylerturdenpants/ember-attacher/pull/1092) Moved lifecycle modifiers and DOM helpers out of BasicAttacher into private modules ([@pzubar](https://github.com/pzubar))
+* [#1086](https://github.com/tylerturdenpants/ember-attacher/pull/1086) Bump sass from 1.104.1 to 1.108.1 in test-app ([@dependabot](https://github.com/apps/dependabot) / [@pzubar](https://github.com/pzubar))
+* [#1092](https://github.com/tylerturdenpants/ember-attacher/pull/1092) Bump fast-uri ([@dependabot](https://github.com/apps/dependabot) / [@pzubar](https://github.com/pzubar))
+* [#1090](https://github.com/tylerturdenpants/ember-attacher/pull/1090) Bump postcss-selector-parser ([@dependabot](https://github.com/apps/dependabot) / [@pzubar](https://github.com/pzubar))
+
+#### Committers: 1
+- Petro Zubar ([@pzubar](https://github.com/pzubar))
+
+
 ## v4.2.0 (2026-11-12)
 
 #### :rocket: Enhancement
