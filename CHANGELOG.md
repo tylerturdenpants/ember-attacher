@@ -1,5 +1,20 @@
+## v4.2.0 (2026-11-12)
 
+#### :rocket: Enhancement
+* [#1087](https://github.com/tylerturdenpants/ember-attacher/pull/1087) / [#1049](https://github.com/tylerturdenpants/ember-attacher/issues/1049) Additive explicit-target interface ([@pzubar](https://github.com/pzubar))
+* [#1084](https://github.com/tylerturdenpants/ember-attacher/pull/1084) / [#1068](https://github.com/tylerturdenpants/ember-attacher/issues/1068) Public CSS custom properties ([@pzubar](https://github.com/pzubar))
+* Target resolution seam ([@pzubar](https://github.com/pzubar))
 
+#### :bug: Bug Fix
+* [#1088](https://github.com/tylerturdenpants/ember-attacher/pull/1088) Fix Floating UI lifecycle race on hide/teardown (`getComputedStyle` TypeError) ([@pzubar](https://github.com/pzubar))
+* Keep autoUpdate stopped while hidden after options re-render ([@pzubar](https://github.com/pzubar))
+
+#### :house: Internal
+* [#1088](https://github.com/tylerturdenpants/ember-attacher/pull/1088) Bump lodash.omit 4.5.0 → 4.18.0 ([@dependabot](https://github.com/apps/dependabot))
+* [#1089](https://github.com/tylerturdenpants/ember-attacher/pull/1089) Bump undici 6.28.1 → 6.29.1 ([@dependabot](https://github.com/apps/dependabot))
+
+#### Committers: 1
+- Petro Zubar ([@pzubar](https://github.com/pzubar))
 
 
 ## v3.1.0 (2024-03-07)
