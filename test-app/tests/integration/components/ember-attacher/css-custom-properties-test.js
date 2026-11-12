@@ -167,4 +167,84 @@ module('Integration | CSS custom properties', function(hooks) {
 
     assert.strictEqual(cssVar(floating, '--ember-attacher-distance'), '10px');
   });
+
+  test('border-width token synchronizes body and arrow borders', async function(assert) {
+    await render(hbs`
+      <style>
+        .custom-border-tooltip {
+          --ember-attacher-border: rgb(255, 0, 0);
+          --ember-attacher-border-width: 2px;
+        }
+      </style>
+      <div>
+        <AttachTooltip
+          @id="bordered-tooltip"
+          @animation="none"
+          @arrow={{true}}
+          @isShown={{true}}
+          @class="custom-border-tooltip"
+        >
+          bordered
+        </AttachTooltip>
+      </div>
+    `);
+
+    const inner = find('#bordered-tooltip > .ember-attacher-tooltip');
+    const arrow = inner.querySelector('.ember-attacher-arrow');
+
+    assert.strictEqual(getComputedStyle(inner).borderTopWidth, '2px');
+    assert.strictEqual(getComputedStyle(inner).borderTopColor, 'rgb(255, 0, 0)');
+    assert.strictEqual(getComputedStyle(arrow).borderBottomWidth, '2px');
+    assert.strictEqual(getComputedStyle(arrow).borderBottomColor, 'rgb(255, 0, 0)');
+  });
+
+  test('arrow-size token scales the arrow dimensions', async function(assert) {
+    await render(hbs`
+      <style>
+        .custom-arrow-tooltip {
+          --ember-attacher-arrow-size: 16px;
+        }
+      </style>
+      <div>
+        <AttachTooltip
+          @id="big-arrow-tooltip"
+          @animation="none"
+          @arrow={{true}}
+          @isShown={{true}}
+          @class="custom-arrow-tooltip"
+        >
+          big arrow
+        </AttachTooltip>
+      </div>
+    `);
+
+    const inner = find('#big-arrow-tooltip > .ember-attacher-tooltip');
+    const arrow = inner.querySelector('.ember-attacher-arrow');
+
+    assert.strictEqual(getComputedStyle(arrow).width, '16px');
+    assert.strictEqual(getComputedStyle(arrow).height, '16px');
+  });
+
+  test('z-index token applies to .ember-attacher', async function(assert) {
+    await render(hbs`
+      <style>
+        .custom-z-index {
+          --ember-attacher-z-index: 12000;
+        }
+      </style>
+      <div class="custom-z-index">
+        <AttachTooltip
+          @id="z-index-tooltip"
+          @animation="none"
+          @isShown={{true}}
+          @renderInPlace={{true}}
+        >
+          high z-index
+        </AttachTooltip>
+      </div>
+    `);
+
+    const floating = find('#z-index-tooltip');
+    assert.strictEqual(getComputedStyle(floating).zIndex, '12000');
+  });
 });
