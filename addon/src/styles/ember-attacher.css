@@ -7,8 +7,12 @@
   middleware. --ember-attacher-offset / --ember-attacher-arrow-rotate stay internal.
 */
 
-.ember-attacher {
+:where(:root) {
   --ember-attacher-distance: 10px;
+  --ember-attacher-z-index: 9999;
+}
+
+.ember-attacher {
   width: max-content;
   position: absolute;
   top: 0;
@@ -16,11 +20,11 @@
   display: none;
   perspective: 800px;
   transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
-  z-index: 9999;
+  z-index: var(--ember-attacher-z-index, 9999);
 
   &[x-placement^=top] {
     --ember-attacher-arrow-rotate: rotate(-45deg);
-    --ember-attacher-arrow-bottom: -5px;
+    --ember-attacher-arrow-bottom: calc(-0.5 * var(--ember-attacher-arrow-size, 10px));
     --ember-attacher-circle-hide: scale(0) translate(-50%, -50%);
     --ember-attacher-circle-origin: 0% 50%;
     --ember-attacher-rest: translateY(0);
@@ -32,7 +36,7 @@
 
   &[x-placement^=bottom] {
     --ember-attacher-arrow-rotate: rotate(135deg);
-    --ember-attacher-arrow-top: -5px;
+    --ember-attacher-arrow-top: calc(-0.5 * var(--ember-attacher-arrow-size, 10px));
     --ember-attacher-circle-hide: scale(0) translate(-50%, -50%);
     --ember-attacher-circle-origin: 0% -50%;
     --ember-attacher-rest: translateY(0);
@@ -44,7 +48,7 @@
 
   &[x-placement^=left] {
     --ember-attacher-arrow-rotate: rotate(225deg);
-    --ember-attacher-arrow-right: -5px;
+    --ember-attacher-arrow-right: calc(-0.5 * var(--ember-attacher-arrow-size, 10px));
     --ember-attacher-arrow-top: 50%;
     --ember-attacher-circle-hide: scale(0) translate(-50%, -33%);
     --ember-attacher-circle-origin: 50% 5%;
@@ -57,7 +61,7 @@
 
   &[x-placement^=right] {
     --ember-attacher-arrow-rotate: rotate(45deg);
-    --ember-attacher-arrow-left: -5px;
+    --ember-attacher-arrow-left: calc(-0.5 * var(--ember-attacher-arrow-size, 10px));
     --ember-attacher-arrow-top: 50%;
     --ember-attacher-circle-hide: scale(0) translate(-50%, -33%);
     --ember-attacher-circle-origin: -50% 5%;
@@ -147,9 +151,13 @@
   --ember-attacher-text: #fff;
   --ember-attacher-radius: 4px;
   --ember-attacher-border: var(--ember-attacher-fill);
+  --ember-attacher-border-width: 0px;
+  --ember-attacher-arrow-size: 10px;
   --ember-attacher-padding: 0.5rem 1rem;
   --ember-attacher-shadow: none;
   --ember-attacher-max-width: 400px;
+  --ember-attacher-font-size: inherit;
+  --ember-attacher-text-align: center;
 }
 
 .ember-attacher-tooltip,
@@ -158,15 +166,16 @@
   border-color: var(--ember-attacher-border);
   border-radius: var(--ember-attacher-radius);
   border-style: solid;
-  border-width: 0;
+  border-width: var(--ember-attacher-border-width);
   box-shadow: var(--ember-attacher-shadow);
   color: var(--ember-attacher-text);
+  font-size: var(--ember-attacher-font-size);
+  text-align: var(--ember-attacher-text-align);
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   max-width: var(--ember-attacher-max-width);
   padding: var(--ember-attacher-padding);
   position: relative;
-  text-align: center;
   will-change: transform;
 
   &.ember-attacher-fill {
@@ -176,11 +185,12 @@
 
   > .ember-attacher-arrow {
     background-color: var(--ember-attacher-fill);
-    border: 1px solid;
+    border-style: solid;
+    border-width: var(--ember-attacher-arrow-border-width, var(--ember-attacher-border-width, 1px));
     border-color: transparent transparent var(--ember-attacher-border) var(--ember-attacher-border);
-    height: 10px;
+    height: var(--ember-attacher-arrow-size, 10px);
+    width: var(--ember-attacher-arrow-size, 10px);
     position: absolute;
-    width: 10px;
     z-index: -1;
   }
 
@@ -219,6 +229,6 @@
   --ember-attacher-fill: #f3f6f9;
   --ember-attacher-text: #203d5d;
   --ember-attacher-border: #ced2e2;
+  --ember-attacher-border-width: 1px;
   --ember-attacher-shadow: 0 0 16px -4px rgba(0, 20, 40, 0.2), 0 0 80px -10px rgba(0, 20, 40, 0.3);
-  border-width: 1px;
 }
