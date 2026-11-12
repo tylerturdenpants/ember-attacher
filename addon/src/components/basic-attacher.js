@@ -12,6 +12,8 @@ import { buildWaiter } from '@ember/test-waiters';
 import { tracked } from '@glimmer/tracking';
 import { modifier } from 'ember-modifier';
 import DEFAULTS from '../defaults';
+import { elementContainsEvent, isCursorBetween } from '../lib/dom.js';
+import { onInsert, onUpdate } from '../lib/modifiers.js';
 import {
   getListenerTarget,
   isElementTarget,
@@ -20,57 +22,6 @@ import {
 import MaybeInElement from './basic-attacher/maybe-in-element.gjs';
 
 const animationTestWaiter = buildWaiter('basic-attacher');
-
-function consume(positional) {
-  for (let i = 0; i < positional.length; i++) {
-    void positional[i];
-  }
-}
-
-// Run once per element, after render, so tracked writes do not hit the modifier's tracking frame.
-function onInsert(fn) {
-  const seen = new WeakSet();
-
-  return modifier((element) => {
-    if (seen.has(element)) {
-      return;
-    }
-
-    seen.add(element);
-    const timer = schedule('actions', fn, element);
-    return () => cancel(timer);
-  });
-}
-
-// Skip install ({{did-update}} semantics). Each factory has its own WeakSet so two
-// onUpdate modifiers on the same node do not steal each other's first run.
-function onUpdate(fn) {
-  const seen = new WeakSet();
-
-  return modifier((element, positional) => {
-    consume(positional);
-
-    if (!seen.has(element)) {
-      seen.add(element);
-      return;
-    }
-
-    fn();
-  });
-}
-
-function elementContainsEvent(element, event) {
-  if (!element) {
-    return false;
-  }
-
-  const path = typeof event?.composedPath === 'function' ? event.composedPath() : null;
-  if (path && path.length > 0) {
-    return path.includes(element);
-  }
-
-  return Boolean(event?.target && element.contains(event.target));
-}
 
 export default class BasicAttacher extends Component {
   MaybeInElement = MaybeInElement;
@@ -835,7 +786,7 @@ export default class BasicAttacher extends Component {
 
     // If cursor is not on the attachment or target, hide the floating element
     if (!target.contains(event.target)
-      && !(this.isOffset && this._isCursorBetweenTargetAndAttachment(event))
+      && !(this.isOffset && isCursorBetween(event, this._currentTarget, this._floatingElement))
       && (this._floatingElement && !this._floatingElement.contains(event.target))) {
       // Remove this listener before hiding the attachment
       delete this._hideListenersOnDocumentByEvent.mousemove;
@@ -843,53 +794,6 @@ export default class BasicAttacher extends Component {
 
       this._hideAfterDelay();
     }
-  }
-
-  _isCursorBetweenTargetAndAttachment(event) {
-    if (!this._currentTarget || !this._floatingElement) {
-      return false;
-    }
-
-    const { clientX, clientY } = event;
-
-    const attachmentPosition = this._floatingElement.getBoundingClientRect();
-    const targetPosition = this._currentTarget.getBoundingClientRect();
-
-    const isBetweenLeftAndRight = clientX > Math.min(attachmentPosition.left, targetPosition.left)
-      && clientX < Math.max(attachmentPosition.right, targetPosition.right);
-
-    const isBetweenTopAndBottom = clientY > Math.min(attachmentPosition.top, targetPosition.top)
-      && clientY < Math.max(attachmentPosition.bottom, targetPosition.bottom);
-
-    // Check if cursor is between a left-flipped attachment
-    if (attachmentPosition.right < targetPosition.left
-      && clientX >= attachmentPosition.right && clientX <= targetPosition.left
-      && isBetweenTopAndBottom) {
-      return true;
-    }
-
-    // Check if cursor is between a right-flipped attachment
-    if (attachmentPosition.left > targetPosition.right
-      && clientX <= attachmentPosition.left && clientX >= targetPosition.right
-      && isBetweenTopAndBottom) {
-      return true;
-    }
-
-    // Check if cursor is between a bottom-flipped attachment
-    if (attachmentPosition.top > targetPosition.bottom
-      && clientY <= attachmentPosition.top && clientY >= targetPosition.bottom
-      && isBetweenLeftAndRight) {
-      return true;
-    }
-
-    // Check if cursor is between a top-flipped attachment
-    if (attachmentPosition.bottom < targetPosition.top
-      && clientY >= attachmentPosition.bottom && clientY <= targetPosition.top
-      && isBetweenLeftAndRight) {
-      return true;
-    }
-
-    return false;
   }
 
   _hideOnClickOut(event) {
