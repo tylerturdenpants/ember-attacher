@@ -185,6 +185,15 @@ Below is a list of all available options, along with their defaults.
 }
 ```
 
+### `explicitTarget` / yielded reference
+
+```hbs
+<AttachPopover @showOn="click" @hideOn="click" as |attacher|>
+  <button type="button" {{attacher.reference}}>Open</button>
+  Popover body — or pass an Element via {{attacher.setReference}}
+</AttachPopover>
+```
+
 ## User-defined defaults
 
 User-defined defaults can be set in the consuming app or addon's config/environment.js. These defaults will be applied to every `<AttachPopover/>` and `<AttachTooltip/>`
@@ -285,21 +294,21 @@ Dummy popover example: `@class="ember-attacher-popover custom-popover-css"` in `
 Use the `isVisible()` test helper to check if an attachment is visible.
 
 ```javascript
-import { click, find } from 'ember-native-dom-helpers';
-import { isVisible } from 'ember-attacher';
+import { click, find, render } from '@ember/test-helpers';
+import { isVisible } from 'ember-attacher/test-support';
 
 test('example', async function(assert) {
-  this.render(hbs`
+  await render(hbs`
     <button id="toggle">
       Click me, captain!
 
-      <AttachPopover 
+      <AttachPopover
           @id='attachment'
           @hideOn='click'
           @showOn='click'
       >
         Click-toggled popover
-      <AttachPopover/>
+      </AttachPopover>
     </button>
   `);
 
