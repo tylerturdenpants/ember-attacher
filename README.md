@@ -156,7 +156,7 @@ Below is a list of all available options, along with their defaults.
 
   // Explicit attachment target. Default remains the parent element when unset.
   // Accepts an Element, a CSS selector string (exactly one match), or a Floating UI
-  // virtual reference (`{ getBoundingClientRect, contextElement? }`). See #1049.
+  // virtual reference (`{ getBoundingClientRect, contextElement? }`).
   // The block also yields `setReference` and a `reference` modifier for composition.
   explicitTarget: null,
 
