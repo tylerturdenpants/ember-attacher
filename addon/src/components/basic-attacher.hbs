@@ -1,6 +1,7 @@
 {{~#unless this.renderFloatingElement~}}<meta hidden {{this.parentFinder}} {{this.targetDidUpdate this.hideOn this.showOn @explicitTarget}} {{this.isShownDidUpdate this.isShown}}/>{{~/unless~}}{{~#if this.renderFloatingElement~}}<this.MaybeInElement @destinationElement={{this._floatingElementContainer}} @renderInPlace={{this._renderInPlace}}><div
       class="ember-attacher"
       id={{this.id}}
+      popover={{this._popoverAttr}}
       role={{@ariaRole}}
       {{this.setupFloatingElement}}
       {{this.targetDidUpdate this.hideOn this.showOn @explicitTarget}}

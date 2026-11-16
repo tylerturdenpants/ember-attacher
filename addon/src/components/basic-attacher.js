@@ -47,6 +47,8 @@ export default class BasicAttacher extends Component {
   _listenerTarget = null;
   // This is set to true when the popover is shown in order to override lazyRender=false
   @tracked _mustRender = false;
+  // Tracks an active enclosing dialog:modal so Top-Layer overlays stay non-inert inside showModal().
+  @tracked _modalContainer = null;
   _floatingElement = null;
 
   parentFinder = onInsert((element) => {
@@ -82,6 +84,9 @@ export default class BasicAttacher extends Component {
 
     return () => {
       cancel(timer);
+      if (this._floatingElement === element) {
+        this._floatingElement = null;
+      }
       this._cleanup?.();
     };
   });
@@ -319,9 +324,19 @@ export default class BasicAttacher extends Component {
       floatingElementContainer = this.parentElement;
     } else if (maybeContainer instanceof Element) {
       floatingElementContainer = maybeContainer;
+    } else if (!this._hasCustomFloatingElementContainer && this._modalContainer) {
+      // Keep overlays DOM-inside an open showModal() <dialog> so modal inertness
+      // does not block interactive content while [popover="manual"] stacks above it.
+      floatingElementContainer = this._modalContainer;
     } else if (typeof maybeContainer === 'string') {
       const selector = maybeContainer;
       const possibleContainers = document.querySelectorAll(selector);
+
+      // DEFAULTS.floatingElementContainer is '.ember-application'; embedded or
+      // standalone Top-Layer mounts without .ember-application fall back to body.
+      if (possibleContainers.length === 0 && !this._hasCustomFloatingElementContainer && this._usePopoverHost) {
+        return document.body;
+      }
 
       assert(`floatingElementContainer selector "${selector}" found `
         + `${possibleContainers.length} possible containers when there should be exactly 1`, possibleContainers.length === 1);
@@ -332,10 +347,105 @@ export default class BasicAttacher extends Component {
     return floatingElementContainer;
   }
 
+  _getModalDialogContainer() {
+    const contextNode = this._listenerTarget || this.parentElement;
+    if (!isElementTarget(contextNode) || typeof contextNode.closest !== 'function') {
+      return null;
+    }
+
+    try {
+      return contextNode.closest('dialog:modal');
+    } catch {
+      return null;
+    }
+  }
+
+  _syncModalContainer() {
+    if (this._renderInPlace || this._hasCustomFloatingElementContainer) {
+      if (this._modalContainer !== null) {
+        this._modalContainer = null;
+      }
+      return false;
+    }
+
+    const modalDialog = this._getModalDialogContainer();
+    if (this._modalContainer !== modalDialog) {
+      this._modalContainer = modalDialog;
+      return true;
+    }
+
+    return false;
+  }
+
+  get _hasCustomFloatingElementContainer() {
+    return Boolean(
+      this.args.floatingElementContainer || this._config.floatingElementContainer
+    );
+  }
+
+  get _usePopoverHost() {
+    return (
+      typeof HTMLElement !== 'undefined' &&
+      typeof HTMLElement.prototype.showPopover === 'function' &&
+      !this._renderInPlace &&
+      !this._hasCustomFloatingElementContainer
+    );
+  }
+
+  get _popoverAttr() {
+    return this._usePopoverHost ? 'manual' : undefined;
+  }
+
   get _renderInPlace() {
     // document is undefined in Fastboot, so we have to render in
     // place for the floating element to show up at all.
     return typeof document !== 'undefined' ? !!this.renderInPlace : true;
+  }
+
+  _showPopover() {
+    const el = this._floatingElement;
+    if (
+      el &&
+      el.isConnected &&
+      el.hasAttribute('popover') &&
+      typeof el.showPopover === 'function'
+    ) {
+      try {
+        if (!el.matches(':popover-open')) {
+          el.showPopover();
+        }
+      } catch (error) {
+        warn(
+          `[ember-attacher] Top-layer showPopover failed: ${error?.message ?? error}`,
+          false,
+          { id: 'ember-attacher.popover-error' }
+        );
+        // Drop [popover] so UA :not(:popover-open) { display: none } does not hide the portal fallback.
+        el.removeAttribute('popover');
+      }
+    }
+  }
+
+  _hidePopover() {
+    const el = this._floatingElement;
+    if (
+      el &&
+      el.isConnected &&
+      el.hasAttribute('popover') &&
+      typeof el.hidePopover === 'function'
+    ) {
+      try {
+        if (el.matches(':popover-open')) {
+          el.hidePopover();
+        }
+      } catch (error) {
+        warn(
+          `[ember-attacher] Top-layer hidePopover failed: ${error?.message ?? error}`,
+          false,
+          { id: 'ember-attacher.popover-error' }
+        );
+      }
+    }
   }
 
   _setIsVisibleAfterDelay(isVisible, delay) {
@@ -362,6 +472,12 @@ export default class BasicAttacher extends Component {
             // The visibility style will be toggled by this._startShowAnimation()
             this._floatingElement.style.visibility = isVisible ? 'hidden' : '';
 
+            if (isVisible) {
+              this._showPopover();
+            } else {
+              this._hidePopover();
+            }
+
             if (onChange) {
               onChange(isVisible);
             }
@@ -378,6 +494,12 @@ export default class BasicAttacher extends Component {
       // Prevent jank by making the attachment invisible until positioned.
       // The visibility style will be toggled by this._startShowAnimation()
       this._floatingElement.style.visibility = isVisible ? 'hidden' : '';
+
+      if (isVisible) {
+        this._showPopover();
+      } else {
+        this._hidePopover();
+      }
 
       if (onChange) {
         onChange(isVisible);
@@ -518,6 +640,7 @@ export default class BasicAttacher extends Component {
     });
     this._listenerTarget = getListenerTarget(target);
     this._currentTarget = target;
+    this._syncModalContainer();
     syncParentAttachment(this);
     this._addListenersForShowEvents();
 
@@ -626,7 +749,19 @@ export default class BasicAttacher extends Component {
     this._isHiding = false;
     this._positioningSuspended = false;
     this._mustRender = true;
+    const modalContainerChanged = this._syncModalContainer();
     syncParentAttachment(this);
+
+    if (modalContainerChanged) {
+      // Allow {{#in-element}} to move into or out of dialog:modal before showing.
+      next(this, () => {
+        if (!this.isDestroyed && !this.isDestroying && !this._isHiding && this._currentTarget) {
+          this._setIsVisibleAfterDelay(true, 0);
+          this._startShowAnimation();
+        }
+      });
+      return;
+    }
 
     // Make the attachment visible immediately so transition animations can take place
     this._setIsVisibleAfterDelay(true, 0);

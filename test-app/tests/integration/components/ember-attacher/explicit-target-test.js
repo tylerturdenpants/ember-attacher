@@ -4,12 +4,9 @@ import { setupRenderingTest } from 'ember-qunit';
 import { click, find, focus, render, settled, triggerKeyEvent, waitUntil } from '@ember/test-helpers';
 import {
   arrow,
-  flip,
-  hide,
   inline,
   isVisible,
   offset,
-  shift,
 } from 'ember-attacher';
 import { modifier } from 'ember-modifier';
 
@@ -357,7 +354,7 @@ module('Integration | Component | explicit target', function (hooks) {
       },
     };
 
-    this.set('middleware', [customFlip, customShift, customArrow, hide(), inspector]);
+    this.set('middleware', [customFlip, customShift, customArrow, inspector]);
 
     await render(hbs`
       <button id="strategy-target" type="button">
@@ -401,5 +398,6 @@ module('Integration | Component | explicit target', function (hooks) {
       'hidden',
       'middlewareData.hide hides attachment visibility when referenceHidden/escaped'
     );
+    assert.false(isVisible(attachment), 'isVisible returns false when middlewareData.hide hides attachment');
   });
 });

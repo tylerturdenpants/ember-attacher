@@ -280,20 +280,25 @@ module('Integration | Component | hideOn "clickout"', function(hooks) {
     const parentAttachment = find('#parent-attachment');
     const childAttachment = find('#child-attachment');
 
+    assert.dom(parentAttachment).hasAttribute('popover', 'manual', 'Parent uses Top-Layer host');
+    assert.dom(childAttachment).hasAttribute('popover', 'manual', 'Child uses Top-Layer host');
+    assert.true(parentAttachment.matches(':popover-open'), 'Parent is :popover-open in Top Layer');
     assert.true(isVisible(parentAttachment), 'Parent attachment starts open');
     assert.false(isVisible(childAttachment), 'Child attachment starts closed');
 
     // Clicking the child trigger inside the parent opens the child and keeps the parent open
     await click('#child-trigger');
+    assert.true(parentAttachment.matches(':popover-open'), 'Parent stays :popover-open when child opens');
+    assert.true(childAttachment.matches(':popover-open'), 'Child promotes to :popover-open in Top Layer');
     assert.true(isVisible(parentAttachment), 'Parent stays open when child trigger is clicked');
     assert.true(isVisible(childAttachment), 'Child attachment opens');
 
     // Clicking inside the portaled child attachment keeps both child and parent open
     await click('#child-inner-btn');
     assert.true(isVisible(childAttachment), 'Child stays open when clicked inside');
-    assert.true(isVisible(parentAttachment), 'Parent stays open when portaled child is clicked (#90)');
+    assert.true(isVisible(parentAttachment), 'Parent stays open when Top-Layer child is clicked (#90)');
 
-    // Clicking a detaching button inside the portaled child keeps both open
+    // Clicking a detaching button inside the Top-Layer child keeps both open
     await click('#child-detaching-btn');
     assert.dom('#child-detaching-btn').doesNotExist('Detaching button removed from child');
     assert.true(isVisible(childAttachment), 'Child stays open after detaching button click');
@@ -302,12 +307,69 @@ module('Integration | Component | hideOn "clickout"', function(hooks) {
     // Clicking inside parent (outside child) closes child but keeps parent open
     await click(parentAttachment);
     await waitUntil(() => isVisible(childAttachment) === false);
+    assert.false(childAttachment.matches(':popover-open'), 'Child closes out of Top Layer');
     assert.false(isVisible(childAttachment), 'Child closes when clicking parent outside child');
     assert.true(isVisible(parentAttachment), 'Parent stays open when clicking inside parent');
 
     // Clicking outside both closes parent
     await click('#outside');
     await waitUntil(() => isVisible(parentAttachment) === false);
+    assert.false(parentAttachment.matches(':popover-open'), 'Parent closes out of Top Layer');
     assert.false(isVisible(parentAttachment), 'Parent closes when clicking outside');
+  });
+
+  test('T5 (#90): clicking inside a custom-portaled child nested inside a Top-Layer parent does not trigger parent clickout', async function(assert) {
+    await render(hbs`
+      <button id="outside" type="button">Outside</button>
+      <div id="portal-host"></div>
+
+      <button id="tl-parent-trigger" type="button">
+        Open Parent
+        <AttachPopover
+          @id="tl-parent"
+          @showOn="click"
+          @hideOn="clickout"
+          @hideDuration={{0}}
+          @interactive={{true}}
+          @isShown={{true}}
+          @animation="none"
+        >
+          <button id="portal-child-trigger" type="button">
+            Open Portaled Child
+            <AttachPopover
+              @id="portal-child"
+              @floatingElementContainer="#portal-host"
+              @showOn="click"
+              @hideOn="clickout"
+              @hideDuration={{0}}
+              @interactive={{true}}
+              @animation="none"
+            >
+              <button id="portal-child-btn" type="button">Portaled child button</button>
+            </AttachPopover>
+          </button>
+        </AttachPopover>
+      </button>
+    `);
+
+    const parentEl = find('#tl-parent');
+    const childEl = find('#portal-child');
+
+    assert.dom(parentEl).hasAttribute('popover', 'manual', 'Parent uses Top Layer');
+    assert.dom(childEl).doesNotHaveAttribute('popover', 'Child uses custom portal container fallback');
+    assert.true(parentEl.matches(':popover-open'), 'Parent is :popover-open');
+
+    await click('#portal-child-trigger');
+    assert.true(isVisible(parentEl), 'Top-Layer parent stays open when portaled child opens');
+    assert.true(isVisible(childEl), 'Portaled child opens');
+
+    await click('#portal-child-btn');
+    assert.true(isVisible(childEl), 'Portaled child stays open when clicked');
+    assert.true(isVisible(parentEl), 'Top-Layer parent stays open when portaled child is clicked across layers');
+
+    await click('#outside');
+    await waitUntil(() => !isVisible(parentEl) && !isVisible(childEl));
+    assert.false(isVisible(childEl), 'Child closes on outside click');
+    assert.false(isVisible(parentEl), 'Parent closes on outside click');
   });
 });

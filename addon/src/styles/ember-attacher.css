@@ -29,8 +29,9 @@
     pointer-events: none;
   }
 
-  > div {
+  >div {
     transition-duration: var(--ember-attacher-transition-duration, 0ms);
+    transition-property: transform, opacity;
   }
 
   &[x-placement^=top] {
@@ -102,35 +103,35 @@
       transition-duration: calc(var(--ember-attacher-transition-duration, 0ms) * 0.8);
     }
 
-    > .ember-attacher-fill,
-    > .ember-attacher-shift {
+    >.ember-attacher-fill,
+    >.ember-attacher-shift {
       transform: var(--ember-attacher-rest);
       opacity: 0;
     }
 
-    > .ember-attacher-none {
+    >.ember-attacher-none {
       transform: var(--ember-attacher-offset);
       opacity: 1;
     }
 
-    > .ember-attacher-fade {
+    >.ember-attacher-fade {
       transform: var(--ember-attacher-offset);
       opacity: 0;
     }
 
-    > .ember-attacher-scale {
+    >.ember-attacher-scale {
       transform: var(--ember-attacher-rest) scale(0);
       opacity: 0;
     }
 
-    > .ember-attacher-perspective {
+    >.ember-attacher-perspective {
       transform: var(--ember-attacher-rest) var(--ember-attacher-perspective-hide);
       opacity: 0;
       transform-origin: var(--ember-attacher-perspective-origin);
     }
 
-    > .ember-attacher-show {
-      > div[x-circle] {
+    >.ember-attacher-show {
+      >div[x-circle] {
         opacity: 1;
         transform: scale(1.2) translate(-50%, -50%);
       }
@@ -195,7 +196,7 @@
     overflow: hidden;
   }
 
-  > .ember-attacher-arrow {
+  >.ember-attacher-arrow {
     background-color: var(--ember-attacher-fill);
     border-style: solid;
     border-width: var(--ember-attacher-arrow-border-width, var(--ember-attacher-border-width, 1px));
@@ -206,7 +207,7 @@
     z-index: -1;
   }
 
-  > div[x-circle] {
+  >div[x-circle] {
     background-color: var(--ember-attacher-fill);
     border-radius: 50%;
     left: 50%;
@@ -214,7 +215,7 @@
     overflow: hidden;
     position: absolute;
     transition-duration: calc(var(--ember-attacher-transition-duration, 0ms) * 0.8);
-    transition-property: all;
+    transition-property: transform, opacity;
     transition-timing-function: ease-out;
     width: 120%;
     width: calc(100% + 2rem);
@@ -231,6 +232,7 @@
 }
 
 @media (max-width: 450px) {
+
   .ember-attacher-tooltip,
   .ember-attacher-popover {
     max-width: 96%;
@@ -248,11 +250,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .ember-attacher,
-  .ember-attacher > div,
+  .ember-attacher>div,
   .ember-attacher div[x-circle] {
     --ember-attacher-transition-duration: 0ms !important;
     transition-duration: 0ms !important;
   }
 }
-
