@@ -39,8 +39,12 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: Run Tests
+      - name: Run Classic Tests (Ember 4.12)
         working-directory: test-app
+        run: pnpm test
+
+      - name: Run Vite Tests (Ember 7.4)
+        working-directory: vite-test-app
         run: pnpm test
 
   floating:
@@ -66,8 +70,12 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: Run Tests
+      - name: Run Classic Tests (Ember 4.12)
         working-directory: test-app
+        run: pnpm test
+
+      - name: Run Vite Tests (Ember 7.4)
+        working-directory: vite-test-app
         run: pnpm test
 
   try-scenarios:
@@ -81,12 +89,50 @@ jobs:
       matrix:
         try-scenario:
           - ember-lts-3.28
-          - ember-lts-4.8
+          - ember-lts-6.12
+          - embroider-optimized
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.5.1
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Pin v1 @ember/test-waiters for Ember 3.28
+        if: matrix.try-scenario == 'ember-lts-3.28'
+        run: |
+          printf '%s\n' '' 'overrides:' "  '@ember/test-waiters': '~3.1.0'" >> pnpm-workspace.yaml
+
+      - name: Run Tests
+        run: ./node_modules/.bin/ember try:one ${{ matrix.try-scenario }}
+        working-directory: test-app
+
+  vite-try-scenarios:
+    name: vite-${{ matrix.try-scenario }}
+    runs-on: ubuntu-latest
+    needs: test
+    timeout-minutes: 10
+    continue-on-error: true
+
+    strategy:
+      fail-fast: false
+      matrix:
+        try-scenario:
           - ember-release
           - ember-beta
           - ember-canary
-          - embroider-safe
-          - embroider-optimized
 
     steps:
       - name: Checkout
@@ -108,4 +154,4 @@ jobs:
 
       - name: Run Tests
         run: ./node_modules/.bin/ember try:one ${{ matrix.try-scenario }}
-        working-directory: test-app
+        working-directory: vite-test-app

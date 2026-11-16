@@ -1,0 +1,5 @@
+# Keep @floating-ui/dom for Positioning with Top-Layer popover="manual" Host
+
+Starting in 4.3 and carrying into 5.0, `ember-attacher` keeps `@floating-ui/dom` (`computePosition`, `autoUpdate`, `@middleware`) as its single positioning engine while adopting `<div class="ember-attacher" popover="manual">` (`showPopover()` / `hidePopover()`) as the Top-Layer **Host**, falling back to `{{#in-element}}` in 4.x only when `showPopover` is unavailable or `@floatingElementContainer` is explicitly set.
+
+We rejected switching positioning to CSS Anchor Positioning (or maintaining a dual CSS Anchor + Floating UI positioning engine) and rejected switching the **Host** tag to `<dialog>`. CSS Anchor Positioning cannot execute JavaScript `@middleware` functions (`flip`, `shift`, `offset`, `size`, `inline`, `hide`, custom `{ name, fn }`) and requires extra shims for flip-aware arrows and `VirtualElement` targets, whereas `<div class="ember-attacher" popover="manual">` escapes clipping and `z-index` contexts with lower branching, a smaller maintenance surface, and full `@middleware` and CSS migration safety.

@@ -26,6 +26,9 @@
     "addon-main.js",
     "dist"
   ],
+  "sideEffects": [
+    "./dist/styles/*.css"
+  ],
   "repository": "https://github.com/tylerturdenpants/ember-attacher",
   "license": "MIT",
   "author": {
@@ -38,7 +41,7 @@
     "test": "tests"
   },
   "dependencies": {
-    "@ember/test-waiters": "^3.1.0",
+    "@ember/test-waiters": "^3.1.0 || ^4.0.0",
     "@embroider/addon-shim": "^1.11.0",
     "@floating-ui/dom": "^1.8.0",
     "ember-modifier": "^4.2.2"
@@ -77,12 +80,12 @@
     "babel-plugin-ember-template-compilation": "^2.3.0",
     "eslint": "~9.39.5",
     "eslint-plugin-decorator-position": "^6.1.1",
-    "eslint-plugin-ember": "~13.9.1",
+    "eslint-plugin-ember": "~13.10.0",
     "eslint-plugin-n": "^18.5.0",
     "globals": "^17.14.0",
     "lightningcss": "^1.33.0",
     "release-it": "^21.1.2",
     "release-it-pnpm": "^4.6.6",
-    "rollup": "^4.68.2"
+    "rollup": "^4.68.3"
   }
 }

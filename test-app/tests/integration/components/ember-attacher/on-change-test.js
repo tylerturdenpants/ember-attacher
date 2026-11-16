@@ -19,7 +19,7 @@ module('Integration | Component | onChange', function(hooks) {
         {{#attach-popover id='attachment'
                           hideOn='click'
                           isShown=this.isShown
-                          onChange=(action (mut this.isShown))
+                          onChange=(fn (mut this.isShown))
                           showOn='click'}}
           showOn click
         {{/attach-popover}}
