@@ -26,6 +26,9 @@
     "addon-main.js",
     "dist"
   ],
+  "sideEffects": [
+    "./dist/styles/*.css"
+  ],
   "repository": "https://github.com/tylerturdenpants/ember-attacher",
   "license": "MIT",
   "author": {
@@ -38,7 +41,7 @@
     "test": "tests"
   },
   "dependencies": {
-    "@ember/test-waiters": "^3.1.0",
+    "@ember/test-waiters": "^3.1.0 || ^4.0.0",
     "@embroider/addon-shim": "^1.11.0",
     "@floating-ui/dom": "^1.8.0",
     "ember-modifier": "^4.2.2"

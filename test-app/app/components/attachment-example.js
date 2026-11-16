@@ -1,7 +1,9 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
-import { inject as service } from '@ember/service';
+import * as emberService from '@ember/service';
 import { tracked } from '@glimmer/tracking';
+
+const service = emberService.service ?? emberService.inject;
 
 export default class AttachmentExample extends Component {
   @service popoverData;
