@@ -32,7 +32,7 @@ module('Integration | Component | hideOn "escapekey"', function(hooks) {
     assert.equal(isVisible(attachment), false, 'Now hidden');
   });
 
-  test('T5 (#90): Escape dismisses nested Attachments LIFO (deepest child first, then parent)', async function(assert) {
+  test('Escape dismisses nested Attachments LIFO (deepest child first, then parent)', async function(assert) {
     await render(hbs`
       <button id="parent-trigger" type="button">
         Parent
@@ -92,7 +92,7 @@ module('Integration | Component | hideOn "escapekey"', function(hooks) {
     assert.false(isVisible(parentPopover), 'Second Escape dismissed parent');
   });
 
-  test('T5 (#90): Escape dismisses LIFO across mixed Top-Layer parent and portaled child', async function(assert) {
+  test('Escape dismisses LIFO across mixed Top-Layer parent and portaled child', async function(assert) {
     await render(hbs`
       <div id="portal-escape-host"></div>
       <button id="mixed-parent-trigger" type="button">

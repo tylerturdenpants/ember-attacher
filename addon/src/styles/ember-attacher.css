@@ -23,6 +23,16 @@
   transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
   z-index: var(--ember-attacher-z-index, 9999);
 
+  &[popover] {
+    inset: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    overflow: visible;
+  }
+
   &[data-reference-hidden],
   &[data-escaped] {
     visibility: hidden;

@@ -1,7 +1,7 @@
 import QUnit, { module, test } from 'qunit';
 import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
-import { render, find } from '@ember/test-helpers';
+import { find, focus, render, settled, triggerEvent } from '@ember/test-helpers';
 import { htmlSafe } from '@ember/template';
 
 QUnit.assert.contains = function(actual, expected, message) {
@@ -185,45 +185,87 @@ module('Integration | Component | attach tooltip', function(hooks) {
     );
   });
 
-  test('adds aria-describedby to the target', async function(assert) {
+  test('adds open-only token-safe aria-describedby to the target and forwards lifecycle hooks', async function(assert) {
+    const initialized = [];
+    const destroyed = [];
     this.set('showTooltip', true);
+    this.set('onInitializeAttacher', (target, id) => initialized.push({ target, id }));
+    this.set('onWillDestroy', (target, id) => destroyed.push({ target, id }));
 
     await render(hbs`
-      <div id="target">
+      <span id="hint">Persistent hint</span>
+      <button id="target" type="button" aria-describedby="hint">
+        Target
         {{#if this.showTooltip}}
-          {{#attach-tooltip id='attachment'}}
+          <AttachTooltip
+            @id="attachment"
+            @showOn="focus"
+            @hideOn="blur"
+            @onInitializeAttacher={{this.onInitializeAttacher}}
+            @onWillDestroy={{this.onWillDestroy}}
+          >
             tooltip text
-          {{/attach-tooltip}}
+          </AttachTooltip>
         {{/if}}
-      </div>
+      </button>
 
-      <div id="other-target">
-        {{#attach-tooltip class='tooltip-with-no-initial-id'}}
+      <button id="other-target" type="button">
+        Other
+        <AttachTooltip @class="tooltip-with-no-initial-id" @showOn="focus" @hideOn="blur">
           tooltip text
-        {{/attach-tooltip}}
-      </div>
+        </AttachTooltip>
+      </button>
     `);
 
     const target = find('#target');
     const tooltip = find('#attachment');
 
-    assert.equal(target.getAttribute('aria-describedby'),
-                 tooltip.id,
-                 "target receives aria-describedby with tooltip's ID");
+    assert.strictEqual(initialized.length, 1, 'forwards @onInitializeAttacher from AttachTooltip');
+    assert.strictEqual(initialized[0].target, target, 'passes target element to @onInitializeAttacher');
+    assert.strictEqual(initialized[0].id, 'attachment', 'passes tooltip id to @onInitializeAttacher');
+
+    assert.strictEqual(
+      target.getAttribute('aria-describedby'),
+      'hint',
+      'preserves existing aria-describedby and does not add tooltip id while closed'
+    );
+
+    await focus('#target');
+    assert.strictEqual(
+      target.getAttribute('aria-describedby'),
+      `hint ${tooltip.id}`,
+      'appends tooltip ID to aria-describedby while open without clobbering existing tokens'
+    );
 
     this.set('showTooltip', false);
+    await settled();
 
-    assert.notOk(target.hasAttribute('aria-describedby'),
-                 'it removes aria-describedby on destruction');
+    assert.strictEqual(
+      target.getAttribute('aria-describedby'),
+      'hint',
+      'removes only the tooltip token on destruction while preserving pre-existing tokens'
+    );
+    assert.strictEqual(destroyed.length, 1, 'forwards @onWillDestroy from AttachTooltip');
+    assert.strictEqual(destroyed[0].id, 'attachment', 'passes destroyed tooltip id to @onWillDestroy');
 
     const tooltipWithNoInitialId = find('.tooltip-with-no-initial-id').parentNode;
-
     assert.ok(tooltipWithNoInitialId.id, 'tooltip gets generated ID when no ID is supplied');
+    assert.dom('#other-target').doesNotHaveAttribute(
+      'aria-describedby',
+      'other target has no aria-describedby while closed'
+    );
 
+    await focus('#other-target');
     assert.dom('#other-target').hasAttribute(
       'aria-describedby',
       tooltipWithNoInitialId.id,
-      "target receives aria-describedby with tooltip's generated ID"
+      "other target receives aria-describedby with tooltip's generated ID while open"
+    );
+
+    await triggerEvent('#other-target', 'blur');
+    assert.dom('#other-target').doesNotHaveAttribute(
+      'aria-describedby',
+      'removes aria-describedby when tooltip hides'
     );
   });
 });

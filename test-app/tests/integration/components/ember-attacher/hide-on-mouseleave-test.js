@@ -122,53 +122,70 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
     assert.equal(isVisible(attachment), false, 'Hidden after mousemove');
   });
 
-  test('with interactive=true and isOffset=false: hides if mouse between '
-       + 'target and attachment', async function(assert) {
-    assert.expect(3);
+  test('interactive=true keeps attachment open in diagonal safePolygon corridor without @isOffset', async function(assert) {
+    assert.expect(4);
 
     await render(hbs`
       <style>
         #attachment {
-          margin-top: 10px;
+          margin-top: 20px;
+          width: 220px;
+          height: 80px;
         }
       </style>
 
-      <div id="target" style="height: 300px; width: 300px;">
-        {{#attach-popover id='attachment'
-                          hideOn='mouseleave'
-                          interactive=true
-                          placement='bottom'
-                          isShown=true}}
+      <div id="target" style="position: fixed; top: 20px; left: 100px; height: 40px; width: 60px;">
+        target
+        <AttachPopover
+          @id="attachment"
+          @hideOn="mouseleave"
+          @interactive={{true}}
+          @placement="bottom"
+          @animation="none"
+          @isShown={{true}}
+        >
           hideOn mouseleave
-        {{/attach-popover}}
+        </AttachPopover>
       </div>
     `);
-
-    // Wait for initial show()
-
 
     const attachment = find('#attachment');
     const target = find('#target');
 
-    assert.equal(isVisible(attachment), true, 'Initially shown');
+    assert.true(isVisible(attachment), 'Initially shown');
 
-    await triggerEvent(target, 'mouseleave');
+    const targetRect = target.getBoundingClientRect();
+    const attachmentRect = attachment.getBoundingClientRect();
 
+    // Exit from bottom-center of target toward the attachment
+    const originX = (targetRect.left + targetRect.right) / 2;
+    const originY = targetRect.bottom;
+    await triggerEvent(target, 'mouseleave', { clientX: originX, clientY: originY });
 
-    // Sanity check still shown
-    assert.equal(isVisible(attachment), true, 'Still shown after mouseleave');
+    assert.true(isVisible(attachment), 'Still shown after mouseleave');
 
-    const attachmentPosition = find('#attachment').getBoundingClientRect();
+    // Diagonal midpoint heading toward the lower attachment's right edge (inside triangle corridor,
+    // even outside the narrower target's horizontal bounds!)
+    const midX = (originX + attachmentRect.right) / 2;
+    const midY = (targetRect.bottom + attachmentRect.top) / 2;
+    await triggerEvent(document, 'mousemove', { clientX: midX, clientY: midY });
 
-    await triggerEvent(document,
-                       'mousemove',
-                       {
-                         clientX: attachmentPosition.left + 1,
-                         clientY: attachmentPosition.top - 1
-                       });
+    assert.true(
+      isVisible(attachment),
+      'Stays open inside the automatic safePolygon diagonal corridor without @isOffset'
+    );
 
+    // Move laterally beside the narrower target (y within targetRect.top..bottom, x to the right of target
+    // where a static 8-corner convex hull would falsely keep the popover open)
+    await triggerEvent(document, 'mousemove', {
+      clientX: targetRect.right + 10,
+      clientY: (targetRect.top + targetRect.bottom) / 2,
+    });
 
-    assert.equal(isVisible(attachment), false, 'Hidden after mousemove between');
+    assert.false(
+      isVisible(attachment),
+      'Hides when cursor exits laterally into adjacent UI beside the target (outside facing-edge corridor)'
+    );
   });
 
   test("with interactive=true and isOffset=true: doesn't hide if mouse between "

@@ -125,7 +125,7 @@ module('Integration | Component | ember attacher', function(hooks) {
     assert.dom('#attachment').doesNotHaveAttribute('popover', 'renderInPlace omits popover="manual"');
   });
 
-  test('T1: promotes to Top-Layer popover="manual" host and updates isVisible() across initial positioning frame and exit animation completion', async function(assert) {
+  test('promotes to Top-Layer popover="manual" host and updates isVisible() across initial positioning frame and exit animation completion', async function(assert) {
     this.set('isShown', false);
 
     await render(hbs`
@@ -176,6 +176,13 @@ module('Integration | Component | ember attacher', function(hooks) {
     assert.strictEqual(topLayerEl.style.position, 'absolute', 'Floating UI strategy overrides [popover] UA position: fixed');
     assert.true(isVisible(topLayerEl), 'isVisible is true after positioning completes');
 
+    const topLayerStyle = getComputedStyle(topLayerEl);
+    assert.strictEqual(topLayerStyle.borderTopWidth, '0px', 'resets [popover] UA border');
+    assert.strictEqual(topLayerStyle.paddingTop, '0px', 'resets [popover] UA padding');
+    assert.strictEqual(topLayerStyle.marginTop, '0px', 'resets [popover] UA margin');
+    assert.strictEqual(topLayerStyle.backgroundColor, 'rgba(0, 0, 0, 0)', 'resets [popover] UA background');
+    assert.strictEqual(topLayerStyle.overflow, 'visible', 'resets [popover] UA overflow');
+
     // During initial positioning frame (visibility: hidden), isVisible() is false
     topLayerEl.style.visibility = 'hidden';
     assert.false(isVisible(topLayerEl), 'isVisible is false during initial positioning frame (visibility: hidden)');
@@ -196,7 +203,7 @@ module('Integration | Component | ember attacher', function(hooks) {
     assert.strictEqual(topLayerEl.style.display, 'none', 'display is none after exit animation completion');
   });
 
-  test('T1: falls back cleanly when showPopover throws or .ember-application is absent', async function(assert) {
+  test('falls back cleanly when showPopover throws or .ember-application is absent', async function(assert) {
     const appContainers = Array.from(document.querySelectorAll('.ember-application'));
     appContainers.forEach((el) => el.classList.remove('ember-application'));
 
@@ -237,7 +244,7 @@ module('Integration | Component | ember attacher', function(hooks) {
     }
   });
 
-  test('T1: interactive AttachPopover inside native dialog.showModal() is clickable, focusable, non-inert, and stacked above the modal', async function(assert) {
+  test('interactive AttachPopover inside native dialog.showModal() is clickable, focusable, non-inert, and stacked above the modal', async function(assert) {
     let actionCount = 0;
     this.set('onInsideAction', () => {
       actionCount += 1;

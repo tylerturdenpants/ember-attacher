@@ -1,9 +1,14 @@
 ## Unreleased (v4.3.0)
 
-#### :boom: Behavioral Change (Test Support)
+#### :boom: Behavioral Change (Accessibility & Test Support)
+* [#1113](https://github.com/tylerturdenpants/ember-attacher/issues/1113) `<AttachTooltip>` now manages `aria-describedby` in `BasicAttacher` **only while open**, preserving any pre-existing `aria-describedby` tokens on the target instead of adding/clobbering it while closed ([@pzubar](https://github.com/pzubar))
 * [#1095](https://github.com/tylerturdenpants/ember-attacher/pull/1095) / [#1112](https://github.com/tylerturdenpants/ember-attacher/issues/1112) `isVisible()` in `ember-attacher/test-support` now checks `display !== 'none'`, `visibility !== 'hidden'`, `aria-hidden !== 'true'`, and `:popover-open` (when `[popover]` is present), instead of only `display !== 'none'` ([@pzubar](https://github.com/pzubar))
 
 #### :rocket: Enhancement
+* [#1113](https://github.com/tylerturdenpants/ember-attacher/issues/1113) Add default accessibility wiring and automatic diagonal `safePolygon` hover corridor:
+  * `<AttachPopover>` automatically sets `aria-expanded`, `aria-controls`, and `aria-haspopup` (defaulting to `'dialog'` or matching valid `@ariaRole`) when not already provided by the caller, and restores focus to the target on `Escape` dismissal
+  * `<AttachTooltip>` now forwards `@onInitializeAttacher` and `@onWillDestroy` to `<BasicAttacher>`, and safely skips ARIA binding for coordinate-only `VirtualElement` targets
+  * `@interactive={{true}}` with `hideOn` including `mouseleave` now automatically enables a triangle `safePolygon` corridor between the cursor exit point and the attachment without requiring `@isOffset={{true}}` ([@pzubar](https://github.com/pzubar))
 * [#1095](https://github.com/tylerturdenpants/ember-attacher/pull/1095) / [#1112](https://github.com/tylerturdenpants/ember-attacher/issues/1112) Promote `.ember-attacher` to the browser Top Layer (`popover="manual"` via `showPopover()` / `hidePopover()`) when supported and neither `@renderInPlace` nor `@floatingElementContainer` is explicitly set, automatically scoping portals inside active `dialog:modal` elements to avoid `showModal()` inertness while keeping `{{#in-element}}` fallback ([@pzubar](https://github.com/pzubar))
 * [#1096](https://github.com/tylerturdenpants/ember-attacher/pull/1096) / [#1111](https://github.com/tylerturdenpants/ember-attacher/issues/1111) Add `@strategy` (`'absolute' | 'fixed'`), re-export Floating UI middleware builders from `'ember-attacher'`, wire `middlewareData.hide` (`data-reference-hidden` / `data-escaped`), support `@media (prefers-reduced-motion: reduce)`, and add strict-CSP CSSOM `--ember-attacher-transition-duration` ([@pzubar](https://github.com/pzubar))
 * [#1108](https://github.com/tylerturdenpants/ember-attacher/pull/1108) Export `AttachPopover`, `AttachTooltip`, `BasicAttacher`, and `isVisible` from `'ember-attacher'`, add `"sideEffects"` for Vite tree-shaking, and add Ember 7.4 Vite test harness ([@pzubar](https://github.com/pzubar))

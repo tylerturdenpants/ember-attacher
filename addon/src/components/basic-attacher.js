@@ -4,12 +4,13 @@ import { cancel, debounce, later, next, run, schedule } from '@ember/runloop';
 import { getOwner } from '@ember/application';
 import { guidFor } from '@ember/object/internals';
 import { isHTMLSafe } from '@ember/template';
-import { runInDebug, warn, assert } from '@ember/debug';
-import { autoUpdate, computePosition, arrow, flip, limitShift, shift } from '@floating-ui/dom';
+import { runInDebug, warn } from '@ember/debug';
+import { autoUpdate, computePosition } from '@floating-ui/dom';
 import { buildWaiter } from '@ember/test-waiters';
 import { tracked } from '@glimmer/tracking';
 import { modifier } from 'ember-modifier';
 import DEFAULTS from '../defaults';
+import { AttachmentAriaController, restoreFocusOnEscape } from '../lib/a11y.js';
 import {
   descendantAttachmentContainsEvent,
   descendantAttachmentContainsNode,
@@ -18,11 +19,22 @@ import {
   syncParentAttachment,
   unregisterAttacher,
 } from '../lib/attachment-tree.js';
-import { elementContainsEvent, isCursorBetween } from '../lib/dom.js';
+import { elementContainsEvent, isCursorInSafePolygon } from '../lib/dom.js';
+import {
+  getModalDialogContainer,
+  hidePopoverHost,
+  resolveHostContainer,
+  showPopoverHost,
+  supportsPopoverHost,
+} from '../lib/host.js';
 import { onInsert, onUpdate } from '../lib/modifiers.js';
 import {
+  applyPositionResult,
+  buildMiddleware,
+  isTargetConnected,
+} from '../lib/positioning.js';
+import {
   getListenerTarget,
-  isElementTarget,
   resolveAttachmentTarget,
 } from '../lib/target-resolution.js';
 import MaybeInElement from './basic-attacher/maybe-in-element.gjs';
@@ -37,32 +49,25 @@ export default class BasicAttacher extends Component {
   @tracked _isStartingAnimation = false;
   @tracked _arrowElement = null;
   @tracked _currentTarget = null;
-  // Yielded `setReference` / `reference` registration. Prefer
-  // `@explicitTarget` when that arg is set; otherwise this beats parent.
   @tracked _registeredTarget = null;
-  _setReferenceTimer = null;
-  // Untracked copy of the node listeners are on. `_removeEventListeners` must
-  // not read `_currentTarget` in the same computation that writes it
-  // (`targetDidUpdate` → `_initializeAttacher` when `@explicitTarget` changes).
-  _listenerTarget = null;
-  // This is set to true when the popover is shown in order to override lazyRender=false
   @tracked _mustRender = false;
-  // Tracks an active enclosing dialog:modal so Top-Layer overlays stay non-inert inside showModal().
   @tracked _modalContainer = null;
+
+  _setReferenceTimer = null;
+  // Untracked copy of the node listeners are on so `_removeEventListeners` does
+  // not read `_currentTarget` in the same frame that writes it (`targetDidUpdate`).
+  _listenerTarget = null;
   _floatingElement = null;
 
   parentFinder = onInsert((element) => {
-    if (this.isDestroyed || this.isDestroying) {
-      return;
+    if (!this.isDestroyed && !this.isDestroying) {
+      this.parentElement = element.parentElement;
+      this._initializeAttacher();
     }
-
-    this.parentElement = element.parentElement;
-    this._initializeAttacher();
   });
 
-  // Insert + autoUpdate teardown. Must not read tracked state in the modifier
-  // callback (the scheduled fn is fine); a tracked read would re-run this and
-  // fire the destructor before updates.
+  // Insert + autoUpdate teardown. Must not read tracked state synchronously in
+  // the modifier callback (the scheduled fn is fine) or tracked updates will re-fire teardown.
   setupFloatingElement = modifier((element) => {
     this._floatingElement = element;
     registerAttacher(this);
@@ -92,150 +97,63 @@ export default class BasicAttacher extends Component {
   });
 
   insertArrow = onInsert((element) => {
-    if (this.isDestroyed || this.isDestroying) {
-      return;
+    if (!this.isDestroyed && !this.isDestroying) {
+      this._arrowElement = element;
     }
-
-    this._arrowElement = element;
   });
 
   isShownDidUpdate = onUpdate(() => this._syncIsShown());
   targetDidUpdate = onUpdate(() => this._initializeAttacher());
   optionsDidUpdate = onUpdate(() => {
     this._ensureArgumentsAreValid();
+    this._syncAria();
     this._update();
   });
 
-  /**
-   * ================== PUBLIC CONFIG OPTIONS ==================
-   */
-  get arrow() {
-    return this.args.arrow ?? this._config.arrow ?? DEFAULTS.arrow;
+  _opt(key) {
+    return this.args[key] ?? this._config[key] ?? DEFAULTS[key];
   }
 
-  get autoUpdate() {
-    return this.args.autoUpdate ?? this._config.autoUpdate ?? DEFAULTS.autoUpdate;
-  }
-
-  get animation() {
-    return this.args.animation || this._config.animation || DEFAULTS.animation;
-  }
-
-  get flip() {
-    return this.args.flip ?? this._config.flip ?? DEFAULTS.flip;
-  }
-
-  get hideDelay() {
-    return this.args.hideDelay ?? this._config.hideDelay ?? DEFAULTS.hideDelay;
-  }
-
-  get hideDuration() {
-    return this.args.hideDuration ?? this._config.hideDuration ?? DEFAULTS.hideDuration;
-  }
-
-  get hideOn() {
-    if (this.args.hideOn === null) {
-      return null;
-    }
-
-    return this.args.hideOn ?? this._config.hideOn ?? DEFAULTS.hideOn;
-  }
-
-  get interactive() {
-    return this.args.interactive ?? this._config.interactive ?? DEFAULTS.interactive;
-  }
-
-  get isOffset() {
-    return this.args.isOffset ?? this._config.isOffset ?? DEFAULTS.isOffset;
-  }
-
-  get isShown() {
-    return this.args.isShown ?? this._config.isShown ?? DEFAULTS.isShown;
-  }
-
-  get lazyRender() {
-    return this.args.lazyRender ?? this._config.lazyRender ?? DEFAULTS.lazyRender;
-  }
-
-  get placement() {
-    return this.args.placement ?? this._config.placement ?? DEFAULTS.placement;
-  }
-
-  get strategy() {
-    return this.args.strategy ?? this._config.strategy ?? DEFAULTS.strategy;
-  }
-
-  get floatingElementContainer() {
-    return this.args.floatingElementContainer || this._config.floatingElementContainer || DEFAULTS.floatingElementContainer;
-  }
-
-  get class() {
-    return this.args.class || this._config.class;
-  }
-
-  get floatingUiOptions() {
-    return this.args.floatingUiOptions || this._config.floatingUiOptions || DEFAULTS.floatingUiOptions;
-  }
-
-  get renderInPlace() {
-    return this.args.renderInPlace ?? this._config.renderInPlace ?? DEFAULTS.renderInPlace;
-  }
-
-  get showDelay() {
-    return this.args.showDelay ?? this._config.showDelay ?? DEFAULTS.showDelay;
-  }
-
-  get showDuration() {
-    return this.args.showDuration ?? this._config.showDuration ?? DEFAULTS.showDuration;
-  }
-
-  get showOn() {
-    if (this.args.showOn === null) {
-      return null;
-    }
-
-    return this.args.showOn ?? this._config.showOn ?? DEFAULTS.showOn;
-  }
-
-  get style() {
-    return this.args.style ?? this._config.style ?? DEFAULTS.style;
-  }
-
-  get useCapture() {
-    return this.args.useCapture ?? this._config.useCapture ?? DEFAULTS.useCapture;
-  }
-
-  get configKey() {
-    return this.args.configKey || 'popover';
-  }
-
-  get isFillAnimation() {
-    return this.animation === 'fill';
-  }
-
-  get renderFloatingElement() {
-    return Boolean(this.renderInPlace || this._currentTarget);
-  }
-
-  get shouldRenderFloatingElement() {
-    // Always render the floating element unless lazyRender is true and we haven't been triggered yet
-    return !this.lazyRender || this._mustRender;
-  }
-
-  get id() {
-    return this.args.id || `${guidFor(this)}-floating`;
-  }
-
-  get overflowPadding() {
-    return this.args.overflowPadding ?? this._config.overflowPadding ?? DEFAULTS.overflowPadding;
-  }
+  get arrow() { return this._opt('arrow'); }
+  get autoUpdate() { return this._opt('autoUpdate'); }
+  get animation() { return this.args.animation || this._config.animation || DEFAULTS.animation; }
+  get flip() { return this._opt('flip'); }
+  get hideDelay() { return this._opt('hideDelay'); }
+  get hideDuration() { return this._opt('hideDuration'); }
+  get hideOn() { return this.args.hideOn === null ? null : this._opt('hideOn'); }
+  get interactive() { return this._opt('interactive'); }
+  get isOffset() { return this._opt('isOffset'); }
+  get isShown() { return this._opt('isShown'); }
+  get lazyRender() { return this._opt('lazyRender'); }
+  get overflowPadding() { return this._opt('overflowPadding'); }
+  get placement() { return this._opt('placement'); }
+  get renderInPlace() { return this._opt('renderInPlace'); }
+  get showDelay() { return this._opt('showDelay'); }
+  get showDuration() { return this._opt('showDuration'); }
+  get showOn() { return this.args.showOn === null ? null : this._opt('showOn'); }
+  get strategy() { return this._opt('strategy'); }
+  get style() { return this._opt('style'); }
+  get useCapture() { return this._opt('useCapture'); }
+  get class() { return this.args.class || this._config.class; }
+  get floatingElementContainer() { return this.args.floatingElementContainer || this._config.floatingElementContainer || DEFAULTS.floatingElementContainer; }
+  get floatingUiOptions() { return this.args.floatingUiOptions || this._config.floatingUiOptions || DEFAULTS.floatingUiOptions; }
+  get configKey() { return this.args.configKey || 'popover'; }
+  get _isTooltip() { return this.configKey === 'tooltip' || this.args.ariaRole === 'tooltip'; }
+  get isFillAnimation() { return this.animation === 'fill'; }
+  get renderFloatingElement() { return Boolean(this.renderInPlace || this._currentTarget); }
+  get shouldRenderFloatingElement() { return !this.lazyRender || this._mustRender; }
+  get id() { return this.args.id || `${guidFor(this)}-floating`; }
 
   get _class() {
     const showOrHideClass = `ember-attacher-${this._isStartingAnimation ? 'show' : 'hide'}`;
     const arrowClass = `ember-attacher-${this.arrow ? 'with' : 'without'}-arrow`;
-    const baseClass = this.class || '';
-    const additionalClass = this.args.additionalClass || '';
-    return [`ember-attacher-${this.animation}`, baseClass, additionalClass, showOrHideClass, arrowClass].filter(Boolean).join(' ');
+    return [
+      `ember-attacher-${this.animation}`,
+      this.class || '',
+      this.args.additionalClass || '',
+      showOrHideClass,
+      arrowClass,
+    ].filter(Boolean).join(' ');
   }
 
   get _style() {
@@ -253,7 +171,6 @@ export default class BasicAttacher extends Component {
     return style;
   }
 
-  // This is memoized so it can be used by both attach-popover and attach-tooltip
   get _envConfig() {
     return getOwner(this).resolveRegistration('config:environment').emberAttacher || {};
   }
@@ -266,127 +183,32 @@ export default class BasicAttacher extends Component {
   }
 
   get _hideOn() {
-    let hideOn = this.hideOn;
-
-    if (hideOn === undefined) {
-      hideOn = DEFAULTS.hideOn;
-    }
-
+    const hideOn = this.hideOn === undefined ? DEFAULTS.hideOn : this.hideOn;
     return hideOn === null ? [] : hideOn.split(' ');
   }
 
+  get _showOn() {
+    const showOn = this.showOn === undefined ? DEFAULTS.showOn : this.showOn;
+    return showOn === null ? [] : showOn.split(' ');
+  }
+
   get _middleware() {
-    const rawMiddleware = this.args.middleware ?? this._config.middleware ?? DEFAULTS.middleware;
-    const middleware = (rawMiddleware || []).map((m) => {
-      if (m?.name === 'arrow' && this._arrowElement) {
-        if (typeof m.options === 'function') {
-          return arrow((state) => {
-            const resolved = m.options(state) || {};
-            return resolved.element ? resolved : { ...resolved, element: this._arrowElement };
-          });
-        }
-        if (!m.options?.element) {
-          return arrow({ ...m.options, element: this._arrowElement });
-        }
-      }
-      return m;
+    return buildMiddleware({
+      rawMiddleware: this._opt('middleware'),
+      arrowElement: this._arrowElement,
+      flipOption: this.flip,
+      overflowPadding: this.overflowPadding,
+      arrowEnabled: Boolean(this.arrow),
     });
-
-    const hasFlip = middleware.some((m) => m?.name === 'flip');
-    const flipString = this.flip;
-    if (!hasFlip) {
-      if (flipString) {
-        middleware.push(flip({ fallbackPlacements: flipString.split(' ') }));
-      } else if (this.overflowPadding !== false) {
-        middleware.push(flip());
-      }
-    }
-
-    const hasShift = middleware.some((m) => m?.name === 'shift');
-    if (this.overflowPadding !== false && !hasShift) {
-      middleware.push(shift({ limiter: limitShift(), padding: this.overflowPadding }));
-    }
-
-    const hasArrow = middleware.some((m) => m?.name === 'arrow');
-    if (this.arrow && this._arrowElement && !hasArrow) {
-      middleware.push(arrow({ element: this._arrowElement }));
-    }
-
-    return middleware;
-  }
-
-  get _floatingElementContainer() {
-    const maybeContainer = this.floatingElementContainer;
-    const renderInPlace = this._renderInPlace;
-    let floatingElementContainer;
-
-    if (renderInPlace) {
-      floatingElementContainer = this.parentElement;
-    } else if (maybeContainer instanceof Element) {
-      floatingElementContainer = maybeContainer;
-    } else if (!this._hasCustomFloatingElementContainer && this._modalContainer) {
-      // Keep overlays DOM-inside an open showModal() <dialog> so modal inertness
-      // does not block interactive content while [popover="manual"] stacks above it.
-      floatingElementContainer = this._modalContainer;
-    } else if (typeof maybeContainer === 'string') {
-      const selector = maybeContainer;
-      const possibleContainers = document.querySelectorAll(selector);
-
-      // DEFAULTS.floatingElementContainer is '.ember-application'; embedded or
-      // standalone Top-Layer mounts without .ember-application fall back to body.
-      if (possibleContainers.length === 0 && !this._hasCustomFloatingElementContainer && this._usePopoverHost) {
-        return document.body;
-      }
-
-      assert(`floatingElementContainer selector "${selector}" found `
-        + `${possibleContainers.length} possible containers when there should be exactly 1`, possibleContainers.length === 1);
-
-      floatingElementContainer = possibleContainers[0];
-    }
-
-    return floatingElementContainer;
-  }
-
-  _getModalDialogContainer() {
-    const contextNode = this._listenerTarget || this.parentElement;
-    if (!isElementTarget(contextNode) || typeof contextNode.closest !== 'function') {
-      return null;
-    }
-
-    try {
-      return contextNode.closest('dialog:modal');
-    } catch {
-      return null;
-    }
-  }
-
-  _syncModalContainer() {
-    if (this._renderInPlace || this._hasCustomFloatingElementContainer) {
-      if (this._modalContainer !== null) {
-        this._modalContainer = null;
-      }
-      return false;
-    }
-
-    const modalDialog = this._getModalDialogContainer();
-    if (this._modalContainer !== modalDialog) {
-      this._modalContainer = modalDialog;
-      return true;
-    }
-
-    return false;
   }
 
   get _hasCustomFloatingElementContainer() {
-    return Boolean(
-      this.args.floatingElementContainer || this._config.floatingElementContainer
-    );
+    return Boolean(this.args.floatingElementContainer || this._config.floatingElementContainer);
   }
 
   get _usePopoverHost() {
     return (
-      typeof HTMLElement !== 'undefined' &&
-      typeof HTMLElement.prototype.showPopover === 'function' &&
+      supportsPopoverHost() &&
       !this._renderInPlace &&
       !this._hasCustomFloatingElementContainer
     );
@@ -397,55 +219,54 @@ export default class BasicAttacher extends Component {
   }
 
   get _renderInPlace() {
-    // document is undefined in Fastboot, so we have to render in
-    // place for the floating element to show up at all.
-    return typeof document !== 'undefined' ? !!this.renderInPlace : true;
+    return typeof document !== 'undefined' ? Boolean(this.renderInPlace) : true;
   }
 
-  _showPopover() {
-    const el = this._floatingElement;
-    if (
-      el &&
-      el.isConnected &&
-      el.hasAttribute('popover') &&
-      typeof el.showPopover === 'function'
-    ) {
-      try {
-        if (!el.matches(':popover-open')) {
-          el.showPopover();
-        }
-      } catch (error) {
-        warn(
-          `[ember-attacher] Top-layer showPopover failed: ${error?.message ?? error}`,
-          false,
-          { id: 'ember-attacher.popover-error' }
-        );
-        // Drop [popover] so UA :not(:popover-open) { display: none } does not hide the portal fallback.
-        el.removeAttribute('popover');
-      }
-    }
+  get _floatingElementContainer() {
+    return resolveHostContainer({
+      renderInPlace: this._renderInPlace,
+      parentElement: this.parentElement,
+      maybeContainer: this.floatingElementContainer,
+      hasCustomContainer: this._hasCustomFloatingElementContainer,
+      modalContainer: this._modalContainer,
+      usePopoverHost: this._usePopoverHost,
+    });
   }
 
-  _hidePopover() {
-    const el = this._floatingElement;
-    if (
-      el &&
-      el.isConnected &&
-      el.hasAttribute('popover') &&
-      typeof el.hidePopover === 'function'
-    ) {
-      try {
-        if (el.matches(':popover-open')) {
-          el.hidePopover();
-        }
-      } catch (error) {
-        warn(
-          `[ember-attacher] Top-layer hidePopover failed: ${error?.message ?? error}`,
-          false,
-          { id: 'ember-attacher.popover-error' }
-        );
+  _syncModalContainer() {
+    if (this._renderInPlace || this._hasCustomFloatingElementContainer) {
+      if (this._modalContainer !== null) {
+        this._modalContainer = null;
       }
+      return false;
     }
+
+    const modalDialog = getModalDialogContainer(this._listenerTarget || this.parentElement);
+    if (this._modalContainer !== modalDialog) {
+      this._modalContainer = modalDialog;
+      return true;
+    }
+
+    return false;
+  }
+
+  _applyVisibility(isVisible) {
+    if (!isVisible) {
+      this._cleanup?.();
+      this._cleanup = null;
+    }
+
+    this._floatingElement.style.display = isVisible ? 'block' : 'none';
+    // Prevent jank by keeping the attachment invisible until positioned by _startShowAnimation().
+    this._floatingElement.style.visibility = isVisible ? 'hidden' : '';
+
+    if (isVisible) {
+      showPopoverHost(this._floatingElement);
+    } else {
+      hidePopoverHost(this._floatingElement);
+    }
+
+    this.args.onChange?.(isVisible);
   }
 
   _setIsVisibleAfterDelay(isVisible, delay) {
@@ -455,91 +276,31 @@ export default class BasicAttacher extends Component {
       });
       return;
     }
-    const onChange = this.args.onChange;
 
     if (delay) {
       this._delayedVisibilityToggle = later(this, () => {
         this._animationTimeout = requestAnimationFrame(() => {
           animationTestWaiter.endAsync(this._animationTimeout);
           if (!this.isDestroyed && !this.isDestroying) {
-            if (!isVisible) {
-              this._cleanup?.();
-              this._cleanup = null;
-            }
-            this._floatingElement.style.display = isVisible ? 'block' : 'none';
-
-            // Prevent jank by making the attachment invisible until positioned.
-            // The visibility style will be toggled by this._startShowAnimation()
-            this._floatingElement.style.visibility = isVisible ? 'hidden' : '';
-
-            if (isVisible) {
-              this._showPopover();
-            } else {
-              this._hidePopover();
-            }
-
-            if (onChange) {
-              onChange(isVisible);
-            }
+            this._applyVisibility(isVisible);
           }
         });
         animationTestWaiter.beginAsync(this._animationTimeout);
       }, delay);
     } else {
-      if (!isVisible) {
-        this._cleanup?.();
-        this._cleanup = null;
-      }
-      this._floatingElement.style.display = isVisible ? 'block' : 'none';
-      // Prevent jank by making the attachment invisible until positioned.
-      // The visibility style will be toggled by this._startShowAnimation()
-      this._floatingElement.style.visibility = isVisible ? 'hidden' : '';
-
-      if (isVisible) {
-        this._showPopover();
-      } else {
-        this._hidePopover();
-      }
-
-      if (onChange) {
-        onChange(isVisible);
-      }
+      this._applyVisibility(isVisible);
     }
   }
 
-  get _showOn() {
-    let showOn = this.showOn;
-
-    if (showOn === undefined) {
-      showOn = DEFAULTS.showOn;
-    }
-
-    return showOn === null ? [] : showOn.split(' ');
-  }
-
-  // Exposed via the named yield to enable custom hide events
   @action
   hide() {
     this._hide();
   }
 
-  /**
-   * Register an explicit attachment target (Element or Floating UI virtual ref).
-   * Yielded for composition into other modifiers.
-   * Pass `null` to clear and fall back to `@explicitTarget` / parent.
-   *
-   * Calls `_initializeAttacher` directly so registration that happens during the
-   * floating element's first render takes effect before the next user event.
-   *
-   * @param {Element | { getBoundingClientRect: Function } | null | undefined} target
-   */
   @action
   setReference(target) {
     cancel(this._setReferenceTimer);
 
-    // Defer: callers often invoke this from another modifier's
-    // `modify()` (composition). Tracked writes + re-init must not run in
-    // that tracking frame.
     this._setReferenceTimer = schedule('actions', () => {
       this._setReferenceTimer = null;
 
@@ -547,27 +308,21 @@ export default class BasicAttacher extends Component {
         return;
       }
 
-      const next = target ?? null;
-
-      if (this._registeredTarget === next) {
+      const nextTarget = target ?? null;
+      if (this._registeredTarget === nextTarget) {
         return;
       }
 
-      this._registeredTarget = next;
+      this._registeredTarget = nextTarget;
       this._initializeAttacher();
     });
   }
 
-  // Always defined on first render so the modifier binding is present immediately.
   reference = modifier((element) => {
     this.setReference(element);
 
     return () => {
-      if (this.isDestroyed || this.isDestroying) {
-        return;
-      }
-
-      if (this._registeredTarget === element) {
+      if (!this.isDestroyed && !this.isDestroying && this._registeredTarget === element) {
         this.setReference(null);
       }
     };
@@ -593,34 +348,25 @@ export default class BasicAttacher extends Component {
 
     registerAttacher(this);
 
-    // The debounced _hide() and _show() are stored here so they can be cancelled when necessary
     this._delayedVisibilityToggle = null;
-
-    // The final source of truth on whether or not all _hide() or _show() actions have completed
     this._isHidden = true;
-
-    // Tracks whether a hide request is in progress (including during hideDelay).
     this._isHiding = false;
-
-    // Blocks _update from (re)starting autoUpdate after hide until the next show.
     this._positioningSuspended = false;
-
-    // Holds a delayed function to toggle the visibility of the attachment.
-    // Used to make sure animations can complete before the attachment is hidden.
     this._animationTimeout = null;
 
-    // Used to store event listeners so they can be removed when necessary.
     this._hideListenersOnDocumentByEvent = {};
     this._hideListenersOnTargetByEvent = {};
     this._showListenersOnTargetByEvent = {};
 
-    // Hacks to make sure event listeners have the right context and are still removable
-    this._debouncedHideIfMouseOutsideTargetOrAttachment
-      = this._debouncedHideIfMouseOutsideTargetOrAttachment.bind(this);
+    this._aria = new AttachmentAriaController();
+    this._ariaOpen = false;
+    this._mouseLeaveOrigin = null;
+    this._restoreFocusOnHide = false;
+    this._suppressFocusShow = false;
+
     this._hide = this._hide.bind(this);
     this._hideAfterDelay = this._hideAfterDelay.bind(this);
-    this._hideIfMouseOutsideTargetOrAttachment
-      = this._hideIfMouseOutsideTargetOrAttachment.bind(this);
+    this._hideIfMouseOutsideTargetOrAttachment = this._hideIfMouseOutsideTargetOrAttachment.bind(this);
     this._hideOnClickOut = this._hideOnClickOut.bind(this);
     this._hideOnEscapeKey = this._hideOnEscapeKey.bind(this);
     this._hideOnLostFocus = this._hideOnLostFocus.bind(this);
@@ -629,6 +375,15 @@ export default class BasicAttacher extends Component {
     this._showAfterDelay = this._showAfterDelay.bind(this);
 
     this._lastUseCaptureArgumentValue = this.useCapture;
+  }
+
+  _syncAria() {
+    this._aria.bind(this._listenerTarget, {
+      isTooltip: this._isTooltip,
+      id: this.id,
+      ariaRole: this.args.ariaRole,
+      isOpen: this._ariaOpen,
+    });
   }
 
   _initializeAttacher() {
@@ -645,27 +400,26 @@ export default class BasicAttacher extends Component {
     this._addListenersForShowEvents();
 
     if (!this._isHidden || this.isShown) {
+      this._ariaOpen = true;
+      this._syncAria();
       this._addListenersForHideEvents();
-
-      // Even if the attachment is already shown, we still want to
-      // call this._show() to make sure its position is updated for a potentially new target.
       this._show();
+    } else {
+      this._ariaOpen = false;
+      this._syncAria();
     }
 
-    // Call hook for subclasses to add their own initialization logic
     this.args.onInitializeAttacher?.(this._currentTarget, this.id);
   }
 
   _addListenersForShowEvents() {
     const target = this._listenerTarget;
-
     if (!target) {
       return;
     }
 
     this._showOn.forEach((event) => {
       this._showListenersOnTargetByEvent[event] = this._showAfterDelay;
-
       target.addEventListener(event, this._showAfterDelay, this.useCapture);
     });
   }
@@ -682,29 +436,29 @@ export default class BasicAttacher extends Component {
     this._cancelAnimation();
     cancel(this._delayedVisibilityToggle);
 
+    this._aria.unbind();
     this._removeEventListeners();
 
-    // Call hook for cleanup
     this.args.onWillDestroy?.(this._currentTarget, this.id);
   }
 
   _removeEventListeners() {
+    this._mouseLeaveOrigin = null;
     Object.keys(this._hideListenersOnDocumentByEvent).forEach((eventType) => {
       document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType], this.useCapture);
       delete this._hideListenersOnDocumentByEvent[eventType];
     });
-    const target = this._listenerTarget;
 
+    const target = this._listenerTarget;
     if (!target) {
       return;
     }
 
-    [this._hideListenersOnTargetByEvent, this._showListenersOnTargetByEvent]
-      .forEach((eventToListener) => {
-        Object.keys(eventToListener).forEach((event) => {
-          target.removeEventListener(event, eventToListener[event], this.useCapture);
-        });
+    [this._hideListenersOnTargetByEvent, this._showListenersOnTargetByEvent].forEach((eventToListener) => {
+      Object.keys(eventToListener).forEach((event) => {
+        target.removeEventListener(event, eventToListener[event], this.useCapture);
       });
+    });
   }
 
   _syncIsShown() {
@@ -712,20 +466,17 @@ export default class BasicAttacher extends Component {
 
     if (isShown === true && this._isHidden) {
       this._show();
-
-      // Add the hide listeners in the next run loop to avoid conflicts
-      // where clicking triggers both an isShown toggle and a clickout.
       next(this, () => this._addListenersForHideEvents());
     } else if (isShown === false && !this._isHidden) {
       this._hide();
     }
   }
 
-  /**
-   * ================== SHOW ATTACHMENT LOGIC ==================
-   */
+  _showAfterDelay(event) {
+    if (this._suppressFocusShow && (event?.type === 'focus' || event?.type === 'focusin')) {
+      return;
+    }
 
-  _showAfterDelay() {
     cancel(this._delayedVisibilityToggle);
 
     this._isHiding = false;
@@ -735,7 +486,6 @@ export default class BasicAttacher extends Component {
     this._addListenersForHideEvents();
 
     const showDelay = parseInt(this.showDelay);
-
     this._delayedVisibilityToggle = debounce(this, this._show, showDelay, !showDelay);
   }
 
@@ -746,14 +496,16 @@ export default class BasicAttacher extends Component {
       return;
     }
 
+    this._restoreFocusOnHide = false;
     this._isHiding = false;
     this._positioningSuspended = false;
     this._mustRender = true;
+    this._ariaOpen = true;
+    this._aria.setOpen(true);
     const modalContainerChanged = this._syncModalContainer();
     syncParentAttachment(this);
 
     if (modalContainerChanged) {
-      // Allow {{#in-element}} to move into or out of dialog:modal before showing.
       next(this, () => {
         if (!this.isDestroyed && !this.isDestroying && !this._isHiding && this._currentTarget) {
           this._setIsVisibleAfterDelay(true, 0);
@@ -763,18 +515,11 @@ export default class BasicAttacher extends Component {
       return;
     }
 
-    // Make the attachment visible immediately so transition animations can take place
     this._setIsVisibleAfterDelay(true, 0);
-
     this._startShowAnimation();
   }
 
   _startShowAnimation() {
-    // Start the show animation on the next cycle so CSS transitions can have an effect.
-    // If we start the animation immediately, the transition won't work because
-    // `display: none` => `display: ''` is not transition-able.
-    // All included animations set opaque: 0, so the attachment is still effectively hidden until
-    // the final RAF occurs.
     this._animationTimeout = requestAnimationFrame(() => {
       animationTestWaiter.endAsync(this._animationTimeout);
       if (this.isDestroyed || this.isDestroying || !this._currentTarget) {
@@ -782,8 +527,6 @@ export default class BasicAttacher extends Component {
       }
 
       const floatingElement = this._floatingElement;
-
-      // Wait until the element is visible before continuing
       if (!floatingElement || floatingElement.style.display === 'none') {
         this._startShowAnimation();
         return;
@@ -791,8 +534,6 @@ export default class BasicAttacher extends Component {
 
       this._update();
 
-      // Wait for the above positioning to take effect before starting the show animation,
-      // else the positioning itself will be animated, causing animation glitches.
       this._animationTimeout = requestAnimationFrame(() => {
         animationTestWaiter.endAsync(this._animationTimeout);
         if (this.isDestroyed || this.isDestroying || !this._currentTarget) {
@@ -802,8 +543,6 @@ export default class BasicAttacher extends Component {
           if (this.isDestroyed || this.isDestroying || !this._currentTarget) {
             return;
           }
-          // Make the floating element visible now that it has been positioned
-          // (unless middlewareData.hide marked it reference-hidden or escaped)
           if (
             !floatingElement.hasAttribute('data-reference-hidden') &&
             !floatingElement.hasAttribute('data-escaped')
@@ -826,22 +565,19 @@ export default class BasicAttacher extends Component {
     animationTestWaiter.beginAsync(this._animationTimeout);
   }
 
-  /**
-   * ================== HIDE ATTACHMENT LOGIC ==================
-   */
-
   _hideAfterDelay() {
     cancel(this._delayedVisibilityToggle);
     this._isHiding = true;
 
     const hideDelay = parseInt(this.hideDelay);
-
     this._delayedVisibilityToggle = debounce(this, this._hide, hideDelay, !hideDelay);
   }
 
   _hide() {
     this._isHiding = true;
     this._positioningSuspended = true;
+    this._ariaOpen = false;
+    this._mouseLeaveOrigin = null;
     this._cleanup?.();
     this._cleanup = null;
 
@@ -855,11 +591,10 @@ export default class BasicAttacher extends Component {
     }
 
     this._cancelAnimation();
-
     this._removeListenersForHideEvents();
+
     this._animationTimeout = requestAnimationFrame(() => {
       animationTestWaiter.endAsync(this._animationTimeout);
-      // Avoid a race condition where we attempt to hide after the component is being destroyed.
       if (this.isDestroyed || this.isDestroying) {
         return;
       }
@@ -871,13 +606,23 @@ export default class BasicAttacher extends Component {
           return;
         }
 
+        if (this._restoreFocusOnHide) {
+          this._restoreFocusOnHide = false;
+          this._suppressFocusShow = true;
+          try {
+            restoreFocusOnEscape(this._listenerTarget, this._floatingElement);
+          } finally {
+            this._suppressFocusShow = false;
+          }
+        }
+
         this._floatingElement.style.setProperty(
           '--ember-attacher-transition-duration',
           `${hideDuration}ms`
         );
         this._isStartingAnimation = false;
         this._floatingElement.setAttribute('aria-hidden', 'true');
-        // Wait for any animations to complete before hiding the attachment
+        this._aria.setOpen(false);
         this._setIsVisibleAfterDelay(false, hideDuration);
       });
 
@@ -885,10 +630,6 @@ export default class BasicAttacher extends Component {
     });
     animationTestWaiter.beginAsync(this._animationTimeout);
   }
-
-  /**
-   * ================== HIDE LISTENERS ==================
-   */
 
   _addListenersForHideEvents() {
     const hideOn = this._hideOn;
@@ -900,10 +641,8 @@ export default class BasicAttacher extends Component {
 
     if (target && hideOn.includes('click')) {
       const showOnClickListener = this._showListenersOnTargetByEvent.click;
-
       if (showOnClickListener) {
         target.removeEventListener('click', showOnClickListener, this.useCapture);
-
         delete this._showListenersOnTargetByEvent.click;
       }
 
@@ -913,7 +652,6 @@ export default class BasicAttacher extends Component {
 
     if (hideOn.includes('clickout')) {
       const clickoutEvent = 'ontouchstart' in window ? 'touchend' : 'click';
-
       this._hideListenersOnDocumentByEvent[clickoutEvent] = this._hideOnClickOut;
       document.addEventListener(clickoutEvent, this._hideOnClickOut, this.useCapture);
     }
@@ -923,14 +661,11 @@ export default class BasicAttacher extends Component {
       document.addEventListener('keydown', this._hideOnEscapeKey, this.useCapture);
     }
 
-    // Hides the attachment when the mouse leaves the target
-    // (or leaves both target and attachment for interactive attachments)
     if (target && hideOn.includes('mouseleave')) {
       this._hideListenersOnTargetByEvent.mouseleave = this._hideOnMouseLeaveTarget;
       target.addEventListener('mouseleave', this._hideOnMouseLeaveTarget, this.useCapture);
     }
 
-    // Hides the attachment when focus is lost on the target
     if (target) {
       ['blur', 'focusout'].forEach((eventType) => {
         if (hideOn.includes(eventType)) {
@@ -941,13 +676,10 @@ export default class BasicAttacher extends Component {
     }
   }
 
-  _hideOnMouseLeaveTarget() {
+  _hideOnMouseLeaveTarget(event) {
     if (this.interactive) {
-      // TODO(kjb) Should debounce this, but hiding appears sluggish if you debounce.
-      //   - If you debounce with immediate fire, you get a bug where you can move out of the
-      //   attachment and not trigger the hide because the hide check was debounced
-      //   - Ideally we would debounce with an immediate run, then instead of debouncing, we would
-      //   queue another fire at the end of the debounce period
+      this._mouseLeaveOrigin = event ? { x: event.clientX, y: event.clientY } : null;
+
       if (!this._hideListenersOnDocumentByEvent.mousemove) {
         this._hideListenersOnDocumentByEvent.mousemove = this._hideIfMouseOutsideTargetOrAttachment;
         document.addEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment, this.useCapture);
@@ -957,52 +689,40 @@ export default class BasicAttacher extends Component {
     }
   }
 
-  _debouncedHideIfMouseOutsideTargetOrAttachment(event) {
-    debounce(this, this._hideIfMouseOutsideTargetOrAttachment, event, 10);
-  }
-
   _hideIfMouseOutsideTargetOrAttachment(event) {
     const target = this._listenerTarget;
-
     if (!target) {
       return;
     }
 
-    // If cursor is not on the attachment, a descendant attachment, or target, hide the floating element
     if (
       !target.contains(event.target) &&
       !descendantAttachmentContainsEvent(this, event) &&
-      !(this.isOffset && isCursorBetween(event, this._currentTarget, this._floatingElement)) &&
+      !isCursorInSafePolygon(event, this._mouseLeaveOrigin, this._currentTarget, this._floatingElement) &&
       this._floatingElement &&
       !this._floatingElement.contains(event.target)
     ) {
-      // Remove this listener before hiding the attachment
+      this._mouseLeaveOrigin = null;
       delete this._hideListenersOnDocumentByEvent.mousemove;
       document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment, this.useCapture);
-
       this._hideAfterDelay();
     }
   }
 
   _hideOnClickOut(event) {
     const target = this._listenerTarget;
-    const targetReceivedClick = elementContainsEvent(target, event);
-
-    if (targetReceivedClick || descendantAttachmentContainsEvent(this, event)) {
+    if (elementContainsEvent(target, event) || descendantAttachmentContainsEvent(this, event)) {
       return;
     }
 
-    if (this.interactive) {
-      if (!elementContainsEvent(this._floatingElement, event)) {
-        this._hideAfterDelay();
-      }
-    } else {
+    if (!this.interactive || !elementContainsEvent(this._floatingElement, event)) {
       this._hideAfterDelay();
     }
   }
 
   _hideOnEscapeKey(event) {
     if ((event.key === 'Escape' || event.keyCode === 27) && shouldHandleEscapeKey(this, event)) {
+      this._restoreFocusOnHide = !this._isTooltip;
       return this._hideAfterDelay();
     }
   }
@@ -1014,22 +734,15 @@ export default class BasicAttacher extends Component {
     }
 
     const target = this._listenerTarget;
-
     if (!target) {
       return;
     }
 
-    const targetContainsFocus = target.contains(event.relatedTarget);
-
-    if (targetContainsFocus || descendantAttachmentContainsNode(this, event.relatedTarget)) {
+    if (target.contains(event.relatedTarget) || descendantAttachmentContainsNode(this, event.relatedTarget)) {
       return;
     }
 
-    if (this.interactive) {
-      if (!this._floatingElement?.contains(event.relatedTarget)) {
-        this._hideAfterDelay();
-      }
-    } else {
+    if (!this.interactive || !this._floatingElement?.contains(event.relatedTarget)) {
       this._hideAfterDelay();
     }
   }
@@ -1040,18 +753,13 @@ export default class BasicAttacher extends Component {
       delete this._hideListenersOnDocumentByEvent[eventType];
     });
 
-    const showOn = this._showOn;
     const target = this._listenerTarget;
-
-    // The target was destroyed, nothing to remove listeners from
     if (!target) {
       return;
     }
 
-    // Switch clicking back to a show event
-    if (showOn.includes('click')) {
+    if (this._showOn.includes('click')) {
       const hideOnClickListener = this._hideListenersOnTargetByEvent.click;
-
       if (hideOnClickListener) {
         target.removeEventListener('click', hideOnClickListener, this.useCapture);
         delete this._hideListenersOnTargetByEvent.click;
@@ -1063,7 +771,6 @@ export default class BasicAttacher extends Component {
 
     ['blur', 'focusout', 'mouseleave'].forEach((eventType) => {
       const listener = this._hideListenersOnTargetByEvent[eventType];
-
       if (listener) {
         target.removeEventListener(eventType, listener, this.useCapture);
         delete this._hideListenersOnTargetByEvent[eventType];
@@ -1075,28 +782,15 @@ export default class BasicAttacher extends Component {
     this._cleanup?.();
     this._cleanup = null;
 
-    // Suspended after _hide until the next _show. Hide writes tracked state that
-    // re-renders and can re-fire optionsDidUpdate → _update; without this flag
-    // that path restarts autoUpdate (especially with hideDuration: 0). Do not
-    // use _isHidden here — it stays true until late in _startShowAnimation,
-    // after _update must already run.
     if (
       this.isDestroyed ||
       this.isDestroying ||
       this._positioningSuspended ||
       !this._currentTarget ||
-      !this._floatingElement
+      !this._floatingElement ||
+      !isTargetConnected(this._currentTarget) ||
+      !this._floatingElement.isConnected
     ) {
-      return;
-    }
-
-    const isTargetConnected = isElementTarget(this._currentTarget)
-      ? this._currentTarget.isConnected
-      : (this._currentTarget?.contextElement instanceof Element
-        ? this._currentTarget.contextElement.isConnected
-        : true);
-
-    if (!isTargetConnected || !this._floatingElement.isConnected) {
       return;
     }
 
@@ -1125,14 +819,7 @@ export default class BasicAttacher extends Component {
       return;
     }
 
-    const isTargetConnected = isElementTarget(this._currentTarget)
-      ? this._currentTarget.isConnected
-      : (this._currentTarget?.contextElement instanceof Element
-        ? this._currentTarget.contextElement.isConnected
-        : true);
-
-    if (!isTargetConnected || !this._floatingElement.isConnected) {
-      // Stop lingering observers if a node detached mid-update.
+    if (!isTargetConnected(this._currentTarget) || !this._floatingElement.isConnected) {
       this._cleanup?.();
       this._cleanup = null;
       return;
@@ -1158,44 +845,14 @@ export default class BasicAttacher extends Component {
           return;
         }
 
-        Object.assign(this._floatingElement.style, {
-          position: computedStrategy || strategy,
-          left: `${x}px`,
-          top: `${y}px`,
+        applyPositionResult(this._floatingElement, this._arrowElement, {
+          x,
+          y,
+          placement,
+          strategy: computedStrategy || strategy,
+          middlewareData,
+          isHidden: this._isHidden,
         });
-
-        if (middlewareData.arrow && this._arrowElement) {
-          const { x: arrowX, y: arrowY } = middlewareData.arrow;
-
-          Object.assign(this._arrowElement.style, {
-            left: arrowX != null ? `${arrowX}px` : '',
-            top: arrowY != null ? `${arrowY}px` : '',
-          });
-        }
-
-        if (middlewareData.hide) {
-          const { referenceHidden, escaped } = middlewareData.hide;
-
-          if (referenceHidden) {
-            this._floatingElement.setAttribute('data-reference-hidden', '');
-          } else {
-            this._floatingElement.removeAttribute('data-reference-hidden');
-          }
-
-          if (escaped) {
-            this._floatingElement.setAttribute('data-escaped', '');
-          } else {
-            this._floatingElement.removeAttribute('data-escaped');
-          }
-
-          if (referenceHidden || escaped) {
-            this._floatingElement.style.visibility = 'hidden';
-          } else if (!this._isHidden) {
-            this._floatingElement.style.visibility = '';
-          }
-        }
-
-        this._floatingElement.setAttribute('x-placement', placement);
       })
       .catch((error) => {
         animationTestWaiter.endAsync(computePositionToken);
@@ -1219,6 +876,6 @@ export default class BasicAttacher extends Component {
       if (animationTestWaiter.items?.get(this._animationTimeout)) {
         animationTestWaiter.endAsync(this._animationTimeout);
       }
-    })
+    });
   }
 }

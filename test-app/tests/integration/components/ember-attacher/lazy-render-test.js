@@ -87,7 +87,7 @@ module('Integration | Component | lazyRender', function(hooks) {
     assert.dom('#should-not-be-present-until-clicked').exists('Has initially rendered the yield block.');
   });
 
-  test('T2: runs ...attributes modifiers on mount with @lazyRender={{true}} and drives transition duration via CSSOM without inline style attributes', async function(assert) {
+  test('runs ...attributes modifiers on mount with @lazyRender={{true}} and drives transition duration via CSSOM without inline style attributes', async function(assert) {
     let modifierInstalledElement = null;
 
     this.set(

@@ -27,12 +27,14 @@ module('Integration | Component | explicit target', function (hooks) {
       </div>
     `);
 
-    assert.dom('#old-target').hasAria('describedby', 'attachment');
+    assert.dom('#old-target').doesNotHaveAria('describedby', 'tooltip aria-describedby is open-only');
     await focus('#old-target');
     const attachment = find('#attachment');
     assert.equal(isVisible(attachment), true, 'Is shown on focus');
+    assert.dom('#old-target').hasAria('describedby', 'attachment');
     await focus('#new-target');
     assert.equal(isVisible(attachment), false, 'Hides after focusing on another target');
+    assert.dom('#old-target').doesNotHaveAria('describedby', 'removes aria-describedby on hide');
     this.set('explicitTarget', find('#new-target'));
     await settled();
     await focus('#old-target');
@@ -254,7 +256,7 @@ module('Integration | Component | explicit target', function (hooks) {
     assert.equal(isVisible(attachment), true, 'Tooltip visible for virtual target');
   });
 
-  test('T4: coordinate-only VirtualElement without contextElement dismisses on document clickout and escapekey, and supports inline() getClientRects', async function (assert) {
+  test('coordinate-only VirtualElement without contextElement dismisses on document clickout and escapekey, and supports inline() getClientRects', async function (assert) {
     let clientRectsCalled = 0;
     const rect = {
       x: 50,
@@ -319,7 +321,7 @@ module('Integration | Component | explicit target', function (hooks) {
     assert.false(isVisible(attachment), 'Dismissed on document Escape keydown without contextElement');
   });
 
-  test('T3: deduplicates @middleware by m.name without mutating consumer objects, merges arrow element, syncs @strategy, and applies middlewareData.hide', async function (assert) {
+  test('deduplicates @middleware by m.name without mutating consumer objects, merges arrow element, syncs @strategy, and applies middlewareData.hide', async function (assert) {
     const seenMiddlewareNames = [];
     const customFlip = Object.freeze({
       name: 'flip',
