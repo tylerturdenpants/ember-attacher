@@ -3,7 +3,8 @@
   "packageManager": "pnpm@12.5.1",
   "workspaces": [
     "addon",
-    "test-app"
+    "test-app",
+    "vite-test-app"
   ],
   "name": "ember-attacher",
   "scripts": {
