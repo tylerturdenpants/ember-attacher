@@ -1,3 +1,20 @@
+## Unreleased (v4.3.0)
+
+#### :boom: Behavioral Change (Test Support)
+* [#1095](https://github.com/tylerturdenpants/ember-attacher/pull/1095) / [#1112](https://github.com/tylerturdenpants/ember-attacher/issues/1112) `isVisible()` in `ember-attacher/test-support` now checks `display !== 'none'`, `visibility !== 'hidden'`, `aria-hidden !== 'true'`, and `:popover-open` (when `[popover]` is present), instead of only `display !== 'none'` ([@pzubar](https://github.com/pzubar))
+
+#### :rocket: Enhancement
+* [#1095](https://github.com/tylerturdenpants/ember-attacher/pull/1095) / [#1112](https://github.com/tylerturdenpants/ember-attacher/issues/1112) Promote `.ember-attacher` to the browser Top Layer (`popover="manual"` via `showPopover()` / `hidePopover()`) when supported and neither `@renderInPlace` nor `@floatingElementContainer` is explicitly set, automatically scoping portals inside active `dialog:modal` elements to avoid `showModal()` inertness while keeping `{{#in-element}}` fallback ([@pzubar](https://github.com/pzubar))
+* [#1096](https://github.com/tylerturdenpants/ember-attacher/pull/1096) / [#1111](https://github.com/tylerturdenpants/ember-attacher/issues/1111) Add `@strategy` (`'absolute' | 'fixed'`), re-export Floating UI middleware builders from `'ember-attacher'`, wire `middlewareData.hide` (`data-reference-hidden` / `data-escaped`), support `@media (prefers-reduced-motion: reduce)`, and add strict-CSP CSSOM `--ember-attacher-transition-duration` ([@pzubar](https://github.com/pzubar))
+* [#1108](https://github.com/tylerturdenpants/ember-attacher/pull/1108) Export `AttachPopover`, `AttachTooltip`, `BasicAttacher`, and `isVisible` from `'ember-attacher'`, add `"sideEffects"` for Vite tree-shaking, and add Ember 7.4 Vite test harness ([@pzubar](https://github.com/pzubar))
+
+#### :bug: Bug Fix
+* [#1096](https://github.com/tylerturdenpants/ember-attacher/pull/1096) / [#90](https://github.com/tylerturdenpants/ember-attacher/issues/90) Support nested Attachments across Top Layer and portals (clickout protection and LIFO `Escape` dismissal), coordinate-only `VirtualElement` document dismissal, `@lazyRender` outer host mounting, and `@middleware` deduplication / `arrow()` element merging ([@pzubar](https://github.com/pzubar))
+
+#### :memo: Documentation & Housecleaning
+* [#1096](https://github.com/tylerturdenpants/ember-attacher/pull/1096) Drop `@ember/utils` and refresh `README.md` with `.gjs` / `.gts` examples, Ember 6/7 compatibility, and all 12 Floating UI placements ([@pzubar](https://github.com/pzubar))
+
+
 ## v4.2.1 (2026-11-12)
 
 #### :bug: Bug Fix

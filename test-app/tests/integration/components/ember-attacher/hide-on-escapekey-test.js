@@ -65,23 +65,84 @@ module('Integration | Component | hideOn "escapekey"', function(hooks) {
     const parentPopover = find('#parent-escape-popover');
     const childPopover = find('#child-escape-popover');
 
+    assert.dom(parentPopover).hasAttribute('popover', 'manual', 'Parent uses Top-Layer host');
+    assert.dom(childPopover).hasAttribute('popover', 'manual', 'Child uses Top-Layer host');
+    assert.true(parentPopover.matches(':popover-open'), 'Parent starts :popover-open');
     assert.true(isVisible(parentPopover), 'Parent starts open');
     assert.false(isVisible(childPopover), 'Child starts closed');
 
     await click('#child-trigger');
+    assert.true(childPopover.matches(':popover-open'), 'Child promotes to :popover-open');
     assert.true(isVisible(childPopover), 'Child opens on click');
 
     // First Escape closes only the deepest child
     await triggerKeyEvent(document, 'keydown', 'Escape');
     await waitUntil(() => isVisible(childPopover) === false);
 
+    assert.false(childPopover.matches(':popover-open'), 'First Escape removed child from Top Layer');
     assert.false(isVisible(childPopover), 'First Escape dismissed child');
+    assert.true(parentPopover.matches(':popover-open'), 'Parent remains :popover-open after first Escape');
     assert.true(isVisible(parentPopover), 'Parent remains open after first Escape');
 
     // Second Escape closes the parent
     await triggerKeyEvent(document, 'keydown', 'Escape');
     await waitUntil(() => isVisible(parentPopover) === false);
 
+    assert.false(parentPopover.matches(':popover-open'), 'Second Escape removed parent from Top Layer');
     assert.false(isVisible(parentPopover), 'Second Escape dismissed parent');
+  });
+
+  test('T5 (#90): Escape dismisses LIFO across mixed Top-Layer parent and portaled child', async function(assert) {
+    await render(hbs`
+      <div id="portal-escape-host"></div>
+      <button id="mixed-parent-trigger" type="button">
+        Parent
+        <AttachPopover
+          @id="mixed-parent-escape"
+          @isShown={{true}}
+          @showOn="click"
+          @hideOn="escapekey"
+          @hideDuration={{0}}
+          @interactive={{true}}
+          @animation="none"
+        >
+          <button id="mixed-child-trigger" type="button">
+            Child
+            <AttachPopover
+              @id="mixed-child-escape"
+              @floatingElementContainer="#portal-escape-host"
+              @showOn="click"
+              @hideOn="escapekey"
+              @hideDuration={{0}}
+              @interactive={{true}}
+              @animation="none"
+            >
+              Portaled child body
+            </AttachPopover>
+          </button>
+        </AttachPopover>
+      </button>
+    `);
+
+    const parentPopover = find('#mixed-parent-escape');
+    const childPopover = find('#mixed-child-escape');
+
+    assert.dom(parentPopover).hasAttribute('popover', 'manual');
+    assert.dom(childPopover).doesNotHaveAttribute('popover');
+
+    await click('#mixed-child-trigger');
+    assert.true(isVisible(parentPopover), 'Top-Layer parent open');
+    assert.true(isVisible(childPopover), 'Portaled child open');
+
+    await triggerKeyEvent(document, 'keydown', 'Escape');
+    await waitUntil(() => isVisible(childPopover) === false);
+
+    assert.false(isVisible(childPopover), 'First Escape closed portaled child');
+    assert.true(isVisible(parentPopover), 'Top-Layer parent remains open after first Escape');
+
+    await triggerKeyEvent(document, 'keydown', 'Escape');
+    await waitUntil(() => isVisible(parentPopover) === false);
+
+    assert.false(isVisible(parentPopover), 'Second Escape closed Top-Layer parent');
   });
 });
