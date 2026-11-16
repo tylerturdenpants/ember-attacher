@@ -1,8 +1,16 @@
 import { hbs } from 'ember-cli-htmlbars';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-import { click, find, focus, render, settled } from '@ember/test-helpers';
-import { isVisible } from 'ember-attacher';
+import { click, find, focus, render, settled, triggerKeyEvent, waitUntil } from '@ember/test-helpers';
+import {
+  arrow,
+  flip,
+  hide,
+  inline,
+  isVisible,
+  offset,
+  shift,
+} from 'ember-attacher';
 import { modifier } from 'ember-modifier';
 
 module('Integration | Component | explicit target', function (hooks) {
@@ -247,5 +255,151 @@ module('Integration | Component | explicit target', function (hooks) {
     const attachment = find('#attachment');
     assert.ok(attachment, 'Tooltip rendered for virtual target');
     assert.equal(isVisible(attachment), true, 'Tooltip visible for virtual target');
+  });
+
+  test('T4: coordinate-only VirtualElement without contextElement dismisses on document clickout and escapekey, and supports inline() getClientRects', async function (assert) {
+    let clientRectsCalled = 0;
+    const rect = {
+      x: 50,
+      y: 60,
+      top: 60,
+      left: 50,
+      bottom: 80,
+      right: 110,
+      width: 60,
+      height: 20,
+    };
+
+    this.set('virtualTarget', {
+      getBoundingClientRect() {
+        return rect;
+      },
+      getClientRects() {
+        clientRectsCalled += 1;
+        return [rect];
+      },
+    });
+    this.set('middleware', [inline({ x: 55, y: 65 }), offset(4)]);
+
+    await render(hbs`
+      <button id="outside-btn" type="button">Outside</button>
+      <div id="mount">
+        <AttachPopover
+          @id="virtual-popover"
+          @explicitTarget={{this.virtualTarget}}
+          @isShown={{true}}
+          @showOn={{null}}
+          @hideOn="clickout escapekey"
+          @hideDuration={{0}}
+          @interactive={{true}}
+          @middleware={{this.middleware}}
+        >
+          <button id="inside-virtual-btn" type="button">Inside virtual</button>
+        </AttachPopover>
+      </div>
+    `);
+
+    const attachment = find('#virtual-popover');
+    assert.true(isVisible(attachment), 'Virtual popover initially shown');
+    assert.true(clientRectsCalled > 0, 'inline() middleware invoked VirtualElement.getClientRects()');
+
+    // Clicking inside interactive virtual popover keeps it open
+    await click('#inside-virtual-btn');
+    assert.true(isVisible(attachment), 'Stays visible when clicking inside interactive virtual attachment');
+
+    // Clicking outside dismisses coordinate-only virtual attachment
+    await click('#outside-btn');
+    await waitUntil(() => isVisible(attachment) === false);
+    assert.false(isVisible(attachment), 'Dismissed on document clickout without contextElement');
+
+    // Re-open by re-initializing virtualTarget and test Escape dismissal
+    this.set('virtualTarget', { ...this.virtualTarget });
+    await settled();
+    assert.true(isVisible(attachment), 'Shown again after virtual target update');
+
+    await triggerKeyEvent(document, 'keydown', 'Escape');
+    await waitUntil(() => isVisible(attachment) === false);
+    assert.false(isVisible(attachment), 'Dismissed on document Escape keydown without contextElement');
+  });
+
+  test('T3: deduplicates @middleware by m.name without mutating consumer objects, merges arrow element, syncs @strategy, and applies middlewareData.hide', async function (assert) {
+    const seenMiddlewareNames = [];
+    const customFlip = Object.freeze({
+      name: 'flip',
+      options: Object.freeze({ fallbackPlacements: ['bottom'] }),
+      fn() {
+        return {};
+      },
+    });
+    const customShift = Object.freeze({
+      name: 'shift',
+      fn() {
+        return {};
+      },
+    });
+    const customArrow = arrow({ padding: 8 });
+    const inspector = {
+      name: 'inspector',
+      fn(state) {
+        seenMiddlewareNames.push(state.middlewareData);
+        return {};
+      },
+    };
+    const simulateHidden = {
+      name: 'hide',
+      fn() {
+        return {
+          data: {
+            referenceHidden: true,
+            escaped: true,
+          },
+        };
+      },
+    };
+
+    this.set('middleware', [customFlip, customShift, customArrow, hide(), inspector]);
+
+    await render(hbs`
+      <button id="strategy-target" type="button">
+        Target
+        <AttachPopover
+          @id="middleware-popover"
+          @isShown={{true}}
+          @arrow={{true}}
+          @flip="left right"
+          @strategy="fixed"
+          @middleware={{this.middleware}}
+        >
+          Popover content
+        </AttachPopover>
+      </button>
+    `);
+
+    const attachment = find('#middleware-popover');
+    assert.true(isVisible(attachment), 'Popover is visible');
+    assert.strictEqual(attachment.style.position, 'fixed', '@strategy="fixed" synced to floatingElement.style.position');
+    assert.strictEqual(
+      customArrow.options.element,
+      undefined,
+      'consumer arrow({ padding }) options object was not mutated in place'
+    );
+    const arrowEl = attachment.querySelector('.ember-attacher-arrow');
+    assert.ok(
+      arrowEl.style.left !== '' || arrowEl.style.top !== '',
+      'arrow({ padding }) without element automatically merged this._arrowElement and positioned arrow'
+    );
+    assert.ok(seenMiddlewareNames.length > 0, 'custom middleware executed');
+
+    // Now apply middlewareData.hide with referenceHidden / escaped = true
+    this.set('middleware', [customFlip, customShift, simulateHidden]);
+    await settled();
+
+    assert.dom('#middleware-popover').hasAttribute('data-reference-hidden', '');
+    assert.dom('#middleware-popover').hasAttribute('data-escaped', '');
+    assert.strictEqual(
+      attachment.style.visibility,
+      'hidden',
+      'middlewareData.hide hides attachment visibility when referenceHidden/escaped'
+    );
   });
 });
