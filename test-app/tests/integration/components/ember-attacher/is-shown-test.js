@@ -118,7 +118,7 @@ module('Integration | Component | isShown', function(hooks) {
       </button>
     `);
 
-    assert.equal(find('#attachment'), undefined, 'Not present in DOM');
+    assert.strictEqual(find('#close'), null, 'Inner content not present in DOM before first show');
 
     await click('#open');
 

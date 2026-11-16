@@ -9,6 +9,7 @@
 
 :where(:root) {
   --ember-attacher-distance: 10px;
+  --ember-attacher-transition-duration: 0ms;
   --ember-attacher-z-index: 9999;
 }
 
@@ -21,6 +22,16 @@
   perspective: 800px;
   transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
   z-index: var(--ember-attacher-z-index, 9999);
+
+  &[data-reference-hidden],
+  &[data-escaped] {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  > div {
+    transition-duration: var(--ember-attacher-transition-duration, 0ms);
+  }
 
   &[x-placement^=top] {
     --ember-attacher-arrow-rotate: rotate(-45deg);
@@ -88,6 +99,7 @@
       transform: var(--ember-attacher-circle-hide);
       opacity: 0;
       transform-origin: var(--ember-attacher-circle-origin);
+      transition-duration: calc(var(--ember-attacher-transition-duration, 0ms) * 0.8);
     }
 
     > .ember-attacher-fill,
@@ -201,7 +213,9 @@
     opacity: 0;
     overflow: hidden;
     position: absolute;
-    transition: all ease-out;
+    transition-duration: calc(var(--ember-attacher-transition-duration, 0ms) * 0.8);
+    transition-property: all;
+    transition-timing-function: ease-out;
     width: 120%;
     width: calc(100% + 2rem);
     will-change: transform;
@@ -232,3 +246,13 @@
   --ember-attacher-border-width: 1px;
   --ember-attacher-shadow: 0 0 16px -4px rgba(0, 20, 40, 0.2), 0 0 80px -10px rgba(0, 20, 40, 0.3);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .ember-attacher,
+  .ember-attacher > div,
+  .ember-attacher div[x-circle] {
+    --ember-attacher-transition-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
+}
+

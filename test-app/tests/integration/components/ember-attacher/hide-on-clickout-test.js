@@ -234,4 +234,80 @@ module('Integration | Component | hideOn "clickout"', function(hooks) {
 
     assert.true(isVisible(attachment), 'Attachment stays visible when click is inside attachment');
   });
+
+  test('T5 (#90): clicking inside a portaled child Attachment (including a detaching child node) does not trigger parent clickout', async function(assert) {
+    this.set('showChildAction', true);
+    this.set('removeChildAction', () => {
+      this.set('showChildAction', false);
+    });
+
+    await render(hbs`
+      <button id="outside" type="button">Outside</button>
+
+      <button id="parent-trigger" type="button">
+        Open Parent
+        <AttachPopover
+          @id="parent-attachment"
+          @showOn="click"
+          @hideOn="clickout"
+          @hideDuration={{0}}
+          @interactive={{true}}
+          @isShown={{true}}
+          @animation="none"
+        >
+          <button id="child-trigger" type="button">
+            Open Child
+            <AttachPopover
+              @id="child-attachment"
+              @showOn="click"
+              @hideOn="clickout"
+              @hideDuration={{0}}
+              @interactive={{true}}
+              @animation="none"
+            >
+              <button id="child-inner-btn" type="button">Child inner button</button>
+              {{#if this.showChildAction}}
+                <button id="child-detaching-btn" type="button" {{on "click" this.removeChildAction}}>
+                  Detaching child action
+                </button>
+              {{/if}}
+            </AttachPopover>
+          </button>
+        </AttachPopover>
+      </button>
+    `);
+
+    const parentAttachment = find('#parent-attachment');
+    const childAttachment = find('#child-attachment');
+
+    assert.true(isVisible(parentAttachment), 'Parent attachment starts open');
+    assert.false(isVisible(childAttachment), 'Child attachment starts closed');
+
+    // Clicking the child trigger inside the parent opens the child and keeps the parent open
+    await click('#child-trigger');
+    assert.true(isVisible(parentAttachment), 'Parent stays open when child trigger is clicked');
+    assert.true(isVisible(childAttachment), 'Child attachment opens');
+
+    // Clicking inside the portaled child attachment keeps both child and parent open
+    await click('#child-inner-btn');
+    assert.true(isVisible(childAttachment), 'Child stays open when clicked inside');
+    assert.true(isVisible(parentAttachment), 'Parent stays open when portaled child is clicked (#90)');
+
+    // Clicking a detaching button inside the portaled child keeps both open
+    await click('#child-detaching-btn');
+    assert.dom('#child-detaching-btn').doesNotExist('Detaching button removed from child');
+    assert.true(isVisible(childAttachment), 'Child stays open after detaching button click');
+    assert.true(isVisible(parentAttachment), 'Parent stays open after detaching button click inside child');
+
+    // Clicking inside parent (outside child) closes child but keeps parent open
+    await click(parentAttachment);
+    await waitUntil(() => isVisible(childAttachment) === false);
+    assert.false(isVisible(childAttachment), 'Child closes when clicking parent outside child');
+    assert.true(isVisible(parentAttachment), 'Parent stays open when clicking inside parent');
+
+    // Clicking outside both closes parent
+    await click('#outside');
+    await waitUntil(() => isVisible(parentAttachment) === false);
+    assert.false(isVisible(parentAttachment), 'Parent closes when clicking outside');
+  });
 });

@@ -8,12 +8,44 @@
 
 ## Compatibility
 
-* Ember.js v3.20 through v5.12
-* Ember CLI v3.13 or above
-* Node.js v12 or above
+* Ember.js v3.28 through v6.x and v7.x (including Embroider + Vite)
+* Ember CLI v3.28 or above
+* Node.js v18 or above
 
 Tooltips and popovers made easy.
 Just drop an `<AttachTooltip/>` or `<AttachPopover/>` in a parent and your floating element is ready to go!
+
+### `<template>` (`.gjs` / `.gts`)
+
+```gjs
+import { AttachPopover, AttachTooltip, offset } from 'ember-attacher';
+
+const offsetMiddleware = [offset(12)];
+
+<template>
+  <button type="button">
+    Hover me
+    <AttachTooltip @placement="top-start">
+      I'm a tooltip!
+    </AttachTooltip>
+  </button>
+
+  <button type="button" class="other-button">
+    Click me
+    <AttachPopover
+      @class="ember-attacher-popover"
+      @showOn="click"
+      @hideOn="click clickout escapekey"
+      @interactive={{true}}
+      @middleware={{offsetMiddleware}}
+    >
+      I'm an interactive popover!
+    </AttachPopover>
+  </button>
+</template>
+```
+
+### Loose templates (`.hbs`)
 
 ```hbs
 <button>
@@ -137,7 +169,9 @@ Below is a list of all available options, along with their defaults.
   // Useful for performance reasons, but will hide your attachment from search engines.
   lazyRender: false,
 
-  // A middleware array that will be merged into computePosition options
+  // A middleware array that will be merged into computePosition options.
+  // Built-in Floating UI middleware builders are re-exported from 'ember-attacher':
+  // { offset, flip, shift, limitShift, size, inline, hide, autoPlacement, arrow }
   middleware: null,
 
   // A function to be fired when the attachment's visibility changes. The new visibility is passed
@@ -145,8 +179,16 @@ Below is a list of all available options, along with their defaults.
   onChange: null,
 
   // The initial position of the attachment.
-  // Options: ['left', 'right', 'top', 'bottom']
+  // Options: [
+  //   'top', 'top-start', 'top-end',
+  //   'right', 'right-start', 'right-end',
+  //   'bottom', 'bottom-start', 'bottom-end',
+  //   'left', 'left-start', 'left-end'
+  // ]
   placement: 'top',
+
+  // The CSS position strategy used by Floating UI ('absolute' | 'fixed').
+  strategy: 'absolute',
 
   // The container where the attachment's DOM will be inserted.
   floatingElementContainer: '.ember-application',
@@ -156,7 +198,7 @@ Below is a list of all available options, along with their defaults.
 
   // Explicit attachment target. Default remains the parent element when unset.
   // Accepts an Element, a CSS selector string (exactly one match), or a Floating UI
-  // virtual reference (`{ getBoundingClientRect, contextElement? }`).
+  // VirtualElement (`{ getBoundingClientRect, getClientRects?, contextElement? }`).
   // The block also yields `setReference` and a `reference` modifier for composition.
   explicitTarget: null,
 
@@ -276,6 +318,7 @@ Default token values use `:where()` so an app class can override them even if ad
 Outer wrapper tokens on `.ember-attacher`:
 * `--ember-attacher-distance` (default `10px`): inner animation gap.
 * `--ember-attacher-z-index` (default `9999`): stacking context.
+* `--ember-attacher-transition-duration` (default `0ms`): driven via CSSOM from `@showDuration` / `@hideDuration` (strict CSP `style-src` compatible without `'unsafe-inline'`), and automatically forced to `0ms` under `@media (prefers-reduced-motion: reduce)`.
 Set them on `.ember-attacher` or an ancestor container. `--ember-attacher-offset` and `--ember-attacher-arrow-rotate` stay internal.
 
 Dummy popover example: `@class="ember-attacher-popover custom-popover-css"` in `test-app` (token overrides only). See the [4.1 upgrade guide](./addon/docs/upgrade-guide-4.1.md).

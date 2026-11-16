@@ -5,7 +5,16 @@ import {
   AttachPopover,
   AttachTooltip,
   BasicAttacher,
+  arrow,
+  autoPlacement,
+  flip,
+  hide,
+  inline,
   isVisible as rootIsVisible,
+  limitShift,
+  offset,
+  shift,
+  size,
 } from 'ember-attacher';
 import { isVisible } from 'ember-attacher/test-support';
 
@@ -18,6 +27,15 @@ module('Integration | Vite + .gjs | ember-attacher root exports', function (hook
       isVisible,
       'root isVisible matches ember-attacher/test-support',
     );
+    assert.strictEqual(typeof offset, 'function', 're-exports offset middleware builder');
+    assert.strictEqual(typeof flip, 'function', 're-exports flip middleware builder');
+    assert.strictEqual(typeof shift, 'function', 're-exports shift middleware builder');
+    assert.strictEqual(typeof limitShift, 'function', 're-exports limitShift middleware builder');
+    assert.strictEqual(typeof size, 'function', 're-exports size middleware builder');
+    assert.strictEqual(typeof inline, 'function', 're-exports inline middleware builder');
+    assert.strictEqual(typeof hide, 'function', 're-exports hide middleware builder');
+    assert.strictEqual(typeof autoPlacement, 'function', 're-exports autoPlacement middleware builder');
+    assert.strictEqual(typeof arrow, 'function', 're-exports arrow middleware builder');
 
     await render(<template>
       <button id="vite-tooltip-btn" type="button">

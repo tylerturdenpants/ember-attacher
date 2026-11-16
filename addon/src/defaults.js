@@ -12,6 +12,7 @@ export default {
   lazyRender: false,
   middleware: null,
   placement: 'top',
+  strategy: 'absolute',
   floatingElementContainer: '.ember-application',
   floatingUiOptions: null,
   renderInPlace: false,

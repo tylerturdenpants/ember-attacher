@@ -3,15 +3,21 @@ import Component from '@glimmer/component';
 import { cancel, debounce, later, next, run, schedule } from '@ember/runloop';
 import { getOwner } from '@ember/application';
 import { guidFor } from '@ember/object/internals';
-import { htmlSafe, isHTMLSafe } from '@ember/template';
-import { runInDebug } from '@ember/debug';
-import { warn, assert } from '@ember/debug';
-import { isEmpty, typeOf } from '@ember/utils';
+import { isHTMLSafe } from '@ember/template';
+import { runInDebug, warn, assert } from '@ember/debug';
 import { autoUpdate, computePosition, arrow, flip, limitShift, shift } from '@floating-ui/dom';
 import { buildWaiter } from '@ember/test-waiters';
 import { tracked } from '@glimmer/tracking';
 import { modifier } from 'ember-modifier';
 import DEFAULTS from '../defaults';
+import {
+  descendantAttachmentContainsEvent,
+  descendantAttachmentContainsNode,
+  registerAttacher,
+  shouldHandleEscapeKey,
+  syncParentAttachment,
+  unregisterAttacher,
+} from '../lib/attachment-tree.js';
 import { elementContainsEvent, isCursorBetween } from '../lib/dom.js';
 import { onInsert, onUpdate } from '../lib/modifiers.js';
 import {
@@ -41,7 +47,6 @@ export default class BasicAttacher extends Component {
   _listenerTarget = null;
   // This is set to true when the popover is shown in order to override lazyRender=false
   @tracked _mustRender = false;
-  @tracked _transitionDuration = 0;
   _floatingElement = null;
 
   parentFinder = onInsert((element) => {
@@ -57,6 +62,9 @@ export default class BasicAttacher extends Component {
   // callback (the scheduled fn is fine); a tracked read would re-run this and
   // fire the destructor before updates.
   setupFloatingElement = modifier((element) => {
+    this._floatingElement = element;
+    registerAttacher(this);
+
     const timer = schedule('actions', () => {
       if (this.isDestroyed || this.isDestroying) {
         return;
@@ -67,6 +75,8 @@ export default class BasicAttacher extends Component {
       if (this.renderInPlace) {
         this.parentElement = element.parentElement;
         this._initializeAttacher();
+      } else {
+        syncParentAttachment(this);
       }
     });
 
@@ -146,6 +156,10 @@ export default class BasicAttacher extends Component {
     return this.args.placement ?? this._config.placement ?? DEFAULTS.placement;
   }
 
+  get strategy() {
+    return this.args.strategy ?? this._config.strategy ?? DEFAULTS.strategy;
+  }
+
   get floatingElementContainer() {
     return this.args.floatingElementContainer || this._config.floatingElementContainer || DEFAULTS.floatingElementContainer;
   }
@@ -195,7 +209,7 @@ export default class BasicAttacher extends Component {
   }
 
   get renderFloatingElement() {
-    return (this.renderInPlace || this._currentTarget) && (!this.lazyRender || this._mustRender);
+    return Boolean(this.renderInPlace || this._currentTarget);
   }
 
   get shouldRenderFloatingElement() {
@@ -211,14 +225,6 @@ export default class BasicAttacher extends Component {
     return this.args.overflowPadding ?? this._config.overflowPadding ?? DEFAULTS.overflowPadding;
   }
 
-  // The circle element needs a special duration that is slightly faster than the floating element's
-  // transition, this prevents text from appearing outside the circle as it fills the background
-  get _circleTransitionDuration() {
-    return htmlSafe(
-      `transition-duration: ${Math.round(this._transitionDuration / 1.25)}ms`
-    );
-  }
-
   get _class() {
     const showOrHideClass = `ember-attacher-${this._isStartingAnimation ? 'show' : 'hide'}`;
     const arrowClass = `ember-attacher-${this.arrow ? 'with' : 'without'}-arrow`;
@@ -229,14 +235,17 @@ export default class BasicAttacher extends Component {
 
   get _style() {
     const style = this.style;
-    const transitionDuration = this._transitionDuration;
+    if (!style) {
+      return undefined;
+    }
+
     warn(
       '@ember/string/htmlSafe must be used for any `style` passed to ember-attacher',
-      isEmpty(style) || isHTMLSafe(style),
+      isHTMLSafe(style),
       { id: 'ember-attacher-require-html-safe-style' }
     );
 
-    return htmlSafe(`transition-duration: ${transitionDuration}ms; ${style}`);
+    return style;
   }
 
   // This is memoized so it can be used by both attach-popover and attach-tooltip
@@ -262,27 +271,39 @@ export default class BasicAttacher extends Component {
   }
 
   get _middleware() {
-    // Copy the middleware since we might write to the provided array
-    const middleware = this.args.middleware ? [...this.args.middleware] : [];
-
-    const flipString = this.flip;
-    if (flipString) {
-      const flipOptions = { fallbackPlacements: flipString.split(' ') };
-      const flipMiddleware = middleware.find(name => name === 'flip');
-      if (!flipMiddleware) {
-        middleware.push(flip(flipOptions));
-      } else if (!flipMiddleware.fallbackPlacements) {
-        Object.assign({}, flipMiddleware, flipOptions);
+    const rawMiddleware = this.args.middleware ?? this._config.middleware ?? DEFAULTS.middleware;
+    const middleware = (rawMiddleware || []).map((m) => {
+      if (m?.name === 'arrow' && this._arrowElement) {
+        if (typeof m.options === 'function') {
+          return arrow((state) => {
+            const resolved = m.options(state) || {};
+            return resolved.element ? resolved : { ...resolved, element: this._arrowElement };
+          });
+        }
+        if (!m.options?.element) {
+          return arrow({ ...m.options, element: this._arrowElement });
+        }
       }
-    } else if (this.overflowPadding !== false) {
-      middleware.push(flip());
+      return m;
+    });
+
+    const hasFlip = middleware.some((m) => m?.name === 'flip');
+    const flipString = this.flip;
+    if (!hasFlip) {
+      if (flipString) {
+        middleware.push(flip({ fallbackPlacements: flipString.split(' ') }));
+      } else if (this.overflowPadding !== false) {
+        middleware.push(flip());
+      }
     }
 
-    if (this.overflowPadding !== false && !middleware.find(name => name === 'shift')) {
-      middleware.push(shift({ limiter: limitShift(), padding: this.overflowPadding }))
+    const hasShift = middleware.some((m) => m?.name === 'shift');
+    if (this.overflowPadding !== false && !hasShift) {
+      middleware.push(shift({ limiter: limitShift(), padding: this.overflowPadding }));
     }
 
-    if (this.arrow && this._arrowElement && !middleware.find(name => name === 'arrow')) {
+    const hasArrow = middleware.some((m) => m?.name === 'arrow');
+    if (this.arrow && this._arrowElement && !hasArrow) {
       middleware.push(arrow({ element: this._arrowElement }));
     }
 
@@ -448,11 +469,16 @@ export default class BasicAttacher extends Component {
   constructor() {
     super(...arguments);
 
+    registerAttacher(this);
+
     // The debounced _hide() and _show() are stored here so they can be cancelled when necessary
     this._delayedVisibilityToggle = null;
 
     // The final source of truth on whether or not all _hide() or _show() actions have completed
     this._isHidden = true;
+
+    // Tracks whether a hide request is in progress (including during hideDelay).
+    this._isHiding = false;
 
     // Blocks _update from (re)starting autoUpdate after hide until the next show.
     this._positioningSuspended = false;
@@ -492,6 +518,7 @@ export default class BasicAttacher extends Component {
     });
     this._listenerTarget = getListenerTarget(target);
     this._currentTarget = target;
+    syncParentAttachment(this);
     this._addListenersForShowEvents();
 
     if (!this._isHidden || this.isShown) {
@@ -522,6 +549,8 @@ export default class BasicAttacher extends Component {
 
   willDestroy() {
     super.willDestroy(...arguments);
+
+    unregisterAttacher(this);
 
     this._cleanup?.();
     this._cleanup = null;
@@ -576,7 +605,9 @@ export default class BasicAttacher extends Component {
   _showAfterDelay() {
     cancel(this._delayedVisibilityToggle);
 
+    this._isHiding = false;
     this._mustRender = true;
+    syncParentAttachment(this);
 
     this._addListenersForHideEvents();
 
@@ -592,8 +623,10 @@ export default class BasicAttacher extends Component {
       return;
     }
 
+    this._isHiding = false;
     this._positioningSuspended = false;
     this._mustRender = true;
+    syncParentAttachment(this);
 
     // Make the attachment visible immediately so transition animations can take place
     this._setIsVisibleAfterDelay(true, 0);
@@ -635,8 +668,18 @@ export default class BasicAttacher extends Component {
             return;
           }
           // Make the floating element visible now that it has been positioned
-          floatingElement.style.visibility = '';
-          this._transitionDuration = parseInt(this.showDuration);
+          // (unless middlewareData.hide marked it reference-hidden or escaped)
+          if (
+            !floatingElement.hasAttribute('data-reference-hidden') &&
+            !floatingElement.hasAttribute('data-escaped')
+          ) {
+            floatingElement.style.visibility = '';
+          }
+          const showDuration = parseInt(this.showDuration);
+          floatingElement.style.setProperty(
+            '--ember-attacher-transition-duration',
+            `${showDuration}ms`
+          );
           this._isStartingAnimation = true;
           floatingElement.setAttribute('aria-hidden', 'false');
         });
@@ -654,6 +697,7 @@ export default class BasicAttacher extends Component {
 
   _hideAfterDelay() {
     cancel(this._delayedVisibilityToggle);
+    this._isHiding = true;
 
     const hideDelay = parseInt(this.hideDelay);
 
@@ -661,6 +705,7 @@ export default class BasicAttacher extends Component {
   }
 
   _hide() {
+    this._isHiding = true;
     this._positioningSuspended = true;
     this._cleanup?.();
     this._cleanup = null;
@@ -691,7 +736,10 @@ export default class BasicAttacher extends Component {
           return;
         }
 
-        this._transitionDuration = hideDuration;
+        this._floatingElement.style.setProperty(
+          '--ember-attacher-transition-duration',
+          `${hideDuration}ms`
+        );
         this._isStartingAnimation = false;
         this._floatingElement.setAttribute('aria-hidden', 'true');
         // Wait for any animations to complete before hiding the attachment
@@ -711,12 +759,11 @@ export default class BasicAttacher extends Component {
     const hideOn = this._hideOn;
     const target = this._listenerTarget;
 
-    // Target or component was destroyed (virtual refs without contextElement skip listeners)
-    if (!target || this.isDestroyed || this.isDestroying) {
+    if (!this._currentTarget || this.isDestroyed || this.isDestroying) {
       return;
     }
 
-    if (hideOn.includes('click')) {
+    if (target && hideOn.includes('click')) {
       const showOnClickListener = this._showListenersOnTargetByEvent.click;
 
       if (showOnClickListener) {
@@ -743,18 +790,20 @@ export default class BasicAttacher extends Component {
 
     // Hides the attachment when the mouse leaves the target
     // (or leaves both target and attachment for interactive attachments)
-    if (hideOn.includes('mouseleave')) {
+    if (target && hideOn.includes('mouseleave')) {
       this._hideListenersOnTargetByEvent.mouseleave = this._hideOnMouseLeaveTarget;
       target.addEventListener('mouseleave', this._hideOnMouseLeaveTarget, this.useCapture);
     }
 
     // Hides the attachment when focus is lost on the target
-    ['blur', 'focusout'].forEach((eventType) => {
-      if (hideOn.includes(eventType)) {
-        this._hideListenersOnTargetByEvent[eventType] = this._hideOnLostFocus;
-        target.addEventListener(eventType, this._hideOnLostFocus, this.useCapture);
-      }
-    });
+    if (target) {
+      ['blur', 'focusout'].forEach((eventType) => {
+        if (hideOn.includes(eventType)) {
+          this._hideListenersOnTargetByEvent[eventType] = this._hideOnLostFocus;
+          target.addEventListener(eventType, this._hideOnLostFocus, this.useCapture);
+        }
+      });
+    }
   }
 
   _hideOnMouseLeaveTarget() {
@@ -784,10 +833,14 @@ export default class BasicAttacher extends Component {
       return;
     }
 
-    // If cursor is not on the attachment or target, hide the floating element
-    if (!target.contains(event.target)
-      && !(this.isOffset && isCursorBetween(event, this._currentTarget, this._floatingElement))
-      && (this._floatingElement && !this._floatingElement.contains(event.target))) {
+    // If cursor is not on the attachment, a descendant attachment, or target, hide the floating element
+    if (
+      !target.contains(event.target) &&
+      !descendantAttachmentContainsEvent(this, event) &&
+      !(this.isOffset && isCursorBetween(event, this._currentTarget, this._floatingElement)) &&
+      this._floatingElement &&
+      !this._floatingElement.contains(event.target)
+    ) {
       // Remove this listener before hiding the attachment
       delete this._hideListenersOnDocumentByEvent.mousemove;
       document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment, this.useCapture);
@@ -800,17 +853,21 @@ export default class BasicAttacher extends Component {
     const target = this._listenerTarget;
     const targetReceivedClick = elementContainsEvent(target, event);
 
+    if (targetReceivedClick || descendantAttachmentContainsEvent(this, event)) {
+      return;
+    }
+
     if (this.interactive) {
-      if (!targetReceivedClick && !elementContainsEvent(this._floatingElement, event)) {
+      if (!elementContainsEvent(this._floatingElement, event)) {
         this._hideAfterDelay();
       }
-    } else if (!targetReceivedClick) {
+    } else {
       this._hideAfterDelay();
     }
   }
 
   _hideOnEscapeKey(event) {
-    if (event.keyCode === 27) {
+    if ((event.key === 'Escape' || event.keyCode === 27) && shouldHandleEscapeKey(this, event)) {
       return this._hideAfterDelay();
     }
   }
@@ -818,6 +875,7 @@ export default class BasicAttacher extends Component {
   _hideOnLostFocus(event) {
     if (event.relatedTarget === null) {
       this._hideAfterDelay();
+      return;
     }
 
     const target = this._listenerTarget;
@@ -828,11 +886,15 @@ export default class BasicAttacher extends Component {
 
     const targetContainsFocus = target.contains(event.relatedTarget);
 
+    if (targetContainsFocus || descendantAttachmentContainsNode(this, event.relatedTarget)) {
+      return;
+    }
+
     if (this.interactive) {
-      if (!targetContainsFocus && !this._floatingElement.contains(event.relatedTarget)) {
+      if (!this._floatingElement?.contains(event.relatedTarget)) {
         this._hideAfterDelay();
       }
-    } else if (!targetContainsFocus) {
+    } else {
       this._hideAfterDelay();
     }
   }
@@ -908,7 +970,9 @@ export default class BasicAttacher extends Component {
         this._currentTarget,
         this._floatingElement,
         this._updatePosition,
-        typeOf(this.autoUpdate) === 'object' ? this.autoUpdate : undefined
+        typeof this.autoUpdate === 'object' && this.autoUpdate !== null
+          ? this.autoUpdate
+          : undefined
       );
     } else {
       this._updatePosition();
@@ -939,13 +1003,15 @@ export default class BasicAttacher extends Component {
       return;
     }
 
+    const strategy = this.strategy;
     const computePositionToken = animationTestWaiter.beginAsync();
     computePosition(this._currentTarget, this._floatingElement, {
       ...this.floatingUiOptions,
       middleware: this._middleware,
       placement: this.placement,
+      strategy,
     })
-      .then(({ x, y, placement, middlewareData }) => {
+      .then(({ x, y, placement, strategy: computedStrategy, middlewareData }) => {
         animationTestWaiter.endAsync(computePositionToken);
 
         if (
@@ -958,6 +1024,7 @@ export default class BasicAttacher extends Component {
         }
 
         Object.assign(this._floatingElement.style, {
+          position: computedStrategy || strategy,
           left: `${x}px`,
           top: `${y}px`,
         });
@@ -969,6 +1036,28 @@ export default class BasicAttacher extends Component {
             left: arrowX != null ? `${arrowX}px` : '',
             top: arrowY != null ? `${arrowY}px` : '',
           });
+        }
+
+        if (middlewareData.hide) {
+          const { referenceHidden, escaped } = middlewareData.hide;
+
+          if (referenceHidden) {
+            this._floatingElement.setAttribute('data-reference-hidden', '');
+          } else {
+            this._floatingElement.removeAttribute('data-reference-hidden');
+          }
+
+          if (escaped) {
+            this._floatingElement.setAttribute('data-escaped', '');
+          } else {
+            this._floatingElement.removeAttribute('data-escaped');
+          }
+
+          if (referenceHidden || escaped) {
+            this._floatingElement.style.visibility = 'hidden';
+          } else if (!this._isHidden) {
+            this._floatingElement.style.visibility = '';
+          }
         }
 
         this._floatingElement.setAttribute('x-placement', placement);

@@ -164,18 +164,24 @@ module('Integration | Component | attach tooltip', function(hooks) {
       'it adds the user style to tooltips'
     );
 
-    assert.equal(
-      tooltipWithStyle.style.getPropertyValue('transition-duration'),
-      '0ms',
-      'it adds the default style to tooltips'
+    assert.strictEqual(
+      getComputedStyle(tooltipWithStyle).transitionDuration,
+      '0s',
+      'it applies the default 0ms transition duration via CSS token'
     );
 
     const tooltipWithNoStyle = find('#tooltip-with-no-style > .ember-attacher-tooltip');
 
-    assert.equal(
-      tooltipWithNoStyle.style.getPropertyValue('transition-duration'),
-      '0ms',
-      'it adds the default style to tooltips with no user style'
+    assert.strictEqual(
+      tooltipWithNoStyle.getAttribute('style'),
+      null,
+      'strict CSP: does not emit an HTML style attribute when @style is omitted'
+    );
+
+    assert.strictEqual(
+      getComputedStyle(tooltipWithNoStyle).transitionDuration,
+      '0s',
+      'it applies the default 0ms transition duration to tooltips with no user style'
     );
   });
 
