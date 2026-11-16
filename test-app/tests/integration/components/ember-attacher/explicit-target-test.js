@@ -27,12 +27,20 @@ module('Integration | Component | explicit target', function (hooks) {
       </div>
     `);
 
-    assert.dom('#old-target').hasAria('describedby', 'attachment');
+    assert.dom('#old-target').doesNotHaveAria(
+      'describedby',
+      'closed tooltip does not set aria-describedby yet'
+    );
     await focus('#old-target');
     const attachment = find('#attachment');
     assert.equal(isVisible(attachment), true, 'Is shown on focus');
+    assert.dom('#old-target').hasAria('describedby', 'attachment');
     await focus('#new-target');
     assert.equal(isVisible(attachment), false, 'Hides after focusing on another target');
+    assert.dom('#old-target').doesNotHaveAria(
+      'describedby',
+      'closing removes aria-describedby from the old target'
+    );
     this.set('explicitTarget', find('#new-target'));
     await settled();
     await focus('#old-target');

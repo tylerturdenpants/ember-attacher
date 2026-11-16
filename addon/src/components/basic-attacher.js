@@ -18,7 +18,7 @@ import {
   syncParentAttachment,
   unregisterAttacher,
 } from '../lib/attachment-tree.js';
-import { elementContainsEvent, isCursorBetween } from '../lib/dom.js';
+import { elementContainsEvent, isCursorInSafePolygon } from '../lib/dom.js';
 import { onInsert, onUpdate } from '../lib/modifiers.js';
 import {
   getListenerTarget,
@@ -50,6 +50,14 @@ export default class BasicAttacher extends Component {
   // Tracks an active enclosing dialog:modal so Top-Layer overlays stay non-inert inside showModal().
   @tracked _modalContainer = null;
   _floatingElement = null;
+
+  // ARIA ownership: attrs we set ourselves (never overwrite caller-provided values).
+  _ownsAriaDescribedBy = false;
+  _ownsAriaExpanded = false;
+  _ownsAriaControls = false;
+  _ownsAriaHaspopup = false;
+  _ariaListenerTarget = null;
+  _restoreFocusOnHide = false;
 
   parentFinder = onInsert((element) => {
     if (this.isDestroyed || this.isDestroying) {
@@ -207,6 +215,18 @@ export default class BasicAttacher extends Component {
 
   get configKey() {
     return this.args.configKey || 'popover';
+  }
+
+  get ariaRole() {
+    return this.args.ariaRole || (this.configKey === 'tooltip' ? 'tooltip' : 'dialog');
+  }
+
+  get isTooltip() {
+    return this.configKey === 'tooltip' || this.ariaRole === 'tooltip';
+  }
+
+  get isPopover() {
+    return this.configKey === 'popover' || this.ariaRole === 'dialog';
   }
 
   get isFillAnimation() {
@@ -652,6 +672,8 @@ export default class BasicAttacher extends Component {
       this._show();
     }
 
+    this._syncAriaForTarget();
+
     // Call hook for subclasses to add their own initialization logic
     this.args.onInitializeAttacher?.(this._currentTarget, this.id);
   }
@@ -683,6 +705,7 @@ export default class BasicAttacher extends Component {
     cancel(this._delayedVisibilityToggle);
 
     this._removeEventListeners();
+    this._clearOwnedAria();
 
     // Call hook for cleanup
     this.args.onWillDestroy?.(this._currentTarget, this.id);
@@ -820,6 +843,7 @@ export default class BasicAttacher extends Component {
         });
 
         this._isHidden = false;
+        this._syncOpenAria(true);
       });
       animationTestWaiter.beginAsync(this._animationTimeout);
     });
@@ -882,8 +906,151 @@ export default class BasicAttacher extends Component {
       });
 
       this._isHidden = true;
+      this._syncOpenAria(false);
+      this._maybeRestoreFocus();
     });
     animationTestWaiter.beginAsync(this._animationTimeout);
+  }
+
+  /**
+   * ================== ARIA ==================
+   */
+
+  _splitAriaTokens(value) {
+    return (value || '').split(/\s+/).filter(Boolean);
+  }
+
+  _clearOwnedAria(target = this._ariaListenerTarget) {
+    if (!target) {
+      this._ownsAriaDescribedBy = false;
+      this._ownsAriaExpanded = false;
+      this._ownsAriaControls = false;
+      this._ownsAriaHaspopup = false;
+      this._ariaListenerTarget = null;
+      return;
+    }
+
+    if (this._ownsAriaDescribedBy) {
+      const tokens = this._splitAriaTokens(target.getAttribute('aria-describedby'))
+        .filter((token) => token !== this.id);
+
+      if (tokens.length) {
+        target.setAttribute('aria-describedby', tokens.join(' '));
+      } else {
+        target.removeAttribute('aria-describedby');
+      }
+      this._ownsAriaDescribedBy = false;
+    }
+
+    if (this._ownsAriaExpanded) {
+      target.removeAttribute('aria-expanded');
+      this._ownsAriaExpanded = false;
+    }
+
+    if (this._ownsAriaControls) {
+      target.removeAttribute('aria-controls');
+      this._ownsAriaControls = false;
+    }
+
+    if (this._ownsAriaHaspopup) {
+      target.removeAttribute('aria-haspopup');
+      this._ownsAriaHaspopup = false;
+    }
+
+    if (this._ariaListenerTarget === target) {
+      this._ariaListenerTarget = null;
+    }
+  }
+
+  _syncAriaForTarget() {
+    const nextTarget = this._listenerTarget;
+
+    if (this._ariaListenerTarget && this._ariaListenerTarget !== nextTarget) {
+      this._clearOwnedAria(this._ariaListenerTarget);
+    }
+
+    this._ariaListenerTarget = nextTarget;
+
+    if (!nextTarget) {
+      return;
+    }
+
+    if (this.isPopover) {
+      if (!nextTarget.hasAttribute('aria-haspopup')) {
+        nextTarget.setAttribute('aria-haspopup', 'dialog');
+        this._ownsAriaHaspopup = true;
+      }
+
+      if (!nextTarget.hasAttribute('aria-controls')) {
+        nextTarget.setAttribute('aria-controls', this.id);
+        this._ownsAriaControls = true;
+      } else if (this._ownsAriaControls) {
+        nextTarget.setAttribute('aria-controls', this.id);
+      }
+
+      if (!nextTarget.hasAttribute('aria-expanded')) {
+        nextTarget.setAttribute('aria-expanded', this._isHidden ? 'false' : 'true');
+        this._ownsAriaExpanded = true;
+      } else if (this._ownsAriaExpanded) {
+        nextTarget.setAttribute('aria-expanded', this._isHidden ? 'false' : 'true');
+      }
+    }
+
+    this._syncOpenAria(!this._isHidden);
+  }
+
+  _syncOpenAria(isOpen) {
+    const target = this._listenerTarget;
+
+    if (!target) {
+      return;
+    }
+
+    if (this.isPopover && this._ownsAriaExpanded) {
+      target.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+
+    if (!this.isTooltip) {
+      return;
+    }
+
+    const tokens = this._splitAriaTokens(target.getAttribute('aria-describedby'));
+    const hasId = tokens.includes(this.id);
+
+    if (isOpen) {
+      if (!hasId) {
+        tokens.push(this.id);
+        target.setAttribute('aria-describedby', tokens.join(' '));
+      }
+      // We own removal of our id token for as long as the tooltip is open.
+      this._ownsAriaDescribedBy = true;
+    } else if (this._ownsAriaDescribedBy) {
+      const nextTokens = tokens.filter((token) => token !== this.id);
+
+      if (nextTokens.length) {
+        target.setAttribute('aria-describedby', nextTokens.join(' '));
+      } else {
+        target.removeAttribute('aria-describedby');
+      }
+      this._ownsAriaDescribedBy = false;
+    }
+  }
+
+  _maybeRestoreFocus() {
+    if (!this._restoreFocusOnHide) {
+      return;
+    }
+
+    this._restoreFocusOnHide = false;
+
+    const target = this._listenerTarget;
+    if (target && typeof target.focus === 'function') {
+      try {
+        target.focus({ preventScroll: true });
+      } catch {
+        target.focus();
+      }
+    }
   }
 
   /**
@@ -968,11 +1135,20 @@ export default class BasicAttacher extends Component {
       return;
     }
 
-    // If cursor is not on the attachment, a descendant attachment, or target, hide the floating element
+    // Automatic safePolygon corridor for interactive + mouseleave (isOffset kept as a
+    // no-op-compatible opt-in until 4.4 deprecation; corridor is on regardless).
+    const inSafePolygon = isCursorInSafePolygon(
+      event,
+      this._currentTarget,
+      this._floatingElement
+    );
+
+    // If cursor is not on the attachment, a descendant attachment, target, or the
+    // safePolygon corridor between them, hide the floating element.
     if (
       !target.contains(event.target) &&
       !descendantAttachmentContainsEvent(this, event) &&
-      !(this.isOffset && isCursorBetween(event, this._currentTarget, this._floatingElement)) &&
+      !inSafePolygon &&
       this._floatingElement &&
       !this._floatingElement.contains(event.target)
     ) {
@@ -1003,6 +1179,9 @@ export default class BasicAttacher extends Component {
 
   _hideOnEscapeKey(event) {
     if ((event.key === 'Escape' || event.keyCode === 27) && shouldHandleEscapeKey(this, event)) {
+      if (this.isPopover) {
+        this._restoreFocusOnHide = true;
+      }
       return this._hideAfterDelay();
     }
   }

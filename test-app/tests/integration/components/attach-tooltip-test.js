@@ -1,8 +1,9 @@
 import QUnit, { module, test } from 'qunit';
 import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
-import { render, find } from '@ember/test-helpers';
+import { render, find, settled, waitUntil } from '@ember/test-helpers';
 import { htmlSafe } from '@ember/template';
+import { isVisible } from 'ember-attacher';
 
 QUnit.assert.contains = function(actual, expected, message) {
   this.pushResult({
@@ -185,45 +186,166 @@ module('Integration | Component | attach tooltip', function(hooks) {
     );
   });
 
-  test('adds aria-describedby to the target', async function(assert) {
+  test('T7: token-safe open-only aria-describedby on the target', async function(assert) {
     this.set('showTooltip', true);
+    this.set('isShown', false);
 
     await render(hbs`
-      <div id="target">
+      <div id="target" aria-describedby="preexisting">
         {{#if this.showTooltip}}
-          {{#attach-tooltip id='attachment'}}
+          <AttachTooltip
+            @id="attachment"
+            @isShown={{this.isShown}}
+            @showOn={{null}}
+            @hideOn={{null}}
+            @hideDuration={{0}}
+            @showDuration={{0}}
+            @animation="none"
+          >
             tooltip text
-          {{/attach-tooltip}}
+          </AttachTooltip>
         {{/if}}
       </div>
 
-      <div id="other-target">
-        {{#attach-tooltip class='tooltip-with-no-initial-id'}}
+      <button id="other-target" type="button">
+        <AttachTooltip
+          @class="tooltip-with-no-initial-id"
+          @isShown={{true}}
+          @showOn={{null}}
+          @hideOn={{null}}
+          @hideDuration={{0}}
+          @showDuration={{0}}
+          @animation="none"
+        >
           tooltip text
-        {{/attach-tooltip}}
-      </div>
+        </AttachTooltip>
+      </button>
     `);
 
     const target = find('#target');
     const tooltip = find('#attachment');
 
-    assert.equal(target.getAttribute('aria-describedby'),
-                 tooltip.id,
-                 "target receives aria-describedby with tooltip's ID");
+    assert.strictEqual(
+      target.getAttribute('aria-describedby'),
+      'preexisting',
+      'closed tooltip does not add aria-describedby yet'
+    );
 
+    this.set('isShown', true);
+    await waitUntil(() => isVisible(tooltip));
+
+    assert.strictEqual(
+      target.getAttribute('aria-describedby'),
+      `preexisting ${tooltip.id}`,
+      'open tooltip appends its id while preserving preexisting tokens'
+    );
+
+    this.set('isShown', false);
+    await waitUntil(() => !isVisible(tooltip));
+
+    assert.strictEqual(
+      target.getAttribute('aria-describedby'),
+      'preexisting',
+      'closing removes only the tooltip id token'
+    );
+
+    this.set('isShown', true);
+    await waitUntil(() => isVisible(tooltip));
     this.set('showTooltip', false);
+    await settled();
 
-    assert.notOk(target.hasAttribute('aria-describedby'),
-                 'it removes aria-describedby on destruction');
+    assert.strictEqual(
+      target.getAttribute('aria-describedby'),
+      'preexisting',
+      'destruction removes the tooltip id token'
+    );
 
     const tooltipWithNoInitialId = find('.tooltip-with-no-initial-id').parentNode;
 
     assert.ok(tooltipWithNoInitialId.id, 'tooltip gets generated ID when no ID is supplied');
-
     assert.dom('#other-target').hasAttribute(
       'aria-describedby',
       tooltipWithNoInitialId.id,
-      "target receives aria-describedby with tooltip's generated ID"
+      "open tooltip target receives aria-describedby with tooltip's generated ID"
+    );
+  });
+
+  test('T7: forwards @onInitializeAttacher / @onWillDestroy after moving ARIA into BasicAttacher', async function(assert) {
+    assert.expect(2);
+
+    this.set('initialized', false);
+    this.set('destroyed', false);
+    this.set('showTooltip', true);
+    this.onInitializeAttacher = () => {
+      this.set('initialized', true);
+    };
+    this.onWillDestroy = () => {
+      this.set('destroyed', true);
+    };
+
+    await render(hbs`
+      <div id="hook-target">
+        {{#if this.showTooltip}}
+          <AttachTooltip
+            @id="hook-tooltip"
+            @onInitializeAttacher={{this.onInitializeAttacher}}
+            @onWillDestroy={{this.onWillDestroy}}
+            @isShown={{true}}
+            @showOn={{null}}
+            @hideOn={{null}}
+            @animation="none"
+          >
+            tooltip text
+          </AttachTooltip>
+        {{/if}}
+      </div>
+    `);
+
+    assert.true(this.initialized, '@onInitializeAttacher is forwarded');
+
+    this.set('showTooltip', false);
+    await settled();
+
+    assert.true(this.destroyed, '@onWillDestroy is forwarded');
+  });
+
+  test('T7: VirtualElement without contextElement skips aria-describedby', async function(assert) {
+    this.virtualTarget = {
+      getBoundingClientRect() {
+        return {
+          x: 10,
+          y: 10,
+          top: 10,
+          left: 10,
+          bottom: 30,
+          right: 40,
+          width: 30,
+          height: 20,
+        };
+      },
+    };
+
+    await render(hbs`
+      <div id="unrelated"></div>
+      <AttachTooltip
+        @id="virtual-tooltip"
+        @explicitTarget={{this.virtualTarget}}
+        @isShown={{true}}
+        @showOn={{null}}
+        @hideOn={{null}}
+        @hideDuration={{0}}
+        @showDuration={{0}}
+        @animation="none"
+      >
+        virtual tooltip
+      </AttachTooltip>
+    `);
+
+    await waitUntil(() => isVisible(find('#virtual-tooltip')));
+
+    assert.dom('#unrelated').doesNotHaveAttribute(
+      'aria-describedby',
+      'no listener target means no aria-describedby mutation'
     );
   });
 });

@@ -122,9 +122,8 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
     assert.equal(isVisible(attachment), false, 'Hidden after mousemove');
   });
 
-  test('with interactive=true and isOffset=false: hides if mouse between '
-       + 'target and attachment', async function(assert) {
-    assert.expect(3);
+  test('T6: interactive safePolygon keeps attachment open across the diagonal corridor without @isOffset', async function(assert) {
+    assert.expect(4);
 
     await render(hbs`
       <style>
@@ -133,7 +132,8 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
         }
       </style>
 
-      <div id="target" style="height: 300px; width: 300px;">
+      <div id="target" style="height: 50px; top: 0; position: fixed; width: 300px;">
+        target
         {{#attach-popover id='attachment'
                           hideOn='mouseleave'
                           interactive=true
@@ -144,9 +144,6 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
       </div>
     `);
 
-    // Wait for initial show()
-
-
     const attachment = find('#attachment');
     const target = find('#target');
 
@@ -154,25 +151,33 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
 
     await triggerEvent(target, 'mouseleave');
 
-
-    // Sanity check still shown
     assert.equal(isVisible(attachment), true, 'Still shown after mouseleave');
 
     const attachmentPosition = find('#attachment').getBoundingClientRect();
+    const targetPosition = target.getBoundingClientRect();
 
-    await triggerEvent(document,
-                       'mousemove',
-                       {
-                         clientX: attachmentPosition.left + 1,
-                         clientY: attachmentPosition.top - 1
-                       });
+    // Midpoint in the gap between target bottom and attachment top (axis-aligned trough)
+    await triggerEvent(document, 'mousemove', {
+      clientX: attachmentPosition.left + 1,
+      clientY: attachmentPosition.top - 1,
+    });
 
+    assert.equal(
+      isVisible(attachment),
+      true,
+      'Still shown after mousemove into automatic safePolygon corridor'
+    );
 
-    assert.equal(isVisible(attachment), false, 'Hidden after mousemove between');
+    // Outside both rects and outside the convex-hull corridor
+    await triggerEvent(document, 'mousemove', {
+      clientX: Math.min(targetPosition.left, attachmentPosition.left) - 20,
+      clientY: attachmentPosition.bottom + 20,
+    });
+
+    assert.equal(isVisible(attachment), false, 'Hidden after mousemove outside safePolygon');
   });
 
-  test("with interactive=true and isOffset=true: doesn't hide if mouse between "
-       + 'target and attachment', async function(assert) {
+  test('T6: @isOffset remains compatible with automatic safePolygon (no deprecation in 4.3)', async function(assert) {
     assert.expect(4);
 
     await render(hbs`
@@ -195,9 +200,6 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
       </div>
     `);
 
-    // Wait for initial show()
-
-
     const attachment = find('#attachment');
     const target = find('#target');
 
@@ -205,29 +207,21 @@ module('Integration | Component | hideOn "mouseleave"', function(hooks) {
 
     await triggerEvent(target, 'mouseleave');
 
-
-    // Sanity check still shown
     assert.equal(isVisible(attachment), true, 'Still shown after mouseleave');
 
     const attachmentPosition = find('#attachment').getBoundingClientRect();
 
-    await triggerEvent(document,
-                       'mousemove',
-                       {
-                         clientX: attachmentPosition.left + 1,
-                         clientY: attachmentPosition.top - 1
-                       });
-
+    await triggerEvent(document, 'mousemove', {
+      clientX: attachmentPosition.left + 1,
+      clientY: attachmentPosition.top - 1,
+    });
 
     assert.equal(isVisible(attachment), true, 'Still shown after mousemove into between');
 
-    await triggerEvent(document,
-                       'mousemove',
-                       {
-                         clientX: attachmentPosition.left - 1,
-                         clientY: attachmentPosition.bottom + 1
-                       });
-
+    await triggerEvent(document, 'mousemove', {
+      clientX: attachmentPosition.left - 20,
+      clientY: attachmentPosition.bottom + 20,
+    });
 
     assert.equal(isVisible(attachment), false, 'hidden after mousemove outside');
   });

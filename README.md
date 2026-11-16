@@ -99,9 +99,11 @@ If you're upgrading from 1.x to 2.x, see the [2.0 upgrade guide](./addon/docs/up
 
 A popover attacher.
 
-* Has no default class or roles.
-* Does not modify the target in any way.
-* Adds `aria-hidden` attribute to the floating element
+* Default `role` attribute of `dialog`.
+* Adds `aria-hidden` attribute to the floating element.
+* While mounted, sets `aria-haspopup="dialog"`, `aria-controls`, and `aria-expanded` on the
+  Target when those attributes are not already provided by the caller.
+* Restores focus to the Target when dismissed via Escape.
 
 ### `<AttachTooltip/>`
 
@@ -112,7 +114,8 @@ A tooltip attacher. Subclass of `<AttachPopover/>`
     default. See [here](#user-defined-defaults) for details on editing default values.
 
 * Default `role` attribute of `tooltip`.
-* Causes the target to gain an `aria-describedby` attribute set to the tooltip's ID.
+* While open, token-safely adds the tooltip's ID to the Target's `aria-describedby`
+  (preserving any pre-existing tokens) and removes it again when closed.
 
 ## Options
 
@@ -154,12 +157,12 @@ Below is a list of all available options, along with their defaults.
   // ['click', 'clickout', 'mouseleave blur escapekey']
   hideOn: 'mouseleave blur escapekey',
 
-  // Interactive tooltips will not close when clicked or hovered over.
+  // Interactive attachments stay open while the pointer is over the Target, Attachment, or the
+  // automatic safePolygon corridor between them (when hideOn includes mouseleave).
   interactive: false,
 
-  // Set this to true if you have an interactive attachment that hides on mouseout and the
-  // attachment is offset from its target. This should only be the case if you are using custom
-  // CSS that offsets that attachment.
+  // Kept for compatibility in 4.3. Interactive + mouseleave already uses safePolygon
+  // automatically; isOffset will be deprecated in 4.4.
   isOffset: false,
 
   // Whether or not the attachment is initially shown.
