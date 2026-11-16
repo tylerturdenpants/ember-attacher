@@ -1,7 +1,6 @@
 'use strict';
 
-const getChannelURL = require('ember-source-channel-url');
-const { embroiderSafe, embroiderOptimized } = require('@embroider/test-setup');
+const { embroiderOptimized } = require('@embroider/test-setup');
 
 module.exports = async function () {
   return {
@@ -13,62 +12,19 @@ module.exports = async function () {
         npm: {
           devDependencies: {
             'ember-source': '~3.28.12',
-            'ember-qunit': '~5.1.5'
+            'ember-qunit': '~5.1.5',
+            '@ember/test-helpers': '~2.9.6',
           },
         },
       },
       {
-        name: 'ember-lts-4.8',
+        name: 'ember-lts-6.12',
         npm: {
           devDependencies: {
-            'ember-source': '~4.8.6',
+            'ember-source': '~6.12.0',
           },
         },
       },
-      {
-        name: 'ember-lts-4.12',
-        npm: {
-          devDependencies: {
-            'ember-source': '~4.12.4',
-          },
-        },
-      },
-      {
-        name: 'ember-lts-5.12',
-        npm: {
-          devDependencies: {
-            'ember-source': '~5.12.0',
-          },
-        },
-      },
-      {
-        name: 'ember-release',
-        allowedToFail: true,
-        npm: {
-          devDependencies: {
-            'ember-source': await getChannelURL('release'),
-          },
-        },
-      },
-      {
-        name: 'ember-beta',
-        allowedToFail: true,
-        npm: {
-          devDependencies: {
-            'ember-source': await getChannelURL('beta'),
-          },
-        },
-      },
-      {
-        name: 'ember-canary',
-        allowedToFail: true,
-        npm: {
-          devDependencies: {
-            'ember-source': await getChannelURL('canary'),
-          },
-        },
-      },
-      embroiderSafe(),
       embroiderOptimized(),
     ],
   };

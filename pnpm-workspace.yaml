@@ -1,6 +1,7 @@
 packages:
   - 'addon'
   - 'test-app'
+  - 'vite-test-app'
 allowBuilds:
   '@parcel/watcher': true
   core-js: true
