@@ -93,6 +93,7 @@ export default {
       'components/attach-tooltip.js',
       'components/attacher.js',
       'components/basic-attacher.js',
+      'modifiers/tooltip.js',
       'defaults.js',
       'test-support/index.js',
     ]),
@@ -103,6 +104,7 @@ export default {
       'components/attach-tooltip.js',
       'components/attacher.js',
       'components/basic-attacher.js',
+      'modifiers/tooltip.js',
     ]),
 
     // Include any dependencies in the build

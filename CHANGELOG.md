@@ -1,6 +1,7 @@
 ## Unreleased (v4.4.0)
 
 #### :rocket: Enhancement
+* [#1115](https://github.com/tylerturdenpants/ember-attacher/issues/1115) / [#64](https://github.com/tylerturdenpants/ember-attacher/issues/64) Add `{{tooltip}}` singleton pool via `TooltipDomHost`, 300ms warm delay-group handoff, and README coverage for `<Attacher>` / named blocks ([@pzubar](https://github.com/pzubar))
 * [#1114](https://github.com/tylerturdenpants/ember-attacher/issues/1114) Publish TypeScript declaration files (`.d.ts` across `'ember-attacher'`, `'ember-attacher/test-support'`, `'ember-attacher/defaults'`, `'ember-attacher/components/*'`, and `'ember-attacher/template-registry'`) plus Glint `EmberAttacherRegistry`, `VirtualElement` / optional-`element` `arrow()` types, and automated `ember-tsc` typechecking in CI ([@pzubar](https://github.com/pzubar))
 * [#1073](https://github.com/tylerturdenpants/ember-attacher/pull/1073) Make `@animation="fill"` compatible with `@arrow={{true}}` by clipping `div[x-circle]` inside `.ember-attacher-fill-backdrop` instead of setting `overflow: hidden` on the arrow container, and remove debug warning `70015` ([@pzubar](https://github.com/pzubar))
 
