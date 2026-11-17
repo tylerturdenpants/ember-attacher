@@ -330,10 +330,6 @@ export default class BasicAttacher extends Component {
 
   _ensureArgumentsAreValid() {
     runInDebug(() => {
-      if (this.arrow && this.isFillAnimation) {
-        warn('Animation: \'fill\' is not compatible with arrow: true', { id: 70015 });
-      }
-
       if (this.useCapture !== this._lastUseCaptureArgumentValue) {
         warn(
           'The value of the useCapture argument was mutated',

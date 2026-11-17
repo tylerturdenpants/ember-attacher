@@ -14,7 +14,7 @@ module('Acceptance | styles gallery', function (hooks) {
       left: { placement: 'left', arrow: true },
       right: { placement: 'right', arrow: true },
       'light theme': { placement: 'top', arrow: true },
-      fill: { placement: 'bottom', arrow: false },
+      fill: { placement: 'bottom', arrow: true },
       shift: { placement: 'top', arrow: true },
       scale: { placement: 'bottom', arrow: true },
       none: { placement: 'left', arrow: true },
