@@ -4,6 +4,7 @@ import type { FunctionBasedModifier } from 'ember-modifier';
 import type {
   AutoUpdateOptions,
   ComputePositionConfig,
+  MiddlewareData,
   Placement,
   Strategy,
   VirtualElement,
@@ -20,13 +21,51 @@ export type AttacherAnimation =
 
 export type AttacherTarget = Element | VirtualElement | string;
 
-export interface AttacherBlockParams {
+export type AttacherTargetModifier<TData = unknown> = FunctionBasedModifier<{
+  Element: Element;
+  Args: {
+    Positional: [data?: TData];
+    Named: { data?: TData };
+  };
+}>;
+
+export interface AttacherBlockParams<TData = unknown> {
+  /** Element modifier registering an element as a Target and associating optional `data`. */
+  target: AttacherTargetModifier<TData>;
+  /** Element modifier marking the caller's Attachment DOM element (headless `<Attacher>`). */
+  attachment: FunctionBasedModifier<{ Element: Element }>;
+  /** Element modifier registering a custom arrow element. */
+  arrow: FunctionBasedModifier<{ Element: Element }>;
+  /** Programmatically registers an explicit target Element or VirtualElement and optional `data`. */
+  setTarget: (target: Element | VirtualElement | null | undefined, data?: TData) => void;
+  /** Programmatically shows the attachment (optionally switching target and data). */
+  show: (target?: Element | VirtualElement, data?: TData) => void;
   /** Programmatically hides the attachment. */
   hide: () => void;
-  /** Programmatically registers an explicit target Element or VirtualElement. */
+  /** Programmatically toggles visibility of the attachment. */
+  toggle: () => void;
+  /** Recomputes Floating UI positioning immediately. */
+  update: () => void;
+  /** Current open visibility state. */
+  readonly isShown: boolean;
+  /** Whether inner content should render (respecting `@lazyRender`). */
+  readonly shouldRender: boolean;
+  /** Payload associated with the currently active Target (`{{a.target data}}` / `setTarget`). */
+  readonly data: TData | undefined;
+  /** Resolved Floating UI placement after middleware execution. */
+  readonly placement: Placement;
+  /** Latest Floating UI `middlewareData` from `computePosition()`. */
+  readonly middlewareData: MiddlewareData;
+  /** Programmatically registers an explicit target Element or VirtualElement (4.x alias for `setTarget`). */
   setReference: (target: Element | VirtualElement | null | undefined) => void;
-  /** Element modifier yielding target registration when composed into a trigger element. */
+  /** Element modifier yielding target registration when composed into a trigger element (4.x alias for `target`). */
   reference: FunctionBasedModifier<{ Element: Element }>;
+}
+
+export interface AttacherNamedBlocks<TData = unknown> {
+  default: [attacher: AttacherBlockParams<TData>];
+  target: [target: AttacherTargetModifier<TData>, attacher: AttacherBlockParams<TData>];
+  content: [attacher: AttacherBlockParams<TData>];
 }
 
 export interface AttachPopoverArgs {
@@ -42,7 +81,9 @@ export interface AttachPopoverArgs {
   autoUpdate?: boolean | AutoUpdateOptions;
   /** CSS class(es) applied to the inner attachment container. */
   class?: string | null;
-  /** Explicit DOM Element, CSS selector string, or Floating UI `VirtualElement` target. */
+  /** Target DOM Element, single-match CSS selector string, or Floating UI `VirtualElement`. */
+  target?: AttacherTarget | null;
+  /** Legacy alias of `@target`. */
   explicitTarget?: AttacherTarget | null;
   /** Space-separated fallback placements string passed to Floating UI `flip()`. */
   flip?: string | null;
@@ -56,7 +97,7 @@ export interface AttachPopoverArgs {
   hideDuration?: number | string;
   /** Space-separated hide triggers (`click`, `clickout`, `mouseleave`, `blur`, `focusout`, `escapekey`), or `null` to disable. */
   hideOn?: string | null;
-  /** DOM `id` on the attachment element (also used for ARIA linkage). */
+  /** DOM `id` on the attachment element (also used for ARIA linkage and `[popovertarget]`). */
   id?: string;
   /** Keeps attachment open when pointer/focus enters it or traverses the `safePolygon` corridor. Defaults to `false`. */
   interactive?: boolean;
@@ -102,9 +143,7 @@ export interface BasicAttacherArgs extends AttachPopoverArgs {
 export interface BasicAttacherSignature {
   Element: HTMLDivElement;
   Args: BasicAttacherArgs;
-  Blocks: {
-    default: [attacher: AttacherBlockParams];
-  };
+  Blocks: AttacherNamedBlocks;
 }
 
 export default class BasicAttacher extends Component<BasicAttacherSignature> {

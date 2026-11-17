@@ -1,14 +1,15 @@
 import { cancel, debounce, later, next, run, schedule } from '@ember/runloop';
 import { getOwner } from '@ember/application';
 import { guidFor } from '@ember/object/internals';
+import { registerDestructor } from '@ember/destroyable';
 import { isHTMLSafe } from '@ember/template';
 import { runInDebug, warn } from '@ember/debug';
 import { autoUpdate, computePosition } from '@floating-ui/dom';
 import { buildWaiter } from '@ember/test-waiters';
 import { tracked } from '@glimmer/tracking';
-import { modifier } from 'ember-modifier';
+import Modifier, { modifier } from 'ember-modifier';
 import DEFAULTS from '../defaults';
-import { AttachmentAriaController, restoreFocusOnEscape } from '../lib/a11y.js';
+import { AttachmentAriaController, restoreFocusOnEscape } from './a11y.js';
 import {
   descendantAttachmentContainsEvent,
   descendantAttachmentContainsNode,
@@ -16,164 +17,391 @@ import {
   shouldHandleEscapeKey,
   syncParentAttachment,
   unregisterAttacher,
-} from '../lib/attachment-tree.js';
-import { elementContainsEvent, isCursorInSafePolygon } from '../lib/dom.js';
+} from './attachment-tree.js';
+import { getDelayGroup, peekDelayGroup } from './delay-group.js';
+import { elementContainsEvent, isCursorInSafePolygon } from './dom.js';
 import {
   getModalDialogContainer,
   hidePopoverHost,
   resolveHostContainer,
   showPopoverHost,
   supportsPopoverHost,
-} from '../lib/host.js';
-import { onInsert, onUpdate } from '../lib/modifiers.js';
+} from './host.js';
+import { onInsert, onUpdate } from './modifiers.js';
 import {
   applyPositionResult,
   buildMiddleware,
   isTargetConnected,
-} from '../lib/positioning.js';
+} from './positioning.js';
 import {
+  findPopoverTargetElements,
   getListenerTarget,
+  isElementTarget,
+  isVirtualReference,
   resolveAttachmentTarget,
-} from '../lib/target-resolution.js';
+} from './target-resolution.js';
+
+export function resolveTooltipClass(envConfig) {
+  const { tooltip, tooltipClass } = envConfig || {};
+  return tooltip?.tooltipClass ?? tooltipClass ?? DEFAULTS.tooltipClass;
+}
+
+function createTargetModifier(core) {
+  return class AttacherTargetModifier extends Modifier {
+    _element = null;
+    _installed = false;
+    _destroyed = false;
+    _mountTimer = null;
+
+    constructor(owner, args) {
+      super(owner, args);
+      registerDestructor(this, () => {
+        this._destroyed = true;
+        cancel(this._mountTimer);
+        if (this._element) {
+          core.unregisterTargetElement(this._element);
+          this._element = null;
+        }
+      });
+    }
+
+    modify(element, positional, named) {
+      if (this._destroyed || core.isDestroyed) {
+        return;
+      }
+
+      const data = positional.length > 0 ? positional[0] : named?.data;
+      const entry = core.registerTargetElement(element, data, null, getOwner(this));
+
+      if (!this._installed) {
+        this._installed = true;
+        this._element = element;
+        this._mountTimer = schedule('actions', () => {
+          this._mountTimer = null;
+          if (!this._destroyed && !core.isDestroyed) {
+            core._onRegisteredEntryMounted(element, entry.data);
+          }
+        });
+      }
+    }
+  };
+}
 
 const animationTestWaiter = buildWaiter('basic-attacher');
 
+function shallowValueEqual(a, b) {
+  if (a === b) {
+    return true;
+  }
+  if (!a || !b || typeof a !== 'object' || typeof b !== 'object') {
+    return false;
+  }
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) {
+    return false;
+  }
+  return keysA.every((key) => {
+    const valA = a[key];
+    const valB = b[key];
+    if (valA === valB) {
+      return true;
+    }
+    if (valA && valB && typeof valA === 'object' && typeof valB === 'object') {
+      const subKeysA = Object.keys(valA);
+      const subKeysB = Object.keys(valB);
+      return (
+        subKeysA.length === subKeysB.length &&
+        subKeysA.every((subKey) => valA[subKey] === valB[subKey])
+      );
+    }
+    return false;
+  });
+}
+
+function normalizeTriggerList(value, fallback) {
+  const resolved = value === undefined ? fallback : value;
+  return resolved === null ? [] : resolved.split(' ').filter(Boolean);
+}
+
+// Shared reactive controller backing <BasicAttacher> and <Attacher>.
 export default class AttacherCore {
-  @tracked parentNotFound = true;
-  @tracked parentElement = null;
+  @tracked _parentNotFound = true;
+  @tracked _parentElement = null;
   @tracked _isStartingAnimation = false;
   @tracked _arrowElement = null;
   @tracked _currentTarget = null;
   @tracked _registeredTarget = null;
   @tracked _mustRender = false;
   @tracked _modalContainer = null;
+  @tracked _isShown = false;
+  @tracked _data = undefined;
+  @tracked _resolvedPlacement = undefined;
+  @tracked _middlewareData = {};
 
+  _defaultId = null;
+  _elementId = null;
   _setReferenceTimer = null;
-  // Untracked copy of the node listeners are on so `_removeEventListeners` does
-  // not read `_currentTarget` in the same frame that writes it (`targetDidUpdate`).
+  // Untracked copy of the node listeners are on so `_removeHideEventListeners`
+  // does not read `_currentTarget` in the same frame that writes it.
   _listenerTarget = null;
   _floatingElement = null;
+  _registeredEntries = new Map();
+  _popoverTargetEntries = new Map();
+  _activeEntryOptions = null;
+  _pendingRegisteredData = undefined;
+  _hasPendingData = false;
+  _pendingPopoverTrigger = null;
+  _syncingPopoverHost = false;
+  _skipNativePopoverToggle = false;
+  _addedManagedPopover = false;
+  _attachedPopoverEventsOn = null;
+  _syncArgsTimer = null;
+  _prevSyncedIsShown = undefined;
+  _prevSyncedTargetKey = undefined;
+  _lastShownByDelay = 0;
 
-  parentFinder = onInsert((element) => {
-    if (!this.isDestroyed && !this.isDestroying) {
-      this.parentElement = element.parentElement;
-      this._initializeAttacher();
-    }
-  });
+  constructor(
+    ownerContext,
+    getArgs,
+    {
+      defaultConfigKey = null,
+      defaultAriaRole = undefined,
+      getAdditionalClass = null,
+      allowParentFallback = true,
+      isComponentHost = true,
+      onRenderStateChange = null,
+    } = {}
+  ) {
+    this._ownerContext = ownerContext;
+    this._owner =
+      ownerContext && typeof ownerContext === 'object' ? getOwner(ownerContext) : null;
+    this._getArgs = getArgs;
+    this._defaultConfigKey = defaultConfigKey;
+    this._defaultAriaRole = defaultAriaRole;
+    this._getAdditionalClass = getAdditionalClass;
+    this._allowParentFallback = allowParentFallback;
+    this._isComponentHost = isComponentHost;
+    this._onRenderStateChange = onRenderStateChange;
+    this._defaultId = `${guidFor(this)}-floating`;
 
-  // Insert + autoUpdate teardown. Must not read tracked state synchronously in
-  // the modifier callback (the scheduled fn is fine) or tracked updates will re-fire teardown.
-  setupFloatingElement = modifier((element) => {
-    this._floatingElement = element;
-    registerAttacher(this);
+    this._delayedVisibilityToggle = null;
+    this._isHidden = true;
+    this._isHiding = false;
+    this._positioningSuspended = false;
+    this._pendingRafs = new Set();
+    this._isDestroyed = false;
 
-    const timer = schedule('actions', () => {
-      if (this.isDestroyed || this.isDestroying) {
-        return;
-      }
+    this._hideListenersOnDocumentByEvent = {};
+    this._hideListenersOnTargetByEvent = {};
+    this._legacyShowListenersOnTargetByEvent = {};
 
-      this._floatingElement = element;
+    this._aria = new AttachmentAriaController();
+    this._ariaOpen = false;
+    this._mouseLeaveOrigin = null;
+    this._restoreFocusOnHide = false;
+    this._suppressFocusShow = false;
 
-      if (this.renderInPlace) {
-        this.parentElement = element.parentElement;
-        this._initializeAttacher();
-      } else {
-        syncParentAttachment(this);
-      }
-    });
+    this.hide = this.hide.bind(this);
+    this.show = this.show.bind(this);
+    this.toggle = this.toggle.bind(this);
+    this.update = this.update.bind(this);
+    this.setTarget = this.setTarget.bind(this);
+    this.setReference = this.setReference.bind(this);
+    this._hide = this._hide.bind(this);
+    this._hideAfterDelay = this._hideAfterDelay.bind(this);
+    this._hideIfMouseOutsideTargetOrAttachment =
+      this._hideIfMouseOutsideTargetOrAttachment.bind(this);
+    this._hideOnClickOut = this._hideOnClickOut.bind(this);
+    this._hideOnEscapeKey = this._hideOnEscapeKey.bind(this);
+    this._hideOnLostFocus = this._hideOnLostFocus.bind(this);
+    this._hideOnMouseLeaveTarget = this._hideOnMouseLeaveTarget.bind(this);
+    this._show = this._show.bind(this);
+    this._showAfterDelay = this._showAfterDelay.bind(this);
+    this._updatePosition = this._updatePosition.bind(this);
+    this._onPopoverTargetClick = this._onPopoverTargetClick.bind(this);
+    this._onPopoverBeforeToggle = this._onPopoverBeforeToggle.bind(this);
 
-    return () => {
-      cancel(timer);
-      if (this._floatingElement === element) {
-        this._floatingElement = null;
-      }
-      this._cleanup?.();
+    this._lastUseCaptureArgumentValue = this.useCapture;
+
+    const core = this;
+    this.api = {
+      target: this.target,
+      attachment: this.attachment,
+      arrow: this.arrowModifier,
+      reference: this.reference,
+      setTarget: this.setTarget,
+      setReference: this.setReference,
+      show: this.show,
+      hide: this.hide,
+      toggle: this.toggle,
+      update: this.update,
+      get isShown() {
+        return core.liveIsShown;
+      },
+      get shouldRender() {
+        return core.shouldRenderFloatingElement;
+      },
+      get data() {
+        return core._data;
+      },
+      get placement() {
+        return core._resolvedPlacement ?? core.placement;
+      },
+      get middlewareData() {
+        return core._middlewareData;
+      },
     };
-  });
 
-  insertArrow = onInsert((element) => {
-    if (!this.isDestroyed && !this.isDestroying) {
-      this._arrowElement = element;
+    if (ownerContext && typeof ownerContext === 'object') {
+      registerDestructor(ownerContext, () => this.destroy());
     }
-  });
+  }
 
-  isShownDidUpdate = onUpdate(() => this._syncIsShown());
-  targetDidUpdate = onUpdate(() => this._initializeAttacher());
-  optionsDidUpdate = onUpdate(() => {
-    this._ensureArgumentsAreValid();
-    this._syncAria();
-    this._update();
-  });
+  _setTracked(field, value) {
+    if (this[field] !== value) {
+      this[field] = value;
+    }
+  }
+
+  get args() {
+    const base = this._getArgs() || {};
+    return this._activeEntryOptions ? { ...base, ...this._activeEntryOptions } : base;
+  }
 
   _opt(key) {
     return this.args[key] ?? this._config[key] ?? DEFAULTS[key];
   }
 
-  get arrow() { return this._opt('arrow'); }
-  get autoUpdate() { return this._opt('autoUpdate'); }
-  get animation() { return this.args.animation || this._config.animation || DEFAULTS.animation; }
-  get flip() { return this._opt('flip'); }
-  get hideDelay() { return this._opt('hideDelay'); }
-  get hideDuration() { return this._opt('hideDuration'); }
-  get hideOn() { return this.args.hideOn === null ? null : this._opt('hideOn'); }
-  get interactive() { return this._opt('interactive'); }
-  get isOffset() { return this._opt('isOffset'); }
-  get isShown() { return this._opt('isShown'); }
-  get lazyRender() { return this._opt('lazyRender'); }
-  get overflowPadding() { return this._opt('overflowPadding'); }
-  get placement() { return this._opt('placement'); }
-  get renderInPlace() { return this._opt('renderInPlace'); }
-  get showDelay() { return this._opt('showDelay'); }
-  get showDuration() { return this._opt('showDuration'); }
-  get showOn() { return this.args.showOn === null ? null : this._opt('showOn'); }
-  get strategy() { return this._opt('strategy'); }
-  get style() { return this._opt('style'); }
-  get useCapture() { return this._opt('useCapture'); }
-  get class() { return this.args.class || this._config.class; }
-  get floatingElementContainer() { return this.args.floatingElementContainer || this._config.floatingElementContainer || DEFAULTS.floatingElementContainer; }
-  get floatingUiOptions() { return this.args.floatingUiOptions || this._config.floatingUiOptions || DEFAULTS.floatingUiOptions; }
-  get args() {
-    return this._getArgs();
+  get arrow() {
+    return this._opt('arrow');
   }
-
-  get isDestroyed() {
-    return Boolean(this._destroyed || this._host?.isDestroyed);
+  get autoUpdate() {
+    return this._opt('autoUpdate');
   }
-
-  get isDestroying() {
-    return Boolean(this._destroying || this._host?.isDestroying);
+  get animation() {
+    return this.args.animation || this._config.animation || DEFAULTS.animation;
   }
-
-  get configKey() {
-    return this.args.configKey || this._defaultConfigKey || 'popover';
+  get flip() {
+    return this._opt('flip');
   }
-
+  get hideDelay() {
+    return this._opt('hideDelay');
+  }
+  get hideDuration() {
+    return this._opt('hideDuration');
+  }
+  get hideOn() {
+    return this.args.hideOn === null ? null : this._opt('hideOn');
+  }
+  get interactive() {
+    return this._opt('interactive');
+  }
+  get isOffset() {
+    return this._opt('isOffset');
+  }
+  get controlledIsShown() {
+    return this._opt('isShown');
+  }
+  get liveIsShown() {
+    return this._isShown;
+  }
+  get lazyRender() {
+    return this._opt('lazyRender');
+  }
+  get overflowPadding() {
+    return this._opt('overflowPadding');
+  }
+  get placement() {
+    return this._opt('placement');
+  }
+  get renderInPlace() {
+    return this._opt('renderInPlace');
+  }
+  get showDelay() {
+    return this._opt('showDelay');
+  }
+  get showDuration() {
+    return this._opt('showDuration');
+  }
+  get showOn() {
+    return this.args.showOn === null ? null : this._opt('showOn');
+  }
+  get strategy() {
+    return this._opt('strategy');
+  }
+  get style() {
+    return this._opt('style');
+  }
+  get useCapture() {
+    return this._opt('useCapture');
+  }
+  get class() {
+    return this.args.class || this._config.class;
+  }
   get ariaRole() {
-    if (this._getAriaRole) {
-      return this._getAriaRole();
-    }
-
     return this.args.ariaRole ?? this._defaultAriaRole;
   }
-
+  get explicitTarget() {
+    return this.args.target !== undefined ? this.args.target : this.args.explicitTarget;
+  }
+  get floatingElementContainer() {
+    return (
+      this.args.floatingElementContainer ||
+      this._config.floatingElementContainer ||
+      DEFAULTS.floatingElementContainer
+    );
+  }
+  get floatingUiOptions() {
+    return (
+      this.args.floatingUiOptions ||
+      this._config.floatingUiOptions ||
+      DEFAULTS.floatingUiOptions
+    );
+  }
+  get configKey() {
+    if (this._defaultConfigKey) {
+      return this._defaultConfigKey;
+    }
+    if (this.args.configKey) {
+      return this.args.configKey;
+    }
+    return this.ariaRole === 'tooltip' ? 'tooltip' : 'popover';
+  }
   get _isTooltip() {
     return this.configKey === 'tooltip' || this.ariaRole === 'tooltip';
   }
-  get isFillAnimation() { return this.animation === 'fill'; }
-  get renderFloatingElement() { return Boolean(this.renderInPlace || this._currentTarget); }
-  get shouldRenderFloatingElement() { return !this.lazyRender || this._mustRender; }
-  get id() { return this.args.id || `${guidFor(this)}-floating`; }
+  get isFillAnimation() {
+    return this.animation === 'fill';
+  }
+  get renderFloatingElement() {
+    return Boolean(this.renderInPlace || this._currentTarget);
+  }
+  get shouldRenderFloatingElement() {
+    return !this.lazyRender || this._mustRender;
+  }
+  get id() {
+    return this.args.id || this._elementId || this._defaultId;
+  }
+  get parentElement() {
+    return this._parentElement;
+  }
 
   get _class() {
     const showOrHideClass = `ember-attacher-${this._isStartingAnimation ? 'show' : 'hide'}`;
     const arrowClass = `ember-attacher-${this.arrow ? 'with' : 'without'}-arrow`;
+    const additionalClass = this._getAdditionalClass
+      ? this._getAdditionalClass()
+      : this.args.additionalClass || '';
     return [
       `ember-attacher-${this.animation}`,
       this.class || '',
-      (this._getAdditionalClass ? this._getAdditionalClass() : this.args.additionalClass) || '',
+      additionalClass,
       showOrHideClass,
       arrowClass,
-    ].filter(Boolean).join(' ');
+    ]
+      .filter(Boolean)
+      .join(' ');
   }
 
   get _style() {
@@ -191,8 +419,81 @@ export default class AttacherCore {
     return style;
   }
 
+  get isDestroyed() {
+    return this._isDestroyed;
+  }
+  get isDestroying() {
+    return this._isDestroyed;
+  }
+  get isHidden() {
+    return this._isHidden;
+  }
+  get entryCount() {
+    return this._registeredEntries.size;
+  }
+
+  isActiveTarget(element) {
+    return this._currentTarget === element;
+  }
+
+  setHostElements(floatingElement, arrowElement = null) {
+    if (this._floatingElement !== floatingElement) {
+      this._floatingElement = floatingElement;
+      if (floatingElement) {
+        this._attachPopoverEvents(floatingElement);
+      }
+    }
+    this._setTracked('_arrowElement', arrowElement);
+  }
+
+  getHostRenderState() {
+    const activeEl = this._currentTarget || this._registeredTarget;
+    const entry = activeEl ? this._registeredEntries.get(activeEl) : null;
+    const parentElement =
+      this._parentElement || this._listenerTarget?.parentElement || null;
+
+    return {
+      activeElement: activeEl,
+      id: this.id,
+      role: this.ariaRole || 'tooltip',
+      popoverAttr: this._popoverAttr,
+      className: this._class,
+      style: this._style,
+      text: entry?.data != null ? String(entry.data) : '',
+      hasContent: Boolean(entry && entry.data != null && entry.data !== ''),
+      arrow: Boolean(this.arrow),
+      isFillAnimation: this.isFillAnimation,
+      isShown: this._isShown,
+      isHiding: this._isHiding,
+      container: resolveHostContainer({
+        renderInPlace: this._renderInPlace,
+        parentElement,
+        maybeContainer: this.floatingElementContainer,
+        hasCustomContainer: this._hasCustomFloatingElementContainer,
+        modalContainer: this._modalContainer,
+        usePopoverHost: this._usePopoverHost,
+      }),
+    };
+  }
+
+  _notifyRenderStateChange() {
+    if (this._onRenderStateChange && !this._isDestroyed) {
+      this._onRenderStateChange(this.getHostRenderState());
+    }
+  }
+
+  get envConfig() {
+    return this._envConfig;
+  }
+
   get _envConfig() {
-    return getOwner(this._host).resolveRegistration('config:environment').emberAttacher || {};
+    const entryOwner =
+      (this._currentTarget && this._registeredEntries.get(this._currentTarget)?.owner) ||
+      (this._registeredTarget && this._registeredEntries.get(this._registeredTarget)?.owner) ||
+      this._registeredEntries.values().next().value?.owner ||
+      this._owner;
+
+    return entryOwner?.resolveRegistration?.('config:environment')?.emberAttacher || {};
   }
 
   get _config() {
@@ -203,13 +504,11 @@ export default class AttacherCore {
   }
 
   get _hideOn() {
-    const hideOn = this.hideOn === undefined ? DEFAULTS.hideOn : this.hideOn;
-    return hideOn === null ? [] : hideOn.split(' ');
+    return normalizeTriggerList(this.hideOn, DEFAULTS.hideOn);
   }
 
   get _showOn() {
-    const showOn = this.showOn === undefined ? DEFAULTS.showOn : this.showOn;
-    return showOn === null ? [] : showOn.split(' ');
+    return normalizeTriggerList(this.showOn, DEFAULTS.showOn);
   }
 
   get _middleware() {
@@ -218,12 +517,15 @@ export default class AttacherCore {
       arrowElement: this._arrowElement,
       flipOption: this.flip,
       overflowPadding: this.overflowPadding,
-      arrowEnabled: Boolean(this.arrow),
+      arrowEnabled:
+        Boolean(this.arrow) || (!this._isComponentHost && Boolean(this._arrowElement)),
     });
   }
 
   get _hasCustomFloatingElementContainer() {
-    return Boolean(this.args.floatingElementContainer || this._config.floatingElementContainer);
+    return Boolean(
+      this.args.floatingElementContainer || this._config.floatingElementContainer
+    );
   }
 
   get _usePopoverHost() {
@@ -245,7 +547,7 @@ export default class AttacherCore {
   get _floatingElementContainer() {
     return resolveHostContainer({
       renderInPlace: this._renderInPlace,
-      parentElement: this.parentElement,
+      parentElement: this._parentElement,
       maybeContainer: this.floatingElementContainer,
       hasCustomContainer: this._hasCustomFloatingElementContainer,
       modalContainer: this._modalContainer,
@@ -253,15 +555,531 @@ export default class AttacherCore {
     });
   }
 
+  parentFinder = modifier((element, [hasTargetBlock]) => {
+    if (hasTargetBlock !== undefined) {
+      this._allowParentFallback = !hasTargetBlock;
+    }
+    const timer = schedule('actions', () => {
+      if (!this._isDestroyed) {
+        this._setTracked('_parentElement', element.parentElement);
+        this._initializeAttacher();
+      }
+    });
+    return () => cancel(timer);
+  });
+
+  // Insert + autoUpdate teardown. Must not read tracked state synchronously in
+  // the modifier callback (the scheduled fn is fine) or tracked updates will re-fire teardown.
+  setupFloatingElement = modifier((element, [hasTargetBlock]) => {
+    if (hasTargetBlock !== undefined) {
+      this._allowParentFallback = !hasTargetBlock;
+    }
+    this._floatingElement = element;
+    registerAttacher(this);
+
+    const timer = schedule('actions', () => {
+      if (this._isDestroyed) {
+        return;
+      }
+
+      this._floatingElement = element;
+      this._attachPopoverEvents(element);
+
+      if (this.renderInPlace) {
+        this._setTracked('_parentElement', element.parentElement);
+        this._initializeAttacher();
+      } else {
+        syncParentAttachment(this);
+      }
+    });
+
+    return () => {
+      cancel(timer);
+      this._detachPopoverEvents(element);
+      if (this._floatingElement === element) {
+        this._floatingElement = null;
+      }
+      this._cleanup?.();
+      this._cleanup = null;
+    };
+  });
+
+  attachment = modifier((element) => {
+    this._floatingElement = element;
+    registerAttacher(this);
+
+    const timer = schedule('actions', () => {
+      if (this._isDestroyed) {
+        return;
+      }
+
+      this._floatingElement = element;
+      this._syncHeadlessAttachmentElement(element);
+      this._attachPopoverEvents(element);
+      syncParentAttachment(this);
+      this._initializeAttacher();
+    });
+
+    return () => {
+      cancel(timer);
+      this._detachPopoverEvents(element);
+      if (this._addedManagedPopover && element.getAttribute('popover') === 'manual') {
+        element.removeAttribute('popover');
+      }
+      this._addedManagedPopover = false;
+      if (this._floatingElement === element) {
+        this._floatingElement = null;
+      }
+      this._cleanup?.();
+      this._cleanup = null;
+    };
+  });
+
+  insertArrow = onInsert((element) => {
+    if (!this._isDestroyed) {
+      this._setTracked('_arrowElement', element);
+    }
+  });
+
+  arrowModifier = modifier((element) => {
+    const timer = schedule('actions', () => {
+      if (this._isDestroyed) {
+        return;
+      }
+      this._setTracked('_arrowElement', element);
+      if (!this._isHidden || this._isShown) {
+        this._update();
+      }
+    });
+
+    return () => {
+      cancel(timer);
+      if (!this._isDestroyed && this._arrowElement === element) {
+        this._setTracked('_arrowElement', null);
+      }
+    };
+  });
+
+  isShownDidUpdate = onUpdate(() => this._syncIsShown());
+  targetDidUpdate = onUpdate(() => this._initializeAttacher());
+  optionsDidUpdate = onUpdate(() => {
+    this._ensureArgumentsAreValid();
+    if (this._floatingElement && !this._isComponentHost) {
+      this._syncHeadlessAttachmentElement(this._floatingElement);
+    }
+    this._syncAria();
+    this._update();
+  });
+
+  scheduleArgsSync() {
+    cancel(this._syncArgsTimer);
+    this._syncArgsTimer = schedule('actions', () => {
+      this._syncArgsTimer = null;
+      if (this._isDestroyed) {
+        return;
+      }
+
+      const targetKey = `${this.showOn}|${this.hideOn}|${this.id}`;
+      const explicitTarget = this.explicitTarget;
+      if (
+        !this._prevSyncedTargetKey ||
+        this._prevSyncedTargetKey !== targetKey ||
+        this._prevSyncedExplicitTarget !== explicitTarget
+      ) {
+        this._prevSyncedTargetKey = targetKey;
+        this._prevSyncedExplicitTarget = explicitTarget;
+        this._initializeAttacher();
+      }
+
+      const isShown = this.controlledIsShown;
+      if (this._prevSyncedIsShown !== isShown) {
+        this._prevSyncedIsShown = isShown;
+        this._syncIsShown();
+      }
+
+      this._ensureArgumentsAreValid();
+      if (this._floatingElement && !this._isComponentHost) {
+        this._syncHeadlessAttachmentElement(this._floatingElement);
+      }
+      this._syncAria();
+      this._update();
+    });
+  }
+
+  target = createTargetModifier(this);
+
+  reference = modifier((element) => {
+    this.setReference(element);
+
+    return () => {
+      if (!this._isDestroyed && this._registeredTarget === element) {
+        this.setReference(null);
+      }
+    };
+  });
+
+  registerTargetElement(element, data, options = null, owner = null) {
+    let entry = this._registeredEntries.get(element);
+    const isNew = !entry;
+    if (!entry) {
+      entry = {
+        element,
+        data,
+        options,
+        owner,
+        showListeners: {},
+        showOnKey: null,
+        useCapture: null,
+      };
+      this._registeredEntries.set(element, entry);
+    } else {
+      entry.data = data;
+      entry.options = options;
+      if (owner) {
+        entry.owner = owner;
+      }
+    }
+
+    this._syncEntryShowListeners(entry);
+
+    if (!isNew && (this._registeredTarget === element || this._currentTarget === element)) {
+      this._activeEntryOptions = options;
+      cancel(entry.updateTimer);
+      entry.updateTimer = schedule('actions', () => {
+        entry.updateTimer = null;
+        if (this._isDestroyed) {
+          return;
+        }
+        if (this._registeredTarget === element || this._currentTarget === element) {
+          this._setTracked('_data', data);
+          this._syncAria();
+          this._notifyRenderStateChange();
+          if (!this._isHidden || this._isShown) {
+            this._update();
+          }
+        }
+      });
+    }
+
+    return entry;
+  }
+
+  unregisterTargetElement(element) {
+    const entry = this._registeredEntries.get(element);
+    if (!entry) {
+      return;
+    }
+
+    cancel(entry.updateTimer);
+    this._removeEntryShowListeners(entry);
+    this._registeredEntries.delete(element);
+
+    const wasActiveOpen =
+      this._currentTarget === element &&
+      (!this._isHidden || this._isShown) &&
+      !this.controlledIsShown;
+
+    if (this._listenerTarget === element) {
+      this._removeHideEventListeners();
+      this._aria.unbind();
+      this._listenerTarget = null;
+    }
+
+    if (this._isDestroyed) {
+      return;
+    }
+
+    if (wasActiveOpen) {
+      this._hide();
+    }
+
+    if (this._registeredTarget === element || this._currentTarget === element) {
+      this._activeEntryOptions = null;
+
+      schedule('actions', () => {
+        if (this._isDestroyed) {
+          return;
+        }
+        const fallbackEntry = this._registeredEntries.values().next().value || null;
+        if (fallbackEntry) {
+          this._setTracked('_registeredTarget', fallbackEntry.element);
+          this._setTracked('_data', fallbackEntry.data);
+          this._activeEntryOptions = fallbackEntry.options;
+          this._initializeAttacher();
+        } else {
+          this._setTracked('_registeredTarget', null);
+          this._setTracked('_data', undefined);
+          if (!this._isHidden || this._isShown) {
+            this._hide();
+          }
+          this._initializeAttacher();
+        }
+      });
+    }
+  }
+
+  _onRegisteredEntryMounted(element, data) {
+    if (!this._registeredEntries.has(element)) {
+      return;
+    }
+    const currentRegistered = this._registeredTarget;
+    if (!currentRegistered || !this._registeredEntries.has(currentRegistered)) {
+      this._setTracked('_registeredTarget', element);
+      this._setTracked('_data', data);
+      this._activeEntryOptions = this._registeredEntries.get(element)?.options || null;
+      this._initializeAttacher();
+    }
+  }
+
+  _syncHeadlessAttachmentElement(element) {
+    if (!element) {
+      return;
+    }
+
+    if (element.id) {
+      this._elementId = element.id;
+    } else {
+      element.id = this.id;
+    }
+
+    if (this.ariaRole && !element.hasAttribute('role')) {
+      element.setAttribute('role', this.ariaRole);
+    }
+
+    if (this._usePopoverHost && !element.hasAttribute('popover')) {
+      element.setAttribute('popover', 'manual');
+      this._addedManagedPopover = true;
+      if (!element.classList.contains('ember-attacher')) {
+        element.style.inset = 'auto';
+        element.style.margin = '0';
+      }
+    } else if (!this._usePopoverHost && this._addedManagedPopover) {
+      element.removeAttribute('popover');
+      this._addedManagedPopover = false;
+    }
+
+    if (this._isHidden && !this._isShown) {
+      element.style.display = 'none';
+      element.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  _attachPopoverEvents(element) {
+    if (!element || this._attachedPopoverEventsOn === element) {
+      return;
+    }
+    this._detachPopoverEvents(this._attachedPopoverEventsOn);
+    if (element.hasAttribute('popover') && typeof element.addEventListener === 'function') {
+      element.addEventListener('beforetoggle', this._onPopoverBeforeToggle);
+      this._attachedPopoverEventsOn = element;
+    }
+  }
+
+  _detachPopoverEvents(element) {
+    if (!element || this._attachedPopoverEventsOn !== element) {
+      return;
+    }
+    element.removeEventListener('beforetoggle', this._onPopoverBeforeToggle);
+    this._attachedPopoverEventsOn = null;
+  }
+
+  _onPopoverBeforeToggle(event) {
+    if (this._isDestroyed || this._syncingPopoverHost) {
+      return;
+    }
+
+    const trigger =
+      this._pendingPopoverTrigger ||
+      (event.source?.hasAttribute?.('popovertarget') ? event.source : null);
+    this._pendingPopoverTrigger = null;
+
+    if (!trigger && this._popoverTargetEntries.size === 0) {
+      return;
+    }
+
+    if (event.newState === 'open') {
+      if (trigger && this._currentTarget !== trigger) {
+        this._switchTargetFromEvent(trigger, undefined, null);
+      }
+      if (this._isHidden) {
+        this._skipNativePopoverToggle = true;
+        try {
+          this._show();
+          this._addListenersForHideEvents();
+        } finally {
+          this._skipNativePopoverToggle = false;
+        }
+      }
+    } else if (event.newState === 'closed' && !this._isHidden) {
+      this._skipNativePopoverToggle = true;
+      try {
+        this._hide();
+      } finally {
+        this._skipNativePopoverToggle = false;
+      }
+    }
+  }
+
+  _onPopoverTargetClick(event) {
+    const trigger = event.currentTarget;
+    if (!trigger || this._isDestroyed) {
+      return;
+    }
+
+    const floatingEl = this._floatingElement;
+    const actionAttr = (trigger.getAttribute('popovertargetaction') || 'toggle').toLowerCase();
+
+    // When the browser promotes `[popover]` natively, the native invoker runs after
+    // click dispatch and emits `beforetoggle`, so avoid double-toggling here.
+    if (floatingEl?.hasAttribute('popover') && typeof floatingEl.showPopover === 'function') {
+      this._pendingPopoverTrigger = trigger;
+      if (actionAttr !== 'hide' && this._currentTarget !== trigger) {
+        this._switchTargetFromEvent(trigger, undefined, null);
+      }
+      return;
+    }
+
+    if (actionAttr === 'hide') {
+      if (!this._isHidden) {
+        this._hide();
+      }
+      return;
+    }
+
+    if (actionAttr === 'show' || this._isHidden || this._currentTarget !== trigger) {
+      if (this._currentTarget !== trigger) {
+        this._switchTargetFromEvent(trigger, undefined, null);
+      }
+      this._show();
+      this._addListenersForHideEvents();
+    } else {
+      this._hide();
+    }
+  }
+
+  _syncEntryShowListeners(entry) {
+    const opts = entry.options || {};
+    const baseArgs = this._getArgs() || {};
+    const showOn = normalizeTriggerList(
+      opts.showOn === undefined ? baseArgs.showOn : opts.showOn,
+      this._config.showOn ?? DEFAULTS.showOn
+    );
+    const useCapture = Boolean(
+      opts.useCapture ?? baseArgs.useCapture ?? this._config.useCapture ?? DEFAULTS.useCapture
+    );
+    const showOnKey = showOn.join(' ');
+
+    if (entry.showOnKey === showOnKey && entry.useCapture === useCapture) {
+      return;
+    }
+
+    cancel(entry.updateTimer);
+    this._removeEntryShowListeners(entry);
+    entry.showOnKey = showOnKey;
+    entry.useCapture = useCapture;
+
+    for (const eventName of showOn) {
+      const listener = (event) => {
+        if (this._isDestroyed) {
+          return;
+        }
+        if (
+          eventName === 'click' &&
+          this._currentTarget === entry.element &&
+          (!this._isHidden || this._isShown) &&
+          !this._isHiding &&
+          this._hideOn.includes('click')
+        ) {
+          this._hideAfterDelay();
+          return;
+        }
+        this._activateRegisteredEntry(entry);
+        this._showAfterDelay(event);
+      };
+      entry.showListeners[eventName] = listener;
+      entry.element.addEventListener(eventName, listener, useCapture);
+    }
+  }
+
+  _removeEntryShowListeners(entry) {
+    const listeners = entry.showListeners;
+    const capture = Boolean(entry.useCapture);
+    for (const eventName of Object.keys(listeners)) {
+      entry.element.removeEventListener(eventName, listeners[eventName], capture);
+      delete listeners[eventName];
+    }
+    entry.showOnKey = null;
+  }
+
+  _activateRegisteredEntry(entry) {
+    const isTargetSwitch =
+      this._currentTarget !== entry.element ||
+      this._registeredTarget !== entry.element ||
+      this._activeEntryOptions !== entry.options;
+
+    this._activeEntryOptions = entry.options || null;
+    this._setTracked('_data', entry.data);
+    this._setTracked('_registeredTarget', entry.element);
+
+    if (isTargetSwitch) {
+      this._switchTargetFromEvent(entry.element, entry.data, entry.options || null);
+    } else {
+      this._notifyRenderStateChange();
+    }
+  }
+
+  _switchTargetFromEvent(targetEl, data, options) {
+    this._removeHideEventListeners();
+    this._activeEntryOptions = options;
+    this._setTracked('_data', data);
+    this._setTracked('_registeredTarget', targetEl);
+    this._listenerTarget = getListenerTarget(targetEl);
+    this._setTracked('_currentTarget', targetEl);
+    this._syncModalContainer();
+    syncParentAttachment(this);
+    this._aria.bind(this._listenerTarget, {
+      isTooltip: this._isTooltip,
+      id: this.id,
+      ariaRole: this.ariaRole,
+      isOpen: this._ariaOpen,
+    });
+    this._notifyRenderStateChange();
+  }
+
+  _syncPopoverTargetListeners(popoverTargets) {
+    const nextSet = new Set(popoverTargets);
+
+    for (const [el, listener] of this._popoverTargetEntries) {
+      if (!nextSet.has(el)) {
+        el.removeEventListener('click', listener, this.useCapture);
+        this._popoverTargetEntries.delete(el);
+      }
+    }
+
+    for (const el of nextSet) {
+      if (!this._popoverTargetEntries.has(el)) {
+        el.addEventListener('click', this._onPopoverTargetClick, this.useCapture);
+        this._popoverTargetEntries.set(el, this._onPopoverTargetClick);
+      }
+    }
+  }
+
+  _clearPopoverTargetListeners() {
+    for (const [el, listener] of this._popoverTargetEntries) {
+      el.removeEventListener('click', listener, this.useCapture);
+    }
+    this._popoverTargetEntries.clear();
+  }
+
   _syncModalContainer() {
     if (this._renderInPlace || this._hasCustomFloatingElementContainer) {
-      if (this._modalContainer !== null) {
-        this._modalContainer = null;
-      }
+      this._setTracked('_modalContainer', null);
       return false;
     }
 
-    const modalDialog = getModalDialogContainer(this._listenerTarget || this.parentElement);
+    const modalDialog = getModalDialogContainer(
+      this._listenerTarget || this._parentElement
+    );
     if (this._modalContainer !== modalDialog) {
       this._modalContainer = modalDialog;
       return true;
@@ -276,14 +1094,25 @@ export default class AttacherCore {
       this._cleanup = null;
     }
 
+    if (!this._floatingElement) {
+      return;
+    }
+
     this._floatingElement.style.display = isVisible ? 'block' : 'none';
-    // Prevent jank by keeping the attachment invisible until positioned by _startShowAnimation().
+    // Prevent jank until _startShowAnimation() positions the attachment.
     this._floatingElement.style.visibility = isVisible ? 'hidden' : '';
 
-    if (isVisible) {
-      showPopoverHost(this._floatingElement);
-    } else {
-      hidePopoverHost(this._floatingElement);
+    this._syncingPopoverHost = true;
+    try {
+      if (!this._skipNativePopoverToggle) {
+        if (isVisible) {
+          showPopoverHost(this._floatingElement);
+        } else {
+          hidePopoverHost(this._floatingElement);
+        }
+      }
+    } finally {
+      this._syncingPopoverHost = false;
     }
 
     this.args.onChange?.(isVisible);
@@ -291,24 +1120,62 @@ export default class AttacherCore {
 
   _setIsVisibleAfterDelay(isVisible, delay) {
     if (!this._floatingElement) {
-      this._animationTimeout = requestAnimationFrame(() => {
-        this._setIsVisibleAfterDelay(isVisible, delay);
+      this._scheduleAnimationFrame(() => {
+        if (!this._isDestroyed) {
+          this._setIsVisibleAfterDelay(isVisible, delay);
+        }
       });
       return;
     }
 
     if (delay) {
-      this._delayedVisibilityToggle = later(this, () => {
-        this._animationTimeout = requestAnimationFrame(() => {
-          animationTestWaiter.endAsync(this._animationTimeout);
-          if (!this.isDestroyed && !this.isDestroying) {
-            this._applyVisibility(isVisible);
-          }
-        });
-        animationTestWaiter.beginAsync(this._animationTimeout);
-      }, delay);
+      this._delayedVisibilityToggle = later(
+        this,
+        () => {
+          this._scheduleAnimationFrame(() => {
+            if (!this._isDestroyed) {
+              this._applyVisibility(isVisible);
+            }
+          });
+        },
+        delay
+      );
     } else {
       this._applyVisibility(isVisible);
+    }
+  }
+
+  show(target = undefined, data = undefined) {
+    if (typeof Event !== 'undefined' && target instanceof Event) {
+      target = undefined;
+    }
+
+    if (target !== undefined) {
+      if (this._registeredEntries.has(target)) {
+        const entry = this._registeredEntries.get(target);
+        if (data !== undefined) {
+          entry.data = data;
+        }
+        this._activateRegisteredEntry(entry);
+      } else if (isElementTarget(target) || isVirtualReference(target)) {
+        this._switchTargetFromEvent(target, data, this._activeEntryOptions);
+      } else {
+        runInDebug(() => {
+          warn(
+            '[ember-attacher] Ignoring non-Target argument passed to show().',
+            false,
+            { id: 'ember-attacher.invalid-show-target' }
+          );
+        });
+      }
+    }
+    this._show();
+    if (!this._isDestroyed) {
+      next(this, () => {
+        if (!this._isDestroyed && !this._isHidden) {
+          this._addListenersForHideEvents();
+        }
+      });
     }
   }
 
@@ -316,89 +1183,64 @@ export default class AttacherCore {
     this._hide();
   }
 
-  setReference(target) {
+  toggle() {
+    if (this._isShown || !this._isHidden) {
+      this.hide();
+    } else {
+      this.show();
+    }
+  }
+
+  update() {
+    this._updatePosition();
+  }
+
+  setTarget(target, data = undefined) {
     cancel(this._setReferenceTimer);
+
+    if (data !== undefined) {
+      this._pendingRegisteredData = data;
+      this._hasPendingData = true;
+    }
 
     this._setReferenceTimer = schedule('actions', () => {
       this._setReferenceTimer = null;
 
-      if (this.isDestroyed || this.isDestroying) {
+      if (this._isDestroyed) {
         return;
       }
 
       const nextTarget = target ?? null;
-      if (this._registeredTarget === nextTarget) {
+      const hasExplicitData = this._hasPendingData;
+      const nextData = this._pendingRegisteredData;
+      this._hasPendingData = false;
+      this._pendingRegisteredData = undefined;
+
+      if (hasExplicitData) {
+        this._setTracked('_data', nextData);
+      }
+
+      if (this._registeredTarget === nextTarget && this._currentTarget === nextTarget) {
         return;
       }
 
-      this._registeredTarget = nextTarget;
+      this._setTracked('_registeredTarget', nextTarget);
       this._initializeAttacher();
     });
   }
 
-  reference = modifier((element) => {
-    this.setReference(element);
-
-    return () => {
-      if (!this.isDestroyed && !this.isDestroying && this._registeredTarget === element) {
-        this.setReference(null);
-      }
-    };
-  });
+  setReference(target) {
+    this.setTarget(target);
+  }
 
   _ensureArgumentsAreValid() {
     runInDebug(() => {
       if (this.useCapture !== this._lastUseCaptureArgumentValue) {
-        warn(
-          'The value of the useCapture argument was mutated',
-          { id: 'ember-attacher.use-capture-mutated' }
-        );
+        warn('The value of the useCapture argument was mutated', {
+          id: 'ember-attacher.use-capture-mutated',
+        });
       }
     });
-  }
-
-  constructor(host, getArgs, options = {}) {
-    this._host = host;
-    this._getArgs = getArgs;
-    this._defaultConfigKey = options.defaultConfigKey ?? null;
-    this._defaultAriaRole = options.defaultAriaRole;
-    this._getAdditionalClass = options.getAdditionalClass ?? null;
-    this._getAriaRole = options.getAriaRole ?? null;
-    this._destroyed = false;
-    this._destroying = false;
-
-    registerAttacher(this);
-
-    this._delayedVisibilityToggle = null;
-    this._isHidden = true;
-    this._isHiding = false;
-    this._positioningSuspended = false;
-    this._animationTimeout = null;
-
-    this._hideListenersOnDocumentByEvent = {};
-    this._hideListenersOnTargetByEvent = {};
-    this._showListenersOnTargetByEvent = {};
-
-    this._aria = new AttachmentAriaController();
-    this._ariaOpen = false;
-    this._mouseLeaveOrigin = null;
-    this._restoreFocusOnHide = false;
-    this._suppressFocusShow = false;
-
-    this.hide = this.hide.bind(this);
-    this.setReference = this.setReference.bind(this);
-    this._updatePosition = this._updatePosition.bind(this);
-    this._hide = this._hide.bind(this);
-    this._hideAfterDelay = this._hideAfterDelay.bind(this);
-    this._hideIfMouseOutsideTargetOrAttachment = this._hideIfMouseOutsideTargetOrAttachment.bind(this);
-    this._hideOnClickOut = this._hideOnClickOut.bind(this);
-    this._hideOnEscapeKey = this._hideOnEscapeKey.bind(this);
-    this._hideOnLostFocus = this._hideOnLostFocus.bind(this);
-    this._hideOnMouseLeaveTarget = this._hideOnMouseLeaveTarget.bind(this);
-    this._show = this._show.bind(this);
-    this._showAfterDelay = this._showAfterDelay.bind(this);
-
-    this._lastUseCaptureArgumentValue = this.useCapture;
   }
 
   _syncAria() {
@@ -411,23 +1253,52 @@ export default class AttacherCore {
   }
 
   _initializeAttacher() {
-    this._removeEventListeners();
+    if (this._isDestroyed) {
+      return;
+    }
+
+    this._removeLegacyShowEventListeners();
+    this._removeHideEventListeners();
+
+    const popoverTargets = this.id ? findPopoverTargetElements(this.id) : [];
+    this._syncPopoverTargetListeners(popoverTargets);
+
     const target = resolveAttachmentTarget({
-      explicitTarget: this.args.explicitTarget,
+      explicitTarget: this.explicitTarget,
       registeredTarget: this._registeredTarget,
-      parentElement: this.parentElement,
+      popoverTargets,
+      parentElement: this._parentElement,
+      allowParentFallback: this._allowParentFallback,
     });
+
     this._listenerTarget = getListenerTarget(target);
-    this._currentTarget = target;
+    this._setTracked('_currentTarget', target);
+
+    if (target && this._registeredEntries.has(target)) {
+      const entry = this._registeredEntries.get(target);
+      this._activeEntryOptions = entry.options || null;
+      this._setTracked('_data', entry.data);
+    }
+
     this._syncModalContainer();
     syncParentAttachment(this);
-    this._addListenersForShowEvents();
+    this._addLegacyShowListenersIfUnregistered();
+    this._notifyRenderStateChange();
 
-    if (!this._isHidden || this.isShown) {
+    const shouldBeOpen =
+      (!this._isHiding && (!this._isHidden || this._isShown)) ||
+      Boolean(this.controlledIsShown);
+    if (shouldBeOpen) {
       this._ariaOpen = true;
       this._syncAria();
       this._addListenersForHideEvents();
-      this._show();
+      if (!this._isShown || this.controlledIsShown) {
+        this._show();
+      } else if (this._floatingElement && this._floatingElement.style.display !== 'block') {
+        this._cancelAnimation();
+        this._applyVisibility(true);
+        this._startShowAnimation();
+      }
     } else {
       this._ariaOpen = false;
       this._syncAria();
@@ -436,44 +1307,42 @@ export default class AttacherCore {
     this.args.onInitializeAttacher?.(this._currentTarget, this.id);
   }
 
-  _addListenersForShowEvents() {
+  _addLegacyShowListenersIfUnregistered() {
+    const target = this._listenerTarget;
+    if (!target || this._registeredEntries.has(target) || this._popoverTargetEntries.has(target)) {
+      return;
+    }
+
+    this._showOn.forEach((event) => {
+      this._legacyShowListenersOnTargetByEvent[event] = this._showAfterDelay;
+      target.addEventListener(event, this._showAfterDelay, this.useCapture);
+    });
+  }
+
+  _removeLegacyShowEventListeners() {
     const target = this._listenerTarget;
     if (!target) {
       return;
     }
 
-    this._showOn.forEach((event) => {
-      this._showListenersOnTargetByEvent[event] = this._showAfterDelay;
-      target.addEventListener(event, this._showAfterDelay, this.useCapture);
+    Object.keys(this._legacyShowListenersOnTargetByEvent).forEach((event) => {
+      target.removeEventListener(
+        event,
+        this._legacyShowListenersOnTargetByEvent[event],
+        this.useCapture
+      );
+      delete this._legacyShowListenersOnTargetByEvent[event];
     });
   }
 
-  destroy() {
-    if (this._destroyed) {
-      return;
-    }
-
-    this._destroying = true;
-    unregisterAttacher(this);
-
-    this._cleanup?.();
-    this._cleanup = null;
-
-    cancel(this._setReferenceTimer);
-    this._cancelAnimation();
-    cancel(this._delayedVisibilityToggle);
-
-    this._aria.unbind();
-    this._removeEventListeners();
-
-    this.args.onWillDestroy?.(this._currentTarget, this.id);
-    this._destroyed = true;
-  }
-
-  _removeEventListeners() {
+  _removeHideEventListeners({ restoreClickShow = false } = {}) {
     this._mouseLeaveOrigin = null;
     Object.keys(this._hideListenersOnDocumentByEvent).forEach((eventType) => {
-      document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType], this.useCapture);
+      document.removeEventListener(
+        eventType,
+        this._hideListenersOnDocumentByEvent[eventType],
+        this.useCapture
+      );
       delete this._hideListenersOnDocumentByEvent[eventType];
     });
 
@@ -482,19 +1351,42 @@ export default class AttacherCore {
       return;
     }
 
-    [this._hideListenersOnTargetByEvent, this._showListenersOnTargetByEvent].forEach((eventToListener) => {
-      Object.keys(eventToListener).forEach((event) => {
-        target.removeEventListener(event, eventToListener[event], this.useCapture);
-      });
+    if (
+      restoreClickShow &&
+      this._showOn.includes('click') &&
+      !this._registeredEntries.has(target) &&
+      !this._popoverTargetEntries.has(target)
+    ) {
+      const hideOnClickListener = this._hideListenersOnTargetByEvent.click;
+      if (hideOnClickListener) {
+        target.removeEventListener('click', hideOnClickListener, this.useCapture);
+        delete this._hideListenersOnTargetByEvent.click;
+      }
+
+      this._legacyShowListenersOnTargetByEvent.click = this._showAfterDelay;
+      target.addEventListener('click', this._showAfterDelay, this.useCapture);
+    }
+
+    Object.keys(this._hideListenersOnTargetByEvent).forEach((event) => {
+      target.removeEventListener(
+        event,
+        this._hideListenersOnTargetByEvent[event],
+        this.useCapture
+      );
+      delete this._hideListenersOnTargetByEvent[event];
     });
   }
 
   _syncIsShown() {
-    const isShown = this.isShown;
+    const isShown = this.controlledIsShown;
 
     if (isShown === true && this._isHidden) {
       this._show();
-      next(this, () => this._addListenersForHideEvents());
+      next(this, () => {
+        if (!this._isDestroyed) {
+          this._addListenersForHideEvents();
+        }
+      });
     } else if (isShown === false && !this._isHidden) {
       this._hide();
     }
@@ -508,13 +1400,21 @@ export default class AttacherCore {
     cancel(this._delayedVisibilityToggle);
 
     this._isHiding = false;
-    this._mustRender = true;
+    this._setTracked('_mustRender', true);
     syncParentAttachment(this);
 
     this._addListenersForHideEvents();
 
-    const showDelay = parseInt(this.showDelay);
-    this._delayedVisibilityToggle = debounce(this, this._show, showDelay, !showDelay);
+    const parsedShowDelay = parseInt(this.showDelay, 10) || 0;
+    const isWarm = Boolean(this._isTooltip && peekDelayGroup(this._owner)?.isWarmFor(this));
+    const effectiveDelay = isWarm ? 0 : parsedShowDelay;
+
+    this._delayedVisibilityToggle = debounce(
+      this,
+      this._show,
+      effectiveDelay,
+      !effectiveDelay
+    );
   }
 
   _show() {
@@ -527,15 +1427,22 @@ export default class AttacherCore {
     this._restoreFocusOnHide = false;
     this._isHiding = false;
     this._positioningSuspended = false;
-    this._mustRender = true;
+    this._setTracked('_mustRender', true);
+    this._setTracked('_isShown', true);
     this._ariaOpen = true;
     this._aria.setOpen(true);
+
+    if (this._isTooltip && this.controlledIsShown !== true) {
+      getDelayGroup(this._owner)?.open(this);
+    }
+
     const modalContainerChanged = this._syncModalContainer();
     syncParentAttachment(this);
+    this._notifyRenderStateChange();
 
     if (modalContainerChanged) {
       next(this, () => {
-        if (!this.isDestroyed && !this.isDestroying && !this._isHiding && this._currentTarget) {
+        if (!this._isDestroyed && !this._isHiding && this._currentTarget) {
           this._setIsVisibleAfterDelay(true, 0);
           this._startShowAnimation();
         }
@@ -548,9 +1455,8 @@ export default class AttacherCore {
   }
 
   _startShowAnimation() {
-    this._animationTimeout = requestAnimationFrame(() => {
-      animationTestWaiter.endAsync(this._animationTimeout);
-      if (this.isDestroyed || this.isDestroying || !this._currentTarget) {
+    this._scheduleAnimationFrame(() => {
+      if (this._isDestroyed || !this._currentTarget || this._isHiding) {
         return;
       }
 
@@ -562,13 +1468,12 @@ export default class AttacherCore {
 
       this._update();
 
-      this._animationTimeout = requestAnimationFrame(() => {
-        animationTestWaiter.endAsync(this._animationTimeout);
-        if (this.isDestroyed || this.isDestroying || !this._currentTarget) {
+      this._scheduleAnimationFrame(() => {
+        if (this._isDestroyed || !this._currentTarget || this._isHiding) {
           return;
         }
         run(() => {
-          if (this.isDestroyed || this.isDestroying || !this._currentTarget) {
+          if (this._isDestroyed || !this._currentTarget || this._isHiding) {
             return;
           }
           if (
@@ -577,60 +1482,64 @@ export default class AttacherCore {
           ) {
             floatingElement.style.visibility = '';
           }
-          const showDuration = parseInt(this.showDuration);
+          const showDuration = parseInt(this.showDuration, 10) || 0;
           floatingElement.style.setProperty(
             '--ember-attacher-transition-duration',
             `${showDuration}ms`
           );
-          this._isStartingAnimation = true;
+          this._setTracked('_isStartingAnimation', true);
+          this._notifyRenderStateChange();
           floatingElement.setAttribute('aria-hidden', 'false');
         });
 
         this._isHidden = false;
       });
-      animationTestWaiter.beginAsync(this._animationTimeout);
     });
-    animationTestWaiter.beginAsync(this._animationTimeout);
   }
 
   _hideAfterDelay() {
     cancel(this._delayedVisibilityToggle);
     this._isHiding = true;
 
-    const hideDelay = parseInt(this.hideDelay);
+    const hideDelay = parseInt(this.hideDelay, 10) || 0;
     this._delayedVisibilityToggle = debounce(this, this._hide, hideDelay, !hideDelay);
   }
 
   _hide() {
+    const wasShown = this._isShown || !this._isHidden;
     this._isHiding = true;
     this._positioningSuspended = true;
     this._ariaOpen = false;
     this._mouseLeaveOrigin = null;
+    this._setTracked('_isShown', false);
     this._cleanup?.();
     this._cleanup = null;
 
+    if (this._isTooltip) {
+      peekDelayGroup(this._owner)?.close(this, { markWarm: wasShown });
+    }
+
     if (!this._floatingElement) {
-      this._animationTimeout = requestAnimationFrame(() => {
-        animationTestWaiter.endAsync(this._animationTimeout);
-        this._hide();
-      });
-      animationTestWaiter.beginAsync(this._animationTimeout);
+      this._cancelAnimation();
+      this._removeHideEventListeners({ restoreClickShow: true });
+      this._isStartingAnimation = false;
+      this._aria.setOpen(false);
+      this._isHidden = true;
       return;
     }
 
     this._cancelAnimation();
-    this._removeListenersForHideEvents();
+    this._removeHideEventListeners({ restoreClickShow: true });
 
-    this._animationTimeout = requestAnimationFrame(() => {
-      animationTestWaiter.endAsync(this._animationTimeout);
-      if (this.isDestroyed || this.isDestroying) {
+    this._scheduleAnimationFrame(() => {
+      if (this._isDestroyed) {
         return;
       }
 
-      const hideDuration = parseInt(this.hideDuration);
+      const hideDuration = parseInt(this.hideDuration, 10) || 0;
 
       run(() => {
-        if (this.isDestroyed || this.isDestroying) {
+        if (this._isDestroyed) {
           return;
         }
 
@@ -644,59 +1553,66 @@ export default class AttacherCore {
           }
         }
 
-        this._floatingElement.style.setProperty(
-          '--ember-attacher-transition-duration',
-          `${hideDuration}ms`
-        );
-        this._isStartingAnimation = false;
-        this._floatingElement.setAttribute('aria-hidden', 'true');
+        if (this._floatingElement) {
+          this._floatingElement.style.setProperty(
+            '--ember-attacher-transition-duration',
+            `${hideDuration}ms`
+          );
+          this._floatingElement.setAttribute('aria-hidden', 'true');
+        }
+        this._setTracked('_isStartingAnimation', false);
+        this._notifyRenderStateChange();
         this._aria.setOpen(false);
         this._setIsVisibleAfterDelay(false, hideDuration);
       });
 
       this._isHidden = true;
     });
-    animationTestWaiter.beginAsync(this._animationTimeout);
   }
 
   _addListenersForHideEvents() {
     const hideOn = this._hideOn;
     const target = this._listenerTarget;
 
-    if (!this._currentTarget || this.isDestroyed || this.isDestroying) {
+    if (!this._currentTarget || this._isDestroyed) {
       return;
     }
 
-    if (target && hideOn.includes('click')) {
-      const showOnClickListener = this._showListenersOnTargetByEvent.click;
+    const entry = target ? this._registeredEntries.get(target) : null;
+    const entryHandlesClickToggle =
+      Boolean(entry && entry.showOnKey?.split(' ').includes('click')) ||
+      Boolean(target && this._popoverTargetEntries.has(target));
+
+    if (target && hideOn.includes('click') && !entryHandlesClickToggle) {
+      const showOnClickListener = this._legacyShowListenersOnTargetByEvent.click;
       if (showOnClickListener) {
         target.removeEventListener('click', showOnClickListener, this.useCapture);
-        delete this._showListenersOnTargetByEvent.click;
+        delete this._legacyShowListenersOnTargetByEvent.click;
       }
 
       this._hideListenersOnTargetByEvent.click = this._hideAfterDelay;
       target.addEventListener('click', this._hideAfterDelay, this.useCapture);
     }
 
-    if (hideOn.includes('clickout')) {
+    if (hideOn.includes('clickout') && !this._hideListenersOnDocumentByEvent.click && !this._hideListenersOnDocumentByEvent.touchend) {
       const clickoutEvent = 'ontouchstart' in window ? 'touchend' : 'click';
       this._hideListenersOnDocumentByEvent[clickoutEvent] = this._hideOnClickOut;
       document.addEventListener(clickoutEvent, this._hideOnClickOut, this.useCapture);
     }
 
-    if (hideOn.includes('escapekey')) {
+    if (hideOn.includes('escapekey') && !this._hideListenersOnDocumentByEvent.keydown) {
       this._hideListenersOnDocumentByEvent.keydown = this._hideOnEscapeKey;
       document.addEventListener('keydown', this._hideOnEscapeKey, this.useCapture);
     }
 
-    if (target && hideOn.includes('mouseleave')) {
+    if (target && hideOn.includes('mouseleave') && !this._hideListenersOnTargetByEvent.mouseleave) {
       this._hideListenersOnTargetByEvent.mouseleave = this._hideOnMouseLeaveTarget;
       target.addEventListener('mouseleave', this._hideOnMouseLeaveTarget, this.useCapture);
     }
 
     if (target) {
       ['blur', 'focusout'].forEach((eventType) => {
-        if (hideOn.includes(eventType)) {
+        if (hideOn.includes(eventType) && !this._hideListenersOnTargetByEvent[eventType]) {
           this._hideListenersOnTargetByEvent[eventType] = this._hideOnLostFocus;
           target.addEventListener(eventType, this._hideOnLostFocus, this.useCapture);
         }
@@ -710,7 +1626,11 @@ export default class AttacherCore {
 
       if (!this._hideListenersOnDocumentByEvent.mousemove) {
         this._hideListenersOnDocumentByEvent.mousemove = this._hideIfMouseOutsideTargetOrAttachment;
-        document.addEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment, this.useCapture);
+        document.addEventListener(
+          'mousemove',
+          this._hideIfMouseOutsideTargetOrAttachment,
+          this.useCapture
+        );
       }
     } else {
       this._hideAfterDelay();
@@ -726,13 +1646,22 @@ export default class AttacherCore {
     if (
       !target.contains(event.target) &&
       !descendantAttachmentContainsEvent(this, event) &&
-      !isCursorInSafePolygon(event, this._mouseLeaveOrigin, this._currentTarget, this._floatingElement) &&
+      !isCursorInSafePolygon(
+        event,
+        this._mouseLeaveOrigin,
+        this._currentTarget,
+        this._floatingElement
+      ) &&
       this._floatingElement &&
       !this._floatingElement.contains(event.target)
     ) {
       this._mouseLeaveOrigin = null;
       delete this._hideListenersOnDocumentByEvent.mousemove;
-      document.removeEventListener('mousemove', this._hideIfMouseOutsideTargetOrAttachment, this.useCapture);
+      document.removeEventListener(
+        'mousemove',
+        this._hideIfMouseOutsideTargetOrAttachment,
+        this.useCapture
+      );
       this._hideAfterDelay();
     }
   }
@@ -766,7 +1695,10 @@ export default class AttacherCore {
       return;
     }
 
-    if (target.contains(event.relatedTarget) || descendantAttachmentContainsNode(this, event.relatedTarget)) {
+    if (
+      target.contains(event.relatedTarget) ||
+      descendantAttachmentContainsNode(this, event.relatedTarget)
+    ) {
       return;
     }
 
@@ -775,44 +1707,12 @@ export default class AttacherCore {
     }
   }
 
-  _removeListenersForHideEvents() {
-    Object.keys(this._hideListenersOnDocumentByEvent).forEach((eventType) => {
-      document.removeEventListener(eventType, this._hideListenersOnDocumentByEvent[eventType], this.useCapture);
-      delete this._hideListenersOnDocumentByEvent[eventType];
-    });
-
-    const target = this._listenerTarget;
-    if (!target) {
-      return;
-    }
-
-    if (this._showOn.includes('click')) {
-      const hideOnClickListener = this._hideListenersOnTargetByEvent.click;
-      if (hideOnClickListener) {
-        target.removeEventListener('click', hideOnClickListener, this.useCapture);
-        delete this._hideListenersOnTargetByEvent.click;
-      }
-
-      this._showListenersOnTargetByEvent.click = this._showAfterDelay;
-      target.addEventListener('click', this._showAfterDelay, this.useCapture);
-    }
-
-    ['blur', 'focusout', 'mouseleave'].forEach((eventType) => {
-      const listener = this._hideListenersOnTargetByEvent[eventType];
-      if (listener) {
-        target.removeEventListener(eventType, listener, this.useCapture);
-        delete this._hideListenersOnTargetByEvent[eventType];
-      }
-    });
-  }
-
   _update() {
     this._cleanup?.();
     this._cleanup = null;
 
     if (
-      this.isDestroyed ||
-      this.isDestroying ||
+      this._isDestroyed ||
       this._positioningSuspended ||
       !this._currentTarget ||
       !this._floatingElement ||
@@ -837,12 +1737,7 @@ export default class AttacherCore {
   }
 
   _updatePosition() {
-    if (
-      this.isDestroyed ||
-      this.isDestroying ||
-      !this._currentTarget ||
-      !this._floatingElement
-    ) {
+    if (this._isDestroyed || !this._currentTarget || !this._floatingElement) {
       return;
     }
 
@@ -864,8 +1759,7 @@ export default class AttacherCore {
         animationTestWaiter.endAsync(computePositionToken);
 
         if (
-          this.isDestroyed ||
-          this.isDestroying ||
+          this._isDestroyed ||
           !this._floatingElement ||
           !this._floatingElement.isConnected
         ) {
@@ -880,11 +1774,16 @@ export default class AttacherCore {
           middlewareData,
           isHidden: this._isHidden,
         });
+
+        this._setTracked('_resolvedPlacement', placement);
+        if (!shallowValueEqual(this._middlewareData, middlewareData)) {
+          this._middlewareData = middlewareData;
+        }
       })
       .catch((error) => {
         animationTestWaiter.endAsync(computePositionToken);
 
-        if (!this.isDestroyed && !this.isDestroying) {
+        if (!this._isDestroyed) {
           warn(`[ember-attacher] Positioning error: ${error?.message ?? error}`, {
             id: 'ember-attacher.positioning-error',
           });
@@ -892,17 +1791,59 @@ export default class AttacherCore {
       });
   }
 
-  _cancelAnimation() {
-    if (typeof cancelAnimationFrame !== 'function') {
+  _scheduleAnimationFrame(callback) {
+    if (typeof requestAnimationFrame !== 'function') {
       return;
     }
-
-    cancelAnimationFrame(this._animationTimeout);
-
-    runInDebug(() => {
-      if (animationTestWaiter.items?.get(this._animationTimeout)) {
-        animationTestWaiter.endAsync(this._animationTimeout);
-      }
+    const token = animationTestWaiter.beginAsync();
+    const entry = { id: null, token };
+    entry.id = requestAnimationFrame(() => {
+      this._pendingRafs.delete(entry);
+      animationTestWaiter.endAsync(token);
+      callback();
     });
+    this._pendingRafs.add(entry);
+  }
+
+  _cancelAnimation() {
+    for (const entry of this._pendingRafs) {
+      if (typeof cancelAnimationFrame === 'function') {
+        cancelAnimationFrame(entry.id);
+      }
+      animationTestWaiter.endAsync(entry.token);
+    }
+    this._pendingRafs.clear();
+  }
+
+  destroy() {
+    if (this._isDestroyed) {
+      return;
+    }
+    this._isDestroyed = true;
+
+    peekDelayGroup(this._owner)?.close(this, { markWarm: false });
+    unregisterAttacher(this);
+
+    this._cleanup?.();
+    this._cleanup = null;
+
+    cancel(this._syncArgsTimer);
+    cancel(this._setReferenceTimer);
+    this._cancelAnimation();
+    cancel(this._delayedVisibilityToggle);
+
+    this._detachPopoverEvents(this._attachedPopoverEventsOn);
+    this._aria.unbind();
+    this._removeLegacyShowEventListeners();
+    this._removeHideEventListeners();
+    this._clearPopoverTargetListeners();
+
+    for (const entry of this._registeredEntries.values()) {
+      cancel(entry.updateTimer);
+      this._removeEntryShowListeners(entry);
+    }
+    this._registeredEntries.clear();
+
+    this.args.onWillDestroy?.(this._currentTarget, this.id);
   }
 }

@@ -4,6 +4,7 @@ import { click, find, render } from '@ember/test-helpers';
 import {
   AttachPopover,
   AttachTooltip,
+  Attacher,
   BasicAttacher,
   arrow,
   autoPlacement,
@@ -79,5 +80,17 @@ module('Integration | Vite + .gjs | ember-attacher root exports', function (hook
 
     await click('#vite-basic-target');
     assert.true(isVisible('#vite-basic'), 'BasicAttacher opens on click');
+  });
+
+  test('headless Attacher root export works in Ember 7 + Vite .gjs', async function (assert) {
+    await render(<template>
+      <Attacher @id="vite-headless" @showOn="click" @hideOn="click" @showDuration={{0}} @hideDuration={{0}} as |a|>
+        <button id="vite-headless-btn" type="button" {{a.target}}>Headless</button>
+        <div id="vite-headless-panel" {{a.attachment}}>Headless {{a.placement}}</div>
+      </Attacher>
+    </template>);
+
+    await click('#vite-headless-btn');
+    assert.true(isVisible('#vite-headless-panel'), 'headless Attacher opens on click in Vite');
   });
 });

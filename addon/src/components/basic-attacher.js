@@ -2,37 +2,6 @@ import Component from '@glimmer/component';
 import AttacherCore from '../lib/attacher-core.js';
 import MaybeInElement from './basic-attacher/maybe-in-element.gjs';
 
-const CORE_FIELDS = [
-  'animation',
-  'arrow',
-  'autoUpdate',
-  'hide',
-  'hideOn',
-  'id',
-  'insertArrow',
-  'isFillAnimation',
-  'isShown',
-  'isShownDidUpdate',
-  'optionsDidUpdate',
-  'parentFinder',
-  'placement',
-  'reference',
-  'renderFloatingElement',
-  'setReference',
-  'setupFloatingElement',
-  'shouldRenderFloatingElement',
-  'showOn',
-  'strategy',
-  'targetDidUpdate',
-  'useCapture',
-  '_class',
-  '_floatingElementContainer',
-  '_middleware',
-  '_popoverAttr',
-  '_renderInPlace',
-  '_style',
-];
-
 export default class BasicAttacher extends Component {
   MaybeInElement = MaybeInElement;
 
@@ -42,7 +11,8 @@ export default class BasicAttacher extends Component {
       defaultConfigKey: this._defaultConfigKey,
       defaultAriaRole: this._defaultAriaRole,
       getAdditionalClass: () => this.additionalClass,
-      getAriaRole: () => this.ariaRole,
+      allowParentFallback: true,
+      isComponentHost: true,
     });
   }
 
@@ -62,16 +32,7 @@ export default class BasicAttacher extends Component {
     return this.args.additionalClass || '';
   }
 
-  willDestroy() {
-    super.willDestroy(...arguments);
-    this.core.destroy();
+  get id() {
+    return this.core.id;
   }
-}
-
-for (const field of CORE_FIELDS) {
-  Object.defineProperty(BasicAttacher.prototype, field, {
-    get() {
-      return this.core[field];
-    },
-  });
 }

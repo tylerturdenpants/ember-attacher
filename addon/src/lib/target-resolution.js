@@ -80,16 +80,28 @@ export function coerceExplicitTarget(value, root) {
   return null;
 }
 
-/**
- * Pick the Floating UI reference: explicit arg, then yielded registration, then parent.
- * Supports both options-bag and positional signatures.
- *
- * @param {object | Element | string | { getBoundingClientRect: Function } | null | undefined} optionsOrExplicit
- * @param {Element | { getBoundingClientRect: Function } | null | undefined} [registeredOrParent]
- * @param {Element | null | undefined} [parentElement] Implicit parent from the meta finder.
- * @param {ParentNode | Document | null | undefined} [root]
- * @returns {Element | { getBoundingClientRect: Function } | null}
- */
+export function escapeAttributeSelectorValue(value) {
+  if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
+    return CSS.escape(value);
+  }
+  return String(value).replace(/["\\]/g, '\\$&');
+}
+
+export function findPopoverTargetElements(id, root) {
+  if (!id || typeof id !== 'string') {
+    return [];
+  }
+
+  const doc = root ?? (typeof document !== 'undefined' ? document : null);
+  if (!doc || typeof doc.querySelectorAll !== 'function') {
+    return [];
+  }
+
+  return Array.from(doc.querySelectorAll(`[popovertarget="${escapeAttributeSelectorValue(id)}"]`));
+}
+
+// Pick the Floating UI reference: explicit arg (@target / @explicitTarget),
+// then yielded registration, then parent. Accepts options-bag or positional args.
 export function resolveAttachmentTarget(
   optionsOrExplicit,
   registeredOrParent,
@@ -98,7 +110,9 @@ export function resolveAttachmentTarget(
 ) {
   let explicitTarget;
   let registeredTarget;
+  let popoverTargets;
   let parent;
+  let allowParentFallback = true;
   let searchRoot;
 
   if (
@@ -110,7 +124,9 @@ export function resolveAttachmentTarget(
     ({
       explicitTarget,
       registeredTarget,
+      popoverTargets,
       parentElement: parent,
+      allowParentFallback = true,
       root: searchRoot,
     } = optionsOrExplicit);
   } else {
@@ -132,7 +148,11 @@ export function resolveAttachmentTarget(
     return registeredTarget;
   }
 
-  return parent ?? null;
+  if (Array.isArray(popoverTargets) && popoverTargets.length > 0) {
+    return popoverTargets[0];
+  }
+
+  return allowParentFallback ? parent ?? null : null;
 }
 
 /**

@@ -2,11 +2,19 @@ export { default as AttachPopover } from './components/attach-popover';
 export type { AttachPopoverArgs, AttachPopoverSignature } from './components/attach-popover';
 export { default as AttachTooltip } from './components/attach-tooltip';
 export type { AttachTooltipArgs, AttachTooltipSignature } from './components/attach-tooltip';
+export { default as Attacher } from './components/attacher';
+export type {
+  AttacherArgs,
+  AttacherSignature,
+  AttacherYieldedApi,
+} from './components/attacher';
 export { default as BasicAttacher } from './components/basic-attacher';
 export type {
   AttacherAnimation,
   AttacherBlockParams,
+  AttacherNamedBlocks,
   AttacherTarget,
+  AttacherTargetModifier,
   BasicAttacherArgs,
   BasicAttacherSignature,
 } from './components/basic-attacher';
@@ -23,6 +31,7 @@ export type {
   InlineOptions,
   LimitShiftOptions,
   Middleware,
+  MiddlewareData,
   OffsetOptions,
   Placement,
   ShiftOptions,
