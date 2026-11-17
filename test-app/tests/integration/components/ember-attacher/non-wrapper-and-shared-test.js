@@ -264,4 +264,60 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
     await waitUntil(() => !isVisible(hoverClickPanel));
     assert.false(isVisible(hoverClickPanel), 'hideOn="click" closes registered target opened by mouseenter');
   });
+
+  test('delay group warm handoff skips showDelay within 300ms and resets once cooldown expires', async function (assert) {
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    await render(hbs`
+      <button id="dg-btn-a" type="button">
+        A
+        <AttachTooltip @id="dg-tip-a" @showDelay={{160}} @showDuration={{0}} @hideDuration={{0}}>
+          First
+        </AttachTooltip>
+      </button>
+      <button id="dg-btn-b" type="button">
+        B
+        <AttachTooltip @id="dg-tip-b" @showDelay={{160}} @showDuration={{0}} @hideDuration={{0}}>
+          Second
+        </AttachTooltip>
+      </button>
+      <button id="dg-btn-c" type="button">
+        C
+        <AttachTooltip @id="dg-tip-c" @showDelay={{160}} @showDuration={{0}} @hideDuration={{0}}>
+          Third
+        </AttachTooltip>
+      </button>
+    `);
+
+    const btnA = find('#dg-btn-a');
+    const btnB = find('#dg-btn-b');
+    const btnC = find('#dg-btn-c');
+
+    // Cold tooltip waits for showDelay (notice no upfront sleep needed: owner starts cold)
+    btnA.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
+    await sleep(40);
+    assert.false(isVisible('#dg-tip-a'), 'cold tooltip stays hidden before showDelay elapses');
+    await settled();
+    await waitUntil(() => isVisible('#dg-tip-a'));
+
+    // Handoff within 300ms skips showDelay on B
+    await triggerEvent(btnA, 'mouseleave');
+    await waitUntil(() => !isVisible('#dg-tip-a'));
+
+    btnB.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
+    await sleep(30);
+    await waitUntil(() => isVisible('#dg-tip-b'), { timeout: 120 });
+    await settled();
+
+    // After cooldown expires (>300ms), C respects showDelay again
+    await triggerEvent(btnB, 'mouseleave');
+    await waitUntil(() => !isVisible('#dg-tip-b'));
+    await sleep(330);
+
+    btnC.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
+    await sleep(40);
+    assert.false(isVisible('#dg-tip-c'), 'cold tooltip after >300ms cooldown waits for showDelay');
+    await settled();
+    await waitUntil(() => isVisible('#dg-tip-c'));
+  });
 });

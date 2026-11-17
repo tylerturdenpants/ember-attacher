@@ -18,11 +18,7 @@ import {
   syncParentAttachment,
   unregisterAttacher,
 } from './attachment-tree.js';
-import {
-  isTooltipWarmWindowActive,
-  recordTooltipClose,
-  recordTooltipOpen,
-} from './delay-group.js';
+import { getDelayGroup, peekDelayGroup } from './delay-group.js';
 import { elementContainsEvent, isCursorInSafePolygon } from './dom.js';
 import {
   getModalDialogContainer,
@@ -1433,7 +1429,7 @@ export default class AttacherCore {
     this._addListenersForHideEvents();
 
     const parsedShowDelay = parseInt(this.showDelay, 10) || 0;
-    const isWarm = this._isTooltip && isTooltipWarmWindowActive(this);
+    const isWarm = Boolean(this._isTooltip && peekDelayGroup(this._owner)?.isWarmFor(this));
     const effectiveDelay = isWarm ? 0 : parsedShowDelay;
 
     this._delayedVisibilityToggle = debounce(
@@ -1460,7 +1456,7 @@ export default class AttacherCore {
     this._aria.setOpen(true);
 
     if (this._isTooltip && this.controlledIsShown !== true) {
-      recordTooltipOpen(this);
+      getDelayGroup(this._owner)?.open(this);
     }
 
     const modalContainerChanged = this._syncModalContainer();
@@ -1543,7 +1539,7 @@ export default class AttacherCore {
     this._cleanup = null;
 
     if (this._isTooltip) {
-      recordTooltipClose(this, { markWarm: wasShown });
+      peekDelayGroup(this._owner)?.close(this, { markWarm: wasShown });
     }
 
     if (!this._floatingElement) {
@@ -1848,7 +1844,7 @@ export default class AttacherCore {
     }
     this._isDestroyed = true;
 
-    recordTooltipClose(this, { markWarm: false });
+    peekDelayGroup(this._owner)?.close(this, { markWarm: false });
     unregisterAttacher(this);
 
     this._cleanup?.();
