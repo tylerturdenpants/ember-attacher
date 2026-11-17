@@ -43,6 +43,45 @@ function cssHandler() {
   };
 }
 
+const declarationsRoot = path.resolve('declarations');
+
+function collectDtsFiles(dir) {
+  const results = [];
+  if (!fs.existsSync(dir)) {
+    return results;
+  }
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      results.push(...collectDtsFiles(fullPath));
+    } else if (entry.name.endsWith('.d.ts')) {
+      results.push(fullPath);
+    }
+  }
+  return results;
+}
+
+function dtsHandler() {
+  return {
+    name: 'dts-handler',
+    buildStart() {
+      for (const file of collectDtsFiles(declarationsRoot)) {
+        this.addWatchFile(file);
+      }
+    },
+    generateBundle() {
+      for (const file of collectDtsFiles(declarationsRoot)) {
+        const relativePath = path.relative(declarationsRoot, file).split(path.sep).join('/');
+        this.emitFile({
+          type: 'asset',
+          fileName: relativePath,
+          source: fs.readFileSync(file, 'utf8'),
+        });
+      }
+    },
+  };
+}
+
 export default {
   output: addon.output(),
 
@@ -69,6 +108,9 @@ export default {
 
     // Flatten nested source CSS into dist/styles (implicit-styles / exports["./styles"])
     cssHandler(),
+
+    // Emit hand-authored TypeScript & Glint declaration files into dist/
+    dtsHandler(),
 
     // Converts .hbs files to JS
     addon.hbs(),

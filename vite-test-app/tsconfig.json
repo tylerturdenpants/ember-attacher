@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "types": [
+      "ember-source/types",
+      "@glint/ember-tsc/types"
+    ]
+  },
+  "glint": {
+    "environment": [
+      "ember-template-imports"
+    ]
+  },
+  "include": [
+    "type-tests/**/*.ts",
+    "type-tests/**/*.gts"
+  ]
+}

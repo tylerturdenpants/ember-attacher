@@ -9,6 +9,7 @@
   "name": "ember-attacher",
   "scripts": {
     "test": "pnpm -r test",
-    "lint": "pnpm -r lint"
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm --filter vite-test-app run typecheck"
   }
 }
