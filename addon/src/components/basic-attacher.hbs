@@ -1,21 +1,21 @@
-{{~#if (has-block "target")~}}{{yield this.api.target this.api to="target"}}{{~/if~}}{{~#unless this.renderFloatingElement~}}<meta hidden {{this.parentFinder (has-block "target")}} {{this.targetDidUpdate this.hideOn this.showOn @target @explicitTarget @id}} {{this.isShownDidUpdate this.controlledIsShown}}/>{{~/unless~}}{{~#if this.renderFloatingElement~}}<this.MaybeInElement @destinationElement={{this.floatingElementContainer}} @renderInPlace={{this.renderInPlaceFlag}}><div
+{{~#if (has-block "target")~}}{{yield this.core.api.target this.core.api to="target"}}{{~/if~}}{{~#unless this.core.renderFloatingElement~}}<meta hidden {{this.core.parentFinder (has-block "target")}} {{this.core.targetDidUpdate this.core.hideOn this.core.showOn @target @explicitTarget @id}} {{this.core.isShownDidUpdate this.core.controlledIsShown}}/>{{~/unless~}}{{~#if this.core.renderFloatingElement~}}<this.MaybeInElement @destinationElement={{this.core._floatingElementContainer}} @renderInPlace={{this.core._renderInPlace}}><div
       class="ember-attacher"
-      id={{this.id}}
-      popover={{this.popoverAttr}}
+      id={{this.core.id}}
+      popover={{this.core._popoverAttr}}
       role={{this.ariaRole}}
-      {{this.setupFloatingElement (has-block "target")}}
-      {{this.targetDidUpdate this.hideOn this.showOn @target @explicitTarget @id}}
-      {{this.isShownDidUpdate this.controlledIsShown}}
-      {{this.optionsDidUpdate this.autoUpdate this.animation this.arrow this.useCapture this.placement this.strategy this.renderInPlaceFlag this.middleware this.id this.ariaRole}}
+      {{this.core.setupFloatingElement (has-block "target")}}
+      {{this.core.targetDidUpdate this.core.hideOn this.core.showOn @target @explicitTarget @id}}
+      {{this.core.isShownDidUpdate this.core.controlledIsShown}}
+      {{this.core.optionsDidUpdate this.core.autoUpdate this.core.animation this.core.arrow this.core.useCapture this.core.placement this.core.strategy this.core._renderInPlace this.core._middleware this.core.id this.ariaRole}}
       ...attributes
     >
-      {{#if this.shouldRenderFloatingElement}}
-        <div class={{this.innerClass}} style={{this.innerStyle}}>
-          {{~#if (has-block "content")~}}{{yield this.api to="content"}}{{~else if (has-block)~}}{{yield this.api}}{{~/if~}}
-          {{#if this.arrow}}
-            <div class="ember-attacher-arrow" x-arrow {{this.insertArrow}}></div>
+      {{#if this.core.shouldRenderFloatingElement}}
+        <div class={{this.core._class}} style={{this.core._style}}>
+          {{~#if (has-block "content")~}}{{yield this.core.api to="content"}}{{~else if (has-block)~}}{{yield this.core.api}}{{~/if~}}
+          {{#if this.core.arrow}}
+            <div class="ember-attacher-arrow" x-arrow {{this.core.insertArrow}}></div>
           {{/if}}
-          {{#if this.isFillAnimation}}
+          {{#if this.core.isFillAnimation}}
             <div class="ember-attacher-fill-backdrop" aria-hidden="true">
               <div x-circle></div>
             </div>
