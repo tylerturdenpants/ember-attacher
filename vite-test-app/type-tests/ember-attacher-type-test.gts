@@ -5,6 +5,7 @@ import { find } from '@ember/test-helpers';
 import {
   AttachPopover,
   AttachTooltip,
+  Attacher,
   BasicAttacher,
   arrow,
   autoPlacement,
@@ -18,7 +19,9 @@ import {
   size,
   type AttacherArrowOptions,
   type AttacherBlockParams,
+  type AttacherYieldedApi,
   type Middleware,
+  type MiddlewareData,
   type Placement,
   type Strategy,
   type VirtualElement,
@@ -26,17 +29,20 @@ import {
 import { isVisible } from 'ember-attacher/test-support';
 import DirectPopover from 'ember-attacher/components/attach-popover';
 import DirectTooltip from 'ember-attacher/components/attach-tooltip';
+import DirectAttacher from 'ember-attacher/components/attacher';
 import DirectBasic from 'ember-attacher/components/basic-attacher';
 import DEFAULTS, { type EmberAttacherDefaults } from 'ember-attacher/defaults';
 import type EmberAttacherRegistry from 'ember-attacher/template-registry';
 
-// Verify TemplateRegistry exports both PascalCase and kebab-case entries matching exported components
+// Verify TemplateRegistry exports both PascalCase and kebab-case entries matching exported components & modifier
 type AssertExact<T, U extends T> = U;
 type _VerifyRegistry = [
   AssertExact<typeof AttachPopover, EmberAttacherRegistry['AttachPopover']>,
   AssertExact<typeof AttachPopover, EmberAttacherRegistry['attach-popover']>,
   AssertExact<typeof AttachTooltip, EmberAttacherRegistry['AttachTooltip']>,
   AssertExact<typeof AttachTooltip, EmberAttacherRegistry['attach-tooltip']>,
+  AssertExact<typeof Attacher, EmberAttacherRegistry['Attacher']>,
+  AssertExact<typeof Attacher, EmberAttacherRegistry['attacher']>,
   AssertExact<typeof BasicAttacher, EmberAttacherRegistry['BasicAttacher']>,
   AssertExact<typeof BasicAttacher, EmberAttacherRegistry['basic-attacher']>,
 ];
@@ -107,7 +113,27 @@ const registerExternal = (attacher: AttacherBlockParams, el: Element) => {
   attacher.setReference(el);
   attacher.setReference(coordinateVirtualTarget);
   attacher.setReference(null);
+  attacher.setTarget(el, { label: 'row-1' });
+  attacher.show(el, { label: 'row-2' });
+  attacher.toggle();
+  attacher.update();
 };
+
+const readAttacherYields = (a: AttacherYieldedApi) => {
+  const shown: boolean = a.isShown;
+  const rendered: boolean = a.shouldRender;
+  const placement: Placement = a.placement;
+  const middlewareData: MiddlewareData = a.middlewareData;
+  const data: unknown = a.data;
+  void shown;
+  void rendered;
+  void placement;
+  void middlewareData;
+  void data;
+};
+void readAttacherYields;
+
+const itemA = { id: 1, name: 'Alpha' };
 
 export class ValidUsageDemo extends Component {
   <template>
@@ -144,15 +170,15 @@ export class ValidUsageDemo extends Component {
         @useCapture={{false}}
         class="splatted-class"
         data-test-tooltip
-        as |tooltip|
+        as |tip|
       >
-        <div {{tooltip.reference}}>Content</div>
-        <button type="button" {{on "click" tooltip.hide}}>Close</button>
+        <div {{tip.reference}}>Content</div>
+        <button type="button" {{on "click" tip.hide}}>Close</button>
       </AttachTooltip>
     </button>
 
     <AttachPopover
-      @explicitTarget={{fullVirtualTarget}}
+      @target={{fullVirtualTarget}}
       @ariaRole="menu"
       @floatingElementContainer="#portal"
       @floatingUiOptions={{null}}
@@ -161,7 +187,7 @@ export class ValidUsageDemo extends Component {
       @interactive={{true}}
       as |popover|
     >
-      <div {{popover.reference}}>Virtual target popover</div>
+      <div {{popover.reference}}>Virtual target popover ({{popover.placement}})</div>
       <button type="button" {{on "click" (fn registerExternal popover targetEl)}}>Retarget</button>
     </AttachPopover>
 
@@ -169,7 +195,30 @@ export class ValidUsageDemo extends Component {
       Coordinate virtual reference
     </AttachPopover>
 
-    <AttachPopover @explicitTarget="#selector-target" />
+    <AttachTooltip @target="#selector-target" />
+
+    <AttachTooltip>
+      <:target as |target a|>
+        <button type="button" {{target itemA}} aria-expanded={{if a.isShown "true" "false"}}>
+          Hover named target
+        </button>
+      </:target>
+      <:content as |a|>
+        Placement: {{a.placement}} / Open: {{if a.isShown "yes" "no"}}
+        <button type="button" {{on "click" a.update}}>Update</button>
+      </:content>
+    </AttachTooltip>
+
+    <Attacher @placement="bottom-start" @showOn="click" @hideOn="clickout escapekey" as |a|>
+      <button type="button" {{a.target itemA}}>Open Headless</button>
+      {{#if a.shouldRender}}
+        <div class="headless-panel" {{a.attachment}}>
+          Panel at {{a.placement}} (offset: {{a.middlewareData.offset.y}})
+          <div {{a.arrow}}></div>
+          <button type="button" {{on "click" a.hide}}>Done</button>
+        </div>
+      {{/if}}
+    </Attacher>
 
     <BasicAttacher @configKey="tooltip" @ariaRole="tooltip">
       Basic usage
@@ -177,6 +226,10 @@ export class ValidUsageDemo extends Component {
 
     <DirectTooltip @placement="right" />
     <DirectPopover @placement="left" />
+    <DirectAttacher @placement="top" as |a|>
+      <button type="button" {{a.target}}>Headless</button>
+      <div {{a.attachment}}>Body</div>
+    </DirectAttacher>
     <DirectBasic @configKey="popover" />
   </template>
 }

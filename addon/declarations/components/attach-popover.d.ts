@@ -1,14 +1,12 @@
 import type Component from '@glimmer/component';
-import type { AttachPopoverArgs, AttacherBlockParams } from './basic-attacher';
+import type { AttachPopoverArgs, AttacherNamedBlocks } from './basic-attacher';
 
 export type { AttachPopoverArgs };
 
 export interface AttachPopoverSignature {
   Element: HTMLDivElement;
   Args: AttachPopoverArgs;
-  Blocks: {
-    default: [popover: AttacherBlockParams];
-  };
+  Blocks: AttacherNamedBlocks;
 }
 
 export default class AttachPopover extends Component<AttachPopoverSignature> {

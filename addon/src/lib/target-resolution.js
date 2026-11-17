@@ -80,9 +80,36 @@ export function coerceExplicitTarget(value, root) {
   return null;
 }
 
+export function escapeAttributeSelectorValue(value) {
+  if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
+    return CSS.escape(value);
+  }
+  return String(value).replace(/["\\]/g, '\\$&');
+}
+
 /**
- * Pick the Floating UI reference: explicit arg, then yielded registration, then parent.
- * Supports both options-bag and positional signatures.
+ * Find native HTML `[popovertarget="<id>"]` trigger elements referencing `id`.
+ *
+ * @param {string | null | undefined} id
+ * @param {ParentNode | Document | null | undefined} [root]
+ * @returns {Element[]}
+ */
+export function findPopoverTargetElements(id, root) {
+  if (!id || typeof id !== 'string') {
+    return [];
+  }
+
+  const doc = root ?? (typeof document !== 'undefined' ? document : null);
+  if (!doc || typeof doc.querySelectorAll !== 'function') {
+    return [];
+  }
+
+  return Array.from(doc.querySelectorAll(`[popovertarget="${escapeAttributeSelectorValue(id)}"]`));
+}
+
+/**
+ * Pick the Floating UI reference: explicit arg (`@target` / `@explicitTarget`),
+ * then yielded registration, then parent. Supports both options-bag and positional signatures.
  *
  * @param {object | Element | string | { getBoundingClientRect: Function } | null | undefined} optionsOrExplicit
  * @param {Element | { getBoundingClientRect: Function } | null | undefined} [registeredOrParent]
@@ -98,7 +125,9 @@ export function resolveAttachmentTarget(
 ) {
   let explicitTarget;
   let registeredTarget;
+  let popoverTargets;
   let parent;
+  let allowParentFallback = true;
   let searchRoot;
 
   if (
@@ -110,7 +139,9 @@ export function resolveAttachmentTarget(
     ({
       explicitTarget,
       registeredTarget,
+      popoverTargets,
       parentElement: parent,
+      allowParentFallback = true,
       root: searchRoot,
     } = optionsOrExplicit);
   } else {
@@ -132,7 +163,11 @@ export function resolveAttachmentTarget(
     return registeredTarget;
   }
 
-  return parent ?? null;
+  if (Array.isArray(popoverTargets) && popoverTargets.length > 0) {
+    return popoverTargets[0];
+  }
+
+  return allowParentFallback ? parent ?? null : null;
 }
 
 /**

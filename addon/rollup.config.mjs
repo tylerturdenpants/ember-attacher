@@ -91,6 +91,7 @@ export default {
       'index.js',
       'components/attach-popover.js',
       'components/attach-tooltip.js',
+      'components/attacher.js',
       'components/basic-attacher.js',
       'defaults.js',
       'test-support/index.js',
@@ -98,8 +99,9 @@ export default {
 
     // These are the modules that will be re-exported by the consuming app
     addon.appReexports([
-      'components/attach-popover.js', 
+      'components/attach-popover.js',
       'components/attach-tooltip.js',
+      'components/attacher.js',
       'components/basic-attacher.js',
     ]),
 

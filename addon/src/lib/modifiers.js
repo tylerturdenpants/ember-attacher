@@ -45,6 +45,7 @@ export function onUpdate(fn) {
       return;
     }
 
-    fn();
+    const timer = schedule('actions', fn);
+    return () => cancel(timer);
   });
 }

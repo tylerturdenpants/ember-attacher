@@ -1,6 +1,6 @@
 import { getComponentTemplate, setComponentTemplate } from '@ember/component';
 import { getOwner } from '@ember/application';
-import DEFAULTS from '../defaults';
+import { resolveTooltipClass } from '../lib/attacher-core.js';
 import BasicAttacher from './basic-attacher';
 
 export default class AttachTooltip extends BasicAttacher {
@@ -17,10 +17,8 @@ export default class AttachTooltip extends BasicAttacher {
   }
 
   get additionalClass() {
-    const { tooltip, tooltipClass } =
-      getOwner(this).resolveRegistration('config:environment').emberAttacher || {};
-
-    return tooltip?.tooltipClass ?? tooltipClass ?? DEFAULTS.tooltipClass;
+    const env = getOwner(this)?.resolveRegistration?.('config:environment')?.emberAttacher || {};
+    return [this.args.additionalClass, resolveTooltipClass(env)].filter(Boolean).join(' ');
   }
 }
 

@@ -2,37 +2,6 @@ import Component from '@glimmer/component';
 import AttacherCore from '../lib/attacher-core.js';
 import MaybeInElement from './basic-attacher/maybe-in-element.gjs';
 
-const CORE_FIELDS = [
-  'animation',
-  'arrow',
-  'autoUpdate',
-  'hide',
-  'hideOn',
-  'id',
-  'insertArrow',
-  'isFillAnimation',
-  'isShown',
-  'isShownDidUpdate',
-  'optionsDidUpdate',
-  'parentFinder',
-  'placement',
-  'reference',
-  'renderFloatingElement',
-  'setReference',
-  'setupFloatingElement',
-  'shouldRenderFloatingElement',
-  'showOn',
-  'strategy',
-  'targetDidUpdate',
-  'useCapture',
-  '_class',
-  '_floatingElementContainer',
-  '_middleware',
-  '_popoverAttr',
-  '_renderInPlace',
-  '_style',
-];
-
 export default class BasicAttacher extends Component {
   MaybeInElement = MaybeInElement;
 
@@ -42,7 +11,8 @@ export default class BasicAttacher extends Component {
       defaultConfigKey: this._defaultConfigKey,
       defaultAriaRole: this._defaultAriaRole,
       getAdditionalClass: () => this.additionalClass,
-      getAriaRole: () => this.ariaRole,
+      allowParentFallback: true,
+      isComponentHost: true,
     });
   }
 
@@ -62,16 +32,119 @@ export default class BasicAttacher extends Component {
     return this.args.additionalClass || '';
   }
 
-  willDestroy() {
-    super.willDestroy(...arguments);
-    this.core.destroy();
+  get id() {
+    return this.core.id;
   }
-}
 
-for (const field of CORE_FIELDS) {
-  Object.defineProperty(BasicAttacher.prototype, field, {
-    get() {
-      return this.core[field];
-    },
-  });
+  get api() {
+    return this.core.api;
+  }
+
+  get hide() {
+    return this.core.hide;
+  }
+
+  get setReference() {
+    return this.core.setReference;
+  }
+
+  get reference() {
+    return this.core.reference;
+  }
+
+  get parentFinder() {
+    return this.core.parentFinder;
+  }
+
+  get targetDidUpdate() {
+    return this.core.targetDidUpdate;
+  }
+
+  get isShownDidUpdate() {
+    return this.core.isShownDidUpdate;
+  }
+
+  get optionsDidUpdate() {
+    return this.core.optionsDidUpdate;
+  }
+
+  get setupFloatingElement() {
+    return this.core.setupFloatingElement;
+  }
+
+  get insertArrow() {
+    return this.core.insertArrow;
+  }
+
+  get renderFloatingElement() {
+    return this.core.renderFloatingElement;
+  }
+
+  get shouldRenderFloatingElement() {
+    return this.core.shouldRenderFloatingElement;
+  }
+
+  get floatingElementContainer() {
+    return this.core._floatingElementContainer;
+  }
+
+  get renderInPlaceFlag() {
+    return this.core._renderInPlace;
+  }
+
+  get popoverAttr() {
+    return this.core._popoverAttr;
+  }
+
+  get innerClass() {
+    return this.core._class;
+  }
+
+  get innerStyle() {
+    return this.core._style;
+  }
+
+  get hideOn() {
+    return this.core.hideOn;
+  }
+
+  get showOn() {
+    return this.core.showOn;
+  }
+
+  get controlledIsShown() {
+    return this.core.controlledIsShown;
+  }
+
+  get autoUpdate() {
+    return this.core.autoUpdate;
+  }
+
+  get animation() {
+    return this.core.animation;
+  }
+
+  get arrow() {
+    return this.core.arrow;
+  }
+
+  get useCapture() {
+    return this.core.useCapture;
+  }
+
+  get placement() {
+    return this.core.placement;
+  }
+
+  get strategy() {
+    return this.core.strategy;
+  }
+
+  get middleware() {
+    return this.core._middleware;
+  }
+
+  get isFillAnimation() {
+    return this.core.isFillAnimation;
+  }
 }

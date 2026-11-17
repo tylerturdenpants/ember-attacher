@@ -1,14 +1,12 @@
 import type Component from '@glimmer/component';
-import type { AttachPopoverArgs, AttacherBlockParams } from './basic-attacher';
+import type { AttachPopoverArgs, AttacherNamedBlocks } from './basic-attacher';
 
 export type AttachTooltipArgs = AttachPopoverArgs;
 
 export interface AttachTooltipSignature {
   Element: HTMLDivElement;
   Args: AttachTooltipArgs;
-  Blocks: {
-    default: [tooltip: AttacherBlockParams];
-  };
+  Blocks: AttacherNamedBlocks;
 }
 
 export default class AttachTooltip extends Component<AttachTooltipSignature> {

@@ -1,17 +1,17 @@
-{{~#unless this.renderFloatingElement~}}<meta hidden {{this.parentFinder}} {{this.targetDidUpdate this.hideOn this.showOn @explicitTarget}} {{this.isShownDidUpdate this.isShown}}/>{{~/unless~}}{{~#if this.renderFloatingElement~}}<this.MaybeInElement @destinationElement={{this._floatingElementContainer}} @renderInPlace={{this._renderInPlace}}><div
+{{~#if (has-block "target")~}}{{yield this.api.target this.api to="target"}}{{~/if~}}{{~#unless this.renderFloatingElement~}}<meta hidden {{this.parentFinder (has-block "target")}} {{this.targetDidUpdate this.hideOn this.showOn @target @explicitTarget @id}} {{this.isShownDidUpdate this.controlledIsShown}}/>{{~/unless~}}{{~#if this.renderFloatingElement~}}<this.MaybeInElement @destinationElement={{this.floatingElementContainer}} @renderInPlace={{this.renderInPlaceFlag}}><div
       class="ember-attacher"
       id={{this.id}}
-      popover={{this._popoverAttr}}
+      popover={{this.popoverAttr}}
       role={{this.ariaRole}}
-      {{this.setupFloatingElement}}
-      {{this.targetDidUpdate this.hideOn this.showOn @explicitTarget}}
-      {{this.isShownDidUpdate this.isShown}}
-      {{this.optionsDidUpdate this.autoUpdate this.animation this.arrow this.useCapture this.placement this.strategy this._renderInPlace this._middleware this.id this.ariaRole}}
+      {{this.setupFloatingElement (has-block "target")}}
+      {{this.targetDidUpdate this.hideOn this.showOn @target @explicitTarget @id}}
+      {{this.isShownDidUpdate this.controlledIsShown}}
+      {{this.optionsDidUpdate this.autoUpdate this.animation this.arrow this.useCapture this.placement this.strategy this.renderInPlaceFlag this.middleware this.id this.ariaRole}}
       ...attributes
     >
       {{#if this.shouldRenderFloatingElement}}
-        <div class={{this._class}} style={{this._style}}>
-          {{yield (hash hide=this.hide setReference=this.setReference reference=this.reference)}}
+        <div class={{this.innerClass}} style={{this.innerStyle}}>
+          {{~#if (has-block "content")~}}{{yield this.api to="content"}}{{~else if (has-block)~}}{{yield this.api}}{{~/if~}}
           {{#if this.arrow}}
             <div class="ember-attacher-arrow" x-arrow {{this.insertArrow}}></div>
           {{/if}}
