@@ -2,11 +2,11 @@
       class="ember-attacher"
       id={{this.id}}
       popover={{this._popoverAttr}}
-      role={{@ariaRole}}
+      role={{this.ariaRole}}
       {{this.setupFloatingElement}}
       {{this.targetDidUpdate this.hideOn this.showOn @explicitTarget}}
       {{this.isShownDidUpdate this.isShown}}
-      {{this.optionsDidUpdate this.autoUpdate this.animation this.arrow this.useCapture this.placement this.strategy this._renderInPlace this._middleware this.id @ariaRole}}
+      {{this.optionsDidUpdate this.autoUpdate this.animation this.arrow this.useCapture this.placement this.strategy this._renderInPlace this._middleware this.id this.ariaRole}}
       ...attributes
     >
       {{#if this.shouldRenderFloatingElement}}
