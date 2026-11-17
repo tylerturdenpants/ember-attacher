@@ -15,12 +15,43 @@
     "lint": "eslint .",
     "release": "release-it"
   },
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "test-support": [
+        "./dist/test-support/index.d.ts"
+      ],
+      "template-registry": [
+        "./dist/template-registry.d.ts"
+      ],
+      "*": [
+        "./dist/*",
+        "./dist/*.d.ts"
+      ]
+    }
+  },
   "exports": {
-    ".": "./dist/index.js",
-    "./*": "./dist/*",
-    "./test-support": "./dist/test-support/index.js",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./test-support": {
+      "types": "./dist/test-support/index.d.ts",
+      "default": "./dist/test-support/index.js"
+    },
+    "./template-registry": {
+      "types": "./dist/template-registry.d.ts"
+    },
     "./addon-main.js": "./addon-main.js",
-    "./styles": "./dist/styles/ember-attacher.css"
+    "./styles": "./dist/styles/ember-attacher.css",
+    "./*.js": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*"
+    }
   },
   "files": [
     "addon-main.js",
@@ -45,6 +76,9 @@
     "@embroider/addon-shim": "^1.11.0",
     "@floating-ui/dom": "^1.8.0",
     "ember-modifier": "^4.2.2"
+  },
+  "peerDependencies": {
+    "@glimmer/component": "^1.0.0 || ^2.0.0"
   },
   "engines": {
     "node": "16.* || >= 18"
