@@ -1,10 +1,5 @@
-/**
- * Owner-scoped delay group coordinator for smooth 300ms warm tooltip handoff (#1105).
- *
- * Isolates warm-window state per Ember application/test owner via `WeakMap` and
- * auto-cleans cooldown timers via `registerDestructor`, avoiding module-global
- * timestamps or cross-test/SSR state leakage.
- */
+// Owner-scoped delay group isolating 300ms warm tooltip handoff per app/test container.
+// Uses native setTimeout (not Ember's runloop) so settled() does not wait on cooldown expiry.
 
 import { isDestroyed, isDestroying, registerDestructor } from '@ember/destroyable';
 
@@ -64,12 +59,7 @@ class TooltipDelayGroup {
   }
 }
 
-/**
- * Return an existing delay group scoped to `owner` without creating one.
- *
- * @param {object | null | undefined} owner
- * @returns {TooltipDelayGroup | null}
- */
+// Read-only lookup safe during owner teardown (never calls registerDestructor).
 export function peekDelayGroup(owner) {
   if (!owner || typeof owner !== 'object') {
     return null;
@@ -78,12 +68,6 @@ export function peekDelayGroup(owner) {
   return groupsByOwner.get(owner) ?? null;
 }
 
-/**
- * Retrieve (or lazily initialize) the delay group coordinator scoped to `owner`.
- *
- * @param {object | null | undefined} owner
- * @returns {TooltipDelayGroup | null}
- */
 export function getDelayGroup(owner) {
   if (!owner || typeof owner !== 'object' || isDestroying(owner) || isDestroyed(owner)) {
     return null;

@@ -41,12 +41,6 @@ import {
   resolveAttachmentTarget,
 } from './target-resolution.js';
 
-/**
- * Resolve the configured default tooltip CSS class from `config.emberAttacher`.
- *
- * @param {Record<string, any> | null | undefined} envConfig
- * @returns {string}
- */
 export function resolveTooltipClass(envConfig) {
   const { tooltip, tooltipClass } = envConfig || {};
   return tooltip?.tooltipClass ?? tooltipClass ?? DEFAULTS.tooltipClass;
@@ -130,10 +124,7 @@ function normalizeTriggerList(value, fallback) {
   return resolved === null ? [] : resolved.split(' ').filter(Boolean);
 }
 
-/**
- * Shared reactive controller backing `<BasicAttacher>`, `<AttachTooltip>`,
- * `<AttachPopover>`, `<Attacher>`, and the `{{tooltip}}` singleton pool.
- */
+// Shared reactive controller backing <BasicAttacher> and <Attacher>.
 export default class AttacherCore {
   @tracked _parentNotFound = true;
   @tracked _parentElement = null;
@@ -727,15 +718,6 @@ export default class AttacherCore {
     };
   });
 
-  /**
-   * Programmatically register or update a DOM target element and optional metadata.
-   *
-   * @param {Element} element
-   * @param {unknown} data
-   * @param {object | null} options
-   * @param {unknown} [owner]
-   * @returns {object}
-   */
   registerTargetElement(element, data, options = null, owner = null) {
     let entry = this._registeredEntries.get(element);
     const isNew = !entry;
@@ -782,11 +764,6 @@ export default class AttacherCore {
     return entry;
   }
 
-  /**
-   * Remove a registered target element and clean up its listeners and ARIA state.
-   *
-   * @param {Element} element
-   */
   unregisterTargetElement(element) {
     const entry = this._registeredEntries.get(element);
     if (!entry) {

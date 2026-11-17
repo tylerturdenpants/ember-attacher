@@ -11,10 +11,6 @@ const syncAttacherArgs = helper((positional) => {
   return '';
 });
 
-/**
- * Headless `<Attacher as |a|>` primitive yielding target/attachment/arrow modifiers,
- * visibility controls, and live Floating UI state for custom non-wrapper markup.
- */
 export default class Attacher extends Component {
   syncAttacherArgs = syncAttacherArgs;
 
