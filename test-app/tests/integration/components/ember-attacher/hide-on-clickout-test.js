@@ -235,7 +235,7 @@ module('Integration | Component | hideOn "clickout"', function(hooks) {
     assert.true(isVisible(attachment), 'Attachment stays visible when click is inside attachment');
   });
 
-  test('T5 (#90): clicking inside a portaled child Attachment (including a detaching child node) does not trigger parent clickout', async function(assert) {
+  test('clicking inside a portaled child Attachment (including a detaching child node) does not trigger parent clickout', async function(assert) {
     this.set('showChildAction', true);
     this.set('removeChildAction', () => {
       this.set('showChildAction', false);
@@ -318,7 +318,7 @@ module('Integration | Component | hideOn "clickout"', function(hooks) {
     assert.false(isVisible(parentAttachment), 'Parent closes when clicking outside');
   });
 
-  test('T5 (#90): clicking inside a custom-portaled child nested inside a Top-Layer parent does not trigger parent clickout', async function(assert) {
+  test('clicking inside a custom-portaled child nested inside a Top-Layer parent does not trigger parent clickout', async function(assert) {
     await render(hbs`
       <button id="outside" type="button">Outside</button>
       <div id="portal-host"></div>

@@ -26,73 +26,166 @@ export function elementContainsEvent(element, event) {
   return Boolean(event?.target && element.contains(event.target));
 }
 
+const CORRIDOR_BUFFER = 2;
+
+function isPointInRect(x, y, rect) {
+  return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+}
+
+function pointInTriangle(px, py, ax, ay, bx, by, cx, cy) {
+  const d1 = (px - bx) * (ay - by) - (ax - bx) * (py - by);
+  const d2 = (px - cx) * (by - cy) - (bx - cx) * (py - cy);
+  const d3 = (px - ax) * (cy - ay) - (cx - ax) * (py - ay);
+  const hasNeg = d1 < 0 || d2 < 0 || d3 < 0;
+  const hasPos = d1 > 0 || d2 > 0 || d3 > 0;
+  return !(hasNeg && hasPos);
+}
+
+function pointInQuad(px, py, x1, y1, x2, y2, x3, y3, x4, y4) {
+  return (
+    pointInTriangle(px, py, x1, y1, x2, y2, x3, y3) ||
+    pointInTriangle(px, py, x1, y1, x3, y3, x4, y4)
+  );
+}
+
 /**
- * Check if cursor coordinates lie in the geometric gap between the target and floating element.
+ * Determine whether the cursor lies inside either rect or the diagonal safe-polygon
+ * corridor between the mouseleave exit point on the Target (or the Target's facing edge
+ * when synthetic events omit pointer coordinates) and the facing edge of the Attachment.
  *
- * Used for interactive attachments with `isOffset=true` to prevent premature hide
- * while the cursor transitions across the gap between target and attachment.
+ * Unlike an 8-corner bounding convex hull, this corridor only spans the gap between
+ * the Target's facing edge and the Attachment's facing edge, so exiting laterally
+ * into adjacent UI beside the Target never keeps the Attachment stuck open.
  *
- * @param {MouseEvent} event
+ * Supports both DOM Elements and Floating UI VirtualElements via `getBoundingClientRect()`.
+ *
+ * @param {MouseEvent | { clientX: number, clientY: number }} event
+ * @param {{ x: number, y: number } | null | undefined} origin
  * @param {Element | { getBoundingClientRect: Function } | null | undefined} target
- * @param {Element | null | undefined} floatingElement
+ * @param {Element | { getBoundingClientRect: Function } | null | undefined} floatingElement
  * @returns {boolean}
  */
-export function isCursorBetween(event, target, floatingElement) {
-  if (!target || !floatingElement) {
+export function isCursorInSafePolygon(event, origin, target, floatingElement) {
+  if (
+    !event ||
+    !target ||
+    !floatingElement ||
+    typeof target.getBoundingClientRect !== 'function' ||
+    typeof floatingElement.getBoundingClientRect !== 'function'
+  ) {
     return false;
   }
 
-  const { clientX, clientY } = event;
+  const targetRect = target.getBoundingClientRect();
+  const floatingRect = floatingElement.getBoundingClientRect();
 
-  const attachmentPosition = floatingElement.getBoundingClientRect();
-  const targetPosition = target.getBoundingClientRect();
+  if (floatingRect.width === 0 && floatingRect.height === 0) {
+    return false;
+  }
 
-  const isBetweenLeftAndRight =
-    clientX > Math.min(attachmentPosition.left, targetPosition.left) &&
-    clientX < Math.max(attachmentPosition.right, targetPosition.right);
+  const px = event.clientX;
+  const py = event.clientY;
 
-  const isBetweenTopAndBottom =
-    clientY > Math.min(attachmentPosition.top, targetPosition.top) &&
-    clientY < Math.max(attachmentPosition.bottom, targetPosition.bottom);
-
-  // Check if cursor is between a left-flipped attachment
-  if (
-    attachmentPosition.right < targetPosition.left &&
-    clientX >= attachmentPosition.right &&
-    clientX <= targetPosition.left &&
-    isBetweenTopAndBottom
-  ) {
+  if (isPointInRect(px, py, targetRect) || isPointInRect(px, py, floatingRect)) {
     return true;
   }
 
-  // Check if cursor is between a right-flipped attachment
-  if (
-    attachmentPosition.left > targetPosition.right &&
-    clientX <= attachmentPosition.left &&
-    clientX >= targetPosition.right &&
-    isBetweenTopAndBottom
-  ) {
-    return true;
+  const hasRealOrigin =
+    Boolean(origin) &&
+    (origin.x !== 0 ||
+      origin.y !== 0 ||
+      isPointInRect(0, 0, targetRect));
+
+  // Attachment is above target: gap is between floatingRect.bottom and targetRect.top
+  if (floatingRect.bottom <= targetRect.top + CORRIDOR_BUFFER) {
+    const bx = floatingRect.left - CORRIDOR_BUFFER;
+    const by = floatingRect.bottom;
+    const cx = floatingRect.right + CORRIDOR_BUFFER;
+    const cy = floatingRect.bottom;
+    if (hasRealOrigin) {
+      return pointInTriangle(px, py, origin.x, origin.y + CORRIDOR_BUFFER, bx, by, cx, cy);
+    }
+    return pointInQuad(
+      px,
+      py,
+      targetRect.left,
+      targetRect.top + CORRIDOR_BUFFER,
+      targetRect.right,
+      targetRect.top + CORRIDOR_BUFFER,
+      cx,
+      cy,
+      bx,
+      by
+    );
   }
 
-  // Check if cursor is between a bottom-flipped attachment
-  if (
-    attachmentPosition.top > targetPosition.bottom &&
-    clientY <= attachmentPosition.top &&
-    clientY >= targetPosition.bottom &&
-    isBetweenLeftAndRight
-  ) {
-    return true;
+  // Attachment is below target: gap is between targetRect.bottom and floatingRect.top
+  if (floatingRect.top >= targetRect.bottom - CORRIDOR_BUFFER) {
+    const bx = floatingRect.left - CORRIDOR_BUFFER;
+    const by = floatingRect.top;
+    const cx = floatingRect.right + CORRIDOR_BUFFER;
+    const cy = floatingRect.top;
+    if (hasRealOrigin) {
+      return pointInTriangle(px, py, origin.x, origin.y - CORRIDOR_BUFFER, bx, by, cx, cy);
+    }
+    return pointInQuad(
+      px,
+      py,
+      targetRect.left,
+      targetRect.bottom - CORRIDOR_BUFFER,
+      targetRect.right,
+      targetRect.bottom - CORRIDOR_BUFFER,
+      cx,
+      cy,
+      bx,
+      by
+    );
   }
 
-  // Check if cursor is between a top-flipped attachment
-  if (
-    attachmentPosition.bottom < targetPosition.top &&
-    clientY >= attachmentPosition.bottom &&
-    clientY <= targetPosition.top &&
-    isBetweenLeftAndRight
-  ) {
-    return true;
+  // Attachment is to the left of target: gap is between floatingRect.right and targetRect.left
+  if (floatingRect.right <= targetRect.left + CORRIDOR_BUFFER) {
+    const bx = floatingRect.right;
+    const by = floatingRect.top - CORRIDOR_BUFFER;
+    const cx = floatingRect.right;
+    const cy = floatingRect.bottom + CORRIDOR_BUFFER;
+    if (hasRealOrigin) {
+      return pointInTriangle(px, py, origin.x + CORRIDOR_BUFFER, origin.y, bx, by, cx, cy);
+    }
+    return pointInQuad(
+      px,
+      py,
+      targetRect.left + CORRIDOR_BUFFER,
+      targetRect.top,
+      targetRect.left + CORRIDOR_BUFFER,
+      targetRect.bottom,
+      cx,
+      cy,
+      bx,
+      by
+    );
+  }
+
+  // Attachment is to the right of target: gap is between targetRect.right and floatingRect.left
+  if (floatingRect.left >= targetRect.right - CORRIDOR_BUFFER) {
+    const bx = floatingRect.left;
+    const by = floatingRect.top - CORRIDOR_BUFFER;
+    const cx = floatingRect.left;
+    const cy = floatingRect.bottom + CORRIDOR_BUFFER;
+    if (hasRealOrigin) {
+      return pointInTriangle(px, py, origin.x - CORRIDOR_BUFFER, origin.y, bx, by, cx, cy);
+    }
+    return pointInQuad(
+      px,
+      py,
+      targetRect.right - CORRIDOR_BUFFER,
+      targetRect.top,
+      targetRect.right - CORRIDOR_BUFFER,
+      targetRect.bottom,
+      cx,
+      cy,
+      bx,
+      by
+    );
   }
 
   return false;
