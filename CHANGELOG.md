@@ -1,3 +1,8 @@
+## Unreleased (v4.4.0)
+
+#### :rocket: Enhancement
+* Make `@animation="fill"` compatible with `@arrow={{true}}` by clipping `div[x-circle]` inside `.ember-attacher-fill-backdrop` instead of setting `overflow: hidden` on the arrow container, and remove debug warning `70015` ([@pzubar](https://github.com/pzubar))
+
 ## v4.3.0 (2026-11-17)
 
 #### :boom: Behavioral Change (Accessibility & Test Support)

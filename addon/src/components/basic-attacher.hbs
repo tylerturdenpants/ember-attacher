@@ -16,7 +16,9 @@
             <div class="ember-attacher-arrow" x-arrow {{this.insertArrow}}></div>
           {{/if}}
           {{#if this.isFillAnimation}}
-            <div x-circle></div>
+            <div class="ember-attacher-fill-backdrop" aria-hidden="true">
+              <div x-circle></div>
+            </div>
           {{/if}}
         </div>
       {{/if}}

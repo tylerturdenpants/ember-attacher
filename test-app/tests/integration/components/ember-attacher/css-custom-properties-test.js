@@ -58,6 +58,9 @@ module('Integration | CSS custom properties', function(hooks) {
         <AttachTooltip
           @id="override-disc"
           @animation="fill"
+          @arrow={{true}}
+          @placement="bottom"
+          @showDuration={{0}}
           @isShown={{true}}
           @class="token-fill-override"
         >
@@ -69,11 +72,20 @@ module('Integration | CSS custom properties', function(hooks) {
     const bodyInner = find('#override-body > .ember-attacher-tooltip');
     const arrow = bodyInner.querySelector('.ember-attacher-arrow');
     const discInner = find('#override-disc > .ember-attacher-tooltip');
+    const discBackdrop = discInner.querySelector('.ember-attacher-fill-backdrop');
+    const discArrow = discInner.querySelector('.ember-attacher-arrow');
     const disc = discInner.querySelector('div[x-circle]');
 
     assert.strictEqual(getComputedStyle(bodyInner).backgroundColor, 'rgb(10, 20, 30)');
     assert.strictEqual(getComputedStyle(arrow).backgroundColor, 'rgb(10, 20, 30)');
     assert.strictEqual(getComputedStyle(discInner).backgroundColor, 'rgba(0, 0, 0, 0)', 'fill animation keeps the body transparent');
+    assert.strictEqual(getComputedStyle(discInner).overflow, 'visible', 'fill animation keeps card overflow visible so arrows are not clipped');
+    assert.strictEqual(getComputedStyle(discBackdrop).overflow, 'hidden', 'fill backdrop clips the circle to the card');
+    assert.strictEqual(getComputedStyle(discArrow).backgroundColor, 'rgb(10, 20, 30)', 'fill + arrow renders matching arrow color');
+    assert.ok(
+      discArrow.getBoundingClientRect().top < discInner.getBoundingClientRect().top,
+      'fill arrow protrudes unclipped past the top edge for bottom placement'
+    );
     assert.strictEqual(getComputedStyle(disc).backgroundColor, 'rgb(10, 20, 30)');
   });
 

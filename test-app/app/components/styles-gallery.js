@@ -43,7 +43,7 @@ export default class StylesGallery extends Component {
       placement: 'bottom',
       animation: 'fill',
       text: 'Fill animation',
-      arrow: false,
+      arrow: true,
     },
     {
       label: 'shift',

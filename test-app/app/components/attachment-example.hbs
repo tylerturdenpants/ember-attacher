@@ -59,12 +59,6 @@
     </button>
   </div>
 </div>
-{{#if (and this.service.arrow (eq this.service.animation "fill"))}}
-  <div data-element-centered class="section">
-    <h2>Warning: `animation: "fill"` is not compatible with `arrow: true`</h2>
-  </div>
-{{/if}}
-
 {{#if this.service.renderInPlace}}
   <div data-element-centered class="section flexi-fit flexi-vertical">
     <h3>Note: renderInPlace can cause z-index issues.</h3>
