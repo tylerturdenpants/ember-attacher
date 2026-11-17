@@ -18,6 +18,7 @@
 * [#1074](https://github.com/tylerturdenpants/ember-attacher/pull/1074) Reset User-Agent `[popover]` border/padding/background on `.ember-attacher[popover]` so Top-Layer hosts do not inherit the browser default solid border and Canvas chrome ([@pzubar](https://github.com/pzubar))
 
 #### :memo: Documentation & Housecleaning
+* **No Sass/SCSS dependency:** the published addon ships plain CSS (`ember-attacher/styles`); consumers do **not** need `sass`, `scss`, or `ember-cli-sass` to use ember-attacher ([@pzubar](https://github.com/pzubar))
 * [#1096](https://github.com/tylerturdenpants/ember-attacher/pull/1096) Drop `@ember/utils` and refresh `README.md` with `.gjs` / `.gts` examples, Ember 6/7 compatibility, and all 12 Floating UI placements ([@pzubar](https://github.com/pzubar))
 * [#1074](https://github.com/tylerturdenpants/ember-attacher/pull/1074) Modularize `BasicAttacher` into `lib/a11y.js`, `lib/host.js`, and `lib/positioning.js`; document a11y defaults and `safePolygon` in README ([@pzubar](https://github.com/pzubar))
 
