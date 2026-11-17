@@ -1,11 +1,11 @@
-## Unreleased (v4.3.0)
+## v4.3.0 (2026-11-17)
 
 #### :boom: Behavioral Change (Accessibility & Test Support)
-* [#1113](https://github.com/tylerturdenpants/ember-attacher/issues/1113) `<AttachTooltip>` now manages `aria-describedby` in `BasicAttacher` **only while open**, preserving any pre-existing `aria-describedby` tokens on the target instead of adding/clobbering it while closed ([@pzubar](https://github.com/pzubar))
+* [#1074](https://github.com/tylerturdenpants/ember-attacher/pull/1074) / [#1118](https://github.com/tylerturdenpants/ember-attacher/pull/1118) / [#1113](https://github.com/tylerturdenpants/ember-attacher/issues/1113) `<AttachTooltip>` now manages `aria-describedby` in `BasicAttacher` **only while open**, preserving any pre-existing `aria-describedby` tokens on the target instead of adding/clobbering it while closed ([@pzubar](https://github.com/pzubar))
 * [#1095](https://github.com/tylerturdenpants/ember-attacher/pull/1095) / [#1112](https://github.com/tylerturdenpants/ember-attacher/issues/1112) `isVisible()` in `ember-attacher/test-support` now checks `display !== 'none'`, `visibility !== 'hidden'`, `aria-hidden !== 'true'`, and `:popover-open` (when `[popover]` is present), instead of only `display !== 'none'` ([@pzubar](https://github.com/pzubar))
 
 #### :rocket: Enhancement
-* [#1113](https://github.com/tylerturdenpants/ember-attacher/issues/1113) Add default accessibility wiring and automatic diagonal `safePolygon` hover corridor:
+* [#1074](https://github.com/tylerturdenpants/ember-attacher/pull/1074) / [#1118](https://github.com/tylerturdenpants/ember-attacher/pull/1118) / [#1113](https://github.com/tylerturdenpants/ember-attacher/issues/1113) Add default accessibility wiring and automatic diagonal `safePolygon` hover corridor:
   * `<AttachPopover>` automatically sets `aria-expanded`, `aria-controls`, and `aria-haspopup` (defaulting to `'dialog'` or matching valid `@ariaRole`) when not already provided by the caller, and restores focus to the target on `Escape` dismissal
   * `<AttachTooltip>` now forwards `@onInitializeAttacher` and `@onWillDestroy` to `<BasicAttacher>`, and safely skips ARIA binding for coordinate-only `VirtualElement` targets
   * `@interactive={{true}}` with `hideOn` including `mouseleave` now automatically enables a triangle `safePolygon` corridor between the cursor exit point and the attachment without requiring `@isOffset={{true}}` ([@pzubar](https://github.com/pzubar))
@@ -15,9 +15,14 @@
 
 #### :bug: Bug Fix
 * [#1096](https://github.com/tylerturdenpants/ember-attacher/pull/1096) / [#90](https://github.com/tylerturdenpants/ember-attacher/issues/90) Support nested Attachments across Top Layer and portals (clickout protection and LIFO `Escape` dismissal), coordinate-only `VirtualElement` document dismissal, `@lazyRender` outer host mounting, and `@middleware` deduplication / `arrow()` element merging ([@pzubar](https://github.com/pzubar))
+* [#1074](https://github.com/tylerturdenpants/ember-attacher/pull/1074) Reset User-Agent `[popover]` border/padding/background on `.ember-attacher[popover]` so Top-Layer hosts do not inherit the browser default solid border and Canvas chrome ([@pzubar](https://github.com/pzubar))
 
 #### :memo: Documentation & Housecleaning
 * [#1096](https://github.com/tylerturdenpants/ember-attacher/pull/1096) Drop `@ember/utils` and refresh `README.md` with `.gjs` / `.gts` examples, Ember 6/7 compatibility, and all 12 Floating UI placements ([@pzubar](https://github.com/pzubar))
+* [#1074](https://github.com/tylerturdenpants/ember-attacher/pull/1074) Modularize `BasicAttacher` into `lib/a11y.js`, `lib/host.js`, and `lib/positioning.js`; document a11y defaults and `safePolygon` in README ([@pzubar](https://github.com/pzubar))
+
+#### Committers: 1
+- Petro Zubar ([@pzubar](https://github.com/pzubar))
 
 
 ## v4.2.1 (2026-11-12)
