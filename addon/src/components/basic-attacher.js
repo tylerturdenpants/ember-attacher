@@ -25,7 +25,7 @@ export default class BasicAttacher extends Component {
   }
 
   get ariaRole() {
-    return this.args.ariaRole ?? this._defaultAriaRole;
+    return this.core.ariaRole;
   }
 
   get additionalClass() {

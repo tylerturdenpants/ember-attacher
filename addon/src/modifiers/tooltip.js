@@ -23,6 +23,15 @@ export default class TooltipModifier extends Modifier {
   }
 
   modify(element, [text], named) {
+    if (text == null || text === '') {
+      if (this._pool && this._element) {
+        this._pool.unregister(this._element);
+        this._element = null;
+        this._pool = null;
+      }
+      return;
+    }
+
     const owner = getOwner(this);
     const pool = getTooltipPool(element);
     if (!pool) {

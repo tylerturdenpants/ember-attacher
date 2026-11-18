@@ -5,7 +5,7 @@ const floatingElementParentMap = new WeakMap();
 const handledEscapeEvents = new WeakSet();
 
 /**
- * Register a mounted BasicAttacher instance in the in-process attachment tree.
+ * Register a mounted AttacherCore instance in the in-process attachment tree.
  *
  * @param {object} attacher
  */
@@ -14,7 +14,7 @@ export function registerAttacher(attacher) {
 }
 
 /**
- * Unregister a destroyed BasicAttacher instance from the in-process attachment tree.
+ * Unregister a destroyed AttacherCore instance from the in-process attachment tree.
  *
  * @param {object} attacher
  */
@@ -23,7 +23,7 @@ export function unregisterAttacher(attacher) {
 }
 
 /**
- * Resolve the logical parent BasicAttacher whose floating element contains
+ * Resolve the logical parent AttacherCore whose floating element contains
  * this attacher's target or template parent element.
  *
  * @param {object} child
@@ -32,21 +32,38 @@ export function unregisterAttacher(attacher) {
 export function getParentAttacher(child) {
   const anchors = [child._listenerTarget, child.parentElement].filter(Boolean);
 
-  for (const anchor of anchors) {
-    const start = anchor.classList?.contains('ember-attacher')
-      ? anchor.parentElement
-      : anchor;
-    const hostEl = start?.closest?.('.ember-attacher');
-    if (hostEl && hostEl !== child._floatingElement) {
-      for (const candidate of activeAttachers) {
-        if (candidate !== child && candidate._floatingElement === hostEl) {
-          if (child._floatingElement) {
-            floatingElementParentMap.set(child._floatingElement, candidate);
+  if (activeAttachers.size > 1 && anchors.length > 0) {
+    const byFloatingEl = new Map();
+    for (const candidate of activeAttachers) {
+      if (candidate !== child && candidate._floatingElement) {
+        byFloatingEl.set(candidate._floatingElement, candidate);
+      }
+    }
+
+    if (byFloatingEl.size > 0) {
+      for (const anchor of anchors) {
+        let node = anchor === child._floatingElement ? anchor.parentElement : anchor;
+        while (node) {
+          if (node !== child._floatingElement) {
+            const candidate = byFloatingEl.get(node);
+            if (candidate) {
+              if (child._floatingElement) {
+                floatingElementParentMap.set(child._floatingElement, candidate);
+              }
+              return candidate;
+            }
           }
-          return candidate;
+          node = node.parentElement;
         }
       }
     }
+  }
+
+  if (anchors.some((anchor) => anchor.isConnected)) {
+    if (child._floatingElement) {
+      floatingElementParentMap.delete(child._floatingElement);
+    }
+    return null;
   }
 
   if (child._floatingElement && floatingElementParentMap.has(child._floatingElement)) {
@@ -97,13 +114,21 @@ export function isDescendantOf(candidate, ancestor) {
  * @returns {boolean}
  */
 export function descendantAttachmentContainsEvent(parent, event) {
-  for (const candidate of activeAttachers) {
-    if (candidate !== parent && isDescendantOf(candidate, parent)) {
+  if (activeAttachers.size > 1) {
+    for (const candidate of activeAttachers) {
       if (
-        elementContainsEvent(candidate._floatingElement, event) ||
-        elementContainsEvent(candidate._listenerTarget, event)
+        candidate === parent ||
+        (candidate._isHidden && !candidate._isShown && !candidate._isHiding)
       ) {
-        return true;
+        continue;
+      }
+      if (isDescendantOf(candidate, parent)) {
+        if (
+          elementContainsEvent(candidate._floatingElement, event) ||
+          elementContainsEvent(candidate._listenerTarget, event)
+        ) {
+          return true;
+        }
       }
     }
   }
@@ -139,12 +164,18 @@ export function descendantAttachmentContainsEvent(parent, event) {
  * @returns {boolean}
  */
 export function descendantAttachmentContainsNode(parent, node) {
-  if (!node) {
+  if (!node || activeAttachers.size <= 1) {
     return false;
   }
 
   for (const candidate of activeAttachers) {
-    if (candidate !== parent && isDescendantOf(candidate, parent)) {
+    if (
+      candidate === parent ||
+      (candidate._isHidden && !candidate._isShown && !candidate._isHiding)
+    ) {
+      continue;
+    }
+    if (isDescendantOf(candidate, parent)) {
       if (
         candidate._floatingElement?.contains(node) ||
         candidate._listenerTarget?.contains(node)
@@ -170,17 +201,19 @@ export function shouldHandleEscapeKey(attacher, event) {
     return false;
   }
 
-  for (const candidate of activeAttachers) {
-    if (
-      candidate !== attacher &&
-      !candidate.isDestroyed &&
-      !candidate.isDestroying &&
-      !candidate._isHiding &&
-      !candidate._positioningSuspended &&
-      Boolean(candidate._hideListenersOnDocumentByEvent?.keydown) &&
-      isDescendantOf(candidate, attacher)
-    ) {
-      return false;
+  if (activeAttachers.size > 1) {
+    for (const candidate of activeAttachers) {
+      if (
+        candidate !== attacher &&
+        !candidate.isDestroyed &&
+        !candidate.isDestroying &&
+        !candidate._isHiding &&
+        !candidate._positioningSuspended &&
+        Boolean(candidate._hideListenersOnDocumentByEvent?.keydown) &&
+        isDescendantOf(candidate, attacher)
+      ) {
+        return false;
+      }
     }
   }
 

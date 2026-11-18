@@ -1,6 +1,6 @@
 import { hbs } from 'ember-cli-htmlbars';
 import { isVisible, offset } from 'ember-attacher';
-import { expireTooltipDelayGroup } from 'ember-attacher/test-support';
+import sinon from 'sinon';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import {
@@ -17,8 +17,8 @@ import {
 module('Integration | Component | non-wrapper API & shared tooltips', function (hooks) {
   setupRenderingTest(hooks);
 
-  hooks.beforeEach(function () {
-    expireTooltipDelayGroup(this.owner);
+  hooks.afterEach(function () {
+    sinon.restore();
   });
 
   test('singleton {{tooltip}} modifier shares a single Attachment node and updates text/class/ARIA cleanly', async function (assert) {
@@ -123,9 +123,14 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
     assert.true(isVisible(find('.ember-attacher')), 'warm handoff shows B without waiting showDelay');
     assert.dom('.ember-attacher').hasText('Second hint');
 
-    // 3. Expire warm window without wall-clock sleep; C respects showDelay again
+    // 3. Advance clock past the 300ms warm window; C respects showDelay again
+    const clock = sinon.useFakeTimers({
+      now: Date.now(),
+      shouldAdvanceTime: true,
+      toFake: ['Date'],
+    });
     await triggerEvent(btnB, 'mouseleave');
-    expireTooltipDelayGroup(this.owner);
+    clock.tick(350);
 
     btnC.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
     assert.false(
@@ -135,6 +140,40 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
     await settled();
     assert.true(isVisible(find('.ember-attacher')), 'C shows after showDelay once cold');
     assert.dom('.ember-attacher').hasText('Third hint');
+  });
+
+  test('singleton {{tooltip}} keeps warm handoff when hideDelay > 0 is cancelled before closing', async function (assert) {
+    await render(hbs`
+      <button id="hide-delay-a" type="button" {{tooltip "First delayed" showDelay=160 hideDelay=200 showDuration=0 hideDuration=0}}>A</button>
+      <button id="hide-delay-b" type="button" {{tooltip "Second delayed" showDelay=160 hideDelay=200 showDuration=0 hideDuration=0}}>B</button>
+    `);
+
+    const btnA = find('#hide-delay-a');
+    const btnB = find('#hide-delay-b');
+
+    await triggerEvent(btnA, 'mouseenter');
+    assert.true(isVisible(find('.ember-attacher')), 'A opens after showDelay');
+    assert.dom('.ember-attacher').hasText('First delayed');
+
+    // Leave A (schedules hideDelay=200), then immediately enter B before hide flushes
+    btnA.dispatchEvent(new MouseEvent('mouseleave', { bubbles: false }));
+    const setTimeoutSpy = sinon.spy(globalThis, 'setTimeout');
+
+    btnB.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
+    const scheduledShowDelays = setTimeoutSpy
+      .getCalls()
+      .map((call) => call.args[1])
+      .filter((delay) => typeof delay === 'number' && delay >= 100);
+
+    assert.deepEqual(
+      scheduledShowDelays,
+      [],
+      'warm handoff skips 160ms showDelay debounce even when hideDelay > 0 never closed prior target'
+    );
+
+    await settled();
+    assert.true(isVisible(find('.ember-attacher')), 'B remains visible after warm handoff');
+    assert.dom('.ember-attacher').hasText('Second delayed');
   });
 
   test('named <:target>/ <:content> blocks and {{a.target data}} retarget across list items on one AttachTooltip', async function (assert) {

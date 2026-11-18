@@ -159,11 +159,8 @@ class SingletonTooltipPool {
       return;
     }
 
-    const hasContent = text != null && text !== '';
-    const normalizedOptions = {
-      ...(namedOptions && typeof namedOptions === 'object' ? namedOptions : {}),
-      ...(hasContent ? {} : { showOn: null }),
-    };
+    const normalizedOptions =
+      namedOptions && typeof namedOptions === 'object' ? namedOptions : null;
 
     this.core.registerTargetElement(element, text, normalizedOptions, owner);
 
@@ -173,9 +170,8 @@ class SingletonTooltipPool {
       this._visibilitySyncTimers.delete(element);
     }
 
-    const needsHideForEmpty = !hasContent;
-    const controlledIsShown = normalizedOptions.isShown;
-    if (!needsHideForEmpty && controlledIsShown !== true && controlledIsShown !== false) {
+    const controlledIsShown = normalizedOptions?.isShown;
+    if (controlledIsShown !== true && controlledIsShown !== false) {
       return;
     }
 
@@ -189,13 +185,7 @@ class SingletonTooltipPool {
       const isActive = this.core.isActiveTarget(element);
       const isOpen = this.core.liveIsShown || !this.core.isHidden;
 
-      if (!hasContent && isActive && isOpen) {
-        this.core.hide();
-      } else if (
-        controlledIsShown === true &&
-        hasContent &&
-        (!isActive || !this.core.liveIsShown)
-      ) {
+      if (controlledIsShown === true && (!isActive || !this.core.liveIsShown)) {
         this.core.show(element, text);
       } else if (controlledIsShown === false && isActive && isOpen) {
         this.core.hide();

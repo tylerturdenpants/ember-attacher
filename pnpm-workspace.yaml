@@ -7,3 +7,4 @@ allowBuilds:
   core-js: true
 minimumReleaseAgeExclude:
   - '@glint/ember-tsc@1.14.4'
+  - '@embroider/vite@1.8.1'
