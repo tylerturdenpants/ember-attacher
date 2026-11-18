@@ -98,7 +98,8 @@
       "./components/attach-popover.js": "./dist/_app_/components/attach-popover.js",
       "./components/attach-tooltip.js": "./dist/_app_/components/attach-tooltip.js",
       "./components/attacher.js": "./dist/_app_/components/attacher.js",
-      "./components/basic-attacher.js": "./dist/_app_/components/basic-attacher.js"
+      "./components/basic-attacher.js": "./dist/_app_/components/basic-attacher.js",
+      "./modifiers/tooltip.js": "./dist/_app_/modifiers/tooltip.js"
     }
   },
   "publishConfig": {

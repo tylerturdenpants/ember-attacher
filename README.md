@@ -117,6 +117,14 @@ A tooltip attacher. Subclass of `<AttachPopover/>`
 * While open, token-safely adds the tooltip's ID to the Target's `aria-describedby`
   (preserving any pre-existing tokens) and removes it again when closed.
 
+### `{{tooltip}}` and `<Attacher>`
+
+`{{tooltip "Text" class="hint"}}` puts a tooltip on a void or simple element such as `<button>` or `<input>`. Every `{{tooltip}}` in the document shares one `.ember-attacher` node. Moving to another tooltip within 300ms skips `showDelay`.
+
+`<Attacher as |a|>` is the headless host. `{{a.target}}` marks a trigger, `{{a.attachment}}` marks the floating element, and `{{a.arrow}}` marks the arrow.
+
+`<AttachTooltip>` and `<AttachPopover>` also take `<:target>` and `<:content>` blocks, `@target` (the same as `@explicitTarget`), and a native `[popovertarget]` button whose value matches `@id`.
+
 ## Options
 
 Below is a list of all available options, along with their defaults.

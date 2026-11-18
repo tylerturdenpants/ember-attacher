@@ -18,6 +18,11 @@ export type {
   BasicAttacherArgs,
   BasicAttacherSignature,
 } from './components/basic-attacher';
+export { default as tooltip } from './modifiers/tooltip';
+export type {
+  TooltipModifierOptions,
+  TooltipModifierSignature,
+} from './modifiers/tooltip';
 export type { AttachmentSelector } from './test-support/is-visible';
 export { isVisible } from './test-support/is-visible';
 export type {

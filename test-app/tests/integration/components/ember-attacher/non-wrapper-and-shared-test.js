@@ -1,8 +1,10 @@
 import { hbs } from 'ember-cli-htmlbars';
 import { isVisible, offset } from 'ember-attacher';
+import { expireTooltipDelayGroup } from 'ember-attacher/test-support';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import {
+  clearRender,
   click,
   find,
   findAll,
@@ -14,6 +16,126 @@ import {
 
 module('Integration | Component | non-wrapper API & shared tooltips', function (hooks) {
   setupRenderingTest(hooks);
+
+  hooks.beforeEach(function () {
+    expireTooltipDelayGroup(this.owner);
+  });
+
+  test('singleton {{tooltip}} modifier shares a single Attachment node and updates text/class/ARIA cleanly', async function (assert) {
+    this.set('items', [
+      { id: 'row-1', label: 'Edit first', tipClass: 'tip-alpha' },
+      { id: 'row-2', label: 'Delete second', tipClass: 'tip-beta' },
+      { id: 'row-3', label: 'Archive third', tipClass: 'tip-gamma' },
+    ]);
+    this.set('dynamicLabel', 'Edit first');
+
+    await render(hbs`
+      <div class="list">
+        <button id="tip-btn-0" type="button" {{tooltip this.dynamicLabel class="tip-alpha" placement="bottom" arrow=true showDuration=0 hideDuration=0}}>
+          First
+        </button>
+        {{#each this.items as |item|}}
+          <button id={{item.id}} type="button" {{tooltip item.label class=item.tipClass showDuration=0 hideDuration=0}}>
+            {{item.label}}
+          </button>
+        {{/each}}
+      </div>
+    `);
+
+    assert.ok(
+      document.querySelectorAll('.ember-attacher').length <= 1,
+      'allocates <= 1 Attachment DOM node across multiple {{tooltip}} callers'
+    );
+
+    const btn0 = find('#tip-btn-0');
+    const row2 = find('#row-2');
+
+    await triggerEvent(btn0, 'mouseenter');
+    await waitUntil(() => isVisible(find('.ember-attacher')));
+
+    const singletonEl = find('.ember-attacher');
+    assert.strictEqual(
+      document.querySelectorAll('.ember-attacher').length,
+      1,
+      'reuses a single DOM Attachment node while active'
+    );
+    assert.dom(singletonEl).hasText('Edit first');
+    assert.dom('.tip-alpha', singletonEl).exists('applies caller custom tooltip class');
+    assert.dom('.ember-attacher-arrow', singletonEl).exists('renders arrow when arrow=true');
+    assert.dom(btn0).hasAttribute('aria-describedby', singletonEl.id);
+
+    // Reactive text update while open
+    this.set('dynamicLabel', 'Renamed first');
+    await settled();
+    assert.dom(singletonEl).hasText('Renamed first', 'updates open singleton text reactively');
+
+    // Moving to another {{tooltip}} target reuses the exact same DOM node & swaps ARIA cleanly
+    await triggerEvent(btn0, 'mouseleave');
+    await triggerEvent(row2, 'mouseenter');
+    await waitUntil(() => isVisible(singletonEl) && singletonEl.textContent.trim() === 'Delete second');
+
+    assert.strictEqual(
+      document.querySelectorAll('.ember-attacher').length,
+      1,
+      'still only 1 Attachment node in document after switching targets'
+    );
+    assert.dom(btn0).doesNotHaveAttribute('aria-describedby', 'cleans aria-describedby from prior target');
+    assert.dom(row2).hasAttribute('aria-describedby', singletonEl.id, 'binds aria-describedby to new target');
+    assert.dom('.tip-beta', singletonEl).exists('applies new caller custom class');
+    assert.dom('.ember-attacher-arrow', singletonEl).doesNotExist('removes arrow when next target disables arrow');
+
+    await clearRender();
+    assert.strictEqual(
+      document.querySelectorAll('.ember-attacher').length,
+      0,
+      'removes singleton DOM node when all {{tooltip}} modifiers unmount'
+    );
+  });
+
+  test('delay group warm handoff skips showDelay within 300ms and resets once cold', async function (assert) {
+    await render(hbs`
+      <button id="warm-a" type="button" {{tooltip "First hint" showDelay=160 showDuration=0 hideDuration=0}}>A</button>
+      <button id="warm-b" type="button" {{tooltip "Second hint" showDelay=160 showDuration=0 hideDuration=0}}>B</button>
+      <button id="warm-c" type="button" {{tooltip "Third hint" showDelay=160 showDuration=0 hideDuration=0}}>C</button>
+    `);
+
+    const btnA = find('#warm-a');
+    const btnB = find('#warm-b');
+    const btnC = find('#warm-c');
+
+    // 1. Cold hover on A: Ember debounce has not flushed until settled()
+    btnA.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
+    assert.false(
+      Boolean(find('.ember-attacher') && isVisible(find('.ember-attacher'))),
+      'cold tooltip does not show before showDelay elapses'
+    );
+
+    await settled();
+    assert.true(isVisible(find('.ember-attacher')), 'cold tooltip shows after showDelay');
+    assert.dom('.ember-attacher').hasText('First hint');
+
+    // 2. Leave A -> hover B inside warm window: showDelay is skipped (0ms debounce)
+    await triggerEvent(btnA, 'mouseleave');
+    assert.false(isVisible(find('.ember-attacher')), 'A hides before warm handoff');
+
+    btnB.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
+    await settled();
+    assert.true(isVisible(find('.ember-attacher')), 'warm handoff shows B without waiting showDelay');
+    assert.dom('.ember-attacher').hasText('Second hint');
+
+    // 3. Expire warm window without wall-clock sleep; C respects showDelay again
+    await triggerEvent(btnB, 'mouseleave');
+    expireTooltipDelayGroup(this.owner);
+
+    btnC.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
+    assert.false(
+      isVisible(find('.ember-attacher')),
+      'after warm cooldown expires, tooltip respects showDelay again'
+    );
+    await settled();
+    assert.true(isVisible(find('.ember-attacher')), 'C shows after showDelay once cold');
+    assert.dom('.ember-attacher').hasText('Third hint');
+  });
 
   test('named <:target>/ <:content> blocks and {{a.target data}} retarget across list items on one AttachTooltip', async function (assert) {
     this.set('rows', [
@@ -179,6 +301,49 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
     assert.false(isVisible(popByInvoker), 'clicking popovertargetaction="hide" closes paired AttachPopover');
   });
 
+  test('{{tooltip}} isolates per-entry showOn and supports reactive isShown re-open', async function (assert) {
+    this.set('hoverLabel', 'Hover hint v1');
+    this.set('controlledOpen', true);
+
+    await render(hbs`
+      <button id="click-only-tip" type="button" {{tooltip "Click hint" showOn="click" hideOn="click" showDuration=0 hideDuration=0}}>
+        Click tip
+      </button>
+      <button id="hover-only-tip" type="button" {{tooltip this.hoverLabel showDuration=0 hideDuration=0}}>
+        Hover tip
+      </button>
+      <button id="controlled-tip" type="button" {{tooltip "Controlled" isShown=this.controlledOpen showDuration=0 hideDuration=0}}>
+        Controlled tip
+      </button>
+    `);
+
+    const tipEl = find('.ember-attacher');
+    await waitUntil(() => isVisible(tipEl) && tipEl.textContent.trim() === 'Controlled');
+
+    // Toggle controlled isShown false -> true on the same element
+    this.set('controlledOpen', false);
+    await waitUntil(() => !isVisible(tipEl));
+
+    this.set('controlledOpen', true);
+    await waitUntil(() => isVisible(tipEl) && tipEl.textContent.trim() === 'Controlled');
+
+    this.set('controlledOpen', false);
+    await waitUntil(() => !isVisible(tipEl));
+
+    // Activate click-only entry, then update sibling hover-only entry text
+    await click('#click-only-tip');
+    await waitUntil(() => isVisible(tipEl) && tipEl.textContent.trim() === 'Click hint');
+    await click('#click-only-tip');
+    await waitUntil(() => !isVisible(tipEl));
+
+    this.set('hoverLabel', 'Hover hint v2');
+    await settled();
+
+    await triggerEvent('#hover-only-tip', 'mouseenter');
+    await waitUntil(() => isVisible(tipEl) && tipEl.textContent.trim() === 'Hover hint v2');
+    assert.dom(tipEl).hasText('Hover hint v2', 'sibling {{tooltip}} keeps default mouseenter trigger');
+  });
+
   test('{{a.target data}} updates data in place and unmounting active target hides instead of jumping to sibling', async function (assert) {
     this.set('rows', [
       { id: 'row-a', label: 'Row A' },
@@ -223,8 +388,15 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
     assert.dom('#row-a').doesNotHaveAttribute('aria-describedby', 'sibling row-a stays closed and unbound');
   });
 
-  test('a.show ignores DOM Event, hideOn="click" works with mouseenter, and a.arrow enables arrow middleware', async function (assert) {
+  test('aborted showDelay does not arm warm handoff, a.show ignores DOM Event, hideOn="click" works with mouseenter, and a.arrow enables arrow middleware', async function (assert) {
     await render(hbs`
+      <button id="aborted-tip-btn" type="button" {{tooltip "Aborted" showDelay=160 showDuration=0 hideDuration=0}}>
+        Aborted
+      </button>
+      <button id="cold-tip-btn" type="button" {{tooltip "Cold after abort" showDelay=160 showDuration=0 hideDuration=0}}>
+        Cold
+      </button>
+
       <Attacher @id="event-show-attacher" @showOn={{null}} @hideOn="escapekey" @showDuration={{0}} @hideDuration={{0}} as |a|>
         <button id="event-show-target" type="button" {{a.target}}>
           Target
@@ -246,6 +418,17 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
       </Attacher>
     `);
 
+    // Hover and leave before showDelay debounce flushes — does not arm warm handoff
+    find('#aborted-tip-btn').dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
+    await triggerEvent('#aborted-tip-btn', 'mouseleave');
+    assert.false(isVisible(find('.ember-attacher')), 'aborted show never opens');
+
+    // Next tooltip must still wait for its showDelay (not warm/0ms)
+    find('#cold-tip-btn').dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
+    assert.false(isVisible(find('.ember-attacher')), 'aborted showDelay does not trigger warm 0ms handoff');
+    await settled();
+    assert.true(isVisible(find('.ember-attacher')), 'cold tip shows after showDelay');
+
     // Clicking a.show directly via {{on "click" a.show}} opens cleanly on the registered target
     const panel = find('#event-show-panel');
     await click('#event-show-trigger');
@@ -263,61 +446,5 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
     await click('#hover-click-hide-target');
     await waitUntil(() => !isVisible(hoverClickPanel));
     assert.false(isVisible(hoverClickPanel), 'hideOn="click" closes registered target opened by mouseenter');
-  });
-
-  test('delay group warm handoff skips showDelay within 300ms and resets once cooldown expires', async function (assert) {
-    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-    await render(hbs`
-      <button id="dg-btn-a" type="button">
-        A
-        <AttachTooltip @id="dg-tip-a" @showDelay={{160}} @showDuration={{0}} @hideDuration={{0}}>
-          First
-        </AttachTooltip>
-      </button>
-      <button id="dg-btn-b" type="button">
-        B
-        <AttachTooltip @id="dg-tip-b" @showDelay={{160}} @showDuration={{0}} @hideDuration={{0}}>
-          Second
-        </AttachTooltip>
-      </button>
-      <button id="dg-btn-c" type="button">
-        C
-        <AttachTooltip @id="dg-tip-c" @showDelay={{160}} @showDuration={{0}} @hideDuration={{0}}>
-          Third
-        </AttachTooltip>
-      </button>
-    `);
-
-    const btnA = find('#dg-btn-a');
-    const btnB = find('#dg-btn-b');
-    const btnC = find('#dg-btn-c');
-
-    // Cold tooltip waits for showDelay (notice no upfront sleep needed: owner starts cold)
-    btnA.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
-    await sleep(40);
-    assert.false(isVisible('#dg-tip-a'), 'cold tooltip stays hidden before showDelay elapses');
-    await settled();
-    await waitUntil(() => isVisible('#dg-tip-a'));
-
-    // Handoff within 300ms skips showDelay on B
-    await triggerEvent(btnA, 'mouseleave');
-    await waitUntil(() => !isVisible('#dg-tip-a'));
-
-    btnB.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
-    await sleep(30);
-    await waitUntil(() => isVisible('#dg-tip-b'), { timeout: 120 });
-    await settled();
-
-    // After cooldown expires (>300ms), C respects showDelay again
-    await triggerEvent(btnB, 'mouseleave');
-    await waitUntil(() => !isVisible('#dg-tip-b'));
-    await sleep(330);
-
-    btnC.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
-    await sleep(40);
-    assert.false(isVisible('#dg-tip-c'), 'cold tooltip after >300ms cooldown waits for showDelay');
-    await settled();
-    await waitUntil(() => isVisible('#dg-tip-c'));
   });
 });

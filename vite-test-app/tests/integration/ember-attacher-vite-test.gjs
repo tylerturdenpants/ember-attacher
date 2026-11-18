@@ -16,6 +16,7 @@ import {
   offset,
   shift,
   size,
+  tooltip,
 } from 'ember-attacher';
 import { isVisible } from 'ember-attacher/test-support';
 
@@ -82,13 +83,26 @@ module('Integration | Vite + .gjs | ember-attacher root exports', function (hook
     assert.true(isVisible('#vite-basic'), 'BasicAttacher opens on click');
   });
 
-  test('headless Attacher root export works in Ember 7 + Vite .gjs', async function (assert) {
+  test('Attacher and tooltip root exports work in Ember 7 + Vite .gjs', async function (assert) {
     await render(<template>
+      <button
+        id="vite-singleton-btn"
+        type="button"
+        {{tooltip "Singleton in Vite" class="vite-tip" showOn="click" hideOn="click" showDuration=0 hideDuration=0}}
+      >
+        Singleton
+      </button>
+
       <Attacher @id="vite-headless" @showOn="click" @hideOn="click" @showDuration={{0}} @hideDuration={{0}} as |a|>
         <button id="vite-headless-btn" type="button" {{a.target}}>Headless</button>
         <div id="vite-headless-panel" {{a.attachment}}>Headless {{a.placement}}</div>
       </Attacher>
     </template>);
+
+    await click('#vite-singleton-btn');
+    const tipEl = find('.ember-attacher-tooltip.vite-tip');
+    assert.ok(tipEl, 'singleton tooltip rendered with custom class');
+    assert.true(isVisible(tipEl.closest('.ember-attacher')), 'singleton tooltip opens on click in Vite');
 
     await click('#vite-headless-btn');
     assert.true(isVisible('#vite-headless-panel'), 'headless Attacher opens on click in Vite');

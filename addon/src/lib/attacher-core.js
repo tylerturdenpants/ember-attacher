@@ -718,6 +718,20 @@ export default class AttacherCore {
     };
   });
 
+  /**
+   * Owner used for the tooltip delay-group. Pool cores are constructed without an
+   * Ember owner; fall back to the active/registered target's modifier owner.
+   */
+  get _delayGroupOwner() {
+    return (
+      this._owner ||
+      (this._currentTarget && this._registeredEntries.get(this._currentTarget)?.owner) ||
+      (this._registeredTarget && this._registeredEntries.get(this._registeredTarget)?.owner) ||
+      this._registeredEntries.values().next().value?.owner ||
+      null
+    );
+  }
+
   registerTargetElement(element, data, options = null, owner = null) {
     let entry = this._registeredEntries.get(element);
     const isNew = !entry;
@@ -738,6 +752,10 @@ export default class AttacherCore {
       if (owner) {
         entry.owner = owner;
       }
+    }
+
+    if (owner && !this._owner) {
+      this._owner = owner;
     }
 
     this._syncEntryShowListeners(entry);
@@ -1406,7 +1424,9 @@ export default class AttacherCore {
     this._addListenersForHideEvents();
 
     const parsedShowDelay = parseInt(this.showDelay, 10) || 0;
-    const isWarm = Boolean(this._isTooltip && peekDelayGroup(this._owner)?.isWarmFor(this));
+    const isWarm = Boolean(
+      this._isTooltip && peekDelayGroup(this._delayGroupOwner)?.isWarmFor(this)
+    );
     const effectiveDelay = isWarm ? 0 : parsedShowDelay;
 
     this._delayedVisibilityToggle = debounce(
@@ -1433,7 +1453,7 @@ export default class AttacherCore {
     this._aria.setOpen(true);
 
     if (this._isTooltip && this.controlledIsShown !== true) {
-      getDelayGroup(this._owner)?.open(this);
+      getDelayGroup(this._delayGroupOwner)?.open(this);
     }
 
     const modalContainerChanged = this._syncModalContainer();
@@ -1516,7 +1536,7 @@ export default class AttacherCore {
     this._cleanup = null;
 
     if (this._isTooltip) {
-      peekDelayGroup(this._owner)?.close(this, { markWarm: wasShown });
+      peekDelayGroup(this._delayGroupOwner)?.close(this, { markWarm: wasShown });
     }
 
     if (!this._floatingElement) {
@@ -1821,7 +1841,7 @@ export default class AttacherCore {
     }
     this._isDestroyed = true;
 
-    peekDelayGroup(this._owner)?.close(this, { markWarm: false });
+    peekDelayGroup(this._delayGroupOwner)?.close(this, { markWarm: false });
     unregisterAttacher(this);
 
     this._cleanup?.();

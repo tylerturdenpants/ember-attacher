@@ -17,6 +17,7 @@ import {
   offset,
   shift,
   size,
+  tooltip,
   type AttacherArrowOptions,
   type AttacherBlockParams,
   type AttacherYieldedApi,
@@ -24,6 +25,7 @@ import {
   type MiddlewareData,
   type Placement,
   type Strategy,
+  type TooltipModifierOptions,
   type VirtualElement,
 } from 'ember-attacher';
 import { isVisible } from 'ember-attacher/test-support';
@@ -31,6 +33,7 @@ import DirectPopover from 'ember-attacher/components/attach-popover';
 import DirectTooltip from 'ember-attacher/components/attach-tooltip';
 import DirectAttacher from 'ember-attacher/components/attacher';
 import DirectBasic from 'ember-attacher/components/basic-attacher';
+import DirectTooltipModifier from 'ember-attacher/modifiers/tooltip';
 import DEFAULTS, { type EmberAttacherDefaults } from 'ember-attacher/defaults';
 import type EmberAttacherRegistry from 'ember-attacher/template-registry';
 
@@ -45,6 +48,7 @@ type _VerifyRegistry = [
   AssertExact<typeof Attacher, EmberAttacherRegistry['attacher']>,
   AssertExact<typeof BasicAttacher, EmberAttacherRegistry['BasicAttacher']>,
   AssertExact<typeof BasicAttacher, EmberAttacherRegistry['basic-attacher']>,
+  AssertExact<typeof tooltip, EmberAttacherRegistry['tooltip']>,
 ];
 
 const _defaults: EmberAttacherDefaults = DEFAULTS;
@@ -94,6 +98,15 @@ const customMiddleware: Array<Middleware> = [
 ];
 
 const trustedStyle = htmlSafe('max-width: 240px;');
+
+const _tooltipModifierOpts: TooltipModifierOptions = {
+  class: 'tip-custom',
+  placement: 'bottom',
+  animation: 'fade',
+  arrow: true,
+  showDelay: 200,
+};
+void _tooltipModifierOpts;
 
 const handleChange = (visible: boolean) => {
   void visible;
@@ -209,6 +222,12 @@ export class ValidUsageDemo extends Component {
       </:content>
     </AttachTooltip>
 
+    <button type="button" {{tooltip "Quick hint" class="singleton-tip" placement="bottom" arrow=true}}>
+      Singleton tooltip
+    </button>
+
+    <input aria-label="Filter" {{DirectTooltipModifier "Search" placement="right"}} />
+
     <Attacher @placement="bottom-start" @showOn="click" @hideOn="clickout escapekey" as |a|>
       <button type="button" {{a.target itemA}}>Open Headless</button>
       {{#if a.shouldRender}}
@@ -250,6 +269,9 @@ export class InvalidUsageChecks extends Component {
 
     {{! @glint-expect-error: @configKey is internalized on AttachTooltip }}
     <AttachTooltip @configKey="popover" />
+
+    {{! @glint-expect-error: tooltip modifier requires positional string argument }}
+    <button type="button" {{tooltip placement="bad-placement"}}>Invalid</button>
   </template>
 }
 
