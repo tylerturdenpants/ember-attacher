@@ -371,15 +371,15 @@ export default class AttacherCore {
 
   _opt(key) {
     const argVal = this._arg(key);
-    if (argVal !== undefined) {
+    if (argVal != null) {
       return argVal;
     }
     const env = this._envConfig;
     const keyed = env[this.configKey];
-    if (keyed && keyed[key] !== undefined) {
+    if (keyed && keyed[key] != null) {
       return keyed[key];
     }
-    if (env[key] !== undefined) {
+    if (env[key] != null) {
       return env[key];
     }
     return DEFAULTS[key];
@@ -1608,7 +1608,7 @@ export default class AttacherCore {
 
     const parsedShowDelay = parseInt(this.showDelay, 10) || 0;
     const isWarm = Boolean(
-      this._isTooltip && peekDelayGroup(this._delayGroupOwner)?.isWarmFor(this)
+      this._isTooltip && peekDelayGroup(this._delayGroupOwner)?.isWarmFor()
     );
     const effectiveDelay = isWarm ? 0 : parsedShowDelay;
 

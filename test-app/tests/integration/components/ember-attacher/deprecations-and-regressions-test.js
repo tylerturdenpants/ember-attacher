@@ -373,4 +373,26 @@ module('Integration | Component | deprecations & 4.4 regressions', function (hoo
       'isVisible error message includes the missing selector string'
     );
   });
+
+  test('explicit {{null}} on non-trigger options falls back to defaults', async function (assert) {
+    await render(hbs`
+      <button id="null-opt-btn" type="button">Target</button>
+      <AttachTooltip
+        @id="null-opt-tip"
+        @target="#null-opt-btn"
+        @placement={{null}}
+        @strategy={{null}}
+        @isShown={{true}}
+        @showDuration={{0}}
+        @hideDuration={{0}}
+      >
+        Null fallback tip
+      </AttachTooltip>
+    `);
+
+    const tip = find('#null-opt-tip');
+    await waitUntil(() => isVisible(tip));
+    assert.strictEqual(tip.getAttribute('x-placement'), 'top', 'falls back to default top placement');
+    assert.strictEqual(tip.style.position, 'absolute', 'falls back to default absolute strategy');
+  });
 });

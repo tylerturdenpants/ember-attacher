@@ -26,14 +26,11 @@ class TooltipDelayGroup {
     this._windowMs = windowMs;
   }
 
-  isWarmFor(excludeInstance = null) {
-    for (const openInstance of this._openTooltips) {
-      if (openInstance !== excludeInstance) {
-        return true;
-      }
-    }
-
-    return this._closedAt > 0 && Date.now() - this._closedAt < this._windowMs;
+  isWarmFor() {
+    return (
+      this._openTooltips.size > 0 ||
+      (this._closedAt > 0 && Date.now() - this._closedAt < this._windowMs)
+    );
   }
 }
 
