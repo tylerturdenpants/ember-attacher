@@ -51,11 +51,16 @@ class TooltipDelayGroup {
     return false;
   }
 
-  destroy() {
+  /** End the warm cooldown immediately (tests / teardown). */
+  expireWarm() {
     clearTimeout(this._cooldownTimer);
     this._cooldownTimer = null;
-    this._openTooltips.clear();
     this._isWarm = false;
+  }
+
+  destroy() {
+    this.expireWarm();
+    this._openTooltips.clear();
   }
 }
 

@@ -1,5 +1,6 @@
 import { hbs } from 'ember-cli-htmlbars';
 import { isVisible, offset } from 'ember-attacher';
+import { expireTooltipDelayGroup } from 'ember-attacher/test-support';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import {
@@ -13,10 +14,12 @@ import {
   waitUntil,
 } from '@ember/test-helpers';
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
 module('Integration | Component | non-wrapper API & shared tooltips', function (hooks) {
   setupRenderingTest(hooks);
+
+  hooks.beforeEach(function () {
+    expireTooltipDelayGroup(this.owner);
+  });
 
   test('singleton {{tooltip}} modifier shares a single Attachment node and updates text/class/ARIA cleanly', async function (assert) {
     this.set('items', [
@@ -90,9 +93,6 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
   });
 
   test('delay group warm handoff skips showDelay within 300ms and resets once cold', async function (assert) {
-    // Ensure prior test tooltips do not leave an active warm window
-    await sleep(320);
-
     await render(hbs`
       <button id="warm-a" type="button" {{tooltip "First hint" showDelay=160 showDuration=0 hideDuration=0}}>A</button>
       <button id="warm-b" type="button" {{tooltip "Second hint" showDelay=160 showDuration=0 hideDuration=0}}>B</button>
@@ -103,49 +103,40 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
     const btnB = find('#warm-b');
     const btnC = find('#warm-c');
 
-    // 1. Cold hover on A respects showDelay (not immediately visible after 40ms before settled)
+    // 1. Cold hover on A: Ember debounce has not flushed until settled()
     btnA.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
-    await sleep(40);
     assert.false(
       Boolean(find('.ember-attacher') && isVisible(find('.ember-attacher'))),
       'cold tooltip does not show before showDelay elapses'
     );
 
     await settled();
-    await waitUntil(() => isVisible(find('.ember-attacher')));
+    assert.true(isVisible(find('.ember-attacher')), 'cold tooltip shows after showDelay');
     assert.dom('.ember-attacher').hasText('First hint');
 
-    // 2. Leave A -> hover B inside 300ms warm window skips B showDelay
+    // 2. Leave A -> hover B inside warm window: showDelay is skipped (0ms debounce)
     await triggerEvent(btnA, 'mouseleave');
-    await waitUntil(() => !isVisible(find('.ember-attacher')));
+    await settled();
+    assert.false(isVisible(find('.ember-attacher')), 'A hides before warm handoff');
 
     btnB.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
-    await sleep(30);
-    await waitUntil(
-      () => {
-        const el = find('.ember-attacher');
-        return el && isVisible(el) && el.textContent.trim() === 'Second hint';
-      },
-      { timeout: 120 }
-    );
     await settled();
+    assert.true(isVisible(find('.ember-attacher')), 'warm handoff shows B without waiting showDelay');
+    assert.dom('.ember-attacher').hasText('Second hint');
 
-    // 3. Hide B and wait > 300ms so warm window expires; C respects showDelay again
+    // 3. Expire warm window without wall-clock sleep; C respects showDelay again
     await triggerEvent(btnB, 'mouseleave');
-    await waitUntil(() => !isVisible(find('.ember-attacher')));
-    await sleep(330);
+    await settled();
+    expireTooltipDelayGroup(this.owner);
 
     btnC.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
-    await sleep(40);
     assert.false(
       isVisible(find('.ember-attacher')),
-      'after >300ms cooldown, tooltip respects showDelay again'
+      'after warm cooldown expires, tooltip respects showDelay again'
     );
     await settled();
-    await waitUntil(() => {
-      const el = find('.ember-attacher');
-      return el && isVisible(el) && el.textContent.trim() === 'Third hint';
-    });
+    assert.true(isVisible(find('.ember-attacher')), 'C shows after showDelay once cold');
+    assert.dom('.ember-attacher').hasText('Third hint');
   });
 
   test('named <:target>/ <:content> blocks and {{a.target data}} retarget across list items on one AttachTooltip', async function (assert) {
@@ -400,8 +391,6 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
   });
 
   test('aborted showDelay does not arm warm handoff, a.show ignores DOM Event, hideOn="click" works with mouseenter, and a.arrow enables arrow middleware', async function (assert) {
-    await sleep(320);
-
     await render(hbs`
       <button id="aborted-tip-btn" type="button" {{tooltip "Aborted" showDelay=160 showDuration=0 hideDuration=0}}>
         Aborted
@@ -431,17 +420,17 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
       </Attacher>
     `);
 
-    // Hover and leave before 160ms showDelay expires
+    // Hover and leave before showDelay debounce flushes — does not arm warm handoff
     find('#aborted-tip-btn').dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
-    await sleep(30);
     await triggerEvent('#aborted-tip-btn', 'mouseleave');
+    await settled();
+    assert.false(isVisible(find('.ember-attacher')), 'aborted show never opens');
 
-    // Next tooltip must still wait for its 160ms showDelay
+    // Next tooltip must still wait for its showDelay (not warm/0ms)
     find('#cold-tip-btn').dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
-    await sleep(40);
     assert.false(isVisible(find('.ember-attacher')), 'aborted showDelay does not trigger warm 0ms handoff');
     await settled();
-    await waitUntil(() => isVisible(find('.ember-attacher')));
+    assert.true(isVisible(find('.ember-attacher')), 'cold tip shows after showDelay');
 
     // Clicking a.show directly via {{on "click" a.show}} opens cleanly on the registered target
     const panel = find('#event-show-panel');
