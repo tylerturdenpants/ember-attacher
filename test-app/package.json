@@ -59,12 +59,13 @@
     "ember-try": "~4.0.0",
     "eslint": "~9.39.5",
     "eslint-plugin-decorator-position": "^6.1.1",
-    "eslint-plugin-ember": "~13.10.0",
+    "eslint-plugin-ember": "^13.11.0",
     "eslint-plugin-n": "^18.5.0",
     "globals": "^17.14.0",
     "loader.js": "^4.7.0",
     "qunit": "~2.26.0",
     "qunit-dom": "~3.6.0",
+    "testem": "^3.21.5",
     "webpack": "~5.112.2"
   },
   "engines": {
