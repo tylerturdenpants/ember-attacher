@@ -1,6 +1,6 @@
 {
   "name": "ember-attacher",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "description": "Tooltips and popovers for Ember.js apps",
   "keywords": [
     "ember-addon",
@@ -12,8 +12,7 @@
     "prepare": "pnpm run build",
     "prepublishOnly": "pnpm run build",
     "start": "rollup --config rollup.config.mjs --watch",
-    "lint": "eslint .",
-    "release": "release-it"
+    "lint": "eslint ."
   },
   "types": "./dist/index.d.ts",
   "typesVersions": {
@@ -119,8 +118,6 @@
     "eslint-plugin-n": "^18.5.0",
     "globals": "^17.14.0",
     "lightningcss": "^1.33.0",
-    "release-it": "^21.1.2",
-    "release-it-pnpm": "^4.6.6",
     "rollup": "^4.68.5"
   }
 }
