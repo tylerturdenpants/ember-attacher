@@ -91,51 +91,6 @@ const animationTestWaiter = buildWaiter('basic-attacher');
 const EMPTY_OBJECT = Object.freeze({});
 const rawEnvByOwner = new WeakMap();
 
-const DEPRECATED_ARGS = [
-  ['explicitTarget', 'ember-attacher.arg.explicit-target', 'Use @target instead.'],
-  ['flip', 'ember-attacher.arg.flip', 'Pass `flip()` in @middleware instead.'],
-  [
-    'overflowPadding',
-    'ember-attacher.arg.overflow-padding',
-    'Pass `shift({ padding })` / `flip({ padding })` in @middleware instead.',
-  ],
-  [
-    'floatingUiOptions',
-    'ember-attacher.arg.floating-ui-options',
-    'Use @placement, @strategy, and @middleware instead.',
-  ],
-  [
-    'floatingElementContainer',
-    'ember-attacher.arg.floating-element-container',
-    'Attachments promote into the browser Top Layer via [popover="manual"] by default, or use @renderInPlace={{true}}.',
-  ],
-  [
-    'isOffset',
-    'ember-attacher.arg.is-offset',
-    'The interactive safePolygon hover corridor is active automatically when @interactive={{true}}.',
-  ],
-  [
-    'style',
-    'ember-attacher.arg.style',
-    'Style the attachment via CSS classes or custom properties instead.',
-  ],
-  [
-    'additionalClass',
-    'ember-attacher.arg.additional-class',
-    'Use @class or `class="..."` instead.',
-  ],
-  [
-    'onInitializeAttacher',
-    'ember-attacher.arg.on-initialize-attacher',
-    'Use an element modifier on the Target or Attachment instead.',
-  ],
-  [
-    'onWillDestroy',
-    'ember-attacher.arg.on-will-destroy',
-    'Use an element modifier or `registerDestructor` instead.',
-  ],
-];
-
 function readEmberAttacherEnv(owner) {
   if (!owner || typeof owner !== 'object') {
     return EMPTY_OBJECT;
@@ -349,8 +304,53 @@ export default class AttacherCore {
     }
 
     runInDebug(() => {
-      for (let i = 0; i < DEPRECATED_ARGS.length; i++) {
-        const [argName, id, hint] = DEPRECATED_ARGS[i];
+      const deprecatedArgs = [
+        ['explicitTarget', 'ember-attacher.arg.explicit-target', 'Use @target instead.'],
+        ['flip', 'ember-attacher.arg.flip', 'Pass `flip()` in @middleware instead.'],
+        [
+          'overflowPadding',
+          'ember-attacher.arg.overflow-padding',
+          'Pass `shift({ padding })` / `flip({ padding })` in @middleware instead.',
+        ],
+        [
+          'floatingUiOptions',
+          'ember-attacher.arg.floating-ui-options',
+          'Use @placement, @strategy, and @middleware instead.',
+        ],
+        [
+          'floatingElementContainer',
+          'ember-attacher.arg.floating-element-container',
+          'Attachments promote into the browser Top Layer via [popover="manual"] by default, or use @renderInPlace={{true}}.',
+        ],
+        [
+          'isOffset',
+          'ember-attacher.arg.is-offset',
+          'The interactive safePolygon hover corridor is active automatically when @interactive={{true}}.',
+        ],
+        [
+          'style',
+          'ember-attacher.arg.style',
+          'Style the attachment via CSS classes or custom properties instead.',
+        ],
+        [
+          'additionalClass',
+          'ember-attacher.arg.additional-class',
+          'Use @class or `class="..."` instead.',
+        ],
+        [
+          'onInitializeAttacher',
+          'ember-attacher.arg.on-initialize-attacher',
+          'Use an element modifier on the Target or Attachment instead.',
+        ],
+        [
+          'onWillDestroy',
+          'ember-attacher.arg.on-will-destroy',
+          'Use an element modifier or `registerDestructor` instead.',
+        ],
+      ];
+
+      for (let i = 0; i < deprecatedArgs.length; i++) {
+        const [argName, id, hint] = deprecatedArgs[i];
         if (args[argName] !== undefined) {
           this._deprecateOnce(
             id,
