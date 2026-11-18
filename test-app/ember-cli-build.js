@@ -4,16 +4,8 @@
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 module.exports = function (defaults) {
-  const webpackFallback = { util: false };
-
   const app = new EmberApp(defaults, {
-    autoImport: {
-      webpack: {
-        resolve: {
-          fallback: webpackFallback,
-        },
-      },
-    },
+    // Add options here
   });
 
   /*
@@ -25,13 +17,6 @@ module.exports = function (defaults) {
 
   const { maybeEmbroider } = require('@embroider/test-setup');
   return maybeEmbroider(app, {
-    packagerOptions: {
-      webpackConfig: {
-        resolve: {
-          fallback: webpackFallback,
-        },
-      },
-    },
     skipBabel: [
       {
         package: 'qunit',

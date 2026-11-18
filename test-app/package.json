@@ -39,7 +39,6 @@
     "@embroider/test-setup": "^4.0.0",
     "@glimmer/component": "^1.1.2",
     "@glimmer/tracking": "^1.1.2",
-    "@sinonjs/fake-timers": "^15.5.0",
     "babel-plugin-dynamic-import-node": "^2.3.3",
     "broccoli-asset-rev": "^3.0.0",
     "ember-attacher": "workspace:*",
@@ -66,6 +65,7 @@
     "loader.js": "^4.7.0",
     "qunit": "~2.26.0",
     "qunit-dom": "~3.6.0",
+    "sinon": "^22.1.0",
     "testem": "^3.21.5",
     "webpack": "~5.112.2"
   },
