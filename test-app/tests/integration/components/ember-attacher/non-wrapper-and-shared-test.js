@@ -116,7 +116,6 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
 
     // 2. Leave A -> hover B inside warm window: showDelay is skipped (0ms debounce)
     await triggerEvent(btnA, 'mouseleave');
-    await settled();
     assert.false(isVisible(find('.ember-attacher')), 'A hides before warm handoff');
 
     btnB.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
@@ -126,7 +125,6 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
 
     // 3. Expire warm window without wall-clock sleep; C respects showDelay again
     await triggerEvent(btnB, 'mouseleave');
-    await settled();
     expireTooltipDelayGroup(this.owner);
 
     btnC.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
@@ -423,7 +421,6 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
     // Hover and leave before showDelay debounce flushes — does not arm warm handoff
     find('#aborted-tip-btn').dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
     await triggerEvent('#aborted-tip-btn', 'mouseleave');
-    await settled();
     assert.false(isVisible(find('.ember-attacher')), 'aborted show never opens');
 
     // Next tooltip must still wait for its showDelay (not warm/0ms)
