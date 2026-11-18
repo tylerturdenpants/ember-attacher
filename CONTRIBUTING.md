@@ -27,4 +27,4 @@ For more information on using ember-cli, visit [https://cli.emberjs.com/release/
 
 ## Releasing
 
-Published package is `addon/` (`pnpm release` from that directory). Ship **4.1.0** to npm `latest`; leave **4.0.0** on `beta`. Do not `npm dist-tag add ember-attacher@4.0.0 latest`.
+Published package is `addon/` (`pnpm --filter ember-attacher publish --access public`, then tag `v<version>` and create the matching GitHub Release). Keep **4.0.0** on `beta` and do not `npm dist-tag add ember-attacher@4.0.0 latest`.
