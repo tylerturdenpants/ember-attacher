@@ -89,6 +89,7 @@ available options.
 ember install ember-attacher
 ```
 
+If you're preparing for **5.0** (4.4 deprecations & explicit-target migrations), see the [5.0 upgrade guide](./addon/docs/upgrade-guide-5.0.md).
 If you're upgrading from **3.x to 4.x**, see the [4.1 upgrade guide](./addon/docs/upgrade-guide-4.1.md).
 If you're upgrading from 1.x to 2.x, see the [2.0 upgrade guide](./addon/docs/upgrade-guide-2.0.md).
 

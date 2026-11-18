@@ -25,7 +25,7 @@ function cssHandler() {
       const { code } = transform({
         filename: cssFileName,
         code: source,
-        minify: false,
+        minify: true,
         sourceMap: false,
         targets: {
           chrome: 100 << 16,

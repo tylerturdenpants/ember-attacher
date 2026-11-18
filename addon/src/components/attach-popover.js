@@ -9,10 +9,6 @@ export default class AttachPopover extends BasicAttacher {
   get _defaultAriaRole() {
     return 'dialog';
   }
-
-  get ariaRole() {
-    return this.args.ariaRole || 'dialog';
-  }
 }
 
 setComponentTemplate(getComponentTemplate(BasicAttacher), AttachPopover);

@@ -50,7 +50,7 @@ function getAttachment(selectorOrElement = '', contextEl) {
   }
 
   if (!result) {
-    const msg = typeof(selector) === 'string' ? selectorOrElement : selectorOrElement.innerHTML;
+    const msg = typeof selectorOrElement === 'string' ? selectorOrElement : selectorOrElement.innerHTML;
 
     throw `Could not locate attachment from selector: ${msg}`;
   }

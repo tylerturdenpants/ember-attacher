@@ -1,7 +1,6 @@
 // Owner-scoped delay group isolating 300ms warm tooltip handoff per app/test container.
-// Uses native setTimeout (not Ember's runloop) so settled() does not wait on cooldown expiry.
 
-import { isDestroyed, isDestroying, registerDestructor } from '@ember/destroyable';
+import { isDestroyed, isDestroying } from '@ember/destroyable';
 
 export const DEFAULT_WARM_WINDOW_MS = 300;
 
@@ -9,14 +8,12 @@ const groupsByOwner = new WeakMap();
 
 class TooltipDelayGroup {
   _openTooltips = new Set();
-  _isWarm = false;
-  _cooldownTimer = null;
+  _closedAt = 0;
+  _windowMs = DEFAULT_WARM_WINDOW_MS;
 
   open(instance) {
-    clearTimeout(this._cooldownTimer);
-    this._cooldownTimer = null;
     this._openTooltips.add(instance);
-    this._isWarm = true;
+    this._closedAt = 0;
   }
 
   close(instance, { markWarm = true, windowMs = DEFAULT_WARM_WINDOW_MS } = {}) {
@@ -25,46 +22,22 @@ class TooltipDelayGroup {
       return;
     }
 
-    clearTimeout(this._cooldownTimer);
-    if (markWarm) {
-      this._cooldownTimer = setTimeout(() => {
-        this._isWarm = false;
-        this._cooldownTimer = null;
-      }, windowMs);
-    } else {
-      this._isWarm = false;
-      this._cooldownTimer = null;
-    }
+    this._closedAt = markWarm && windowMs > 0 ? Date.now() : 0;
+    this._windowMs = windowMs;
   }
 
   isWarmFor(excludeInstance = null) {
-    if (this._isWarm) {
-      return true;
-    }
-
     for (const openInstance of this._openTooltips) {
       if (openInstance !== excludeInstance) {
         return true;
       }
     }
 
-    return false;
-  }
-
-  /** End the warm cooldown immediately (tests / teardown). */
-  expireWarm() {
-    clearTimeout(this._cooldownTimer);
-    this._cooldownTimer = null;
-    this._isWarm = false;
-  }
-
-  destroy() {
-    this.expireWarm();
-    this._openTooltips.clear();
+    return this._closedAt > 0 && Date.now() - this._closedAt < this._windowMs;
   }
 }
 
-// Read-only lookup safe during owner teardown (never calls registerDestructor).
+// Read-only lookup safe during owner teardown (never allocates).
 export function peekDelayGroup(owner) {
   if (!owner || typeof owner !== 'object') {
     return null;
@@ -82,10 +55,6 @@ export function getDelayGroup(owner) {
   if (!group) {
     group = new TooltipDelayGroup();
     groupsByOwner.set(owner, group);
-    registerDestructor(owner, () => {
-      group.destroy();
-      groupsByOwner.delete(owner);
-    });
   }
 
   return group;

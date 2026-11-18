@@ -1,6 +1,5 @@
 import { hbs } from 'ember-cli-htmlbars';
 import { isVisible, offset } from 'ember-attacher';
-import { expireTooltipDelayGroup } from 'ember-attacher/test-support';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import {
@@ -16,10 +15,6 @@ import {
 
 module('Integration | Component | non-wrapper API & shared tooltips', function (hooks) {
   setupRenderingTest(hooks);
-
-  hooks.beforeEach(function () {
-    expireTooltipDelayGroup(this.owner);
-  });
 
   test('singleton {{tooltip}} modifier shares a single Attachment node and updates text/class/ARIA cleanly', async function (assert) {
     this.set('items', [
@@ -123,18 +118,25 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
     assert.true(isVisible(find('.ember-attacher')), 'warm handoff shows B without waiting showDelay');
     assert.dom('.ember-attacher').hasText('Second hint');
 
-    // 3. Expire warm window without wall-clock sleep; C respects showDelay again
-    await triggerEvent(btnB, 'mouseleave');
-    expireTooltipDelayGroup(this.owner);
+    // 3. Advance clock past the 300ms warm window; C respects showDelay again
+    const realDateNow = Date.now;
+    let offsetMs = 0;
+    Date.now = () => realDateNow() + offsetMs;
+    try {
+      await triggerEvent(btnB, 'mouseleave');
+      offsetMs = 350;
 
-    btnC.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
-    assert.false(
-      isVisible(find('.ember-attacher')),
-      'after warm cooldown expires, tooltip respects showDelay again'
-    );
-    await settled();
-    assert.true(isVisible(find('.ember-attacher')), 'C shows after showDelay once cold');
-    assert.dom('.ember-attacher').hasText('Third hint');
+      btnC.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
+      assert.false(
+        isVisible(find('.ember-attacher')),
+        'after warm cooldown expires, tooltip respects showDelay again'
+      );
+      await settled();
+      assert.true(isVisible(find('.ember-attacher')), 'C shows after showDelay once cold');
+      assert.dom('.ember-attacher').hasText('Third hint');
+    } finally {
+      Date.now = realDateNow;
+    }
   });
 
   test('named <:target>/ <:content> blocks and {{a.target data}} retarget across list items on one AttachTooltip', async function (assert) {
