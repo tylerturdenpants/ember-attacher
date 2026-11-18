@@ -375,11 +375,23 @@ module('Integration | Component | deprecations & 4.4 regressions', function (hoo
   });
 
   test('explicit {{null}} on non-trigger options falls back to defaults', async function (assert) {
+    this.set('virtualTarget', {
+      getBoundingClientRect: () => ({
+        top: 200,
+        bottom: 230,
+        left: 200,
+        right: 280,
+        width: 80,
+        height: 30,
+        x: 200,
+        y: 200,
+      }),
+    });
+
     await render(hbs`
-      <button id="null-opt-btn" type="button">Target</button>
       <AttachTooltip
         @id="null-opt-tip"
-        @target="#null-opt-btn"
+        @target={{this.virtualTarget}}
         @placement={{null}}
         @strategy={{null}}
         @isShown={{true}}
