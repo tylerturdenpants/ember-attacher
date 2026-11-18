@@ -116,11 +116,7 @@ jobs:
       - name: Pin v1 dependencies for Ember 3.28
         if: matrix.try-scenario == 'ember-lts-3.28'
         run: |
-          if grep -q '^overrides:' pnpm-workspace.yaml; then
-            printf '%s\n' "  '@ember/test-waiters': '~3.1.0'" "  '@glimmer/component': '~1.1.2'" >> pnpm-workspace.yaml
-          else
-            printf '%s\n' '' 'overrides:' "  '@ember/test-waiters': '~3.1.0'" "  '@glimmer/component': '~1.1.2'" >> pnpm-workspace.yaml
-          fi
+          printf '%s\n' '' 'overrides:' "  '@ember/test-waiters': '~3.1.0'" "  '@glimmer/component': '~1.1.2'" >> pnpm-workspace.yaml
 
       - name: Run Tests
         run: ./node_modules/.bin/ember try:one ${{ matrix.try-scenario }}
