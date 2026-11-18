@@ -1,9 +1,22 @@
-## Unreleased (v4.4.0)
+## v4.4.0 (2026-11-18)
 
 #### :rocket: Enhancement
-* [#1115](https://github.com/tylerturdenpants/ember-attacher/issues/1115) / [#64](https://github.com/tylerturdenpants/ember-attacher/issues/64) Add `{{tooltip}}` singleton pool via `TooltipDomHost`, 300ms warm delay-group handoff, and README coverage for `<Attacher>` / named blocks ([@pzubar](https://github.com/pzubar))
+* [#1120](https://github.com/tylerturdenpants/ember-attacher/pull/1120) / [#1121](https://github.com/tylerturdenpants/ember-attacher/pull/1121) / [#1122](https://github.com/tylerturdenpants/ember-attacher/pull/1122) / [#1115](https://github.com/tylerturdenpants/ember-attacher/issues/1115) / [#64](https://github.com/tylerturdenpants/ember-attacher/issues/64) Extract `AttacherCore`, add headless `<Attacher>`, target bindings (`{{a.target}}`), and a `{{tooltip}}` singleton pool via `TooltipDomHost` with 300ms warm delay-group handoff ([@pzubar](https://github.com/pzubar))
 * [#1114](https://github.com/tylerturdenpants/ember-attacher/issues/1114) Publish TypeScript declaration files (`.d.ts` across `'ember-attacher'`, `'ember-attacher/test-support'`, `'ember-attacher/defaults'`, `'ember-attacher/components/*'`, and `'ember-attacher/template-registry'`) plus Glint `EmberAttacherRegistry`, `VirtualElement` / optional-`element` `arrow()` types, and automated `ember-tsc` typechecking in CI ([@pzubar](https://github.com/pzubar))
 * [#1073](https://github.com/tylerturdenpants/ember-attacher/pull/1073) Make `@animation="fill"` compatible with `@arrow={{true}}` by clipping `div[x-circle]` inside `.ember-attacher-fill-backdrop` instead of setting `overflow: hidden` on the arrow container, and remove debug warning `70015` ([@pzubar](https://github.com/pzubar))
+* [#1123](https://github.com/tylerturdenpants/ember-attacher/pull/1123) / [#1116](https://github.com/tylerturdenpants/ember-attacher/issues/1116) Add `until: '5.0.0'` deprecation suite (implicit parent target, legacy `BasicAttacher` template helpers, deprecated `@` args) and `addon/docs/upgrade-guide-5.0.md` ([@pzubar](https://github.com/pzubar))
+
+#### :bug: Bug Fix
+* [#1123](https://github.com/tylerturdenpants/ember-attacher/pull/1123) / [#1116](https://github.com/tylerturdenpants/ember-attacher/issues/1116) Stabilize `AttacherCore` show/hide races, attachment-tree / singleton nesting, target resolution, and `isVisible()` selector checks ([@pzubar](https://github.com/pzubar))
+
+#### :memo: Documentation & Housecleaning
+* **No Sass/SCSS dependency:** the published addon ships plain CSS (`ember-attacher/styles`); consumers do **not** need `sass`, `scss`, or `ember-cli-sass` to use ember-attacher ([@pzubar](https://github.com/pzubar))
+* [#1124](https://github.com/tylerturdenpants/ember-attacher/pull/1124) / [#1119](https://github.com/tylerturdenpants/ember-attacher/issues/1119) Drop `release-it` / `release-it-pnpm` and document manual publish + git tag + GitHub Release ([@pzubar](https://github.com/pzubar))
+* [#1123](https://github.com/tylerturdenpants/ember-attacher/pull/1123) / [#1119](https://github.com/tylerturdenpants/ember-attacher/issues/1119) Non-breaking Dependabot / tooling remediation for the 4.4 line ([@pzubar](https://github.com/pzubar))
+
+#### Committers: 1
+- Petro Zubar ([@pzubar](https://github.com/pzubar))
+
 
 ## v4.3.0 (2026-11-17)
 
