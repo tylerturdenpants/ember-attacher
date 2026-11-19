@@ -2,6 +2,15 @@
  * DOM and event helpers for attachment boundary and cursor detection.
  */
 
+import type { VirtualElement } from '@floating-ui/dom';
+
+type RectLike = Pick<DOMRect, 'left' | 'right' | 'top' | 'bottom'>;
+type RectSource = Element | Pick<VirtualElement, 'getBoundingClientRect'>;
+export interface PointerOrigin {
+  x: number;
+  y: number;
+}
+
 /**
  * Determine whether an event originated from or traversed through a given DOM element.
  *
@@ -9,11 +18,11 @@
  * removed from the DOM during event handling (e.g. self-disappearing buttons).
  * Falls back to `element.contains(event.target)` when `composedPath` is unavailable.
  *
- * @param {Element | null | undefined} element
- * @param {Event | null | undefined} event
- * @returns {boolean}
  */
-export function elementContainsEvent(element, event) {
+export function elementContainsEvent(
+  element: Element | null | undefined,
+  event: Event | null | undefined
+): boolean {
   if (!element) {
     return false;
   }
@@ -23,16 +32,29 @@ export function elementContainsEvent(element, event) {
     return path.includes(element);
   }
 
-  return Boolean(event?.target && element.contains(event.target));
+  return Boolean(
+    typeof Node !== 'undefined' &&
+      event?.target instanceof Node &&
+      element.contains(event.target)
+  );
 }
 
 const CORRIDOR_BUFFER = 2;
 
-function isPointInRect(x, y, rect) {
+function isPointInRect(x: number, y: number, rect: RectLike): boolean {
   return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
 }
 
-function pointInTriangle(px, py, ax, ay, bx, by, cx, cy) {
+function pointInTriangle(
+  px: number,
+  py: number,
+  ax: number,
+  ay: number,
+  bx: number,
+  by: number,
+  cx: number,
+  cy: number
+): boolean {
   const d1 = (px - bx) * (ay - by) - (ax - bx) * (py - by);
   const d2 = (px - cx) * (by - cy) - (bx - cx) * (py - cy);
   const d3 = (px - ax) * (cy - ay) - (cx - ax) * (py - ay);
@@ -41,7 +63,18 @@ function pointInTriangle(px, py, ax, ay, bx, by, cx, cy) {
   return !(hasNeg && hasPos);
 }
 
-function pointInQuad(px, py, x1, y1, x2, y2, x3, y3, x4, y4) {
+function pointInQuad(
+  px: number,
+  py: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  x3: number,
+  y3: number,
+  x4: number,
+  y4: number
+): boolean {
   return (
     pointInTriangle(px, py, x1, y1, x2, y2, x3, y3) ||
     pointInTriangle(px, py, x1, y1, x3, y3, x4, y4)
@@ -59,13 +92,13 @@ function pointInQuad(px, py, x1, y1, x2, y2, x3, y3, x4, y4) {
  *
  * Supports both DOM Elements and Floating UI VirtualElements via `getBoundingClientRect()`.
  *
- * @param {MouseEvent | { clientX: number, clientY: number }} event
- * @param {{ x: number, y: number } | null | undefined} origin
- * @param {Element | { getBoundingClientRect: Function } | null | undefined} target
- * @param {Element | { getBoundingClientRect: Function } | null | undefined} floatingElement
- * @returns {boolean}
  */
-export function isCursorInSafePolygon(event, origin, target, floatingElement) {
+export function isCursorInSafePolygon(
+  event: Pick<MouseEvent, 'clientX' | 'clientY'> | null | undefined,
+  origin: PointerOrigin | null | undefined,
+  target: RectSource | null | undefined,
+  floatingElement: RectSource | null | undefined
+): boolean {
   if (
     !event ||
     !target ||
@@ -91,10 +124,7 @@ export function isCursorInSafePolygon(event, origin, target, floatingElement) {
   }
 
   const hasRealOrigin =
-    Boolean(origin) &&
-    (origin.x !== 0 ||
-      origin.y !== 0 ||
-      isPointInRect(0, 0, targetRect));
+    origin != null && (origin.x !== 0 || origin.y !== 0 || isPointInRect(0, 0, targetRect));
 
   // Attachment is above target: gap is between floatingRect.bottom and targetRect.top
   if (floatingRect.bottom <= targetRect.top + CORRIDOR_BUFFER) {
@@ -102,7 +132,7 @@ export function isCursorInSafePolygon(event, origin, target, floatingElement) {
     const by = floatingRect.bottom;
     const cx = floatingRect.right + CORRIDOR_BUFFER;
     const cy = floatingRect.bottom;
-    if (hasRealOrigin) {
+    if (origin && hasRealOrigin) {
       return pointInTriangle(px, py, origin.x, origin.y + CORRIDOR_BUFFER, bx, by, cx, cy);
     }
     return pointInQuad(
@@ -125,7 +155,7 @@ export function isCursorInSafePolygon(event, origin, target, floatingElement) {
     const by = floatingRect.top;
     const cx = floatingRect.right + CORRIDOR_BUFFER;
     const cy = floatingRect.top;
-    if (hasRealOrigin) {
+    if (origin && hasRealOrigin) {
       return pointInTriangle(px, py, origin.x, origin.y - CORRIDOR_BUFFER, bx, by, cx, cy);
     }
     return pointInQuad(
@@ -148,7 +178,7 @@ export function isCursorInSafePolygon(event, origin, target, floatingElement) {
     const by = floatingRect.top - CORRIDOR_BUFFER;
     const cx = floatingRect.right;
     const cy = floatingRect.bottom + CORRIDOR_BUFFER;
-    if (hasRealOrigin) {
+    if (origin && hasRealOrigin) {
       return pointInTriangle(px, py, origin.x + CORRIDOR_BUFFER, origin.y, bx, by, cx, cy);
     }
     return pointInQuad(
@@ -171,7 +201,7 @@ export function isCursorInSafePolygon(event, origin, target, floatingElement) {
     const by = floatingRect.top - CORRIDOR_BUFFER;
     const cx = floatingRect.left;
     const cy = floatingRect.bottom + CORRIDOR_BUFFER;
-    if (hasRealOrigin) {
+    if (origin && hasRealOrigin) {
       return pointInTriangle(px, py, origin.x - CORRIDOR_BUFFER, origin.y, bx, by, cx, cy);
     }
     return pointInQuad(

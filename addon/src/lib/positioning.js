@@ -1,5 +1,5 @@
 import { arrow, flip, limitShift, shift } from '@floating-ui/dom';
-import { isElementTarget } from './target-resolution.js';
+import { isElementTarget } from './target-resolution';
 
 /**
  * Check whether an attachment target (DOM Element or VirtualElement) is still connected.

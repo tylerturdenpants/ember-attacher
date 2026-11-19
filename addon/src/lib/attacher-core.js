@@ -7,7 +7,7 @@ import { autoUpdate, computePosition } from '@floating-ui/dom';
 import { tracked } from '@glimmer/tracking';
 import Modifier, { modifier } from 'ember-modifier';
 import DEFAULTS, { POPOVER_DEFAULTS } from '../defaults';
-import { AttachmentAriaController, restoreFocusOnEscape } from './a11y.js';
+import { AttachmentAriaController, restoreFocusOnEscape } from './a11y';
 import {
   descendantAttachmentContainsEvent,
   descendantAttachmentContainsNode,
@@ -15,33 +15,33 @@ import {
   shouldHandleEscapeKey,
   syncParentAttachment,
   unregisterAttacher,
-} from './attachment-tree.js';
-import { getDelayGroup, peekDelayGroup } from './delay-group.js';
-import { elementContainsEvent, isCursorInSafePolygon } from './dom.js';
+} from './attachment-tree';
+import { getDelayGroup, peekDelayGroup } from './delay-group';
+import { elementContainsEvent, isCursorInSafePolygon } from './dom';
 import {
   getModalDialogContainer,
   hidePopoverHost,
   showPopoverHost,
   supportsPopoverHost,
-} from './host.js';
+} from './host';
 import {
   applyPositionResult,
   buildMiddleware,
   isTargetConnected,
-} from './positioning.js';
+} from './positioning';
 import {
   attacherWaiter,
   cancelScheduled,
   debounceTimeout,
   scheduleMicrotask,
-} from './schedule.js';
+} from './schedule';
 import {
   findTriggerTargetElements,
   getListenerTarget,
   isElementTarget,
   isVirtualReference,
   resolveAttachmentTarget,
-} from './target-resolution.js';
+} from './target-resolution';
 
 let nextInstanceNumber = 0;
 
@@ -1470,11 +1470,9 @@ export default class AttacherCore {
     this._syncPopoverTargetListeners(popoverTargets);
 
     const target = resolveAttachmentTarget({
-      explicitTarget: this.explicitTarget,
+      target: this.explicitTarget,
       registeredTarget: this._registeredTarget,
-      popoverTargets: allTargets,
-      parentElement: null,
-      allowParentFallback: false,
+      triggerTargets: allTargets,
     });
 
     this._listenerTarget = getListenerTarget(target);

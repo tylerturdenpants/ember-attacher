@@ -1,7 +1,14 @@
-export function isVisible(selector, contextEl) {
-  const attachment = typeof(selector) === 'string' ? getAttachment(selector, contextEl) : selector;
+export type AttachmentSelector = string | Element | Window | Document | null | undefined;
+
+export function isVisible(selector: AttachmentSelector, contextEl?: Element | null): boolean {
+  const attachment =
+    typeof selector === 'string' ? getAttachment(selector, contextEl) : selector;
 
   if (!attachment) {
+    return false;
+  }
+
+  if (!(attachment instanceof Element)) {
     return false;
   }
 
@@ -33,15 +40,19 @@ export function isVisible(selector, contextEl) {
   return true;
 }
 
-function getAttachment(selectorOrElement = '', contextEl) {
-  if (selectorOrElement instanceof Window ||
-      selectorOrElement instanceof Document ||
-      selectorOrElement instanceof HTMLElement ||
-      selectorOrElement instanceof SVGElement) {
+function getAttachment(
+  selectorOrElement: string | Element | Window | Document = '',
+  contextEl?: Element | null
+): Element | Window | Document {
+  if (
+    selectorOrElement instanceof Window ||
+    selectorOrElement instanceof Document ||
+    selectorOrElement instanceof Element
+  ) {
     return selectorOrElement;
   }
 
-  let result;
+  let result: Element | null;
 
   if (contextEl instanceof HTMLElement) {
     result = contextEl.querySelector(selectorOrElement);
@@ -50,7 +61,7 @@ function getAttachment(selectorOrElement = '', contextEl) {
   }
 
   if (!result) {
-    const msg = typeof selectorOrElement === 'string' ? selectorOrElement : selectorOrElement.innerHTML;
+    const msg = typeof selectorOrElement === 'string' ? selectorOrElement : '';
 
     throw `Could not locate attachment from selector: ${msg}`;
   }

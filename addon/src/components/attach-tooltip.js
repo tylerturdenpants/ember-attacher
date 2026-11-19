@@ -1,5 +1,5 @@
 import { getComponentTemplate, setComponentTemplate } from '@ember/component';
-import { resolveTooltipClass } from '../lib/attacher-core.js';
+import { resolveTooltipClass } from '../lib/attacher-core';
 import BasicAttacher from './basic-attacher';
 
 export default class AttachTooltip extends BasicAttacher {

@@ -42,6 +42,9 @@ export default [
         ecmaVersion: 2018,
         sourceType: 'module',
         babelOptions: {
+          // Ignore babel.config.json (its async template-compilation plugin cannot run in ESLint)
+          configFile: false,
+          babelrc: false,
           plugins: [['@babel/plugin-proposal-decorators', { version: 'legacy' }]],
         },
       },

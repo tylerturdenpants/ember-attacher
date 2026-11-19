@@ -10,6 +10,9 @@
   "scripts": {
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
-    "typecheck": "pnpm --filter vite-test-app run typecheck"
+    "typecheck": "pnpm --filter ember-attacher run typecheck && pnpm --filter vite-test-app run typecheck"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.3"
   }
 }

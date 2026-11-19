@@ -4,19 +4,25 @@ import { isDestroyed, isDestroying } from '@ember/destroyable';
 
 export const DEFAULT_WARM_WINDOW_MS = 300;
 
-const groupsByOwner = new WeakMap();
+export interface DelayGroupCloseOptions {
+  markWarm?: boolean;
+  windowMs?: number;
+}
 
-class TooltipDelayGroup {
-  _openTooltips = new Set();
-  _closedAt = 0;
-  _windowMs = DEFAULT_WARM_WINDOW_MS;
+export class TooltipDelayGroup {
+  private _openTooltips = new Set<object>();
+  private _closedAt = 0;
+  private _windowMs = DEFAULT_WARM_WINDOW_MS;
 
-  open(instance) {
+  open(instance: object): void {
     this._openTooltips.add(instance);
     this._closedAt = 0;
   }
 
-  close(instance, { markWarm = true, windowMs = DEFAULT_WARM_WINDOW_MS } = {}) {
+  close(
+    instance: object,
+    { markWarm = true, windowMs = DEFAULT_WARM_WINDOW_MS }: DelayGroupCloseOptions = {}
+  ): void {
     this._openTooltips.delete(instance);
     if (this._openTooltips.size > 0) {
       return;
@@ -26,7 +32,7 @@ class TooltipDelayGroup {
     this._windowMs = windowMs;
   }
 
-  isWarmFor() {
+  isWarmFor(): boolean {
     return (
       this._openTooltips.size > 0 ||
       (this._closedAt > 0 && Date.now() - this._closedAt < this._windowMs)
@@ -34,8 +40,10 @@ class TooltipDelayGroup {
   }
 }
 
+const groupsByOwner = new WeakMap<object, TooltipDelayGroup>();
+
 // Read-only lookup safe during owner teardown (never allocates).
-export function peekDelayGroup(owner) {
+export function peekDelayGroup(owner: unknown): TooltipDelayGroup | null {
   if (!owner || typeof owner !== 'object') {
     return null;
   }
@@ -43,7 +51,7 @@ export function peekDelayGroup(owner) {
   return groupsByOwner.get(owner) ?? null;
 }
 
-export function getDelayGroup(owner) {
+export function getDelayGroup(owner: unknown): TooltipDelayGroup | null {
   if (!owner || typeof owner !== 'object' || isDestroying(owner) || isDestroyed(owner)) {
     return null;
   }

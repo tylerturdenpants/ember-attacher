@@ -1,15 +1,32 @@
-import { elementContainsEvent } from './dom.js';
+import { elementContainsEvent } from './dom';
 
-const activeAttachers = new Set();
-const floatingElementParentMap = new WeakMap();
-const handledEscapeEvents = new WeakSet();
+/**
+ * Minimal structural view of an AttacherCore instance, covering only the members
+ * that the attachment tree reads.
+ */
+export interface AttachmentNode {
+  _listenerTarget?: Element | null;
+  parentElement?: Element | null;
+  _floatingElement?: HTMLElement | null;
+  _isHidden?: boolean;
+  _isShown?: boolean;
+  _isHiding?: boolean;
+  isDestroyed?: boolean;
+  isDestroying?: boolean;
+  _positioningSuspended?: boolean;
+  _hideListenersOnDocumentByEvent?: { keydown?: unknown } | null;
+}
+
+const activeAttachers = new Set<AttachmentNode>();
+const floatingElementParentMap = new WeakMap<object, AttachmentNode>();
+const handledEscapeEvents = new WeakSet<Event>();
 
 /**
  * Register a mounted AttacherCore instance in the in-process attachment tree.
  *
  * @param {object} attacher
  */
-export function registerAttacher(attacher) {
+export function registerAttacher(attacher: AttachmentNode): void {
   activeAttachers.add(attacher);
 }
 
@@ -18,7 +35,7 @@ export function registerAttacher(attacher) {
  *
  * @param {object} attacher
  */
-export function unregisterAttacher(attacher) {
+export function unregisterAttacher(attacher: AttachmentNode): void {
   activeAttachers.delete(attacher);
 }
 
@@ -29,11 +46,13 @@ export function unregisterAttacher(attacher) {
  * @param {object} child
  * @returns {object | null}
  */
-export function getParentAttacher(child) {
-  const anchors = [child._listenerTarget, child.parentElement].filter(Boolean);
+export function getParentAttacher(child: AttachmentNode): AttachmentNode | null {
+  const anchors = [child._listenerTarget, child.parentElement].filter(
+    (anchor): anchor is Element => Boolean(anchor)
+  );
 
   if (activeAttachers.size > 1 && anchors.length > 0) {
-    const byFloatingEl = new Map();
+    const byFloatingEl = new Map<Element, AttachmentNode>();
     for (const candidate of activeAttachers) {
       if (candidate !== child && candidate._floatingElement) {
         byFloatingEl.set(candidate._floatingElement, candidate);
@@ -42,7 +61,7 @@ export function getParentAttacher(child) {
 
     if (byFloatingEl.size > 0) {
       for (const anchor of anchors) {
-        let node = anchor === child._floatingElement ? anchor.parentElement : anchor;
+        let node: Element | null = anchor === child._floatingElement ? anchor.parentElement : anchor;
         while (node) {
           if (node !== child._floatingElement) {
             const candidate = byFloatingEl.get(node);
@@ -79,7 +98,7 @@ export function getParentAttacher(child) {
  *
  * @param {object} attacher
  */
-export function syncParentAttachment(attacher) {
+export function syncParentAttachment(attacher: AttachmentNode): void {
   getParentAttacher(attacher);
 }
 
@@ -90,8 +109,8 @@ export function syncParentAttachment(attacher) {
  * @param {object} ancestor
  * @returns {boolean}
  */
-export function isDescendantOf(candidate, ancestor) {
-  const visited = new Set();
+export function isDescendantOf(candidate: AttachmentNode, ancestor: AttachmentNode): boolean {
+  const visited = new Set<AttachmentNode>();
   let current = getParentAttacher(candidate);
 
   while (current && !visited.has(current)) {
@@ -113,7 +132,7 @@ export function isDescendantOf(candidate, ancestor) {
  * @param {Event} event
  * @returns {boolean}
  */
-export function descendantAttachmentContainsEvent(parent, event) {
+export function descendantAttachmentContainsEvent(parent: AttachmentNode, event: Event): boolean {
   if (activeAttachers.size > 1) {
     for (const candidate of activeAttachers) {
       if (
@@ -136,8 +155,8 @@ export function descendantAttachmentContainsEvent(parent, event) {
   const path = typeof event?.composedPath === 'function' ? event.composedPath() : null;
   if (path) {
     for (const node of path) {
-      let currentParent = floatingElementParentMap.get(node);
-      const visited = new Set();
+      let currentParent: AttachmentNode | null | undefined = floatingElementParentMap.get(node);
+      const visited = new Set<AttachmentNode>();
       while (currentParent && !visited.has(currentParent)) {
         if (currentParent === parent) {
           return true;
@@ -163,7 +182,10 @@ export function descendantAttachmentContainsEvent(parent, event) {
  * @param {Node | null | undefined} node
  * @returns {boolean}
  */
-export function descendantAttachmentContainsNode(parent, node) {
+export function descendantAttachmentContainsNode(
+  parent: AttachmentNode,
+  node: Node | null | undefined
+): boolean {
   if (!node || activeAttachers.size <= 1) {
     return false;
   }
@@ -196,7 +218,7 @@ export function descendantAttachmentContainsNode(parent, node) {
  * @param {KeyboardEvent} event
  * @returns {boolean}
  */
-export function shouldHandleEscapeKey(attacher, event) {
+export function shouldHandleEscapeKey(attacher: AttachmentNode, event: KeyboardEvent): boolean {
   if (handledEscapeEvents.has(event)) {
     return false;
   }
