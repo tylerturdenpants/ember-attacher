@@ -1,5 +1,5 @@
 import type AttacherCore from './attacher-core';
-import { elementContainsEvent, floatingElementContainsEvent } from './dom';
+import { elementContainsEvent } from './dom';
 
 const activeAttachers = new Set<AttacherCore>();
 const floatingElementParentMap = new WeakMap<EventTarget, AttacherCore>();
@@ -100,7 +100,7 @@ export function descendantAttachmentContainsEvent(parent: AttacherCore, event: E
       }
       if (isDescendantOf(candidate, parent)) {
         if (
-          floatingElementContainsEvent(candidate._floatingElement, event) ||
+          elementContainsEvent(candidate._floatingElement, event) ||
           elementContainsEvent(candidate._listenerTarget, event)
         ) {
           return true;
@@ -112,9 +112,6 @@ export function descendantAttachmentContainsEvent(parent: AttacherCore, event: E
   const path = typeof event?.composedPath === 'function' ? event.composedPath() : null;
   if (path) {
     for (const node of path) {
-      if (node instanceof Element && node === event?.target && !floatingElementContainsEvent(node, event)) {
-        continue;
-      }
       let currentParent = floatingElementParentMap.get(node);
       const visited = new Set<AttacherCore>();
       while (currentParent && !visited.has(currentParent)) {

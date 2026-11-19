@@ -7,7 +7,6 @@
 
 #### :bug: Bug Fix
 * **Published npm `README.md` (#1132):** Sync root `README.md` into the published `addon/` package during build (`addon/rollup.config.mjs`, `addon/package.json` `files`) with GitHub blob links so npm displays the package README instead of missing it.
-* **Native `::backdrop` clickout (#1132):** `hideOn="clickout"` on interactive Top-Layer `[popover]` hosts now treats pointer clicks targeting `floatingElement` directly outside its rendered bounding boxes (i.e. on `::backdrop`) as outside clicks instead of keeping the popover open.
 
 #### :memo: Documentation
 * **5.0 Recipes (#1132):** Added cookbook recipes in `README.md` (and cross-linked from `addon/docs/upgrade-guide-5.0.md`) for custom `flip`/`shift` `boundary` constraints, coordinate/`VirtualElement` targets with `autoUpdate` `{ animationFrame: true }`, `{{#in-element}}` + `@renderInPlace` stacking, and `a.setTarget()` for externally replaced DOM nodes.
