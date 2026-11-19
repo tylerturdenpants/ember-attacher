@@ -1,6 +1,11 @@
+## v5.0.0-beta.1 (2026-11-19)
+
+> **Beta of the 5.0 line** — not a stable release. Install with `npm i ember-attacher@beta` or `npm i ember-attacher@5.0.0-beta.1`. The npm `latest` dist-tag remains on the 4.x line. See [#1131](https://github.com/tylerturdenpants/ember-attacher/pull/1131). Includes tip-of-PR restore of immediate `a.show` / `a.hide` / `a.toggle` semantics and related fixes after `5.0.0-beta.0` staging.
+
 ## v5.0.0-beta.0 (2026-11-19)
 
-> **Beta of the 5.0 line** — not a stable release. Install with `npm i ember-attacher@beta` or `npm i ember-attacher@5.0.0-beta.0`. The npm `latest` dist-tag remains on the 4.x line. See [#1131](https://github.com/tylerturdenpants/ember-attacher/pull/1131).
+> Superseded for the npm `beta` dist-tag by `5.0.0-beta.1` (same PR line). An orphaned npm stage of `5.0.0-beta.0` from `e3ba55c` may still need `npm stage reject` if not already cleared.
+
 
 #### :boom: Breaking Change
 * **Platform & Test Floor (#1125):** Raised minimum `ember-source` / `ember-cli` floor to `>= 4.12 LTS` and `Node.js >= 20 LTS`; dropped Ember 3.28 and Node 18.
