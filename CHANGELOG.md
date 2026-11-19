@@ -1,14 +1,16 @@
-## Unreleased
+## v5.0.0-beta.2 (2026-11-19)
+
+> **Beta of the 5.0 line** — not a stable release. Install with `npm i ember-attacher@beta` or `npm i ember-attacher@5.0.0-beta.2`. The npm `latest` dist-tag remains on the 4.x line. See [#1132](https://github.com/tylerturdenpants/ember-attacher/pull/1132).
 
 #### :rocket: Enhancement
-* **`assertAttached()` test helper:** `ember-attacher/test-support` exports `assertAttached(assert, attachment, target, { placement, maxGap, tolerance, message })` (plus `AssertAttachedOptions`, `ElementOrSelector`, and `ResultPusher`), which checks that an open attachment is visible, on its resolved side, close to and overlapping its target, with the arrow pointing at the target, inside the viewport and not covered.
+* **`assertAttached()` test helper (#1132):** `ember-attacher/test-support` exports `assertAttached(assert, attachment, target, { placement, maxGap, tolerance, message })` (plus `AssertAttachedOptions`, `ElementOrSelector`, and `ResultPusher`), which checks that an open attachment is visible, on its resolved side, close to and overlapping its target, with the arrow pointing at the target, inside the viewport and not covered.
 
 #### :bug: Bug Fix
-* **Published npm `README.md`:** Sync root `README.md` into the published `addon/` package during build (`addon/rollup.config.mjs`, `addon/package.json` `files`) with GitHub blob links so npm displays the package README instead of missing it.
-* **Native `::backdrop` clickout:** `hideOn="clickout"` on interactive Top-Layer `[popover]` hosts now treats pointer clicks targeting `floatingElement` directly outside its rendered bounding boxes (i.e. on `::backdrop`) as outside clicks instead of keeping the popover open.
+* **Published npm `README.md` (#1132):** Sync root `README.md` into the published `addon/` package during build (`addon/rollup.config.mjs`, `addon/package.json` `files`) with GitHub blob links so npm displays the package README instead of missing it.
+* **Native `::backdrop` clickout (#1132):** `hideOn="clickout"` on interactive Top-Layer `[popover]` hosts now treats pointer clicks targeting `floatingElement` directly outside its rendered bounding boxes (i.e. on `::backdrop`) as outside clicks instead of keeping the popover open.
 
 #### :memo: Documentation
-* **5.0 Recipes:** Added cookbook recipes in `README.md` (and cross-linked from `addon/docs/upgrade-guide-5.0.md`) for custom `flip`/`shift` `boundary` constraints, coordinate/`VirtualElement` targets with `autoUpdate` `{ animationFrame: true }`, `{{#in-element}}` + `@renderInPlace` stacking, and `a.setTarget()` for externally replaced DOM nodes.
+* **5.0 Recipes (#1132):** Added cookbook recipes in `README.md` (and cross-linked from `addon/docs/upgrade-guide-5.0.md`) for custom `flip`/`shift` `boundary` constraints, coordinate/`VirtualElement` targets with `autoUpdate` `{ animationFrame: true }`, `{{#in-element}}` + `@renderInPlace` stacking, and `a.setTarget()` for externally replaced DOM nodes.
 
 ## v5.0.0-beta.1 (2026-11-19)
 
