@@ -1,12 +1,10 @@
 import Component from '@glimmer/component';
-import { htmlSafe } from '@ember/template';
 import { on } from '@ember/modifier';
 import { find } from '@ember/test-helpers';
 import {
   AttachPopover,
   AttachTooltip,
   Attacher,
-  BasicAttacher,
   arrow,
   autoPlacement,
   flip,
@@ -32,10 +30,22 @@ import { isVisible } from 'ember-attacher/test-support';
 import DirectPopover from 'ember-attacher/components/attach-popover';
 import DirectTooltip from 'ember-attacher/components/attach-tooltip';
 import DirectAttacher from 'ember-attacher/components/attacher';
-import DirectBasic from 'ember-attacher/components/basic-attacher';
 import DirectTooltipModifier from 'ember-attacher/modifiers/tooltip';
 import DEFAULTS, { type EmberAttacherDefaults } from 'ember-attacher/defaults';
 import type EmberAttacherRegistry from 'ember-attacher/template-registry';
+
+// @ts-expect-error: BasicAttacher was removed in 5.0.0
+import { BasicAttacher as _RemovedBasicAttacher } from 'ember-attacher';
+void _RemovedBasicAttacher;
+
+// @ts-expect-error: ember-attacher/components/basic-attacher was removed in 5.0.0
+import _DirectRemovedBasic from 'ember-attacher/components/basic-attacher';
+void _DirectRemovedBasic;
+
+// @ts-expect-error: BasicAttacher was removed from EmberAttacherRegistry in 5.0.0
+type _RemovedRegistryEntry = EmberAttacherRegistry['BasicAttacher'];
+// @ts-expect-error: basic-attacher was removed from EmberAttacherRegistry in 5.0.0
+type _RemovedKebabRegistryEntry = EmberAttacherRegistry['basic-attacher'];
 
 // Verify TemplateRegistry exports both PascalCase and kebab-case entries matching exported components & modifier
 type AssertExact<T, U extends T> = U;
@@ -46,8 +56,6 @@ type _VerifyRegistry = [
   AssertExact<typeof AttachTooltip, EmberAttacherRegistry['attach-tooltip']>,
   AssertExact<typeof Attacher, EmberAttacherRegistry['Attacher']>,
   AssertExact<typeof Attacher, EmberAttacherRegistry['attacher']>,
-  AssertExact<typeof BasicAttacher, EmberAttacherRegistry['BasicAttacher']>,
-  AssertExact<typeof BasicAttacher, EmberAttacherRegistry['basic-attacher']>,
   AssertExact<typeof tooltip, EmberAttacherRegistry['tooltip']>,
 ];
 
@@ -97,8 +105,6 @@ const customMiddleware: Array<Middleware> = [
   arrow((state) => ({ padding: state.rects.floating.width > 100 ? 8 : 4 })),
 ];
 
-const trustedStyle = htmlSafe('max-width: 240px;');
-
 const _tooltipModifierOpts: TooltipModifierOptions = {
   class: 'tip-custom',
   placement: 'bottom',
@@ -112,20 +118,7 @@ const handleChange = (visible: boolean) => {
   void visible;
 };
 
-const handleInit = (target: Element | VirtualElement | null, id: string) => {
-  void target;
-  void id;
-};
-
-const handleDestroy = (target: Element | VirtualElement | null, id: string) => {
-  void target;
-  void id;
-};
-
 const registerExternal = (attacher: AttacherBlockParams, el: Element) => {
-  attacher.setReference(el);
-  attacher.setReference(coordinateVirtualTarget);
-  attacher.setReference(null);
   attacher.setTarget(el, { label: 'row-1' });
   attacher.show(el, { label: 'row-2' });
   attacher.toggle();
@@ -150,61 +143,50 @@ const itemA = { id: 1, name: 'Alpha' };
 
 export class ValidUsageDemo extends Component {
   <template>
-    <button id="demo-target" type="button">
-      Trigger
-      <AttachTooltip
-        @id="tip-1"
-        @animation="fill"
-        @ariaRole="tooltip"
-        @arrow={{true}}
-        @autoUpdate={{true}}
-        @class="my-tip"
-        @additionalClass="extra-tip"
-        @flip="bottom left"
-        @hideDelay={{0}}
-        @hideDuration="300"
-        @hideOn="mouseleave blur escapekey"
-        @interactive={{true}}
-        @isOffset={{false}}
-        @isShown={{true}}
-        @lazyRender={{true}}
-        @middleware={{customMiddleware}}
-        @onChange={{handleChange}}
-        @onInitializeAttacher={{handleInit}}
-        @onWillDestroy={{handleDestroy}}
-        @overflowPadding={{5}}
-        @placement="top-start"
-        @renderInPlace={{false}}
-        @showDelay="0"
-        @showDuration={{150}}
-        @showOn="mouseenter focus"
-        @strategy="fixed"
-        @style={{trustedStyle}}
-        @useCapture={{false}}
-        class="splatted-class"
-        data-test-tooltip
-        as |tip|
-      >
-        <div {{tip.reference}}>Content</div>
-        <button type="button" {{on "click" tip.hide}}>Close</button>
-      </AttachTooltip>
-    </button>
+    <AttachTooltip
+      @id="tip-1"
+      @target="#demo-target"
+      @animation="fill"
+      @ariaRole="tooltip"
+      @arrow={{true}}
+      @autoUpdate={{true}}
+      @class="my-tip"
+      @hideDelay={{0}}
+      @hideDuration="300"
+      @hideOn="mouseleave blur escapekey"
+      @interactive={{true}}
+      @isShown={{true}}
+      @lazyRender={{true}}
+      @middleware={{customMiddleware}}
+      @onChange={{handleChange}}
+      @placement="top-start"
+      @renderInPlace={{false}}
+      @showDelay="0"
+      @showDuration={{150}}
+      @showOn="mouseenter focus"
+      @strategy="fixed"
+      @useCapture={{false}}
+      class="splatted-class"
+      data-test-tooltip
+      as |tip|
+    >
+      <div {{tip.target}}>Content</div>
+      <button type="button" {{on "click" tip.hide}}>Close</button>
+    </AttachTooltip>
 
     <AttachPopover
       @target={{fullVirtualTarget}}
       @ariaRole="menu"
-      @floatingElementContainer="#portal"
-      @floatingUiOptions={{null}}
       @placement={{_defaultPlacement}}
       @strategy={{_defaultStrategy}}
       @interactive={{true}}
       as |popover|
     >
-      <div {{popover.reference}}>Virtual target popover ({{popover.placement}})</div>
+      <div {{popover.target}}>Virtual target popover ({{popover.placement}})</div>
       <button type="button" {{on "click" (fn registerExternal popover targetEl)}}>Retarget</button>
     </AttachPopover>
 
-    <AttachPopover @explicitTarget={{coordinateVirtualTarget}} @showOn={{null}} @hideOn="clickout escapekey">
+    <AttachPopover @target={{coordinateVirtualTarget}} @showOn={{null}} @hideOn="clickout escapekey">
       Coordinate virtual reference
     </AttachPopover>
 
@@ -239,17 +221,12 @@ export class ValidUsageDemo extends Component {
       {{/if}}
     </Attacher>
 
-    <BasicAttacher @configKey="tooltip" @ariaRole="tooltip">
-      Basic usage
-    </BasicAttacher>
-
-    <DirectTooltip @placement="right" />
-    <DirectPopover @placement="left" />
+    <DirectTooltip @target="#selector-target" @placement="right" />
+    <DirectPopover @target="#selector-target" @placement="left" />
     <DirectAttacher @placement="top" as |a|>
       <button type="button" {{a.target}}>Headless</button>
       <div {{a.attachment}}>Body</div>
     </DirectAttacher>
-    <DirectBasic @configKey="popover" />
   </template>
 }
 
@@ -261,14 +238,46 @@ export class InvalidUsageChecks extends Component {
     {{! @glint-expect-error: invalid strategy union member }}
     <AttachPopover @strategy="sticky" />
 
-    {{! @glint-expect-error: plain string is rejected for @style (requires htmlSafe) }}
-    <AttachTooltip @style="color: red;" />
-
     {{! @glint-expect-error: @nonExistentArg is not part of AttachPopoverArgs }}
     <AttachPopover @nonExistentArg={{true}} />
 
-    {{! @glint-expect-error: @configKey is internalized on AttachTooltip }}
+    {{! @glint-expect-error: @explicitTarget was removed in 5.0.0 }}
+    <AttachPopover @explicitTarget="#x" />
+
+    {{! @glint-expect-error: @flip was removed in 5.0.0 }}
+    <AttachTooltip @flip="bottom left" />
+
+    {{! @glint-expect-error: @overflowPadding was removed in 5.0.0 }}
+    <AttachTooltip @overflowPadding={{5}} />
+
+    {{! @glint-expect-error: @floatingUiOptions was removed in 5.0.0 }}
+    <AttachPopover @floatingUiOptions={{null}} />
+
+    {{! @glint-expect-error: @floatingElementContainer was removed in 5.0.0 }}
+    <AttachPopover @floatingElementContainer="#portal" />
+
+    {{! @glint-expect-error: @isOffset was removed in 5.0.0 }}
+    <AttachTooltip @isOffset={{true}} />
+
+    {{! @glint-expect-error: @style was removed in 5.0.0 }}
+    <AttachTooltip @style="color: red;" />
+
+    {{! @glint-expect-error: @additionalClass was removed in 5.0.0 }}
+    <AttachTooltip @additionalClass="extra" />
+
+    {{! @glint-expect-error: @onInitializeAttacher was removed in 5.0.0 }}
+    <AttachPopover @onInitializeAttacher={{handleChange}} />
+
+    {{! @glint-expect-error: @onWillDestroy was removed in 5.0.0 }}
+    <AttachPopover @onWillDestroy={{handleChange}} />
+
+    {{! @glint-expect-error: @configKey was removed in 5.0.0 }}
     <AttachTooltip @configKey="popover" />
+
+    <AttachTooltip @target="#x" as |tip|>
+      {{! @glint-expect-error: yielded tip.reference modifier was removed in 5.0.0 }}
+      <span {{tip.reference}}>Removed</span>
+    </AttachTooltip>
 
     {{! @glint-expect-error: tooltip modifier requires positional string argument }}
     <button type="button" {{tooltip placement="bad-placement"}}>Invalid</button>
@@ -278,6 +287,10 @@ export class InvalidUsageChecks extends Component {
 void _v1;
 void _v2;
 void ({} as _VerifyRegistry);
+
+// @ts-expect-error: setReference method was removed from AttacherBlockParams in 5.0.0
+const _removedSetRef = (a: AttacherBlockParams) => a.setReference(targetEl);
+void _removedSetRef;
 
 function fn<A, R>(callback: (a: A, b: Element) => R, a: A): () => R {
   return () => callback(a, targetEl);

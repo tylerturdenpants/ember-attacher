@@ -13,6 +13,9 @@
     "typecheck": "pnpm --filter ember-attacher run typecheck && pnpm --filter vite-test-app run typecheck"
   },
   "devDependencies": {
+    "@babel/plugin-transform-class-static-block": "^8.1.2",
+    "@glimmer/component": "^2.2.1",
+    "@glimmer/tracking": "^1.1.2",
     "typescript-eslint": "^8.73.0"
   }
 }

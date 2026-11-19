@@ -46,45 +46,6 @@ function cssHandler() {
   };
 }
 
-const declarationsRoot = path.resolve('declarations');
-
-function collectDtsFiles(dir) {
-  const results = [];
-  if (!fs.existsSync(dir)) {
-    return results;
-  }
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      results.push(...collectDtsFiles(fullPath));
-    } else if (entry.name.endsWith('.d.ts')) {
-      results.push(fullPath);
-    }
-  }
-  return results;
-}
-
-function dtsHandler() {
-  return {
-    name: 'dts-handler',
-    buildStart() {
-      for (const file of collectDtsFiles(declarationsRoot)) {
-        this.addWatchFile(file);
-      }
-    },
-    generateBundle() {
-      for (const file of collectDtsFiles(declarationsRoot)) {
-        const relativePath = path.relative(declarationsRoot, file).split(path.sep).join('/');
-        this.emitFile({
-          type: 'asset',
-          fileName: relativePath,
-          source: fs.readFileSync(file, 'utf8'),
-        });
-      }
-    },
-  };
-}
-
 export default {
   output: addon.output(),
 
@@ -95,7 +56,6 @@ export default {
       'components/attach-popover.js',
       'components/attach-tooltip.js',
       'components/attacher.js',
-      'components/basic-attacher.js',
       'modifiers/tooltip.js',
       'defaults.js',
       'test-support/index.js',
@@ -106,7 +66,6 @@ export default {
       'components/attach-popover.js',
       'components/attach-tooltip.js',
       'components/attacher.js',
-      'components/basic-attacher.js',
       'modifiers/tooltip.js',
     ]),
 
@@ -116,10 +75,8 @@ export default {
     // Flatten nested source CSS into dist/styles (implicit-styles / exports["./styles"])
     cssHandler(),
 
-    // Emit hand-authored TypeScript & Glint declaration files into dist/.
-    // declarations/ remains the sole published type contract until component/core
-    // .gts/.ts conversion is complete and tsc/glint declaration emit replaces this.
-    dtsHandler(),
+    // Emit declarations directly from src/**/*.ts and src/**/*.gts (single type owner)
+    addon.declarations('dist', 'ember-tsc -p tsconfig.build.json'),
 
     // Resolve extensionless relative imports to .js/.gjs/.ts/.gts sources
     nodeResolve({ extensions: ['.js', '.gjs', '.ts', '.gts'] }),
@@ -127,7 +84,7 @@ export default {
     // Converts .hbs files to JS
     addon.hbs(),
 
-    // Compile <template> in .gjs files
+    // Compile <template> in .gjs / .gts files
     addon.gjs(),
 
     // Run JS through Babel so the template colocation plugin wires templates to components

@@ -1,5 +1,6 @@
 import babelParser from '@babel/eslint-parser';
 import eslintPluginEmberRecommended from 'eslint-plugin-ember/configs/recommended';
+import eslintPluginEmberRecommendedGts from 'eslint-plugin-ember/configs/recommended-gts';
 import decoratorPositionRecommended from 'eslint-plugin-decorator-position/config/recommended';
 import nodePlugin from 'eslint-plugin-n';
 import globals from 'globals';
@@ -74,8 +75,9 @@ export default [
     ...config,
     files: ['**/*.ts'],
   })),
+  ...eslintPluginEmberRecommendedGts,
   {
-    files: ['**/*.ts'],
+    files: ['**/*.{ts,gts}'],
     languageOptions: {
       globals: {
         ...globals.browser,

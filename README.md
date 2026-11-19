@@ -8,80 +8,64 @@
 
 ## Compatibility
 
-* Ember.js v4.12 through v6.x and v7.x (including Embroider + Vite)
+* Ember.js v4.12 LTS through v6.x and v7.x (including Embroider + Vite and classic builds)
 * Ember CLI v4.12 or above
-* Node.js v20 or above
+* Node.js v20 LTS or above
+* Full TypeScript & Glint `.d.ts` declarations (`ember-attacher`, `ember-attacher/template-registry`, `ember-attacher/test-support`)
 
-Tooltips and popovers made easy.
-Just drop an `<AttachTooltip/>` or `<AttachPopover/>` in a parent and your floating element is ready to go!
+Tooltips and popovers for Ember powered by `@floating-ui/dom` and native Top-Layer `[popover="manual"]` hosts.
 
 ### `<template>` (`.gjs` / `.gts`)
 
-```gjs
-import { AttachPopover, AttachTooltip, offset } from 'ember-attacher';
+```gts
+import { AttachPopover, AttachTooltip, offset, tooltip } from 'ember-attacher';
 
 const offsetMiddleware = [offset(12)];
 
 <template>
-  <button type="button">
-    Hover me
-    <AttachTooltip @placement="top-start">
-      I'm a tooltip!
-    </AttachTooltip>
+  <button type="button" {{tooltip "Quick singleton tooltip" placement="top"}}>
+    Singleton modifier
   </button>
 
-  <button type="button" class="other-button">
+  <AttachTooltip @placement="top-start">
+    <:target as |target|>
+      <button type="button" {{target}}>Hover me</button>
+    </:target>
+    <:content>
+      I'm a rich <strong>HTML</strong> tooltip!
+    </:content>
+  </AttachTooltip>
+
+  <button id="menu-trigger" type="button">
     Click me
-    <AttachPopover
-      @class="ember-attacher-popover"
-      @showOn="click"
-      @hideOn="click clickout escapekey"
-      @interactive={{true}}
-      @middleware={{offsetMiddleware}}
-    >
-      I'm an interactive popover!
-    </AttachPopover>
   </button>
+  <AttachPopover
+    @target="#menu-trigger"
+    @class="ember-attacher-popover"
+    @middleware={{offsetMiddleware}}
+  >
+    I'm an interactive popover!
+  </AttachPopover>
 </template>
 ```
 
 ### Loose templates (`.hbs`)
 
 ```hbs
-<button>
-  Click me
-
-  <AttachTooltip>
-    I'm a tooltip!
-  </AttachTooltip>
-</button>
-
-<button class="other-button">
-  No click me!
-
-  <AttachPopover 
-      @class='ember-attacher'
-      @hideOn='click'
-      @isShown={{true}}
-      @showOn='click'
-  >
-    I'm a popover!
-  </AttachPopover>
-</button>
-```
-
-You can also target an element outside the parent using `@explicitTarget` (accepting a CSS selector string, an Element, or a Floating UI virtual element):
-
-```hbs
-<button id="external-target">Target</button>
-
-<AttachPopover @explicitTarget="#external-target">
+{{!-- External target --}}
+<button id="external-target" type="button">Target</button>
+<AttachPopover @target="#external-target">
   I'm attached to #external-target!
 </AttachPopover>
+
+{{!-- Native HTML invokers ([popovertarget] / [interestfor]) --}}
+<button type="button" interestfor="hint-tooltip">Details</button>
+<AttachTooltip @id="hint-tooltip">
+  Declarative tooltip via interestfor
+</AttachTooltip>
 ```
 
-See [the example site](https://tylerturdenpants.github.io/ember-attacher/) for a demonstration of all
-available options.
+See [the example site](https://tylerturdenpants.github.io/ember-attacher/) for a live gallery of placements and animations.
 
 ## Installation
 
@@ -89,218 +73,144 @@ available options.
 ember install ember-attacher
 ```
 
-If you're preparing for **5.0** (4.4 deprecations & explicit-target migrations), see the [5.0 upgrade guide](./addon/docs/upgrade-guide-5.0.md).
+If you're upgrading to **5.0** from 4.x, see the [5.0 upgrade guide](./addon/docs/upgrade-guide-5.0.md).
 If you're upgrading from **3.x to 4.x**, see the [4.1 upgrade guide](./addon/docs/upgrade-guide-4.1.md).
-If you're upgrading from 1.x to 2.x, see the [2.0 upgrade guide](./addon/docs/upgrade-guide-2.0.md).
+If you're upgrading from **1.x to 2.x**, see the [2.0 upgrade guide](./addon/docs/upgrade-guide-2.0.md).
 
+## Components & Modifiers
 
-## Components
+### `{{tooltip}}` modifier
 
-### `<AttachPopover/>`
-
-A popover attacher.
-
-* Default `role` attribute of `dialog`.
-* Adds `aria-hidden` attribute to the floating element.
-* While mounted, sets `aria-haspopup` (matching `@ariaRole` or `'dialog'`), `aria-controls`, and
-  `aria-expanded` on the Target when those attributes are not already provided by the caller.
-* Restores focus to the Target when dismissed via `Escape` while focus is inside the popover.
+`{{tooltip "Text" class="hint"}}` attaches a tooltip to a void or simple element such as `<button>` or `<input>`. Every `{{tooltip}}` in the document shares one singleton `.ember-attacher` DOM node with a `300ms` warm delay-group handoff across adjacent tooltips.
 
 ### `<AttachTooltip/>`
 
-A tooltip attacher. Subclass of `<AttachPopover/>`
+A target-attached tooltip component (default `ariaRole="tooltip"`).
 
-* Has the default class `'ember-attacher-floating ember-attacher-tooltip'`
-  * The default tooltip classes can be modified by altering the `tooltipClass`
-    default. See [here](#user-defined-defaults) for details on editing default values.
+* Must be bound to a Target (`@target`, `<:target>`, `{{a.target}}`, `a.setTarget()`, `[popovertarget]`, or `[interestfor]`). Asserts in debug if no target binding is provided (nullable reactive `@target={{this.target}}` is supported).
+* Has the default class `'ember-attacher-floating ember-attacher-tooltip'` (configurable via `tooltipClass`).
+* Hoverable by default (`@interactive={{true}}`) per WCAG 1.4.13 with an automatic `safePolygon` diagonal pointer corridor (pass `@interactive={{false}}` to opt out).
+* Smart Tooltip ARIA: binds `aria-labelledby` upfront on nameless triggers (such as icon buttons), suppresses duplicate `aria-describedby` when tooltip text matches the trigger's accessible name, and otherwise binds open-only token-safe `aria-describedby`.
 
-* Default `role` attribute of `tooltip`.
-* While open, token-safely adds the tooltip's ID to the Target's `aria-describedby`
-  (preserving any pre-existing tokens) and removes it again when closed.
+### `<AttachPopover/>`
 
-### `{{tooltip}}` and `<Attacher>`
+An interactive popover component (default `ariaRole="dialog"`, `showOn="click"`, `hideOn="click clickout escapekey"`, `interactive=true`, `lazyRender=true`).
 
-`{{tooltip "Text" class="hint"}}` puts a tooltip on a void or simple element such as `<button>` or `<input>`. Every `{{tooltip}}` in the document shares one `.ember-attacher` node. Moving to another tooltip within 300ms skips `showDelay`.
+* Must be bound to a Target (`@target`, `<:target>`, `{{a.target}}`, `a.setTarget()`, or `[popovertarget]`).
+* Renders `<div class="ember-attacher" popover="manual">` in place in 1 pass and promotes to the browser Top Layer on open (`@renderInPlace={{true}}` opts out of Top Layer).
+* While mounted, sets `aria-haspopup` (matching `@ariaRole` or `'dialog'`), `aria-controls`, and `aria-expanded` on the Target when not already provided by the caller.
+* Restores focus to the Target when dismissed via `Escape` while focus is inside the popover.
 
-`<Attacher as |a|>` is the headless host. `{{a.target}}` marks a trigger, `{{a.attachment}}` marks the floating element, and `{{a.arrow}}` marks the arrow.
+### `<Attacher as |a|>`
 
-`<AttachTooltip>` and `<AttachPopover>` also take `<:target>` and `<:content>` blocks, `@target` (the same as `@explicitTarget`), and a native `[popovertarget]` button whose value matches `@id`.
+The headless primitive yielding `{ target, attachment, arrow, setTarget, show, hide, toggle, update, isShown, shouldRender, data, placement, middlewareData }`. Use `{{a.target data}}` to share one overlay across list items, `{{a.attachment}}` on your own floating element, and `{{a.arrow}}` on an optional arrow element.
 
 ## Options
 
-Below is a list of all available options, along with their defaults.
+Below are the 5.0 defaults (shared defaults from `addon/src/defaults.ts`; `<AttachPopover>` overrides `showOn: 'click'`, `hideOn: 'click clickout escapekey'`, and `lazyRender: true`):
 
-```javascript
+```typescript
 {
-  // The animation used to present the animation.
-  // Options: ['fade', 'fill', 'none', 'perspective', 'scale', 'shift']
+  // Animation used to present and dismiss the attachment:
+  // 'fade' | 'fill' | 'none' | 'perspective' | 'scale' | 'shift'
   animation: 'fill',
 
-  // Whether or not an arrow will be displayed next to the attachment.
+  // Whether an arrow element is rendered and positioned by Floating UI.
   arrow: false,
-    
-  // Add listeners that will automatically call an update function
-  // Pass `true` to use the Floating UI default options or Options object to override them
-  // Example: { ancestorScroll: false }
-  // For more details see https://floating-ui.com/docs/autoUpdate 
-  autoUpdate: false,
 
-  // A class that will be applied to the attachment.
+  // Keeps position updated while open via Floating UI autoUpdate().
+  // Pass `true` or Floating UI AutoUpdateOptions (e.g. `{ ancestorScroll: false }`), or `false`.
+  autoUpdate: true,
+
+  // Class(es) applied to the inner attachment container.
   class: null,
 
-  // The flip priority of the attacment.
-  // Space-delimited string, any combination of ['left', 'right', 'top', 'bottom']
-  //
-  // Example: 'left top bottom'
-  flip: null,
-
-  // The delay, in milliseconds, before the attachment will be hidden.
+  // Delay in milliseconds before the attachment hides.
   hideDelay: 0,
 
-  // The duration, in milliseconds, of the hide animation.
+  // Duration in milliseconds of the hide transition.
   hideDuration: 300,
 
-  // Events that will cause the attachment to hide, typically in reference to the target.
-  //
-  // Space-delimited string, any combination of:
-  // ['click', 'clickout', 'mouseleave blur escapekey']
+  // Space-delimited events that hide the attachment:
+  // 'click' | 'clickout' | 'mouseleave' | 'blur' | 'focusout' | 'escapekey' | null
+  // (<AttachPopover> defaults to 'click clickout escapekey')
   hideOn: 'mouseleave blur escapekey',
 
-  // Interactive attachments stay open while the pointer is over the Target, Attachment, or the
-  // automatic safePolygon corridor between them (when hideOn includes mouseleave).
-  interactive: false,
+  // Keeps attachment open while pointer/focus enters it or traverses the safePolygon corridor.
+  interactive: true,
 
-  // Kept for compatibility in 4.3. Interactive + mouseleave already uses safePolygon
-  // automatically; isOffset will be deprecated in 4.4.
-  isOffset: false,
-
-  // Whether or not the attachment is initially shown.
+  // Controlled visibility flag.
   isShown: false,
 
-  // If true, the attachment will only be inserted into the DOM on the first "show" trigger.
-  // Useful for performance reasons, but will hide your attachment from search engines.
+  // Defers rendering inner content until the attachment is first triggered.
+  // (<AttachPopover> defaults to true)
   lazyRender: false,
 
-  // A middleware array that will be merged into computePosition options.
-  // Built-in Floating UI middleware builders are re-exported from 'ember-attacher':
-  // { offset, flip, shift, limitShift, size, inline, hide, autoPlacement, arrow }
+  // Floating UI middleware array merged and deduplicated by `m.name`.
+  // Default `flip()` and `shift({ limiter: limitShift(), padding: 5 })` apply unless overridden.
+  // Re-exported builders from 'ember-attacher':
+  // { arrow, autoPlacement, flip, hide, inline, limitShift, offset, shift, size }
   middleware: null,
 
-  // A function to be fired when the attachment's visibility changes. The new visibility is passed
-  // to the function as an arg.
+  // Invoked with the new visibility boolean when the attachment shows or hides.
   onChange: null,
 
-  // The initial position of the attachment.
-  // Options: [
-  //   'top', 'top-start', 'top-end',
-  //   'right', 'right-start', 'right-end',
-  //   'bottom', 'bottom-start', 'bottom-end',
-  //   'left', 'left-start', 'left-end'
-  // ]
+  // Initial Floating UI placement:
+  // 'top' | 'top-start' | 'top-end' | 'right' | 'right-start' | 'right-end'
+  // | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'left-start' | 'left-end'
   placement: 'top',
 
-  // The CSS position strategy used by Floating UI ('absolute' | 'fixed').
-  strategy: 'absolute',
-
-  // The container where the attachment's DOM will be inserted.
-  floatingElementContainer: '.ember-application',
-
-  // An options object that will be passed to Floating UI "computePosition" function.
-  floatingUiOptions: null,
-
-  // Explicit attachment target. Default remains the parent element when unset.
-  // Accepts an Element, a CSS selector string (exactly one match), or a Floating UI
-  // VirtualElement (`{ getBoundingClientRect, getClientRects?, contextElement? }`).
-  // The block also yields `setReference` and a `reference` modifier for composition.
-  explicitTarget: null,
-
-  // Whether or not to render the attachment in place in the DOM, as opposed to
-  // on the floatingElementContainer. NOTE: Rendering in place can cause z-index issues.
+  // Renders in place without promoting to the browser Top Layer ([popover="manual"]).
   renderInPlace: false,
 
-  // The delay, in milliseconds, before the attachment will be shown.
+  // Delay in milliseconds before the attachment shows.
   showDelay: 0,
 
-  // The duration, in milliseconds, of the show animation.
+  // Duration in milliseconds of the show transition.
   showDuration: 300,
 
-  // Events on the target that will cause the attachment to show. For performance reasons, we
-  // recommend using some combination of 'mouseenter', 'focus', and 'click'
+  // Space-delimited events that show the attachment:
+  // 'mouseenter' | 'focus' | 'click' | null
+  // (<AttachPopover> defaults to 'click')
   showOn: 'mouseenter focus',
 
-  // Whether to add event listeners for attachment show and hide in the capturing phase rather
-  // than the bubbling phase. This should be set to true when there are elements on the page that
-  // are stopping event propagation in the bubbling phase, and as a result preventing correct
-  // showing and hiding of popovers and tooltips.
-  useCapture: false,
+  // CSS positioning strategy used by Floating UI ('absolute' | 'fixed').
+  strategy: 'absolute',
 
-  // The default padding if collision happens. Set "false" if no collision prevention needed 
-  overflowPadding: 5 
+  // Attach Target (`Element | CSS selector | VirtualElement`).
+  target: null,
+
+  // Registers target/document event listeners in the capture phase.
+  useCapture: false,
 }
 ```
 
 ## User-defined defaults
 
-User-defined defaults can be set in the consuming app or addon's config/environment.js. These defaults will be applied to every `<AttachPopover/>` and `<AttachTooltip/>`
+User-defined defaults can be configured in the consuming app's `config/environment.js`:
 
 ```javascript
 // config/environment.js
-
-module.exports = function(environment) {
-  var ENV = {
+module.exports = function (environment) {
+  let ENV = {
     emberAttacher: {
-      animation: 'shift',
-      arrow: true
-    }
-  };
-}
-```
-
-You can also set the user-defined defaults separately like so:
-
-```javascript
-// config/environment.js
-
-module.exports = function(environment) {
-  var ENV = {
-    emberAttacher: {
+      showDuration: 200,
+      hideDuration: 200,
       tooltip: {
         animation: 'fade',
-        arrow: true
+        arrow: true,
       },
       popover: {
         animation: 'shift',
-        arrow: false
-      }
-    }
-  };
-}
-```
-
-And finally you can do shared defaults along with user-defined separated defaults:
-
-```javascript
-// config/environment.js
-
-module.exports = function(environment) {
-  var ENV = {
-    emberAttacher: {
-      showDuration: 300,
-      hideDuration: 300,
-      tooltip: {
-        animation: 'fade',
-        arrow: true
+        arrow: false,
       },
-      popover: {
-        animation: 'shift',
-        arrow: false
-      }
-    }
+    },
   };
-}
+  return ENV;
+};
 ```
 
-The full list of editable defaults can be seen [here](https://github.com/kybishop/ember-attacher/blob/master/addon/defaults.js).
+See [defaults.ts](./addon/src/defaults.ts) for all configurable keys.
 
 ## Styles
 
@@ -325,37 +235,46 @@ Default token values use `:where()` so an app class can override them even if ad
 }
 ```
 
-`.ember-attacher-light-theme` reassigns those same tokens (fill `#f3f6f9`, text `#203d5d`, border `#ced2e2`, `border-width: 1px`, the existing shadow).
+`.ember-attacher-light-theme` reassigns those same tokens (fill `#f3f6f9`, text `#203d5d`, border `#ced2e2`, `border-width: 1px`, and box shadow).
 
 Outer wrapper tokens on `.ember-attacher`:
 * `--ember-attacher-distance` (default `10px`): inner animation gap.
-* `--ember-attacher-z-index` (default `9999`): stacking context.
-* `--ember-attacher-transition-duration` (default `0ms`): driven via CSSOM from `@showDuration` / `@hideDuration` (strict CSP `style-src` compatible without `'unsafe-inline'`), and automatically forced to `0ms` under `@media (prefers-reduced-motion: reduce)`.
-Set them on `.ember-attacher` or an ancestor container. `--ember-attacher-offset` and `--ember-attacher-arrow-rotate` stay internal.
+* `--ember-attacher-z-index` (default `9999`): stacking context (used for non-Top-Layer / `@renderInPlace` hosts).
+* `--ember-attacher-transition-duration` (default `0ms`): driven via CSSOM from `@showDuration` / `@hideDuration` (strict CSP `style-src` compatible without `'unsafe-inline'`). Spatial transforms opt in under `@media (prefers-reduced-motion: no-preference)`, and `@media (prefers-reduced-motion: reduce)` caps opacity transitions to `min(var(--ember-attacher-transition-duration, 0ms), 100ms)`.
 
-Dummy popover example: `@class="ember-attacher-popover custom-popover-css"` in `test-app` (token overrides only). See the [4.1 upgrade guide](./addon/docs/upgrade-guide-4.1.md).
+Set outer tokens on `.ember-attacher` or an ancestor container. `--ember-attacher-offset` and `--ember-attacher-arrow-rotate` remain internal.
+
+## Architecture & Animations
+
+Attachments use two nested elements rendered directly in place (1 pass):
+
+* **Outer host** (`.ember-attacher[popover="manual"]`, see [attacher-overlay.gts](./addon/src/lib/attacher-overlay.gts)): promoted to the Top Layer via `showPopover()`, positioned relative to the Target by `@floating-ui/dom`, and annotated with `data-placement` / `x-placement` plus `data-open` / `data-closing`.
+* **Inner content container**: hosts visual styles, the optional `.ember-attacher-arrow`, and `.ember-attacher-fill-circle` backdrop. Keeping inner animations decoupled from Floating UI's outer coordinates avoids layout interference while Top-Layer transitions animate entry via `@starting-style` and exit via `transition-behavior: allow-discrete` + Web Animations (`getAnimations({ subtree: true })`).
+
+See [ember-attacher.css](./addon/src/styles/ember-attacher.css) for the full placement and animation definitions.
 
 ## Testing
 
-Use the `isVisible()` test helper to check if an attachment is visible.
+Use the `isVisible()` helper from `'ember-attacher/test-support'`:
 
 ```javascript
 import { click, find, render } from '@ember/test-helpers';
 import { isVisible } from 'ember-attacher/test-support';
 
-test('example', async function(assert) {
+test('example', async function (assert) {
   await render(hbs`
     <button id="toggle" type="button">
       Click me, captain!
-
-      <AttachPopover 
-          @id='attachment'
-          @hideOn='click'
-          @showOn='click'
-      >
-        Click-toggled popover
-      </AttachPopover>
     </button>
+
+    <AttachPopover
+      @id="attachment"
+      @target="#toggle"
+      @hideOn="click"
+      @showOn="click"
+    >
+      Click-toggled popover
+    </AttachPopover>
   `);
 
   const attachment = find('#attachment');
@@ -369,38 +288,14 @@ test('example', async function(assert) {
 });
 ```
 
-`import { isVisible } from 'ember-attacher'` is also supported for backward compatibility.
+`import { isVisible } from 'ember-attacher'` is also supported for convenience.
 
 ## Development setup
 
 See the [Contributing](CONTRIBUTING.md) guide for details.
 
-## FAQ
-
-### How animations are implemented
-
-Attachments are composed of two containers:
-
-* [An outer container](https://github.com/kybishop/ember-attacher/blob/master/addon/templates/components/attach-popover.hbs#L2) for positioning (via [floating-ui](https://github.com/floating-ui/floating-ui)).
-* [An inner container](https://github.com/kybishop/ember-attacher/blob/master/addon/templates/components/attach-popover.hbs#L12) for the content. This is the container that is animated.
-
-The outer container is positioned right next to the target via the CSS `transform` property. The inner container is required because animations also use `transform`, which would otherwise conflict with the container's position.
-
-`transform` and `tansition-duration` are the CSS magic that allows animations to smoothly shift up/down, left/right, etc.
-
-Note that animations require an implementation for each position (left, right, top, and bottom):
-
-* <https://github.com/kybishop/ember-attacher/blob/master/addon/styles/addon.scss#L67>
-
-* <https://github.com/kybishop/ember-attacher/blob/master/addon/styles/_mixins.scss#L75>
-
 ## Credits
 
-* [tippy.js](https://github.com/atomiks/tippyjs), the library that inspired
-  ember-attacher.
-
-* [floating-ui](https://github.com/floating-ui/floating-ui), the library that powers
-  positioning
-
-* [ember-tooltips](https://github.com/sir-dunxalot/ember-tooltips), the addon that
-  influenced much of ember-attacher's API.
+* [tippy.js](https://github.com/atomiks/tippyjs), the library that inspired ember-attacher.
+* [floating-ui](https://github.com/floating-ui/floating-ui), the library that powers positioning.
+* [ember-tooltips](https://github.com/sir-dunxalot/ember-tooltips), the addon that influenced much of ember-attacher's initial API.

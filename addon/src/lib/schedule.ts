@@ -4,7 +4,7 @@ export interface ScheduledHandle {
   cancel: () => void;
 }
 
-export const attacherWaiter = buildWaiter('basic-attacher');
+export const attacherWaiter = buildWaiter('ember-attacher');
 
 /** Cancel a scheduled task handle if present. */
 export function cancelScheduled(handle: Partial<ScheduledHandle> | null | undefined): void {

@@ -376,10 +376,11 @@ export class AttachmentAriaController {
  * @param {Element | null} floatingElement
  */
 export function restoreFocusOnEscape(
-  target: HTMLElement | null | undefined,
+  target: Element | null | undefined,
   floatingElement: Element | null | undefined
 ): void {
-  if (!target || typeof target.focus !== 'function' || typeof document === 'undefined') {
+  const focusable = target as Partial<HTMLElement> | null | undefined;
+  if (!focusable || typeof focusable.focus !== 'function' || typeof document === 'undefined') {
     return;
   }
 
@@ -391,9 +392,9 @@ export function restoreFocusOnEscape(
   const focusInsideAttachment = Boolean(floatingElement && active && floatingElement.contains(active));
   if (focusInsideAttachment) {
     try {
-      target.focus({ preventScroll: true });
+      focusable.focus({ preventScroll: true });
     } catch {
-      target.focus();
+      focusable.focus();
     }
   }
 }

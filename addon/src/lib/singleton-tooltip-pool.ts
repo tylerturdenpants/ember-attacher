@@ -1,27 +1,33 @@
-import { isHTMLSafe } from '@ember/template';
-import AttacherCore, { resolveTooltipClass } from './attacher-core';
-import { cancelScheduled, scheduleMicrotask } from './schedule';
+import type Owner from '@ember/owner';
+import AttacherCore, {
+  resolveTooltipClass,
+  type AttacherArgs,
+  type HostRenderState,
+} from './attacher-core';
+import { cancelScheduled, scheduleMicrotask, type ScheduledHandle } from './schedule';
 
-const poolsByDocument = new WeakMap();
-const BASE_ARGS = Object.freeze({ ariaRole: 'tooltip' });
+const poolsByDocument = new WeakMap<Document, SingletonTooltipPool>();
+const BASE_ARGS: AttacherArgs = Object.freeze({ ariaRole: 'tooltip' });
+
+type HostMountCallback = (floatingEl: HTMLElement, arrowEl: HTMLElement | null) => void;
 
 /**
  * Imperative DOM host rendering the shared singleton tooltip element from
  * read-only `AttacherCore` render snapshots.
  */
 class TooltipDomHost {
-  doc = null;
-  hostEl = null;
-  innerEl = null;
-  contentEl = null;
-  arrowEl = null;
-  fillEl = null;
+  doc: Document;
+  hostEl: HTMLDivElement | null = null;
+  innerEl: HTMLDivElement | null = null;
+  contentEl: HTMLSpanElement | null = null;
+  arrowEl: HTMLDivElement | null = null;
+  fillEl: HTMLDivElement | null = null;
 
-  constructor(doc) {
+  constructor(doc: Document) {
     this.doc = doc;
   }
 
-  _createElements() {
+  _createElements(): void {
     const host = this.doc.createElement('div');
     host.className = 'ember-attacher';
     host.setAttribute('aria-hidden', 'true');
@@ -50,7 +56,7 @@ class TooltipDomHost {
     this.fillEl = fill;
   }
 
-  sync(state, onHostMounted) {
+  sync(state: HostRenderState, onHostMounted: HostMountCallback): void {
     if (!state.activeElement || (!state.hasContent && !this.hostEl)) {
       return;
     }
@@ -59,66 +65,65 @@ class TooltipDomHost {
       this._createElements();
     }
 
+    const hostEl = this.hostEl!;
+    const innerEl = this.innerEl!;
+    const contentEl = this.contentEl!;
+    const arrowEl = this.arrowEl!;
+    const fillEl = this.fillEl!;
+
     const container = state.container || this.doc.body;
-    if (container && this.hostEl.parentNode !== container) {
-      container.appendChild(this.hostEl);
+    if (container && hostEl.parentNode !== container) {
+      container.appendChild(hostEl);
     }
 
-    onHostMounted(this.hostEl, state.arrow ? this.arrowEl : null);
+    onHostMounted(hostEl, state.arrow ? arrowEl : null);
 
-    if (this.hostEl.id !== state.id) {
-      this.hostEl.id = state.id;
+    if (state.id && hostEl.id !== state.id) {
+      hostEl.id = state.id;
     }
 
-    if (this.hostEl.getAttribute('role') !== state.role) {
-      this.hostEl.setAttribute('role', state.role);
+    if (state.role && hostEl.getAttribute('role') !== state.role) {
+      hostEl.setAttribute('role', state.role);
     }
 
     if (state.popoverAttr === 'manual') {
-      if (this.hostEl.getAttribute('popover') !== 'manual') {
-        this.hostEl.setAttribute('popover', 'manual');
+      if (hostEl.getAttribute('popover') !== 'manual') {
+        hostEl.setAttribute('popover', 'manual');
       }
-    } else if (this.hostEl.hasAttribute('popover')) {
-      this.hostEl.removeAttribute('popover');
+    } else if (hostEl.hasAttribute('popover')) {
+      hostEl.removeAttribute('popover');
     }
 
+    const nextText = state.text ?? '';
     if (state.hasContent || !state.isHiding) {
-      if (this.contentEl.textContent !== state.text) {
-        this.contentEl.textContent = state.text;
+      if (contentEl.textContent !== nextText) {
+        contentEl.textContent = nextText;
       }
     }
 
-    if (this.innerEl.className !== state.className) {
-      this.innerEl.className = state.className;
-    }
-
-    if (state.style && isHTMLSafe(state.style)) {
-      const cssText = state.style.toString();
-      if (this.innerEl.getAttribute('style') !== cssText) {
-        this.innerEl.setAttribute('style', cssText);
-      }
-    } else if (this.innerEl.hasAttribute('style')) {
-      this.innerEl.removeAttribute('style');
+    const nextClass = state.className ?? '';
+    if (innerEl.className !== nextClass) {
+      innerEl.className = nextClass;
     }
 
     if (state.arrow) {
-      if (this.arrowEl.parentNode !== this.innerEl) {
-        this.innerEl.appendChild(this.arrowEl);
+      if (arrowEl.parentNode !== innerEl) {
+        innerEl.appendChild(arrowEl);
       }
-    } else if (this.arrowEl.parentNode === this.innerEl) {
-      this.innerEl.removeChild(this.arrowEl);
+    } else if (arrowEl.parentNode === innerEl) {
+      innerEl.removeChild(arrowEl);
     }
 
     if (state.isFillAnimation) {
-      if (this.fillEl.parentNode !== this.innerEl) {
-        this.innerEl.appendChild(this.fillEl);
+      if (fillEl.parentNode !== innerEl) {
+        innerEl.appendChild(fillEl);
       }
-    } else if (this.fillEl.parentNode === this.innerEl) {
-      this.innerEl.removeChild(this.fillEl);
+    } else if (fillEl.parentNode === innerEl) {
+      innerEl.removeChild(fillEl);
     }
   }
 
-  destroy() {
+  destroy(): void {
     if (this.hostEl?.parentNode) {
       this.hostEl.parentNode.removeChild(this.hostEl);
     }
@@ -130,36 +135,41 @@ class TooltipDomHost {
   }
 }
 
-class SingletonTooltipPool {
-  doc = null;
-  host = null;
-  core = null;
-  _visibilitySyncHandles = new Map();
+export class SingletonTooltipPool {
+  doc: Document | null;
+  host: TooltipDomHost | null;
+  core: AttacherCore | null;
+  private _visibilitySyncHandles = new Map<Element, ScheduledHandle>();
 
-  constructor(doc) {
+  constructor(doc: Document) {
     this.doc = doc;
     this.host = new TooltipDomHost(doc);
     this.core = new AttacherCore(null, () => BASE_ARGS, {
       defaultConfigKey: 'tooltip',
       defaultAriaRole: 'tooltip',
       isComponentHost: false,
-      getAdditionalClass: () => resolveTooltipClass(this.core?.envConfig),
+      getDefaultClass: () => resolveTooltipClass(this.core?.envConfig),
       onRenderStateChange: (state) =>
-        this.host.sync(state, (floatingEl, arrowEl) =>
+        this.host?.sync(state, (floatingEl, arrowEl) =>
           this.core?.setHostElements(floatingEl, arrowEl)
         ),
     });
   }
 
-  register(element, text, namedOptions, owner) {
+  register(
+    element: Element,
+    text: string,
+    namedOptions: Record<string, unknown> | null | undefined,
+    owner: Owner | null | undefined
+  ): void {
     if (!this.core || this.core.isDestroyed) {
       return;
     }
 
     const normalizedOptions =
-      namedOptions && typeof namedOptions === 'object' ? namedOptions : null;
+      namedOptions && typeof namedOptions === 'object' ? (namedOptions as AttacherArgs) : null;
 
-    this.core.registerTargetElement(element, text, normalizedOptions, owner);
+    this.core.registerTargetElement(element, text, normalizedOptions, owner ?? null);
 
     const prevHandle = this._visibilitySyncHandles.get(element);
     if (prevHandle) {
@@ -191,7 +201,7 @@ class SingletonTooltipPool {
     this._visibilitySyncHandles.set(element, handle);
   }
 
-  unregister(element) {
+  unregister(element: Element): void {
     const handle = this._visibilitySyncHandles.get(element);
     if (handle) {
       cancelScheduled(handle);
@@ -205,7 +215,7 @@ class SingletonTooltipPool {
     }
   }
 
-  destroy() {
+  destroy(): void {
     for (const handle of this._visibilitySyncHandles.values()) {
       cancelScheduled(handle);
     }
@@ -221,13 +231,8 @@ class SingletonTooltipPool {
   }
 }
 
-/**
- * Get or create the document-scoped singleton tooltip pool.
- *
- * @param {Element} element
- * @returns {SingletonTooltipPool | null}
- */
-export function getTooltipPool(element) {
+/** Get or create the document-scoped singleton tooltip pool. */
+export function getTooltipPool(element: Element): SingletonTooltipPool | null {
   const doc =
     element?.ownerDocument || (typeof document !== 'undefined' ? document : null);
   if (!doc) {

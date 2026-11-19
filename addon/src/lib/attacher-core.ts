@@ -1,12 +1,19 @@
 import { getOwner } from '@ember/application';
-import { helper } from '@ember/component/helper';
+import type Owner from '@ember/owner';
 import { registerDestructor } from '@ember/destroyable';
-import { isHTMLSafe } from '@ember/template';
-import { assert, deprecate, runInDebug, warn } from '@ember/debug';
-import { autoUpdate, computePosition } from '@floating-ui/dom';
+import { assert, runInDebug, warn } from '@ember/debug';
+import {
+  autoUpdate,
+  computePosition,
+  type AutoUpdateOptions,
+  type ComputePositionConfig,
+  type MiddlewareData,
+  type Placement,
+  type Strategy,
+} from '@floating-ui/dom';
 import { tracked } from '@glimmer/tracking';
-import Modifier, { modifier } from 'ember-modifier';
-import DEFAULTS, { POPOVER_DEFAULTS } from '../defaults';
+import Modifier, { modifier, type FunctionBasedModifier } from 'ember-modifier';
+import DEFAULTS, { POPOVER_DEFAULTS, type AttacherAnimation } from '../defaults';
 import { AttachmentAriaController, restoreFocusOnEscape } from './a11y';
 import {
   descendantAttachmentContainsEvent,
@@ -17,23 +24,20 @@ import {
   unregisterAttacher,
 } from './attachment-tree';
 import { getDelayGroup, peekDelayGroup } from './delay-group';
-import { elementContainsEvent, isCursorInSafePolygon } from './dom';
+import { elementContainsEvent, isCursorInSafePolygon, type PointerOrigin } from './dom';
 import {
   getModalDialogContainer,
   hidePopoverHost,
   showPopoverHost,
   supportsPopoverHost,
 } from './host';
-import {
-  applyPositionResult,
-  buildMiddleware,
-  isTargetConnected,
-} from './positioning';
+import { applyPositionResult, buildMiddleware, isTargetConnected } from './positioning';
 import {
   attacherWaiter,
   cancelScheduled,
   debounceTimeout,
   scheduleMicrotask,
+  type ScheduledHandle,
 } from './schedule';
 import {
   findTriggerTargetElements,
@@ -41,46 +45,235 @@ import {
   isElementTarget,
   isVirtualReference,
   resolveAttachmentTarget,
+  type AttachmentTarget,
+  type AttachmentTargetInput,
 } from './target-resolution';
+
+export type { AttacherAnimation };
+export type AttacherTarget = AttachmentTargetInput;
+
+export type AttacherTargetModifier<TData = unknown> = FunctionBasedModifier<{
+  Element: Element;
+  Args: {
+    Positional: [data?: TData];
+    Named: { data?: TData };
+  };
+}>;
+
+export interface AttacherBlockParams<TData = unknown> {
+  /** Element modifier registering an element as a Target and associating optional `data`. */
+  target: AttacherTargetModifier<TData>;
+  /** Element modifier marking the caller's Attachment DOM element (headless `<Attacher>`). */
+  attachment: FunctionBasedModifier<{ Element: HTMLElement }>;
+  /** Element modifier registering a custom arrow element. */
+  arrow: FunctionBasedModifier<{ Element: HTMLElement }>;
+  /** Programmatically registers an explicit target Element or VirtualElement and optional `data`. */
+  setTarget: (target: AttachmentTarget | null | undefined, data?: TData) => void;
+  /** Programmatically shows the attachment (optionally switching target and data). */
+  show: (target?: AttachmentTarget, data?: TData) => void;
+  /** Programmatically hides the attachment. */
+  hide: () => void;
+  /** Programmatically toggles visibility of the attachment. */
+  toggle: () => void;
+  /** Recomputes Floating UI positioning immediately. */
+  update: () => void;
+  /** Current open visibility state. */
+  readonly isShown: boolean;
+  /** Whether inner content should render (respecting `@lazyRender`). */
+  readonly shouldRender: boolean;
+  /** Payload associated with the currently active Target (`{{a.target data}}` / `setTarget`). */
+  readonly data: TData | undefined;
+  /** Resolved Floating UI placement after middleware execution. */
+  readonly placement: Placement;
+  /** Latest Floating UI `middlewareData` from `computePosition()`. */
+  readonly middlewareData: MiddlewareData;
+}
+
+export interface AttacherNamedBlocks<TData = unknown> {
+  default: [attacher: AttacherBlockParams<TData>];
+  target: [target: AttacherTargetModifier<TData>, attacher: AttacherBlockParams<TData>];
+  content: [attacher: AttacherBlockParams<TData>];
+}
+
+export interface AttacherArgs {
+  /** Animation applied when showing and hiding the attachment. Defaults to `'fill'`. */
+  animation?: AttacherAnimation | null;
+  /** ARIA role attribute applied to the attachment element (`'dialog'` by default for `<AttachPopover>`, `'tooltip'` for `<AttachTooltip>`). */
+  ariaRole?: string;
+  /** Whether to render an arrow element positioned by Floating UI. Defaults to `false`. */
+  arrow?: boolean;
+  /** Keeps attachment position synced via Floating UI `autoUpdate`. Defaults to `true`. */
+  autoUpdate?: boolean | AutoUpdateOptions;
+  /** CSS class(es) applied to the inner attachment container. */
+  class?: string | null;
+  /** Target DOM Element, single-match CSS selector string, or Floating UI `VirtualElement`. */
+  target?: AttacherTarget | null;
+  /** Delay in ms (number or numeric string) before hiding. Defaults to `0`. */
+  hideDelay?: number | string;
+  /** Exit transition duration in ms (number or numeric string). Defaults to `300`. */
+  hideDuration?: number | string;
+  /** Space-separated hide triggers (`click`, `clickout`, `mouseleave`, `blur`, `focusout`, `escapekey`), or `null` to disable. */
+  hideOn?: string | null;
+  /** DOM `id` on the attachment element (also used for ARIA linkage, `[popovertarget]`, and `[interestfor]`). */
+  id?: string;
+  /** Keeps attachment open when pointer/focus enters it or traverses the `safePolygon` corridor. Defaults to `true`. */
+  interactive?: boolean;
+  /** Controlled visibility flag. */
+  isShown?: boolean;
+  /** Defers rendering inner block content until the attachment is first triggered. */
+  lazyRender?: boolean;
+  /** Floating UI middleware pipeline (merged and deduplicated by `m.name`). */
+  middleware?: ComputePositionConfig['middleware'] | null;
+  /** Callback invoked when attachment visibility toggles. */
+  onChange?: (isVisible: boolean) => unknown;
+  /** Floating UI placement. Defaults to `'top'`. */
+  placement?: Placement;
+  /** Renders the attachment in place within its parent DOM instead of promoting to the Top Layer. */
+  renderInPlace?: boolean;
+  /** Delay in ms (number or numeric string) before showing. Defaults to `0`. */
+  showDelay?: number | string;
+  /** Enter transition duration in ms (number or numeric string). Defaults to `300`. */
+  showDuration?: number | string;
+  /** Space-separated show triggers (`click`, `mouseenter`, `focus`), or `null` to disable. */
+  showOn?: string | null;
+  /** CSS positioning strategy (`'absolute'` or `'fixed'`). Defaults to `'absolute'`. */
+  strategy?: Strategy;
+  /** Attaches event listeners in the capture phase (`true`) or bubble phase (`false`). */
+  useCapture?: boolean;
+}
+
+export interface HostRenderState {
+  activeElement: AttachmentTarget | null;
+  hasContent: boolean;
+  id?: string;
+  role?: string;
+  popoverAttr?: 'manual';
+  className?: string;
+  text?: string;
+  arrow?: boolean;
+  isFillAnimation?: boolean;
+  isShown?: boolean;
+  isHiding?: boolean;
+  container?: Element | null;
+}
+
+type ConfigKey = 'tooltip' | 'popover';
+
+export interface EmberAttacherConfigGroup {
+  animation?: AttacherAnimation | null;
+  arrow?: boolean;
+  autoUpdate?: boolean | AutoUpdateOptions;
+  class?: string | null;
+  hideDelay?: number | string;
+  hideDuration?: number | string;
+  hideOn?: string | null;
+  interactive?: boolean;
+  isShown?: boolean;
+  lazyRender?: boolean;
+  middleware?: ComputePositionConfig['middleware'] | null;
+  placement?: Placement;
+  renderInPlace?: boolean;
+  showDelay?: number | string;
+  showDuration?: number | string;
+  showOn?: string | null;
+  strategy?: Strategy;
+  tooltipClass?: string;
+  useCapture?: boolean;
+}
+
+export interface EmberAttacherEnvConfig extends EmberAttacherConfigGroup {
+  tooltip?: EmberAttacherConfigGroup;
+  popover?: EmberAttacherConfigGroup;
+}
+
+interface AttacherCoreOptions {
+  defaultConfigKey?: ConfigKey | null;
+  defaultAriaRole?: string;
+  getDefaultClass?: (() => string) | null;
+  isComponentHost?: boolean;
+  onRenderStateChange?: ((state: HostRenderState) => void) | null;
+}
+
+interface RegisteredEntry {
+  element: Element;
+  data: unknown;
+  options: AttacherArgs | null;
+  owner: Owner | null;
+  showListeners: Record<string, EventListener>;
+  showOnKey: string | null;
+  useCapture: boolean | null;
+  updateHandle: ScheduledHandle | null;
+}
+
+type PopoverBeforeToggleEvent = Event & {
+  newState?: string;
+  source?: Element | null;
+};
+
+type ApplicationRootLookup = { rootElement?: unknown } | undefined;
+type InternalOwner = Owner & {
+  resolveRegistration?: (fullName: string) => unknown;
+  lookup?: (fullName: string) => ApplicationRootLookup;
+};
 
 let nextInstanceNumber = 0;
 
-function nextFloatingId() {
+function nextFloatingId(): string {
   nextInstanceNumber += 1;
   return `ember-attacher-${nextInstanceNumber}-floating`;
 }
 
-export function resolveTooltipClass(envConfig) {
+export function resolveTooltipClass(envConfig: EmberAttacherEnvConfig | null | undefined): string {
   const { tooltip, tooltipClass } = envConfig || {};
   return tooltip?.tooltipClass ?? tooltipClass ?? DEFAULTS.tooltipClass;
 }
 
-const TRUTHY_OPTION_KEYS = new Set(['animation', 'class', 'floatingUiOptions']);
-const EMPTY_OBJECT = Object.freeze({});
-const rawEnvByOwner = new WeakMap();
+const TRUTHY_OPTION_KEYS = new Set<keyof AttacherArgs>(['animation', 'class']);
+const REMOVED_4X_ARGS: Readonly<Record<string, string>> = {
+  explicitTarget: 'Use `@target` instead.',
+  flip: 'Pass `flip()` in `@middleware` instead.',
+  overflowPadding: 'Pass `shift({ padding })` / `flip({ padding })` in `@middleware` instead.',
+  floatingUiOptions: 'Use `@placement`, `@strategy`, and `@middleware` instead.',
+  floatingElementContainer: 'Use the default Top-Layer host or `@renderInPlace={{true}}`.',
+  isOffset: 'Remove; the diagonal safePolygon corridor is active automatically when `@interactive={{true}}`.',
+  style: 'Style via `@class` / `class="..."` or `--ember-attacher-*` CSS custom properties instead.',
+  additionalClass: 'Use `@class` or `class="..."` instead.',
+  onInitializeAttacher: 'Use an element modifier on the Target or Attachment instead.',
+  onWillDestroy: 'Use an element modifier teardown or `registerDestructor` instead.',
+  configKey: 'Use `<AttachTooltip>` or `<AttachPopover>` instead.',
+};
+const EMPTY_OBJECT: EmberAttacherEnvConfig = Object.freeze({});
+const rawEnvByOwner = new WeakMap<object, { emberAttacher?: EmberAttacherEnvConfig } | null>();
 
-function readEmberAttacherEnv(owner) {
+function readEmberAttacherEnv(owner: InternalOwner | null | undefined): EmberAttacherEnvConfig {
   if (!owner || typeof owner !== 'object') {
     return EMPTY_OBJECT;
   }
 
   let env = rawEnvByOwner.get(owner);
   if (env === undefined) {
-    env = owner.resolveRegistration?.('config:environment') || null;
+    env =
+      (owner.resolveRegistration?.('config:environment') as
+        | { emberAttacher?: EmberAttacherEnvConfig }
+        | undefined) || null;
     rawEnvByOwner.set(owner, env);
   }
 
   return env?.emberAttacher || EMPTY_OBJECT;
 }
 
-function resolveOwnerRootElement(owner, doc) {
+function resolveOwnerRootElement(
+  owner: InternalOwner | null | undefined,
+  doc: Document | null | undefined
+): Element | null {
   if (!doc) {
     return null;
   }
 
-  let root = null;
+  let root: unknown = null;
   if (owner && typeof owner.lookup === 'function') {
-    root = owner.lookup('application:main')?.rootElement ?? null;
+    const app = owner.lookup('application:main') as ApplicationRootLookup;
+    root = app?.rootElement ?? null;
   }
 
   if (root instanceof Element) {
@@ -96,49 +289,60 @@ function resolveOwnerRootElement(owner, doc) {
   return doc.querySelector('.ember-application') || doc.body;
 }
 
-function shallowValueEqual(a, b) {
+function shallowValueEqual(a: unknown, b: unknown): boolean {
   if (a === b) {
     return true;
   }
   if (!a || !b || typeof a !== 'object' || typeof b !== 'object') {
     return false;
   }
-  const keysA = Object.keys(a);
-  const keysB = Object.keys(b);
+  const objA = a as Record<string, unknown>;
+  const objB = b as Record<string, unknown>;
+  const keysA = Object.keys(objA);
+  const keysB = Object.keys(objB);
   if (keysA.length !== keysB.length) {
     return false;
   }
   return keysA.every((key) => {
-    const valA = a[key];
-    const valB = b[key];
+    const valA = objA[key];
+    const valB = objB[key];
     if (valA === valB) {
       return true;
     }
     if (valA && valB && typeof valA === 'object' && typeof valB === 'object') {
-      const subKeysA = Object.keys(valA);
-      const subKeysB = Object.keys(valB);
+      const subA = valA as Record<string, unknown>;
+      const subB = valB as Record<string, unknown>;
+      const subKeysA = Object.keys(subA);
+      const subKeysB = Object.keys(subB);
       return (
         subKeysA.length === subKeysB.length &&
-        subKeysA.every((subKey) => valA[subKey] === valB[subKey])
+        subKeysA.every((subKey) => subA[subKey] === subB[subKey])
       );
     }
     return false;
   });
 }
 
-function normalizeTriggerList(value, fallback) {
+function normalizeTriggerList(
+  value: string | null | undefined,
+  fallback: string | null
+): string[] {
   const resolved = value === undefined ? fallback : value;
   return resolved === null ? [] : resolved.split(' ').filter(Boolean);
 }
 
-function createTargetModifier(core) {
-  return class AttacherTargetModifier extends Modifier {
-    _element = null;
+function createTargetModifier(core: AttacherCore): AttacherTargetModifier {
+  class AttacherTargetModifierImpl extends Modifier<{
+    Element: Element;
+    Args: { Positional: [data?: unknown]; Named: { data?: unknown } };
+  }> {
+    _element: Element | null = null;
     _installed = false;
     _destroyed = false;
-    _mountHandle = null;
+    _mountHandle: ScheduledHandle | null = null;
+    private _lastBoundData: unknown = undefined;
 
-    constructor(owner, args) {
+    constructor(owner: Owner, args: { positional: [unknown?]; named: { data?: unknown } }) {
       super(owner, args);
       registerDestructor(this, () => {
         this._destroyed = true;
@@ -150,14 +354,23 @@ function createTargetModifier(core) {
       });
     }
 
-    modify(element, positional, named) {
+    modify(
+      element: Element,
+      positional: [unknown?],
+      named: { data?: unknown }
+    ): void {
       if (this._destroyed || core.isDestroyed) {
         return;
       }
 
       core._usedTargetModifier = true;
-      const data = positional.length > 0 ? positional[0] : named?.data;
-      const entry = core.registerTargetElement(element, data, null, getOwner(this));
+      const boundData = positional.length > 0 ? positional[0] : named?.data;
+      const data =
+        this._installed && element === this._element && boundData === this._lastBoundData
+          ? core._registeredEntries.get(element)?.data
+          : boundData;
+      this._lastBoundData = boundData;
+      const entry = core.registerTargetElement(element, data, null, getOwner(this) ?? null);
 
       if (!this._installed) {
         this._installed = true;
@@ -170,7 +383,9 @@ function createTargetModifier(core) {
         });
       }
     }
-  };
+  }
+
+  return AttacherTargetModifierImpl as unknown as AttacherTargetModifier;
 }
 
 /**
@@ -178,98 +393,110 @@ function createTargetModifier(core) {
  * `<Attacher>`, and the `{{tooltip}}` singleton pool.
  */
 export default class AttacherCore {
-  @tracked _arrowElement = null;
-  @tracked _currentTarget = null;
-  @tracked _registeredTarget = null;
+  @tracked _arrowElement: HTMLElement | null = null;
+  @tracked _currentTarget: AttachmentTarget | null = null;
+  @tracked _registeredTarget: AttachmentTarget | null = null;
   @tracked _mustRender = false;
-  @tracked _modalContainer = null;
+  @tracked _modalContainer: Element | null = null;
   @tracked _isShown = false;
-  @tracked _data = undefined;
-  @tracked _resolvedPlacement = undefined;
-  @tracked _middlewareData = {};
+  @tracked _data: unknown = undefined;
+  @tracked _resolvedPlacement: Placement | undefined = undefined;
+  @tracked _middlewareData: MiddlewareData = {};
 
-  _defaultId = null;
-  _elementId = null;
+  private _ownerContext: object | null;
+  private _owner: InternalOwner | null;
+  private _getArgs: () => AttacherArgs;
+  private _defaultConfigKey: ConfigKey | null;
+  private _defaultAriaRole: string | undefined;
+  private _getDefaultClass: (() => string) | null;
+  private _isComponentHost: boolean;
+  private _onRenderStateChange: ((state: HostRenderState) => void) | null;
+
+  _defaultId: string;
+  _elementId: string | null = null;
   _hasTargetBlock = false;
   _usedTargetModifier = false;
   _usedSetTarget = false;
   _hasCheckedInitialTarget = false;
-  _setReferenceHandle = null;
-  _syncArgsHandle = null;
+  _setTargetHandle: ScheduledHandle | null = null;
+  _syncArgsHandle: ScheduledHandle | null = null;
   // Untracked copy of the node listeners are on so `_removeHideEventListeners`
   // does not read `_currentTarget` in the same frame that writes it.
-  _listenerTarget = null;
-  _floatingElement = null;
-  _registeredEntries = new Map();
-  _popoverTargetEntries = new Map();
-  _activeEntryOptions = null;
-  _pendingRegisteredData = undefined;
+  _listenerTarget: Element | null = null;
+  _floatingElement: HTMLElement | null = null;
+  _registeredEntries = new Map<Element, RegisteredEntry>();
+  _popoverTargetEntries = new Map<Element, EventListener>();
+  _activeEntryOptions: AttacherArgs | null = null;
+  _pendingRegisteredData: unknown = undefined;
   _hasPendingData = false;
-  _pendingPopoverTrigger = null;
+  _pendingPopoverTrigger: Element | null = null;
   _syncingPopoverHost = false;
   _skipNativePopoverToggle = false;
   _addedManagedPopover = false;
-  _attachedPopoverEventsOn = null;
-  _prevSyncedIsShown = undefined;
-  _prevSyncedTargetKey = undefined;
-  _prevSyncedExplicitTarget = undefined;
-  _lastShownByDelay = 0;
+  _attachedPopoverEventsOn: Element | null = null;
+  _prevSyncedIsShown: boolean | undefined = undefined;
+  _prevSyncedTargetKey: string | undefined = undefined;
+  _prevSyncedTarget: AttacherTarget | null | undefined = undefined;
   _closeGeneration = 0;
-  _activeCloseCancel = null;
+  _activeCloseCancel: (() => void) | null = null;
 
-  syncArgs = helper((positional) => {
-    for (let i = 0; i < positional.length; i++) {
-      void positional[i];
-    }
+  _delayedVisibilityToggle: ScheduledHandle | null = null;
+  _isHidden = true;
+  _isHiding = false;
+  _positioningSuspended = true;
+  _isDestroyed = false;
+
+  _hideListenersOnDocumentByEvent: Record<string, EventListener> = {};
+  _hideListenersOnTargetByEvent: Record<string, EventListener> = {};
+  _targetShowListenersByEvent: Record<string, EventListener> = {};
+
+  _aria = new AttachmentAriaController();
+  _ariaOpen = false;
+  _mouseLeaveOrigin: PointerOrigin | null = null;
+  _restoreFocusOnHide = false;
+  _suppressFocusShow = false;
+  _lastUseCaptureArgumentValue: boolean;
+  _warnedRemovedArgs = new Set<string>();
+  _cleanup: (() => void) | null = null;
+
+  readonly api: AttacherBlockParams;
+
+  /** Tracks template args read inside `<template>` and schedules an idle args sync. */
+  syncArgs = (..._positional: unknown[]): '' => {
+    void _positional;
     this.scheduleArgsSync();
     return '';
-  });
+  };
 
   constructor(
-    ownerContext,
-    getArgs,
+    ownerContext: object | null,
+    getArgs: () => AttacherArgs,
     {
       defaultConfigKey = null,
       defaultAriaRole = undefined,
-      getAdditionalClass = null,
+      getDefaultClass = null,
       isComponentHost = true,
       onRenderStateChange = null,
-    } = {}
+    }: AttacherCoreOptions = {}
   ) {
     this._ownerContext = ownerContext;
     this._owner =
-      ownerContext && typeof ownerContext === 'object' ? getOwner(ownerContext) : null;
+      ownerContext && typeof ownerContext === 'object'
+        ? ((getOwner(ownerContext) as InternalOwner | undefined) ?? null)
+        : null;
     this._getArgs = getArgs;
     this._defaultConfigKey = defaultConfigKey;
     this._defaultAriaRole = defaultAriaRole;
-    this._getAdditionalClass = getAdditionalClass;
+    this._getDefaultClass = getDefaultClass;
     this._isComponentHost = isComponentHost;
     this._onRenderStateChange = onRenderStateChange;
     this._defaultId = nextFloatingId();
-
-    this._delayedVisibilityToggle = null;
-    this._isHidden = true;
-    this._isHiding = false;
-    this._positioningSuspended = true;
-    this._isDestroyed = false;
-    this._warnedDeprecations = new Set();
-
-    this._hideListenersOnDocumentByEvent = {};
-    this._hideListenersOnTargetByEvent = {};
-    this._legacyShowListenersOnTargetByEvent = {};
-
-    this._aria = new AttachmentAriaController();
-    this._ariaOpen = false;
-    this._mouseLeaveOrigin = null;
-    this._restoreFocusOnHide = false;
-    this._suppressFocusShow = false;
 
     this.hide = this.hide.bind(this);
     this.show = this.show.bind(this);
     this.toggle = this.toggle.bind(this);
     this.update = this.update.bind(this);
     this.setTarget = this.setTarget.bind(this);
-    this.setReference = this.setReference.bind(this);
     this._hide = this._hide.bind(this);
     this._hideAfterDelay = this._hideAfterDelay.bind(this);
     this._hideIfMouseOutsideTargetOrAttachment =
@@ -284,124 +511,43 @@ export default class AttacherCore {
     this._onPopoverTargetClick = this._onPopoverTargetClick.bind(this);
     this._onPopoverBeforeToggle = this._onPopoverBeforeToggle.bind(this);
 
-    this._lastUseCaptureArgumentValue = this._opt('useCapture');
+    this._lastUseCaptureArgumentValue = Boolean(this._opt('useCapture'));
 
-    const core = this;
-    this.api = {
-      target: this.target,
-      attachment: this.attachment,
-      arrow: this.arrowModifier,
-      reference: this.reference,
-      setTarget: this.setTarget,
-      setReference: this.setReference,
-      show: this.show,
-      hide: this.hide,
-      toggle: this.toggle,
-      update: this.update,
-      get isShown() {
-        return core.liveIsShown;
-      },
-      get shouldRender() {
-        return core.shouldRenderFloatingElement;
-      },
-      get data() {
-        return core._data;
-      },
-      get placement() {
-        return core._resolvedPlacement ?? core._opt('placement');
-      },
-      get middlewareData() {
-        return core._middlewareData;
-      },
-    };
+    this.api = Object.defineProperties(
+      {
+        target: this.target,
+        attachment: this.attachment as unknown as AttacherBlockParams['attachment'],
+        arrow: this.arrowModifier as unknown as AttacherBlockParams['arrow'],
+        setTarget: this.setTarget,
+        show: this.show,
+        hide: this.hide,
+        toggle: this.toggle,
+        update: this.update,
+      } as AttacherBlockParams,
+      {
+        isShown: { enumerable: true, get: () => this.liveIsShown },
+        shouldRender: { enumerable: true, get: () => this.shouldRenderFloatingElement },
+        data: { enumerable: true, get: () => this._data },
+        placement: {
+          enumerable: true,
+          get: () => this._resolvedPlacement ?? (this._opt('placement') as Placement),
+        },
+        middlewareData: { enumerable: true, get: () => this._middlewareData },
+      }
+    );
 
     if (ownerContext && typeof ownerContext === 'object') {
       registerDestructor(ownerContext, () => this.destroy());
     }
   }
 
-  _setTracked(field, value) {
+  private _setTracked<K extends keyof this>(field: K, value: this[K]): void {
     if (this[field] !== value) {
       this[field] = value;
     }
   }
 
-  _deprecateOnce(id, message) {
-    runInDebug(() => {
-      if (!this._warnedDeprecations.has(id)) {
-        this._warnedDeprecations.add(id);
-        deprecate(message, false, {
-          id,
-          until: '5.0.0',
-          for: 'ember-attacher',
-          since: {
-            available: '4.4.0',
-            enabled: '4.4.0',
-          },
-        });
-      }
-    });
-  }
-
-  _checkDeprecatedArgs(args) {
-    if (!args) {
-      return;
-    }
-
-    runInDebug(() => {
-      const deprecatedArgs = [
-        ['explicitTarget', 'ember-attacher.arg.explicit-target', 'Use @target instead.'],
-        ['flip', 'ember-attacher.arg.flip', 'Pass `flip()` in @middleware instead.'],
-        [
-          'overflowPadding',
-          'ember-attacher.arg.overflow-padding',
-          'Pass `shift({ padding })` / `flip({ padding })` in @middleware instead.',
-        ],
-        [
-          'floatingUiOptions',
-          'ember-attacher.arg.floating-ui-options',
-          'Use @placement, @strategy, and @middleware instead.',
-        ],
-        [
-          'isOffset',
-          'ember-attacher.arg.is-offset',
-          'The interactive safePolygon hover corridor is active automatically when @interactive={{true}}.',
-        ],
-        [
-          'style',
-          'ember-attacher.arg.style',
-          'Style the attachment via CSS classes or custom properties instead.',
-        ],
-        [
-          'additionalClass',
-          'ember-attacher.arg.additional-class',
-          'Use @class or `class="..."` instead.',
-        ],
-        [
-          'onInitializeAttacher',
-          'ember-attacher.arg.on-initialize-attacher',
-          'Use an element modifier on the Target or Attachment instead.',
-        ],
-        [
-          'onWillDestroy',
-          'ember-attacher.arg.on-will-destroy',
-          'Use an element modifier or `registerDestructor` instead.',
-        ],
-      ];
-
-      for (let i = 0; i < deprecatedArgs.length; i++) {
-        const [argName, id, hint] = deprecatedArgs[i];
-        if (args[argName] !== undefined) {
-          this._deprecateOnce(
-            id,
-            `[ember-attacher] Passing @${argName} is deprecated and will be removed in ember-attacher 5.0.0. ${hint}`
-          );
-        }
-      }
-    });
-  }
-
-  _arg(key) {
+  _arg<K extends keyof AttacherArgs>(key: K): AttacherArgs[K] {
     const entryOpts = this._activeEntryOptions;
     if (entryOpts && entryOpts[key] !== undefined) {
       return entryOpts[key];
@@ -409,14 +555,14 @@ export default class AttacherCore {
     return this._getArgs()?.[key];
   }
 
-  _defaultFor(key) {
+  _defaultFor<K extends keyof AttacherArgs>(key: K): unknown {
     if (!this._isTooltip && this.configKey === 'popover' && key in POPOVER_DEFAULTS) {
-      return POPOVER_DEFAULTS[key];
+      return POPOVER_DEFAULTS[key as keyof typeof POPOVER_DEFAULTS];
     }
-    return DEFAULTS[key];
+    return DEFAULTS[key as keyof typeof DEFAULTS];
   }
 
-  _opt(key) {
+  _opt<K extends keyof AttacherArgs>(key: K): unknown {
     const argVal = this._arg(key);
     if ((key === 'showOn' || key === 'hideOn') && argVal === null) {
       return null;
@@ -427,14 +573,14 @@ export default class AttacherCore {
       return argVal;
     }
 
-    const env = this._envConfig;
-    const keyed = env[this.configKey];
-    const keyedVal = keyed?.[key];
+    const env = this._envConfig as Record<string, unknown>;
+    const keyed = env[this.configKey] as Record<string, unknown> | undefined;
+    const keyedVal = keyed?.[key as string];
     if (truthyOnly ? keyedVal : keyedVal != null) {
       return keyedVal;
     }
 
-    const envVal = env[key];
+    const envVal = env[key as string];
     if (truthyOnly ? envVal : envVal != null) {
       return envVal;
     }
@@ -442,102 +588,86 @@ export default class AttacherCore {
     return this._defaultFor(key);
   }
 
-  get ariaRole() {
+  get ariaRole(): string | undefined {
     return this._arg('ariaRole') || this._defaultAriaRole;
   }
 
-  get explicitTarget() {
-    const targetArg = this._arg('target');
-    return targetArg !== undefined ? targetArg : this._arg('explicitTarget');
+  get targetArg(): AttacherTarget | null | undefined {
+    return this._arg('target');
   }
 
-  get configKey() {
+  get configKey(): ConfigKey {
     if (this._defaultConfigKey) {
       return this._defaultConfigKey;
-    }
-    const argKey = this._arg('configKey');
-    if (argKey) {
-      return argKey;
     }
     return this.ariaRole === 'tooltip' ? 'tooltip' : 'popover';
   }
 
-  get _isTooltip() {
+  get _isTooltip(): boolean {
     return this.configKey === 'tooltip' || this.ariaRole === 'tooltip';
   }
 
-  get arrow() {
+  get arrow(): boolean {
     return Boolean(this._opt('arrow'));
   }
 
-  get isFillAnimation() {
+  get isFillAnimation(): boolean {
     return this._opt('animation') === 'fill';
   }
 
-  get shouldRenderFloatingElement() {
+  get shouldRenderFloatingElement(): boolean {
     return !this._opt('lazyRender') || this._mustRender;
   }
 
-  get id() {
+  get id(): string {
     return this._arg('id') || this._elementId || this._defaultId;
   }
 
-  get popoverAttr() {
+  get popoverAttr(): 'manual' | undefined {
     return this._usePopoverHost ? 'manual' : undefined;
   }
 
-  get liveIsShown() {
+  get liveIsShown(): boolean {
     return this._isShown;
   }
 
-  get innerClass() {
+  get innerClass(): string {
     const arrowClass = `ember-attacher-${this.arrow ? 'with' : 'without'}-arrow`;
-    const additionalClass = this._getAdditionalClass
-      ? this._getAdditionalClass()
-      : this._arg('additionalClass') || '';
+    const defaultClass = this._getDefaultClass ? this._getDefaultClass() : '';
     return [
-      `ember-attacher-${this._opt('animation')}`,
-      this._opt('class') || '',
-      additionalClass,
+      `ember-attacher-${this._opt('animation') as string}`,
+      (this._opt('class') as string) || '',
+      defaultClass,
       arrowClass,
     ]
       .filter(Boolean)
       .join(' ');
   }
 
-  get innerStyle() {
-    const style = this._opt('style');
-    if (!style) {
-      return undefined;
-    }
-
-    warn(
-      '@ember/string/htmlSafe must be used for any `style` passed to ember-attacher',
-      isHTMLSafe(style),
-      { id: 'ember-attacher-require-html-safe-style' }
-    );
-
-    return style;
-  }
-
-  get isDestroyed() {
+  get isDestroyed(): boolean {
     return this._isDestroyed;
   }
-  get isDestroying() {
+
+  get isDestroying(): boolean {
     return this._isDestroyed;
   }
-  get isHidden() {
+
+  get isHidden(): boolean {
     return this._isHidden;
   }
-  get entryCount() {
+
+  get entryCount(): number {
     return this._registeredEntries.size;
   }
 
-  isActiveTarget(element) {
+  isActiveTarget(element: AttachmentTarget): boolean {
     return this._currentTarget === element;
   }
 
-  setHostElements(floatingElement, arrowElement = null) {
+  setHostElements(
+    floatingElement: HTMLElement | null,
+    arrowElement: HTMLElement | null = null
+  ): void {
     if (this._floatingElement !== floatingElement) {
       if (this._floatingElement) {
         this._detachPopoverEvents(this._floatingElement);
@@ -553,14 +683,14 @@ export default class AttacherCore {
     this._setTracked('_arrowElement', arrowElement);
   }
 
-  getHostRenderState() {
+  getHostRenderState(): HostRenderState {
     const activeEl = this._currentTarget || this._registeredTarget;
     if (!activeEl) {
       return { activeElement: null, hasContent: false };
     }
 
-    const entry = this._registeredEntries.get(activeEl);
-    const ownerForRoot = entry?.owner || this._owner;
+    const entry = isElementTarget(activeEl) ? this._registeredEntries.get(activeEl) : undefined;
+    const ownerForRoot = (entry?.owner as InternalOwner | null) || this._owner;
     const container =
       typeof document !== 'undefined'
         ? this._modalContainer || resolveOwnerRootElement(ownerForRoot, document)
@@ -572,7 +702,6 @@ export default class AttacherCore {
       role: this.ariaRole || 'tooltip',
       popoverAttr: this.popoverAttr,
       className: this.innerClass,
-      style: this.innerStyle,
       text: entry?.data != null ? String(entry.data) : '',
       hasContent: Boolean(entry && entry.data != null && entry.data !== ''),
       arrow: this.arrow,
@@ -583,69 +712,71 @@ export default class AttacherCore {
     };
   }
 
-  _notifyRenderStateChange() {
+  _notifyRenderStateChange(): void {
     if (this._onRenderStateChange && !this._isDestroyed) {
       this._onRenderStateChange(this.getHostRenderState());
     }
   }
 
-  get envConfig() {
+  get envConfig(): EmberAttacherEnvConfig {
     return this._envConfig;
   }
 
-  get _envConfig() {
+  get _envConfig(): EmberAttacherEnvConfig {
+    const currentEl = isElementTarget(this._currentTarget) ? this._currentTarget : null;
+    const registeredEl = isElementTarget(this._registeredTarget) ? this._registeredTarget : null;
     const entryOwner =
-      (this._currentTarget && this._registeredEntries.get(this._currentTarget)?.owner) ||
-      (this._registeredTarget && this._registeredEntries.get(this._registeredTarget)?.owner) ||
-      this._registeredEntries.values().next().value?.owner ||
+      (currentEl && (this._registeredEntries.get(currentEl)?.owner as InternalOwner | null)) ||
+      (registeredEl &&
+        (this._registeredEntries.get(registeredEl)?.owner as InternalOwner | null)) ||
+      (this._registeredEntries.values().next().value?.owner as InternalOwner | null) ||
       this._owner;
 
     return readEmberAttacherEnv(entryOwner);
   }
 
-  get _hideOn() {
-    const fallback = this._defaultFor('hideOn');
-    return normalizeTriggerList(this._opt('hideOn'), fallback);
+  get _hideOn(): string[] {
+    const fallback = (this._defaultFor('hideOn') as string | null) ?? null;
+    return normalizeTriggerList(this._opt('hideOn') as string | null | undefined, fallback);
   }
 
-  get _showOn() {
-    const fallback = this._defaultFor('showOn');
-    return normalizeTriggerList(this._opt('showOn'), fallback);
+  get _showOn(): string[] {
+    const fallback = (this._defaultFor('showOn') as string | null) ?? null;
+    return normalizeTriggerList(this._opt('showOn') as string | null | undefined, fallback);
   }
 
   get _middleware() {
     return buildMiddleware({
-      rawMiddleware: this._opt('middleware'),
+      rawMiddleware: this._opt('middleware') as AttacherArgs['middleware'],
       arrowElement: this._arrowElement,
-      flipOption: this._opt('flip'),
-      overflowPadding: this._opt('overflowPadding'),
       arrowEnabled: this.arrow || (!this._isComponentHost && Boolean(this._arrowElement)),
     });
   }
 
-  get _usePopoverHost() {
+  get _usePopoverHost(): boolean {
     return supportsPopoverHost() && !this._renderInPlace;
   }
 
-  get _renderInPlace() {
+  get _renderInPlace(): boolean {
     return typeof document !== 'undefined' ? Boolean(this._opt('renderInPlace')) : true;
   }
 
-  get _delayGroupOwner() {
+  get _delayGroupOwner(): object | null {
+    const currentEl = isElementTarget(this._currentTarget) ? this._currentTarget : null;
+    const registeredEl = isElementTarget(this._registeredTarget) ? this._registeredTarget : null;
     return (
       this._owner ||
-      (this._currentTarget && this._registeredEntries.get(this._currentTarget)?.owner) ||
-      (this._registeredTarget && this._registeredEntries.get(this._registeredTarget)?.owner) ||
+      (currentEl && this._registeredEntries.get(currentEl)?.owner) ||
+      (registeredEl && this._registeredEntries.get(registeredEl)?.owner) ||
       this._registeredEntries.values().next().value?.owner ||
       null
     );
   }
 
-  _hasSuppliedTargetBinding() {
-    const args = this._getArgs() || EMPTY_OBJECT;
+  _hasSuppliedTargetBinding(): boolean {
+    const args = this._getArgs() || (EMPTY_OBJECT as AttacherArgs);
     if (
       'target' in args ||
-      'explicitTarget' in args ||
       this._hasTargetBlock ||
       this._usedTargetModifier ||
       this._usedSetTarget ||
@@ -668,8 +799,12 @@ export default class AttacherCore {
     return false;
   }
 
-  _assertInitialTargetBinding() {
-    if (!this._isComponentHost || this._hasCheckedInitialTarget || typeof document === 'undefined') {
+  _assertInitialTargetBinding(): void {
+    if (
+      !this._isComponentHost ||
+      this._hasCheckedInitialTarget ||
+      typeof document === 'undefined'
+    ) {
       return;
     }
     this._hasCheckedInitialTarget = true;
@@ -683,7 +818,10 @@ export default class AttacherCore {
   }
 
   // In-place host mount & cleanup for `<AttachTooltip>` / `<AttachPopover>` (pass 1).
-  setupFloatingElement = modifier((element, [hasTargetBlock]) => {
+  setupFloatingElement = modifier<{
+    Element: HTMLElement;
+    Args: { Positional: [hasTargetBlock?: boolean] };
+  }>((element, [hasTargetBlock]) => {
     this._hasTargetBlock = Boolean(hasTargetBlock);
     this._floatingElement = element;
     registerAttacher(this);
@@ -701,7 +839,7 @@ export default class AttacherCore {
   });
 
   // Headless `<Attacher as |a|>` floating element modifier.
-  attachment = modifier((element) => {
+  attachment = modifier<{ Element: HTMLElement }>((element) => {
     this._floatingElement = element;
     registerAttacher(this);
 
@@ -741,7 +879,7 @@ export default class AttacherCore {
     };
   });
 
-  arrowModifier = modifier((element) => {
+  arrowModifier = modifier<{ Element: HTMLElement }>((element) => {
     const handle = scheduleMicrotask(() => {
       if (this._isDestroyed) {
         return;
@@ -762,7 +900,7 @@ export default class AttacherCore {
 
   insertArrow = this.arrowModifier;
 
-  scheduleArgsSync() {
+  scheduleArgsSync(): void {
     cancelScheduled(this._syncArgsHandle);
     this._syncArgsHandle = scheduleMicrotask(() => {
       this._syncArgsHandle = null;
@@ -770,19 +908,19 @@ export default class AttacherCore {
         return;
       }
 
-      this._checkDeprecatedArgs(this._getArgs());
+      this._warnRemoved4xArgs(this._getArgs() as Record<string, unknown> | undefined);
 
       const targetKey = `${this._opt('showOn')}|${this._opt('hideOn')}|${this.id}|${this._renderInPlace}`;
-      const explicitTarget = this.explicitTarget;
+      const targetArg = this.targetArg;
       const isInitialSync = !this._prevSyncedTargetKey;
       const targetChanged =
         isInitialSync ||
         this._prevSyncedTargetKey !== targetKey ||
-        this._prevSyncedExplicitTarget !== explicitTarget;
+        this._prevSyncedTarget !== targetArg;
 
       if (targetChanged) {
         this._prevSyncedTargetKey = targetKey;
-        this._prevSyncedExplicitTarget = explicitTarget;
+        this._prevSyncedTarget = targetArg;
         this._initializeAttacher();
       }
 
@@ -790,7 +928,7 @@ export default class AttacherCore {
         this._assertInitialTargetBinding();
       }
 
-      const isShown = this._opt('isShown');
+      const isShown = this._opt('isShown') as boolean | undefined;
       if (this._prevSyncedIsShown !== isShown) {
         this._prevSyncedIsShown = isShown;
         this._syncIsShown();
@@ -807,25 +945,17 @@ export default class AttacherCore {
     });
   }
 
-  target = createTargetModifier(this);
+  target: AttacherTargetModifier = createTargetModifier(this);
 
-  reference = modifier((element) => {
-    this._deprecateOnce(
-      'ember-attacher.api.reference',
-      '[ember-attacher] The yielded `reference` modifier is deprecated and will be removed in ember-attacher 5.0.0. Use `target` (e.g. `{{a.target}}`) instead.'
-    );
-    this._usedTargetModifier = true;
-    this.setTarget(element);
-
-    return () => {
-      if (!this._isDestroyed && this._registeredTarget === element) {
-        this.setTarget(null);
-      }
-    };
-  });
-
-  registerTargetElement(element, data, options = null, owner = null) {
-    this._checkDeprecatedArgs(options);
+  registerTargetElement(
+    element: Element,
+    data: unknown,
+    options: AttacherArgs | null = null,
+    owner: Owner | null = null
+  ): RegisteredEntry {
+    if (options) {
+      this._warnRemoved4xArgs(options as Record<string, unknown>);
+    }
 
     let entry = this._registeredEntries.get(element);
     const isNew = !entry;
@@ -849,8 +979,9 @@ export default class AttacherCore {
       }
     }
 
-    if (owner && !this._owner) {
-      this._owner = owner;
+    const internalOwner = owner as InternalOwner | null;
+    if (internalOwner && !this._owner) {
+      this._owner = internalOwner;
     }
 
     this._syncEntryShowListeners(entry);
@@ -859,7 +990,9 @@ export default class AttacherCore {
       this._activeEntryOptions = options;
       cancelScheduled(entry.updateHandle);
       entry.updateHandle = scheduleMicrotask(() => {
-        entry.updateHandle = null;
+        if (entry) {
+          entry.updateHandle = null;
+        }
         if (this._isDestroyed) {
           return;
         }
@@ -877,7 +1010,7 @@ export default class AttacherCore {
     return entry;
   }
 
-  unregisterTargetElement(element) {
+  unregisterTargetElement(element: Element): void {
     const entry = this._registeredEntries.get(element);
     if (!entry) {
       return;
@@ -915,11 +1048,11 @@ export default class AttacherCore {
     }
   }
 
-  _onRegisteredEntryMounted(element, data) {
+  _onRegisteredEntryMounted(element: Element, data: unknown): void {
     if (!this._registeredEntries.has(element)) {
       return;
     }
-    const currentRegistered = this._registeredTarget;
+    const currentRegistered = isElementTarget(this._registeredTarget) ? this._registeredTarget : null;
     if (!currentRegistered || !this._registeredEntries.has(currentRegistered)) {
       this._setTracked('_registeredTarget', element);
       this._setTracked('_data', data);
@@ -928,7 +1061,7 @@ export default class AttacherCore {
     }
   }
 
-  _syncHeadlessAttachmentElement(element) {
+  _syncHeadlessAttachmentElement(element: HTMLElement | null): void {
     if (!element) {
       return;
     }
@@ -961,7 +1094,7 @@ export default class AttacherCore {
     }
   }
 
-  _attachPopoverEvents(element) {
+  _attachPopoverEvents(element: Element | null): void {
     if (!element || this._attachedPopoverEventsOn === element) {
       return;
     }
@@ -972,7 +1105,7 @@ export default class AttacherCore {
     }
   }
 
-  _detachPopoverEvents(element) {
+  _detachPopoverEvents(element: Element | null): void {
     if (!element || this._attachedPopoverEventsOn !== element) {
       return;
     }
@@ -980,15 +1113,15 @@ export default class AttacherCore {
     this._attachedPopoverEventsOn = null;
   }
 
-  _onPopoverBeforeToggle(event) {
+  _onPopoverBeforeToggle(rawEvent: Event): void {
     if (this._isDestroyed || this._syncingPopoverHost) {
       return;
     }
 
+    const event = rawEvent as PopoverBeforeToggleEvent;
     const trigger =
       this._pendingPopoverTrigger ||
-      (event.source?.hasAttribute?.('popovertarget') ||
-      event.source?.hasAttribute?.('interestfor')
+      (event.source?.hasAttribute?.('popovertarget') || event.source?.hasAttribute?.('interestfor')
         ? event.source
         : null);
     this._pendingPopoverTrigger = null;
@@ -1020,9 +1153,9 @@ export default class AttacherCore {
     }
   }
 
-  _onPopoverTargetClick(event) {
+  _onPopoverTargetClick(event: Event): void {
     const trigger = event.currentTarget;
-    if (!trigger || this._isDestroyed) {
+    if (!(trigger instanceof Element) || this._isDestroyed) {
       return;
     }
 
@@ -1055,12 +1188,13 @@ export default class AttacherCore {
     }
   }
 
-  _syncEntryShowListeners(entry) {
-    const opts = entry.options || EMPTY_OBJECT;
-    const baseArgs = this._getArgs() || EMPTY_OBJECT;
+  _syncEntryShowListeners(entry: RegisteredEntry): void {
+    const opts = entry.options || (EMPTY_OBJECT as AttacherArgs);
+    const baseArgs = this._getArgs() || (EMPTY_OBJECT as AttacherArgs);
     const env = this._envConfig;
     const keyedEnv = env[this.configKey];
-    const showOnFallback = keyedEnv?.showOn ?? env.showOn ?? this._defaultFor('showOn');
+    const showOnFallback =
+      keyedEnv?.showOn ?? env.showOn ?? ((this._defaultFor('showOn') as string | null) ?? null);
     const showOn = normalizeTriggerList(
       opts.showOn === undefined ? baseArgs.showOn : opts.showOn,
       showOnFallback
@@ -1084,7 +1218,7 @@ export default class AttacherCore {
     entry.useCapture = useCapture;
 
     for (const eventName of showOn) {
-      const listener = (event) => {
+      const listener: EventListener = (event) => {
         if (this._isDestroyed) {
           return;
         }
@@ -1106,17 +1240,20 @@ export default class AttacherCore {
     }
   }
 
-  _removeEntryShowListeners(entry) {
+  _removeEntryShowListeners(entry: RegisteredEntry): void {
     const listeners = entry.showListeners;
     const capture = Boolean(entry.useCapture);
     for (const eventName of Object.keys(listeners)) {
-      entry.element.removeEventListener(eventName, listeners[eventName], capture);
+      const listener = listeners[eventName];
+      if (listener) {
+        entry.element.removeEventListener(eventName, listener, capture);
+      }
       delete listeners[eventName];
     }
     entry.showOnKey = null;
   }
 
-  _activateRegisteredEntry(entry) {
+  _activateRegisteredEntry(entry: RegisteredEntry): void {
     const isTargetSwitch =
       this._currentTarget !== entry.element ||
       this._registeredTarget !== entry.element ||
@@ -1133,7 +1270,11 @@ export default class AttacherCore {
     }
   }
 
-  _switchTargetFromEvent(targetEl, data, options) {
+  _switchTargetFromEvent(
+    targetEl: AttachmentTarget,
+    data: unknown,
+    options: AttacherArgs | null
+  ): void {
     this._removeHideEventListeners();
     this._activeEntryOptions = options;
     this._setTracked('_data', data);
@@ -1146,7 +1287,7 @@ export default class AttacherCore {
     this._syncAria();
   }
 
-  _syncPopoverTargetListeners(popoverTargets) {
+  _syncPopoverTargetListeners(popoverTargets: readonly Element[]): void {
     const nextSet = new Set(popoverTargets);
     const useCapture = Boolean(this._opt('useCapture'));
 
@@ -1165,7 +1306,7 @@ export default class AttacherCore {
     }
   }
 
-  _clearPopoverTargetListeners() {
+  _clearPopoverTargetListeners(): void {
     const useCapture = Boolean(this._opt('useCapture'));
     for (const [el, listener] of this._popoverTargetEntries) {
       el.removeEventListener('click', listener, useCapture);
@@ -1173,7 +1314,7 @@ export default class AttacherCore {
     this._popoverTargetEntries.clear();
   }
 
-  _syncModalContainer() {
+  _syncModalContainer(): boolean {
     if (this._renderInPlace) {
       this._setTracked('_modalContainer', null);
       return false;
@@ -1188,7 +1329,7 @@ export default class AttacherCore {
     return false;
   }
 
-  _applyVisibility(isVisible) {
+  _applyVisibility(isVisible: boolean): void {
     if (!isVisible) {
       this._cleanup?.();
       this._cleanup = null;
@@ -1201,8 +1342,8 @@ export default class AttacherCore {
       return;
     }
 
-    const showDuration = parseInt(this._opt('showDuration'), 10) || 0;
-    const initialPlacement = this._opt('placement') || DEFAULTS.placement;
+    const showDuration = parseInt(String(this._opt('showDuration') ?? 0), 10) || 0;
+    const initialPlacement = (this._opt('placement') as Placement) || DEFAULTS.placement;
 
     el.removeAttribute('data-closing');
     if (!el.hasAttribute('data-placement')) {
@@ -1242,10 +1383,10 @@ export default class AttacherCore {
       this._syncingPopoverHost = false;
     }
 
-    this._arg('onChange')?.(true);
+    (this._arg('onChange') as ((visible: boolean) => unknown) | undefined)?.(true);
   }
 
-  _waitForExitAnimations(element, hideDuration, onDone) {
+  _waitForExitAnimations(element: HTMLElement | null, hideDuration: number, onDone: () => void): void {
     if (hideDuration <= 0 || !element) {
       onDone();
       return;
@@ -1263,7 +1404,7 @@ export default class AttacherCore {
     const generation = this._closeGeneration;
     const token = attacherWaiter.beginAsync();
     let done = false;
-    let timeoutId = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
     const finish = () => {
       if (done) {
@@ -1304,7 +1445,7 @@ export default class AttacherCore {
     }
   }
 
-  _finishHide() {
+  _finishHide(): void {
     const el = this._floatingElement;
     if (el) {
       el.style.setProperty('--ember-attacher-transition-duration', '0ms');
@@ -1328,39 +1469,42 @@ export default class AttacherCore {
       }
     }
 
-    this._arg('onChange')?.(false);
+    (this._arg('onChange') as ((visible: boolean) => unknown) | undefined)?.(false);
   }
 
-  _cancelCloseAnimation() {
+  _cancelCloseAnimation(): void {
     this._closeGeneration += 1;
     this._activeCloseCancel?.();
     this._activeCloseCancel = null;
   }
 
-  show(target = undefined, data = undefined) {
+  show(target: AttachmentTarget | Event | undefined = undefined, data: unknown = undefined): void {
     if (typeof Event !== 'undefined' && target instanceof Event) {
       target = undefined;
     }
 
     if (target !== undefined) {
-      if (this._registeredEntries.has(target)) {
-        const entry = this._registeredEntries.get(target);
+      const targetEl = target as AttachmentTarget;
+      const entry = isElementTarget(targetEl) ? this._registeredEntries.get(targetEl) : undefined;
+      if (entry) {
         if (data !== undefined) {
           entry.data = data;
         }
         this._activateRegisteredEntry(entry);
-      } else if (isElementTarget(target) || isVirtualReference(target)) {
-        this._switchTargetFromEvent(target, data, this._activeEntryOptions);
+      } else if (isElementTarget(targetEl) || isVirtualReference(targetEl)) {
+        this._switchTargetFromEvent(targetEl, data, this._activeEntryOptions);
       } else {
         runInDebug(() => {
-          warn(
-            '[ember-attacher] Ignoring non-Target argument passed to show().',
-            false,
-            { id: 'ember-attacher.invalid-show-target' }
-          );
+          warn('[ember-attacher] Ignoring non-Target argument passed to show().', false, {
+            id: 'ember-attacher.invalid-show-target',
+          });
         });
       }
+    } else if (data !== undefined) {
+      this._setTracked('_data', data);
+      this._notifyRenderStateChange();
     }
+
     this._show();
     if (!this._isDestroyed) {
       scheduleMicrotask(() => {
@@ -1371,11 +1515,11 @@ export default class AttacherCore {
     }
   }
 
-  hide() {
+  hide(): void {
     this._hide();
   }
 
-  toggle() {
+  toggle(): void {
     if (this._isShown || !this._isHidden) {
       this.hide();
     } else {
@@ -1383,21 +1527,21 @@ export default class AttacherCore {
     }
   }
 
-  update() {
+  update(): void {
     this._updatePosition();
   }
 
-  setTarget(target, data = undefined) {
+  setTarget(target: AttachmentTarget | null | undefined, data: unknown = undefined): void {
     this._usedSetTarget = true;
-    cancelScheduled(this._setReferenceHandle);
+    cancelScheduled(this._setTargetHandle);
 
     if (data !== undefined) {
       this._pendingRegisteredData = data;
       this._hasPendingData = true;
     }
 
-    this._setReferenceHandle = scheduleMicrotask(() => {
-      this._setReferenceHandle = null;
+    this._setTargetHandle = scheduleMicrotask(() => {
+      this._setTargetHandle = null;
 
       if (this._isDestroyed) {
         return;
@@ -1422,17 +1566,28 @@ export default class AttacherCore {
     });
   }
 
-  setReference(target) {
-    this._deprecateOnce(
-      'ember-attacher.api.set-reference',
-      '[ember-attacher] The yielded `setReference` method is deprecated and will be removed in ember-attacher 5.0.0. Use `setTarget` instead.'
-    );
-    this.setTarget(target);
+  _warnRemoved4xArgs(args: Record<string, unknown> | undefined): void {
+    if (!args) {
+      return;
+    }
+
+    runInDebug(() => {
+      for (const argName of Object.keys(REMOVED_4X_ARGS)) {
+        if (args[argName] !== undefined && !this._warnedRemovedArgs.has(argName)) {
+          this._warnedRemovedArgs.add(argName);
+          warn(
+            `[ember-attacher] @${argName} was removed in 5.0.0 and is ignored. ${REMOVED_4X_ARGS[argName]}`,
+            false,
+            { id: `ember-attacher.removed-arg.${argName}` }
+          );
+        }
+      }
+    });
   }
 
-  _ensureArgumentsAreValid() {
+  _ensureArgumentsAreValid(): void {
     runInDebug(() => {
-      if (this._opt('useCapture') !== this._lastUseCaptureArgumentValue) {
+      if (Boolean(this._opt('useCapture')) !== this._lastUseCaptureArgumentValue) {
         warn('The value of the useCapture argument was mutated', {
           id: 'ember-attacher.use-capture-mutated',
         });
@@ -1440,7 +1595,7 @@ export default class AttacherCore {
     });
   }
 
-  _syncAria() {
+  _syncAria(): void {
     const entryText =
       this._data != null && this._data !== '' ? String(this._data) : null;
     this._aria.bind(this._listenerTarget, {
@@ -1453,24 +1608,22 @@ export default class AttacherCore {
     });
   }
 
-  _initializeAttacher() {
+  _initializeAttacher(): void {
     if (this._isDestroyed) {
       return;
     }
 
-    this._checkDeprecatedArgs(this._getArgs());
-
-    this._removeLegacyShowEventListeners();
+    this._removeTargetShowEventListeners();
     this._removeHideEventListeners();
 
     const explicitId = this._arg('id') || this._elementId;
     const { popoverTargets, allTargets } = explicitId
       ? findTriggerTargetElements(explicitId)
-      : { popoverTargets: [], allTargets: [] };
+      : { popoverTargets: [] as Element[], allTargets: [] as Element[] };
     this._syncPopoverTargetListeners(popoverTargets);
 
     const target = resolveAttachmentTarget({
-      target: this.explicitTarget,
+      target: this.targetArg,
       registeredTarget: this._registeredTarget,
       triggerTargets: allTargets,
     });
@@ -1478,15 +1631,15 @@ export default class AttacherCore {
     this._listenerTarget = getListenerTarget(target);
     this._setTracked('_currentTarget', target);
 
-    if (target && this._registeredEntries.has(target)) {
-      const entry = this._registeredEntries.get(target);
+    if (isElementTarget(target) && this._registeredEntries.has(target)) {
+      const entry = this._registeredEntries.get(target)!;
       this._activeEntryOptions = entry.options || null;
       this._setTracked('_data', entry.data);
     }
 
     this._syncModalContainer();
     syncParentAttachment(this);
-    this._addLegacyShowListenersIfUnregistered();
+    this._addShowListenersIfUnregistered();
     this._notifyRenderStateChange();
 
     const shouldBeOpen =
@@ -1506,11 +1659,9 @@ export default class AttacherCore {
       this._ariaOpen = false;
       this._syncAria();
     }
-
-    this._arg('onInitializeAttacher')?.(this._currentTarget, this.id);
   }
 
-  _addLegacyShowListenersIfUnregistered() {
+  _addShowListenersIfUnregistered(): void {
     const target = this._listenerTarget;
     if (!target || this._registeredEntries.has(target) || this._popoverTargetEntries.has(target)) {
       return;
@@ -1518,37 +1669,35 @@ export default class AttacherCore {
 
     const useCapture = Boolean(this._opt('useCapture'));
     this._showOn.forEach((event) => {
-      this._legacyShowListenersOnTargetByEvent[event] = this._showAfterDelay;
+      this._targetShowListenersByEvent[event] = this._showAfterDelay;
       target.addEventListener(event, this._showAfterDelay, useCapture);
     });
   }
 
-  _removeLegacyShowEventListeners() {
+  _removeTargetShowEventListeners(): void {
     const target = this._listenerTarget;
     if (!target) {
       return;
     }
 
     const useCapture = Boolean(this._opt('useCapture'));
-    Object.keys(this._legacyShowListenersOnTargetByEvent).forEach((event) => {
-      target.removeEventListener(
-        event,
-        this._legacyShowListenersOnTargetByEvent[event],
-        useCapture
-      );
-      delete this._legacyShowListenersOnTargetByEvent[event];
+    Object.keys(this._targetShowListenersByEvent).forEach((event) => {
+      const listener = this._targetShowListenersByEvent[event];
+      if (listener) {
+        target.removeEventListener(event, listener, useCapture);
+      }
+      delete this._targetShowListenersByEvent[event];
     });
   }
 
-  _removeHideEventListeners({ restoreClickShow = false } = {}) {
+  _removeHideEventListeners({ restoreClickShow = false } = {}): void {
     const useCapture = Boolean(this._opt('useCapture'));
     this._mouseLeaveOrigin = null;
     Object.keys(this._hideListenersOnDocumentByEvent).forEach((eventType) => {
-      document.removeEventListener(
-        eventType,
-        this._hideListenersOnDocumentByEvent[eventType],
-        useCapture
-      );
+      const listener = this._hideListenersOnDocumentByEvent[eventType];
+      if (listener) {
+        document.removeEventListener(eventType, listener, useCapture);
+      }
       delete this._hideListenersOnDocumentByEvent[eventType];
     });
 
@@ -1569,21 +1718,20 @@ export default class AttacherCore {
         delete this._hideListenersOnTargetByEvent.click;
       }
 
-      this._legacyShowListenersOnTargetByEvent.click = this._showAfterDelay;
+      this._targetShowListenersByEvent.click = this._showAfterDelay;
       target.addEventListener('click', this._showAfterDelay, useCapture);
     }
 
     Object.keys(this._hideListenersOnTargetByEvent).forEach((event) => {
-      target.removeEventListener(
-        event,
-        this._hideListenersOnTargetByEvent[event],
-        useCapture
-      );
+      const listener = this._hideListenersOnTargetByEvent[event];
+      if (listener) {
+        target.removeEventListener(event, listener, useCapture);
+      }
       delete this._hideListenersOnTargetByEvent[event];
     });
   }
 
-  _syncIsShown() {
+  _syncIsShown(): void {
     const isShown = this._opt('isShown');
 
     if (isShown === true && this._isHidden) {
@@ -1598,7 +1746,7 @@ export default class AttacherCore {
     }
   }
 
-  _showAfterDelay(event) {
+  _showAfterDelay(event?: Event): void {
     if (this._suppressFocusShow && (event?.type === 'focus' || event?.type === 'focusin')) {
       return;
     }
@@ -1612,7 +1760,7 @@ export default class AttacherCore {
 
     this._addListenersForHideEvents();
 
-    const parsedShowDelay = parseInt(this._opt('showDelay'), 10) || 0;
+    const parsedShowDelay = parseInt(String(this._opt('showDelay') ?? 0), 10) || 0;
     const isWarm = Boolean(
       this._isTooltip && peekDelayGroup(this._delayGroupOwner)?.isWarmFor()
     );
@@ -1626,7 +1774,7 @@ export default class AttacherCore {
     );
   }
 
-  _show() {
+  _show(): void {
     cancelScheduled(this._delayedVisibilityToggle);
     this._delayedVisibilityToggle = null;
     this._cancelCloseAnimation();
@@ -1654,11 +1802,11 @@ export default class AttacherCore {
     this._update();
   }
 
-  _hideAfterDelay() {
+  _hideAfterDelay(): void {
     cancelScheduled(this._delayedVisibilityToggle);
     this._isHiding = true;
 
-    const hideDelay = parseInt(this._opt('hideDelay'), 10) || 0;
+    const hideDelay = parseInt(String(this._opt('hideDelay') ?? 0), 10) || 0;
     this._delayedVisibilityToggle = debounceTimeout(
       this._delayedVisibilityToggle,
       this._hide,
@@ -1667,7 +1815,7 @@ export default class AttacherCore {
     );
   }
 
-  _hide() {
+  _hide(): void {
     const wasShown = this._isShown || !this._isHidden;
     cancelScheduled(this._delayedVisibilityToggle);
     this._delayedVisibilityToggle = null;
@@ -1703,12 +1851,12 @@ export default class AttacherCore {
     const floatingElement = this._floatingElement;
     if (!floatingElement) {
       if (wasShown) {
-        this._arg('onChange')?.(false);
+        (this._arg('onChange') as ((visible: boolean) => unknown) | undefined)?.(false);
       }
       return;
     }
 
-    const hideDuration = parseInt(this._opt('hideDuration'), 10) || 0;
+    const hideDuration = parseInt(String(this._opt('hideDuration') ?? 0), 10) || 0;
     floatingElement.setAttribute('aria-hidden', 'true');
 
     if (hideDuration <= 0) {
@@ -1727,7 +1875,7 @@ export default class AttacherCore {
     });
   }
 
-  _addListenersForHideEvents() {
+  _addListenersForHideEvents(): void {
     const hideOn = this._hideOn;
     const target = this._listenerTarget;
     const useCapture = Boolean(this._opt('useCapture'));
@@ -1742,10 +1890,10 @@ export default class AttacherCore {
       Boolean(target && this._popoverTargetEntries.has(target));
 
     if (target && hideOn.includes('click') && !entryHandlesClickToggle) {
-      const showOnClickListener = this._legacyShowListenersOnTargetByEvent.click;
+      const showOnClickListener = this._targetShowListenersByEvent.click;
       if (showOnClickListener) {
         target.removeEventListener('click', showOnClickListener, useCapture);
-        delete this._legacyShowListenersOnTargetByEvent.click;
+        delete this._targetShowListenersByEvent.click;
       }
 
       this._hideListenersOnTargetByEvent.click = this._hideAfterDelay;
@@ -1757,32 +1905,38 @@ export default class AttacherCore {
       !this._hideListenersOnDocumentByEvent.click &&
       !this._hideListenersOnDocumentByEvent.touchend
     ) {
-      const clickoutEvent = 'ontouchstart' in window ? 'touchend' : 'click';
+      const clickoutEvent =
+        typeof window !== 'undefined' && 'ontouchstart' in window ? 'touchend' : 'click';
       this._hideListenersOnDocumentByEvent[clickoutEvent] = this._hideOnClickOut;
       document.addEventListener(clickoutEvent, this._hideOnClickOut, useCapture);
     }
 
     if (hideOn.includes('escapekey') && !this._hideListenersOnDocumentByEvent.keydown) {
-      this._hideListenersOnDocumentByEvent.keydown = this._hideOnEscapeKey;
+      this._hideListenersOnDocumentByEvent.keydown = this._hideOnEscapeKey as EventListener;
       document.addEventListener('keydown', this._hideOnEscapeKey, useCapture);
     }
 
-    if (target && hideOn.includes('mouseleave') && !this._hideListenersOnTargetByEvent.mouseleave) {
-      this._hideListenersOnTargetByEvent.mouseleave = this._hideOnMouseLeaveTarget;
+    if (
+      target &&
+      hideOn.includes('mouseleave') &&
+      !this._hideListenersOnTargetByEvent.mouseleave
+    ) {
+      this._hideListenersOnTargetByEvent.mouseleave = this._hideOnMouseLeaveTarget as EventListener;
       target.addEventListener('mouseleave', this._hideOnMouseLeaveTarget, useCapture);
     }
 
     if (target) {
       ['blur', 'focusout'].forEach((eventType) => {
         if (hideOn.includes(eventType) && !this._hideListenersOnTargetByEvent[eventType]) {
-          this._hideListenersOnTargetByEvent[eventType] = this._hideOnLostFocus;
+          this._hideListenersOnTargetByEvent[eventType] = this._hideOnLostFocus as EventListener;
           target.addEventListener(eventType, this._hideOnLostFocus, useCapture);
         }
       });
     }
   }
 
-  _hideOnMouseLeaveTarget(event) {
+  _hideOnMouseLeaveTarget(rawEvent: Event): void {
+    const event = rawEvent as MouseEvent;
     if (this._isHidden && !this._isShown) {
       this._hideAfterDelay();
       return;
@@ -1793,7 +1947,8 @@ export default class AttacherCore {
 
       if (!this._hideListenersOnDocumentByEvent.mousemove) {
         const useCapture = Boolean(this._opt('useCapture'));
-        this._hideListenersOnDocumentByEvent.mousemove = this._hideIfMouseOutsideTargetOrAttachment;
+        this._hideListenersOnDocumentByEvent.mousemove =
+          this._hideIfMouseOutsideTargetOrAttachment as EventListener;
         document.addEventListener(
           'mousemove',
           this._hideIfMouseOutsideTargetOrAttachment,
@@ -1805,14 +1960,16 @@ export default class AttacherCore {
     }
   }
 
-  _hideIfMouseOutsideTargetOrAttachment(event) {
+  _hideIfMouseOutsideTargetOrAttachment(rawEvent: Event): void {
+    const event = rawEvent as MouseEvent;
     const target = this._listenerTarget;
     if (!target) {
       return;
     }
 
+    const eventTarget = event.target instanceof Node ? event.target : null;
     if (
-      !target.contains(event.target) &&
+      !target.contains(eventTarget) &&
       !descendantAttachmentContainsEvent(this, event) &&
       !isCursorInSafePolygon(
         event,
@@ -1821,7 +1978,7 @@ export default class AttacherCore {
         this._floatingElement
       ) &&
       this._floatingElement &&
-      !this._floatingElement.contains(event.target)
+      !this._floatingElement.contains(eventTarget)
     ) {
       const useCapture = Boolean(this._opt('useCapture'));
       this._mouseLeaveOrigin = null;
@@ -1835,7 +1992,7 @@ export default class AttacherCore {
     }
   }
 
-  _hideOnClickOut(event) {
+  _hideOnClickOut(event: Event): void {
     const target = this._listenerTarget;
     if (elementContainsEvent(target, event) || descendantAttachmentContainsEvent(this, event)) {
       return;
@@ -1846,14 +2003,16 @@ export default class AttacherCore {
     }
   }
 
-  _hideOnEscapeKey(event) {
+  _hideOnEscapeKey(rawEvent: Event): void {
+    const event = rawEvent as KeyboardEvent;
     if ((event.key === 'Escape' || event.keyCode === 27) && shouldHandleEscapeKey(this, event)) {
       this._restoreFocusOnHide = !this._isTooltip;
-      return this._hideAfterDelay();
+      this._hideAfterDelay();
     }
   }
 
-  _hideOnLostFocus(event) {
+  _hideOnLostFocus(rawEvent: Event): void {
+    const event = rawEvent as FocusEvent;
     if (event.relatedTarget === null) {
       this._hideAfterDelay();
       return;
@@ -1864,19 +2023,17 @@ export default class AttacherCore {
       return;
     }
 
-    if (
-      target.contains(event.relatedTarget) ||
-      descendantAttachmentContainsNode(this, event.relatedTarget)
-    ) {
+    const relatedNode = event.relatedTarget instanceof Node ? event.relatedTarget : null;
+    if (target.contains(relatedNode) || descendantAttachmentContainsNode(this, relatedNode)) {
       return;
     }
 
-    if (!this._opt('interactive') || !this._floatingElement?.contains(event.relatedTarget)) {
+    if (!this._opt('interactive') || !this._floatingElement?.contains(relatedNode)) {
       this._hideAfterDelay();
     }
   }
 
-  _update() {
+  _update(): void {
     this._cleanup?.();
     this._cleanup = null;
 
@@ -1891,7 +2048,7 @@ export default class AttacherCore {
       return;
     }
 
-    const autoUpdateOpt = this._opt('autoUpdate');
+    const autoUpdateOpt = this._opt('autoUpdate') as boolean | AutoUpdateOptions | undefined;
     if (autoUpdateOpt) {
       this._cleanup = autoUpdate(
         this._currentTarget,
@@ -1904,7 +2061,7 @@ export default class AttacherCore {
     }
   }
 
-  _updatePosition() {
+  _updatePosition(): void {
     if (this._isDestroyed || !this._currentTarget || !this._floatingElement) {
       return;
     }
@@ -1915,12 +2072,11 @@ export default class AttacherCore {
       return;
     }
 
-    const strategy = this._opt('strategy');
+    const strategy = (this._opt('strategy') as Strategy) || DEFAULTS.strategy;
     const computePositionToken = attacherWaiter.beginAsync();
     computePosition(this._currentTarget, this._floatingElement, {
-      ...this._opt('floatingUiOptions'),
       middleware: this._middleware,
-      placement: this._opt('placement'),
+      placement: this._opt('placement') as Placement,
       strategy,
     })
       .then(({ x, y, placement, strategy: computedStrategy, middlewareData }) => {
@@ -1948,18 +2104,18 @@ export default class AttacherCore {
           this._middlewareData = middlewareData;
         }
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         attacherWaiter.endAsync(computePositionToken);
 
         if (!this._isDestroyed) {
-          warn(`[ember-attacher] Positioning error: ${error?.message ?? error}`, {
+          warn(`[ember-attacher] Positioning error: ${(error as Error)?.message ?? error}`, {
             id: 'ember-attacher.positioning-error',
           });
         }
       });
   }
 
-  destroy() {
+  destroy(): void {
     if (this._isDestroyed) {
       return;
     }
@@ -1972,13 +2128,13 @@ export default class AttacherCore {
     this._cleanup = null;
 
     cancelScheduled(this._syncArgsHandle);
-    cancelScheduled(this._setReferenceHandle);
+    cancelScheduled(this._setTargetHandle);
     this._cancelCloseAnimation();
     cancelScheduled(this._delayedVisibilityToggle);
 
     this._detachPopoverEvents(this._attachedPopoverEventsOn);
     this._aria.unbind();
-    this._removeLegacyShowEventListeners();
+    this._removeTargetShowEventListeners();
     this._removeHideEventListeners();
     this._clearPopoverTargetListeners();
 
@@ -1987,8 +2143,5 @@ export default class AttacherCore {
       this._removeEntryShowListeners(entry);
     }
     this._registeredEntries.clear();
-
-    this._checkDeprecatedArgs(this._getArgs());
-    this._arg('onWillDestroy')?.(this._currentTarget, this.id);
   }
 }

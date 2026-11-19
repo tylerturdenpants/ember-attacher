@@ -1,39 +1,29 @@
+import type AttacherCore from './attacher-core';
 import { elementContainsEvent } from './dom';
 
-const activeAttachers = new Set();
-const floatingElementParentMap = new WeakMap();
-const handledEscapeEvents = new WeakSet();
+const activeAttachers = new Set<AttacherCore>();
+const floatingElementParentMap = new WeakMap<EventTarget, AttacherCore>();
+const handledEscapeEvents = new WeakSet<Event>();
 
-/**
- * Register a mounted AttacherCore instance in the in-process attachment tree.
- *
- * @param {object} attacher
- */
-export function registerAttacher(attacher) {
+/** Register a mounted `AttacherCore` instance in the in-process attachment tree. */
+export function registerAttacher(attacher: AttacherCore): void {
   activeAttachers.add(attacher);
 }
 
-/**
- * Unregister a destroyed AttacherCore instance from the in-process attachment tree.
- *
- * @param {object} attacher
- */
-export function unregisterAttacher(attacher) {
+/** Unregister a destroyed `AttacherCore` instance from the in-process attachment tree. */
+export function unregisterAttacher(attacher: AttacherCore): void {
   activeAttachers.delete(attacher);
 }
 
 /**
- * Resolve the logical parent AttacherCore whose floating element contains
- * this attacher's target or template parent element.
- *
- * @param {object} child
- * @returns {object | null}
+ * Resolve the logical parent `AttacherCore` whose floating element contains
+ * this attacher's listener target.
  */
-export function getParentAttacher(child) {
-  const anchors = [child._listenerTarget, child.parentElement].filter(Boolean);
+export function getParentAttacher(child: AttacherCore): AttacherCore | null {
+  const anchor = child._listenerTarget;
 
-  if (activeAttachers.size > 1 && anchors.length > 0) {
-    const byFloatingEl = new Map();
+  if (activeAttachers.size > 1 && anchor) {
+    const byFloatingEl = new Map<Element, AttacherCore>();
     for (const candidate of activeAttachers) {
       if (candidate !== child && candidate._floatingElement) {
         byFloatingEl.set(candidate._floatingElement, candidate);
@@ -41,25 +31,23 @@ export function getParentAttacher(child) {
     }
 
     if (byFloatingEl.size > 0) {
-      for (const anchor of anchors) {
-        let node = anchor === child._floatingElement ? anchor.parentElement : anchor;
-        while (node) {
-          if (node !== child._floatingElement) {
-            const candidate = byFloatingEl.get(node);
-            if (candidate) {
-              if (child._floatingElement) {
-                floatingElementParentMap.set(child._floatingElement, candidate);
-              }
-              return candidate;
+      let node: Element | null = anchor === child._floatingElement ? anchor.parentElement : anchor;
+      while (node) {
+        if (node !== child._floatingElement) {
+          const candidate = byFloatingEl.get(node);
+          if (candidate) {
+            if (child._floatingElement) {
+              floatingElementParentMap.set(child._floatingElement, candidate);
             }
+            return candidate;
           }
-          node = node.parentElement;
         }
+        node = node.parentElement;
       }
     }
   }
 
-  if (anchors.some((anchor) => anchor.isConnected)) {
+  if (anchor && anchor.isConnected) {
     if (child._floatingElement) {
       floatingElementParentMap.delete(child._floatingElement);
     }
@@ -75,23 +63,15 @@ export function getParentAttacher(child) {
 
 /**
  * Cache the parent attachment relationship on the child's floating element so
- * clicks that unmount the child mid-event still trace back to the parent via composedPath.
- *
- * @param {object} attacher
+ * clicks that unmount the child mid-event still trace back to the parent via `composedPath`.
  */
-export function syncParentAttachment(attacher) {
+export function syncParentAttachment(attacher: AttacherCore): void {
   getParentAttacher(attacher);
 }
 
-/**
- * Check whether `candidate` is a logical descendant of `ancestor` in the attachment tree.
- *
- * @param {object} candidate
- * @param {object} ancestor
- * @returns {boolean}
- */
-export function isDescendantOf(candidate, ancestor) {
-  const visited = new Set();
+/** Check whether `candidate` is a logical descendant of `ancestor` in the attachment tree. */
+export function isDescendantOf(candidate: AttacherCore, ancestor: AttacherCore): boolean {
+  const visited = new Set<AttacherCore>();
   let current = getParentAttacher(candidate);
 
   while (current && !visited.has(current)) {
@@ -108,12 +88,8 @@ export function isDescendantOf(candidate, ancestor) {
 /**
  * Determine whether a DOM event originated inside any logical descendant Attachment
  * (or its Target) of `parent`.
- *
- * @param {object} parent
- * @param {Event} event
- * @returns {boolean}
  */
-export function descendantAttachmentContainsEvent(parent, event) {
+export function descendantAttachmentContainsEvent(parent: AttacherCore, event: Event): boolean {
   if (activeAttachers.size > 1) {
     for (const candidate of activeAttachers) {
       if (
@@ -137,7 +113,7 @@ export function descendantAttachmentContainsEvent(parent, event) {
   if (path) {
     for (const node of path) {
       let currentParent = floatingElementParentMap.get(node);
-      const visited = new Set();
+      const visited = new Set<AttacherCore>();
       while (currentParent && !visited.has(currentParent)) {
         if (currentParent === parent) {
           return true;
@@ -147,7 +123,7 @@ export function descendantAttachmentContainsEvent(parent, event) {
           getParentAttacher(currentParent) ??
           (currentParent._floatingElement
             ? floatingElementParentMap.get(currentParent._floatingElement)
-            : null);
+            : undefined);
       }
     }
   }
@@ -158,12 +134,11 @@ export function descendantAttachmentContainsEvent(parent, event) {
 /**
  * Determine whether a DOM node is contained inside any logical descendant Attachment
  * (or its Target) of `parent`.
- *
- * @param {object} parent
- * @param {Node | null | undefined} node
- * @returns {boolean}
  */
-export function descendantAttachmentContainsNode(parent, node) {
+export function descendantAttachmentContainsNode(
+  parent: AttacherCore,
+  node: Node | null | undefined
+): boolean {
   if (!node || activeAttachers.size <= 1) {
     return false;
   }
@@ -191,12 +166,8 @@ export function descendantAttachmentContainsNode(parent, node) {
 /**
  * Enforce LIFO Escape dismissal across nested Attachments: only the deepest
  * currently open escapable Attachment handles a given Escape keydown event.
- *
- * @param {object} attacher
- * @param {KeyboardEvent} event
- * @returns {boolean}
  */
-export function shouldHandleEscapeKey(attacher, event) {
+export function shouldHandleEscapeKey(attacher: AttacherCore, event: KeyboardEvent): boolean {
   if (handledEscapeEvents.has(event)) {
     return false;
   }
@@ -209,7 +180,7 @@ export function shouldHandleEscapeKey(attacher, event) {
         !candidate.isDestroying &&
         !candidate._isHiding &&
         !candidate._positioningSuspended &&
-        Boolean(candidate._hideListenersOnDocumentByEvent?.keydown) &&
+        Boolean(candidate._hideListenersOnDocumentByEvent.keydown) &&
         isDescendantOf(candidate, attacher)
       ) {
         return false;
