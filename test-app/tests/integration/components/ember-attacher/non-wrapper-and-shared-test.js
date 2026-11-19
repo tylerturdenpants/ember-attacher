@@ -36,7 +36,7 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
         </button>
         {{#each this.items as |item|}}
           <button id={{item.id}} type="button" {{tooltip item.label class=item.tipClass showDuration=0 hideDuration=0}}>
-            {{item.label}}
+            Item {{item.id}}
           </button>
         {{/each}}
       </div>
@@ -94,9 +94,9 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
 
   test('delay group warm handoff skips showDelay within 300ms and resets once cold', async function (assert) {
     await render(hbs`
-      <button id="warm-a" type="button" {{tooltip "First hint" showDelay=160 showDuration=0 hideDuration=0}}>A</button>
-      <button id="warm-b" type="button" {{tooltip "Second hint" showDelay=160 showDuration=0 hideDuration=0}}>B</button>
-      <button id="warm-c" type="button" {{tooltip "Third hint" showDelay=160 showDuration=0 hideDuration=0}}>C</button>
+      <button id="warm-a" type="button" {{tooltip "First hint" interactive=false showDelay=160 showDuration=0 hideDuration=0}}>A</button>
+      <button id="warm-b" type="button" {{tooltip "Second hint" interactive=false showDelay=160 showDuration=0 hideDuration=0}}>B</button>
+      <button id="warm-c" type="button" {{tooltip "Third hint" interactive=false showDelay=160 showDuration=0 hideDuration=0}}>C</button>
     `);
 
     const btnA = find('#warm-a');

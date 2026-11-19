@@ -111,8 +111,10 @@ export function applyPositionResult(
     });
   }
 
+  let hiddenByMiddleware = false;
   if (middlewareData.hide) {
     const { referenceHidden, escaped } = middlewareData.hide;
+    hiddenByMiddleware = Boolean(referenceHidden || escaped);
 
     if (referenceHidden) {
       floatingElement.setAttribute('data-reference-hidden', '');
@@ -125,13 +127,17 @@ export function applyPositionResult(
     } else {
       floatingElement.removeAttribute('data-escaped');
     }
-
-    if (referenceHidden || escaped) {
-      floatingElement.style.visibility = 'hidden';
-    } else if (!isHidden) {
-      floatingElement.style.visibility = '';
-    }
+  } else {
+    floatingElement.removeAttribute('data-reference-hidden');
+    floatingElement.removeAttribute('data-escaped');
   }
 
+  if (hiddenByMiddleware) {
+    floatingElement.style.visibility = 'hidden';
+  } else if (!isHidden) {
+    floatingElement.style.visibility = '';
+  }
+
+  floatingElement.setAttribute('data-placement', placement);
   floatingElement.setAttribute('x-placement', placement);
 }

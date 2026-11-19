@@ -1,9 +1,12 @@
 /**
- * Accessibility and ARIA attribute management for BasicAttacher.
+ * Accessibility and ARIA attribute management for ember-attacher.
  *
- * Manages token-safe open-only `aria-describedby` for tooltips, automatic
- * disclosure attributes (`aria-expanded`, `aria-controls`, `aria-haspopup`)
- * for popovers when not supplied by callers, and focus restoration on Escape.
+ * Implements modern-web-guidance smart tooltip ARIA:
+ * - Binds token-safe `aria-labelledby` when a trigger has no accessible name of its own.
+ * - Suppresses `aria-describedby` when the tooltip text duplicates the trigger's accessible name.
+ * - Otherwise binds token-safe open-only `aria-describedby` for tooltips, and automatic
+ *   disclosure attributes (`aria-expanded`, `aria-controls`, `aria-haspopup`) for popovers.
+ * - Restores focus on Escape when focus lives inside an interactive popover.
  */
 
 import { runInDebug, warn } from '@ember/debug';
@@ -14,8 +17,106 @@ function splitTokens(value) {
   return value ? value.trim().split(/\s+/).filter(Boolean) : [];
 }
 
+function normalizeText(value) {
+  return value ? String(value).replace(/\s+/g, ' ').trim() : '';
+}
+
+function collectAccessibleText(node, ignoreId) {
+  if (!node) {
+    return '';
+  }
+
+  if (node.nodeType === 3 /* Node.TEXT_NODE */) {
+    return node.nodeValue || '';
+  }
+
+  if (node.nodeType !== 1 /* Node.ELEMENT_NODE */) {
+    return '';
+  }
+
+  if (
+    (ignoreId && node.id === ignoreId) ||
+    node.classList?.contains('ember-attacher') ||
+    node.getAttribute('aria-hidden') === 'true' ||
+    node.hidden
+  ) {
+    return '';
+  }
+
+  const tag = node.tagName ? node.tagName.toLowerCase() : '';
+  if (tag === 'img' || tag === 'area') {
+    return ` ${node.getAttribute('alt') || ''} `;
+  }
+
+  if (tag === 'input') {
+    const type = (node.getAttribute('type') || '').toLowerCase();
+    if (type === 'button' || type === 'submit' || type === 'reset') {
+      return ` ${node.getAttribute('value') || ''} `;
+    }
+    return '';
+  }
+
+  if (tag === 'svg') {
+    const svgLabel = node.getAttribute('aria-label');
+    if (svgLabel) {
+      return ` ${svgLabel} `;
+    }
+    const titleEl = node.querySelector('title');
+    return titleEl ? ` ${titleEl.textContent || ''} ` : '';
+  }
+
+  let text = '';
+  const children = node.childNodes;
+  for (let i = 0; i < children.length; i += 1) {
+    text += collectAccessibleText(children[i], ignoreId);
+  }
+  return text;
+}
+
 /**
- * Tracks and restores ARIA attributes owned by a single BasicAttacher instance
+ * Resolve a target Element's accessible name per modern-web-guidance rules
+ * (`aria-labelledby` excluding `ignoreId`, `aria-label`, text/alt content, `title`).
+ *
+ * @param {Element | null} target
+ * @param {string | null} [ignoreId]
+ * @returns {string}
+ */
+export function getTargetAccessibleName(target, ignoreId = null) {
+  if (!target || typeof target.getAttribute !== 'function') {
+    return '';
+  }
+
+  const doc = target.ownerDocument || (typeof document !== 'undefined' ? document : null);
+  const labelledByIds = splitTokens(target.getAttribute('aria-labelledby')).filter(
+    (token) => token !== ignoreId
+  );
+
+  if (labelledByIds.length > 0 && doc) {
+    const labelText = labelledByIds
+      .map((id) => doc.getElementById(id)?.textContent || '')
+      .map(normalizeText)
+      .filter(Boolean)
+      .join(' ');
+    if (labelText) {
+      return labelText;
+    }
+  }
+
+  const ariaLabel = normalizeText(target.getAttribute('aria-label'));
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+
+  const contentText = normalizeText(collectAccessibleText(target, ignoreId));
+  if (contentText) {
+    return contentText;
+  }
+
+  return normalizeText(target.getAttribute('title'));
+}
+
+/**
+ * Tracks and restores ARIA attributes owned by a single AttacherCore instance
  * without clobbering pre-existing caller attributes or tokens.
  */
 export class AttachmentAriaController {
@@ -23,7 +124,9 @@ export class AttachmentAriaController {
   _isTooltip = false;
   _attachmentId = null;
   _ariaRole = undefined;
+  _tooltipMode = 'describedby';
   _addedDescribedByToken = false;
+  _addedLabelledByToken = false;
   _ownsHasPopup = false;
   _ownsControls = false;
   _ownsExpanded = false;
@@ -32,9 +135,16 @@ export class AttachmentAriaController {
    * Bind ARIA metadata to a target Element (no-op when target is null/non-Element).
    *
    * @param {Element | null} target
-   * @param {{ isTooltip: boolean, id: string, ariaRole?: string, isOpen: boolean }} options
+   * @param {{
+   *   isTooltip: boolean,
+   *   id: string,
+   *   ariaRole?: string,
+   *   isOpen: boolean,
+   *   attachmentEl?: Element | null,
+   *   tooltipText?: string | null,
+   * }} options
    */
-  bind(target, { isTooltip, id, ariaRole, isOpen }) {
+  bind(target, { isTooltip, id, ariaRole, isOpen, attachmentEl = null, tooltipText = null }) {
     if (
       this._boundTarget &&
       (this._boundTarget !== target ||
@@ -79,6 +189,22 @@ export class AttachmentAriaController {
         target.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         this._ownsExpanded = true;
       }
+    } else {
+      const targetName = getTargetAccessibleName(target, id);
+      const rawTip =
+        tooltipText != null && tooltipText !== '' ? tooltipText : attachmentEl?.textContent || '';
+      const normalizedTip = normalizeText(rawTip);
+      const hasExternalLabelledBy = splitTokens(target.getAttribute('aria-labelledby')).some(
+        (token) => token !== id
+      );
+
+      if (!targetName && !hasExternalLabelledBy) {
+        this._tooltipMode = 'labelledby';
+      } else if (normalizedTip && targetName === normalizedTip) {
+        this._tooltipMode = 'none';
+      } else {
+        this._tooltipMode = 'describedby';
+      }
     }
 
     this.setOpen(isOpen);
@@ -96,7 +222,33 @@ export class AttachmentAriaController {
     }
 
     if (this._isTooltip) {
-      this._setDescribedByOpen(target, isOpen);
+      if (this._tooltipMode === 'labelledby') {
+        if (this._addedDescribedByToken) {
+          this._removeAttributeToken(target, 'aria-describedby', this._attachmentId);
+          this._addedDescribedByToken = false;
+        }
+        this._addedLabelledByToken = this._ensureAttributeToken(
+          target,
+          'aria-labelledby',
+          this._attachmentId,
+          this._addedLabelledByToken
+        );
+      } else if (this._tooltipMode === 'none') {
+        if (this._addedDescribedByToken) {
+          this._removeAttributeToken(target, 'aria-describedby', this._attachmentId);
+          this._addedDescribedByToken = false;
+        }
+        if (this._addedLabelledByToken) {
+          this._removeAttributeToken(target, 'aria-labelledby', this._attachmentId);
+          this._addedLabelledByToken = false;
+        }
+      } else {
+        if (this._addedLabelledByToken) {
+          this._removeAttributeToken(target, 'aria-labelledby', this._attachmentId);
+          this._addedLabelledByToken = false;
+        }
+        this._setTokenOnOpen(target, 'aria-describedby', isOpen);
+      }
     } else if (this._ownsExpanded) {
       target.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     }
@@ -112,8 +264,13 @@ export class AttachmentAriaController {
     }
 
     if (this._addedDescribedByToken) {
-      this._removeDescribedByToken(target, this._attachmentId);
+      this._removeAttributeToken(target, 'aria-describedby', this._attachmentId);
       this._addedDescribedByToken = false;
+    }
+
+    if (this._addedLabelledByToken) {
+      this._removeAttributeToken(target, 'aria-labelledby', this._attachmentId);
+      this._addedLabelledByToken = false;
     }
 
     if (this._ownsHasPopup) {
@@ -134,45 +291,59 @@ export class AttachmentAriaController {
     this._boundTarget = null;
     this._attachmentId = null;
     this._isTooltip = false;
+    this._tooltipMode = 'describedby';
     this._ariaRole = undefined;
   }
 
-  _setDescribedByOpen(target, isOpen) {
+  _setTokenOnOpen(target, attrName, isOpen) {
     const id = this._attachmentId;
     if (!id) {
       return;
     }
 
     if (isOpen) {
-      const tokens = splitTokens(target.getAttribute('aria-describedby'));
-      if (!tokens.includes(id)) {
-        tokens.push(id);
-        target.setAttribute('aria-describedby', tokens.join(' '));
-        this._addedDescribedByToken = true;
-      }
+      this._addedDescribedByToken = this._ensureAttributeToken(
+        target,
+        attrName,
+        id,
+        this._addedDescribedByToken
+      );
     } else if (this._addedDescribedByToken) {
-      this._removeDescribedByToken(target, id);
+      this._removeAttributeToken(target, attrName, id);
       this._addedDescribedByToken = false;
     }
   }
 
-  _removeDescribedByToken(target, token) {
+  _ensureAttributeToken(target, attrName, token, alreadyOwned) {
+    if (!token) {
+      return alreadyOwned;
+    }
+    const tokens = splitTokens(target.getAttribute(attrName));
+    if (!tokens.includes(token)) {
+      tokens.push(token);
+      target.setAttribute(attrName, tokens.join(' '));
+      return true;
+    }
+    return alreadyOwned;
+  }
+
+  _removeAttributeToken(target, attrName, token) {
     if (!token) {
       return;
     }
 
-    const remaining = splitTokens(target.getAttribute('aria-describedby')).filter((t) => t !== token);
+    const remaining = splitTokens(target.getAttribute(attrName)).filter((t) => t !== token);
     if (remaining.length > 0) {
-      target.setAttribute('aria-describedby', remaining.join(' '));
+      target.setAttribute(attrName, remaining.join(' '));
     } else {
-      target.removeAttribute('aria-describedby');
+      target.removeAttribute(attrName);
     }
   }
 }
 
 /**
  * Restore focus to the Target if focus currently lives inside the floating attachment
- * or on another element outside the Target when dismissed via Escape.
+ * when dismissed via Escape.
  *
  * @param {Element | null} target
  * @param {Element | null} floatingElement

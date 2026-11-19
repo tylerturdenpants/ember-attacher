@@ -87,17 +87,34 @@ export function escapeAttributeSelectorValue(value) {
   return String(value).replace(/["\\]/g, '\\$&');
 }
 
-export function findPopoverTargetElements(id, root) {
+export function findTriggerTargetElements(id, root) {
   if (!id || typeof id !== 'string') {
-    return [];
+    return { popoverTargets: [], interestTargets: [], allTargets: [] };
   }
 
   const doc = root ?? (typeof document !== 'undefined' ? document : null);
   if (!doc || typeof doc.querySelectorAll !== 'function') {
-    return [];
+    return { popoverTargets: [], interestTargets: [], allTargets: [] };
   }
 
-  return Array.from(doc.querySelectorAll(`[popovertarget="${escapeAttributeSelectorValue(id)}"]`));
+  const escaped = escapeAttributeSelectorValue(id);
+  const popoverTargets = Array.from(doc.querySelectorAll(`[popovertarget="${escaped}"]`));
+  const interestTargets = Array.from(doc.querySelectorAll(`[interestfor="${escaped}"]`));
+  const seen = new Set(popoverTargets);
+  const allTargets = [...popoverTargets];
+
+  for (const el of interestTargets) {
+    if (!seen.has(el)) {
+      seen.add(el);
+      allTargets.push(el);
+    }
+  }
+
+  return { popoverTargets, interestTargets, allTargets };
+}
+
+export function findPopoverTargetElements(id, root) {
+  return findTriggerTargetElements(id, root).popoverTargets;
 }
 
 // Pick the Floating UI reference: explicit arg (@target / @explicitTarget),

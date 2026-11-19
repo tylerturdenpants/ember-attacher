@@ -301,4 +301,114 @@ module('Integration | Component | a11y defaults', function (hooks) {
 
     assert.false(isVisible(popover), 'virtual reference closes when moving away from corridor');
   });
+
+  test('smart tooltip ARIA binds aria-labelledby on nameless icon triggers and suppresses duplicate descriptions', async function (assert) {
+    await render(hbs`
+      <button id="icon-only-btn" type="button">
+        <svg aria-hidden="true" viewBox="0 0 16 16"></svg>
+      </button>
+      <AttachTooltip @id="icon-only-tip" @target="#icon-only-btn" @showDuration={{0}} @hideDuration={{0}}>
+        Close dialog
+      </AttachTooltip>
+
+      <button id="dup-label-btn" type="button" aria-label="Bold">
+        <svg aria-hidden="true" viewBox="0 0 16 16"></svg>
+      </button>
+      <AttachTooltip @id="dup-label-tip" @target="#dup-label-btn" @showDuration={{0}} @hideDuration={{0}}>
+        Bold
+      </AttachTooltip>
+
+      <button id="dup-text-btn" type="button">Save</button>
+      <AttachTooltip @id="dup-text-tip" @target="#dup-text-btn" @showDuration={{0}} @hideDuration={{0}}>
+        Save
+      </AttachTooltip>
+    `);
+
+    const iconBtn = find('#icon-only-btn');
+    const dupLabelBtn = find('#dup-label-btn');
+    const dupTextBtn = find('#dup-text-btn');
+
+    assert.dom(iconBtn).hasAttribute(
+      'aria-labelledby',
+      'icon-only-tip',
+      'binds aria-labelledby upfront when trigger has no accessible name'
+    );
+    assert.dom(iconBtn).doesNotHaveAttribute('aria-describedby', 'does not also bind aria-describedby when labelledby is used');
+
+    await focus(dupLabelBtn);
+    assert.true(isVisible(find('#dup-label-tip')));
+    assert.dom(dupLabelBtn).doesNotHaveAttribute('aria-describedby', 'skips aria-describedby when tooltip matches aria-label');
+    assert.dom(dupLabelBtn).doesNotHaveAttribute('aria-labelledby', 'does not add aria-labelledby when aria-label exists');
+
+    await focus(dupTextBtn);
+    assert.true(isVisible(find('#dup-text-tip')));
+    assert.dom(dupTextBtn).doesNotHaveAttribute('aria-describedby', 'skips aria-describedby when tooltip matches visible text');
+  });
+
+  test('WCAG 1.4.13 makes AttachTooltip and {{tooltip}} hoverable by default with @interactive={{false}} opt-out', async function (assert) {
+    await render(hbs`
+      <style>
+        #hover-tip-btn, #optout-tip-btn {
+          position: fixed;
+          left: 100px;
+          width: 80px;
+          height: 30px;
+        }
+        #hover-tip-btn { top: 40px; }
+        #optout-tip-btn { top: 140px; }
+        #hover-tip, #optout-tip {
+          width: 140px;
+          height: 40px;
+        }
+      </style>
+      <button id="hover-tip-btn" type="button">Default hoverable</button>
+      <AttachTooltip @id="hover-tip" @target="#hover-tip-btn" @placement="bottom" @showDuration={{0}} @hideDuration={{0}}>
+        Tooltip body
+      </AttachTooltip>
+
+      <button id="optout-tip-btn" type="button">Opt-out</button>
+      <AttachTooltip @id="optout-tip" @target="#optout-tip-btn" @interactive={{false}} @showDuration={{0}} @hideDuration={{0}}>
+        Non-interactive tooltip
+      </AttachTooltip>
+
+      <button id="pool-hover-btn" type="button" {{tooltip "Pooled hoverable" placement="bottom" showDuration=0 hideDuration=0}}>
+        Pool trigger
+      </button>
+    `);
+
+    const hoverBtn = find('#hover-tip-btn');
+    const hoverTip = find('#hover-tip');
+
+    await triggerEvent(hoverBtn, 'mouseenter');
+    assert.true(isVisible(hoverTip), 'tooltip opens on mouseenter');
+
+    const btnRect = hoverBtn.getBoundingClientRect();
+    await triggerEvent(hoverBtn, 'mouseleave', {
+      clientX: (btnRect.left + btnRect.right) / 2,
+      clientY: btnRect.bottom,
+    });
+    assert.true(isVisible(hoverTip), 'hoverable tooltip stays open when pointer leaves trigger toward tooltip');
+
+    await triggerEvent(hoverTip, 'mousemove');
+    assert.true(isVisible(hoverTip), 'hoverable tooltip stays open while pointer is over tooltip body');
+
+    await triggerEvent(document, 'mousemove', { clientX: 5, clientY: 5 });
+    assert.false(isVisible(hoverTip), 'hoverable tooltip closes when pointer moves outside');
+
+    const optOutBtn = find('#optout-tip-btn');
+    const optOutTip = find('#optout-tip');
+    await triggerEvent(optOutBtn, 'mouseenter');
+    assert.true(isVisible(optOutTip));
+    await triggerEvent(optOutBtn, 'mouseleave');
+    assert.false(isVisible(optOutTip), '@interactive={{false}} opts out of hoverable persistence');
+
+    const poolBtn = find('#pool-hover-btn');
+    await triggerEvent(poolBtn, 'mouseenter');
+    const poolTip = find('.ember-attacher:not(#hover-tip):not(#optout-tip)');
+    assert.true(isVisible(poolTip), 'singleton {{tooltip}} opens on mouseenter');
+    await triggerEvent(poolBtn, 'mouseleave');
+    assert.true(isVisible(poolTip), 'singleton {{tooltip}} is hoverable by default');
+    await triggerEvent(document, 'mousemove', { clientX: 5, clientY: 5 });
+    assert.false(isVisible(poolTip), 'singleton {{tooltip}} closes once pointer leaves corridor');
+  });
 });

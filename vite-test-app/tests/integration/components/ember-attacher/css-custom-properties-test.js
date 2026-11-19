@@ -75,7 +75,7 @@ module('Integration | CSS custom properties', function (hooks) {
     const discInner = find('#override-disc > .ember-attacher-tooltip');
     const discBackdrop = discInner.querySelector('.ember-attacher-fill-backdrop');
     const discArrow = discInner.querySelector('.ember-attacher-arrow');
-    const disc = discInner.querySelector('div[x-circle]');
+    const disc = discInner.querySelector('.ember-attacher-fill-circle');
 
     assert.strictEqual(getComputedStyle(bodyInner).backgroundColor, 'rgb(10, 20, 30)');
     assert.strictEqual(getComputedStyle(arrow).backgroundColor, 'rgb(10, 20, 30)');
@@ -105,7 +105,7 @@ module('Integration | CSS custom properties', function (hooks) {
     `);
 
     const inner = find('#dummy-popover > .ember-attacher-popover');
-    const disc = inner.querySelector('div[x-circle]');
+    const disc = inner.querySelector('.ember-attacher-fill-circle');
 
     assert.strictEqual(cssVar(inner, '--ember-attacher-fill'), '#fff');
     assert.strictEqual(cssVar(inner, '--ember-attacher-text'), '#333');

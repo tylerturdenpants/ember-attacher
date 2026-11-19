@@ -1,6 +1,6 @@
-import { cancel, schedule } from '@ember/runloop';
 import { isHTMLSafe } from '@ember/template';
 import AttacherCore, { resolveTooltipClass } from './attacher-core.js';
+import { cancelScheduled, scheduleMicrotask } from './schedule.js';
 
 const poolsByDocument = new WeakMap();
 const BASE_ARGS = Object.freeze({ ariaRole: 'tooltip' });
@@ -25,7 +25,6 @@ class TooltipDomHost {
     const host = this.doc.createElement('div');
     host.className = 'ember-attacher';
     host.setAttribute('aria-hidden', 'true');
-    host.style.display = 'none';
 
     const inner = this.doc.createElement('div');
     const content = this.doc.createElement('span');
@@ -33,13 +32,12 @@ class TooltipDomHost {
 
     const arrow = this.doc.createElement('div');
     arrow.className = 'ember-attacher-arrow';
-    arrow.setAttribute('x-arrow', '');
 
     const fill = this.doc.createElement('div');
     fill.className = 'ember-attacher-fill-backdrop';
     fill.setAttribute('aria-hidden', 'true');
     const circle = this.doc.createElement('div');
-    circle.setAttribute('x-circle', '');
+    circle.className = 'ember-attacher-fill-circle';
     fill.appendChild(circle);
 
     inner.appendChild(content);
@@ -136,7 +134,7 @@ class SingletonTooltipPool {
   doc = null;
   host = null;
   core = null;
-  _visibilitySyncTimers = new Map();
+  _visibilitySyncHandles = new Map();
 
   constructor(doc) {
     this.doc = doc;
@@ -144,7 +142,6 @@ class SingletonTooltipPool {
     this.core = new AttacherCore(null, () => BASE_ARGS, {
       defaultConfigKey: 'tooltip',
       defaultAriaRole: 'tooltip',
-      allowParentFallback: false,
       isComponentHost: false,
       getAdditionalClass: () => resolveTooltipClass(this.core?.envConfig),
       onRenderStateChange: (state) =>
@@ -164,10 +161,10 @@ class SingletonTooltipPool {
 
     this.core.registerTargetElement(element, text, normalizedOptions, owner);
 
-    const prevTimer = this._visibilitySyncTimers.get(element);
-    if (prevTimer) {
-      cancel(prevTimer);
-      this._visibilitySyncTimers.delete(element);
+    const prevHandle = this._visibilitySyncHandles.get(element);
+    if (prevHandle) {
+      cancelScheduled(prevHandle);
+      this._visibilitySyncHandles.delete(element);
     }
 
     const controlledIsShown = normalizedOptions?.isShown;
@@ -176,8 +173,8 @@ class SingletonTooltipPool {
     }
 
     // Defer tracked visibility transitions out of Modifier.modify()'s tracking frame.
-    const timer = schedule('actions', () => {
-      this._visibilitySyncTimers.delete(element);
+    const handle = scheduleMicrotask(() => {
+      this._visibilitySyncHandles.delete(element);
       if (!this.core || this.core.isDestroyed) {
         return;
       }
@@ -191,14 +188,14 @@ class SingletonTooltipPool {
         this.core.hide();
       }
     });
-    this._visibilitySyncTimers.set(element, timer);
+    this._visibilitySyncHandles.set(element, handle);
   }
 
   unregister(element) {
-    const timer = this._visibilitySyncTimers.get(element);
-    if (timer) {
-      cancel(timer);
-      this._visibilitySyncTimers.delete(element);
+    const handle = this._visibilitySyncHandles.get(element);
+    if (handle) {
+      cancelScheduled(handle);
+      this._visibilitySyncHandles.delete(element);
     }
 
     this.core?.unregisterTargetElement(element);
@@ -209,10 +206,10 @@ class SingletonTooltipPool {
   }
 
   destroy() {
-    for (const timer of this._visibilitySyncTimers.values()) {
-      cancel(timer);
+    for (const handle of this._visibilitySyncHandles.values()) {
+      cancelScheduled(handle);
     }
-    this._visibilitySyncTimers.clear();
+    this._visibilitySyncHandles.clear();
 
     if (this.doc) {
       poolsByDocument.delete(this.doc);

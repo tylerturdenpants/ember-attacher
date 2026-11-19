@@ -1,7 +1,7 @@
 import { hbs } from 'ember-cli-htmlbars';
-import { module, test } from 'qunit';
+import QUnit, { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-import { click, find, focus, render, settled, triggerKeyEvent, waitUntil } from '@ember/test-helpers';
+import { clearRender, click, find, focus, render, settled, triggerEvent, triggerKeyEvent, waitUntil } from '@ember/test-helpers';
 import {
   arrow,
   inline,
@@ -398,5 +398,93 @@ module('Integration | Component | explicit target', function (hooks) {
       'middlewareData.hide hides attachment visibility when referenceHidden/escaped'
     );
     assert.false(isVisible(attachment), 'isVisible returns false when middlewareData.hide hides attachment');
+  });
+
+  test('supports declarative [interestfor="<id>"] pairing and sets data-placement alongside x-placement', async function (assert) {
+    await render(hbs`
+      <button id="interest-btn" type="button" interestfor="interest-tip">
+        Info button
+      </button>
+      <AttachTooltip @id="interest-tip" @placement="bottom" @showDuration={{0}} @hideDuration={{0}}>
+        Declarative interest tooltip
+      </AttachTooltip>
+    `);
+
+    const tip = find('#interest-tip');
+    const btn = find('#interest-btn');
+
+    await triggerEvent(btn, 'mouseenter');
+    await waitUntil(() => isVisible(tip));
+    assert.true(isVisible(tip), '[interestfor] pairs tooltip on mouseenter');
+    assert.strictEqual(tip.getAttribute('data-placement'), tip.getAttribute('x-placement'), 'sets data-placement alongside x-placement');
+    assert.dom(btn).hasAttribute('aria-describedby', 'interest-tip');
+
+    await click(btn);
+    assert.true(isVisible(tip), 'clicking [interestfor]-only trigger does not hijack click behavior');
+
+    await triggerKeyEvent(document, 'keydown', 'Escape');
+    await waitUntil(() => !isVisible(tip));
+    assert.false(isVisible(tip), 'Escape dismisses [interestfor] tooltip');
+  });
+
+  test('asserts in debug when no target binding is supplied while allowing nullable @target={{this.dynamicTarget}}', async function (assert) {
+    let capturedError = null;
+    const prevIgnore = QUnit.config.current.ignoreGlobalErrors;
+    const prevWindowOnError = window.onerror;
+    QUnit.config.current.ignoreGlobalErrors = true;
+    window.onerror = (message, _source, _lineno, _colno, error) => {
+      capturedError = error || message;
+      return true;
+    };
+
+    try {
+      await render(hbs`
+        <AttachTooltip @id="missing-target-tip">
+          Orphan tooltip
+        </AttachTooltip>
+      `);
+    } finally {
+      window.onerror = prevWindowOnError;
+      QUnit.config.current.ignoreGlobalErrors = prevIgnore;
+      await clearRender();
+    }
+
+    assert.ok(
+      String(capturedError).includes('require a Target in 5.0.0'),
+      'debug assert fires when no target binding mechanism is supplied'
+    );
+
+    this.set('dynamicTarget', null);
+    await render(hbs`
+      <button id="later-target" type="button">Later target</button>
+      <AttachTooltip @id="nullable-target-tip" @target={{this.dynamicTarget}} @showDuration={{0}} @hideDuration={{0}}>
+        Dynamic tooltip
+      </AttachTooltip>
+    `);
+
+    assert.dom('#nullable-target-tip').exists('nullable @target renders without asserting');
+    this.set('dynamicTarget', '#later-target');
+    await settled();
+
+    await triggerEvent('#later-target', 'mouseenter');
+    assert.true(isVisible(find('#nullable-target-tip')), 'activates once reactive @target resolves');
+  });
+
+  test('does not assign permanent will-change on closed tooltips and removes x-arrow', async function (assert) {
+    await render(hbs`
+      <button id="perf-btn" type="button">Perf target</button>
+      <AttachTooltip @id="perf-tip" @target="#perf-btn" @arrow={{true}} @animation="fill" @hideDuration={{0}}>
+        Perf tooltip
+      </AttachTooltip>
+    `);
+
+    const host = find('#perf-tip');
+    const inner = host.querySelector('.ember-attacher-tooltip');
+    const arrowEl = host.querySelector('.ember-attacher-arrow');
+    const circleEl = host.querySelector('.ember-attacher-fill-circle');
+
+    assert.strictEqual(getComputedStyle(inner).willChange, 'auto', 'idle/closed attachment avoids permanent will-change: transform');
+    assert.false(arrowEl.hasAttribute('x-arrow'), 'no legacy x-arrow attribute rendered');
+    assert.ok(circleEl, 'uses .ember-attacher-fill-circle class hook');
   });
 });

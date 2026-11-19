@@ -1,6 +1,6 @@
 /*
   Look tokens on .ember-attacher-tooltip and opt-in .ember-attacher-popover restyle
-  body, .ember-attacher-arrow, and the fill disc together. Defaults match today's hex.
+  body, .ember-attacher-arrow, and .ember-attacher-fill-circle together.
 
   --ember-attacher-distance (default 10px) is the inner animation gap. Set it on
   .ember-attacher or an ancestor to change distance without Floating UI offset()
@@ -19,8 +19,12 @@
   top: 0;
   left: 0;
   display: none;
+  opacity: 0;
   perspective: 800px;
+  transition-property: transform, opacity, display, overlay;
+  transition-duration: var(--ember-attacher-transition-duration, 0ms);
   transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+  transition-behavior: allow-discrete;
   z-index: var(--ember-attacher-z-index, 9999);
 
   &[popover] {
@@ -39,11 +43,27 @@
     pointer-events: none;
   }
 
-  >div {
-    transition-duration: var(--ember-attacher-transition-duration, 0ms);
-    transition-property: transform, opacity;
+  &:is(:popover-open, .\:popover-open, [data-open]):where(:not([data-closing])) {
+    display: block;
+    opacity: 1;
+
+    @starting-style {
+      opacity: 0;
+    }
   }
 
+  &[data-closing] {
+    display: block;
+    opacity: 0;
+  }
+
+  > div {
+    transition-duration: var(--ember-attacher-transition-duration, 0ms);
+    transition-property: transform, opacity;
+    transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+
+  &[data-placement^=top],
   &[x-placement^=top] {
     --ember-attacher-arrow-rotate: rotate(-45deg);
     --ember-attacher-arrow-bottom: calc(-0.5 * var(--ember-attacher-arrow-size, 10px));
@@ -56,6 +76,7 @@
     --ember-attacher-perspective-origin: bottom;
   }
 
+  &[data-placement^=bottom],
   &[x-placement^=bottom] {
     --ember-attacher-arrow-rotate: rotate(135deg);
     --ember-attacher-arrow-top: calc(-0.5 * var(--ember-attacher-arrow-size, 10px));
@@ -68,6 +89,7 @@
     --ember-attacher-perspective-origin: top;
   }
 
+  &[data-placement^=left],
   &[x-placement^=left] {
     --ember-attacher-arrow-rotate: rotate(225deg);
     --ember-attacher-arrow-right: calc(-0.5 * var(--ember-attacher-arrow-size, 10px));
@@ -81,6 +103,7 @@
     --ember-attacher-perspective-origin: right;
   }
 
+  &[data-placement^=right],
   &[x-placement^=right] {
     --ember-attacher-arrow-rotate: rotate(45deg);
     --ember-attacher-arrow-left: calc(-0.5 * var(--ember-attacher-arrow-size, 10px));
@@ -94,6 +117,10 @@
     --ember-attacher-perspective-origin: left;
   }
 
+  &[data-placement^=top],
+  &[data-placement^=bottom],
+  &[data-placement^=left],
+  &[data-placement^=right],
   &[x-placement^=top],
   &[x-placement^=bottom],
   &[x-placement^=left],
@@ -106,21 +133,21 @@
       left: var(--ember-attacher-arrow-left, auto);
     }
 
-    div[x-circle] {
-      transform: var(--ember-attacher-circle-hide);
+    .ember-attacher-fill-circle {
+      transform: scale(1.2) translate(-50%, -50%);
       opacity: 0;
       transform-origin: var(--ember-attacher-circle-origin);
       transition-duration: calc(var(--ember-attacher-transition-duration, 0ms) * 0.8);
     }
 
-    >.ember-attacher-fill {
-      transform: var(--ember-attacher-rest);
+    > .ember-attacher-fill {
+      transform: var(--ember-attacher-offset);
       opacity: 0;
 
-      >.ember-attacher-arrow {
+      > .ember-attacher-arrow {
         clip-path: polygon(0 0, 100% 100%, 0 100%);
         opacity: 0;
-        transform: var(--ember-attacher-arrow-rotate) scale(0);
+        transform: var(--ember-attacher-arrow-rotate);
         transform-origin: center center;
         transition-delay: 0ms;
         transition-duration: calc(var(--ember-attacher-transition-duration, 0ms) * 0.45);
@@ -129,61 +156,132 @@
       }
     }
 
-    >.ember-attacher-shift {
-      transform: var(--ember-attacher-rest);
-      opacity: 0;
-    }
-
-    >.ember-attacher-none {
+    > .ember-attacher-none {
       transform: var(--ember-attacher-offset);
       opacity: 1;
     }
 
-    >.ember-attacher-fade {
+    > .ember-attacher-fade,
+    > .ember-attacher-shift,
+    > .ember-attacher-scale,
+    > .ember-attacher-perspective {
       transform: var(--ember-attacher-offset);
       opacity: 0;
     }
 
-    >.ember-attacher-scale {
-      transform: var(--ember-attacher-rest) scale(0);
-      opacity: 0;
-    }
-
-    >.ember-attacher-perspective {
-      transform: var(--ember-attacher-rest) var(--ember-attacher-perspective-hide);
-      opacity: 0;
+    > .ember-attacher-perspective {
       transform-origin: var(--ember-attacher-perspective-origin);
     }
 
-    >.ember-attacher-show {
-      div[x-circle] {
+    &:is(:popover-open, .\:popover-open, [data-open]):where(:not([data-closing])) {
+      .ember-attacher-fill-circle {
         opacity: 1;
-        transform: scale(1.2) translate(-50%, -50%);
+
+        @starting-style {
+          opacity: 0;
+        }
       }
 
-      &.ember-attacher-fill>.ember-attacher-arrow {
+      > .ember-attacher-fill > .ember-attacher-arrow {
         opacity: 1;
-        transform: var(--ember-attacher-arrow-rotate) scale(1);
         transition-delay: calc(var(--ember-attacher-transition-duration, 0ms) * 0.25);
         transition-duration: calc(var(--ember-attacher-transition-duration, 0ms) * 0.55);
+
+        @starting-style {
+          opacity: 0;
+        }
       }
 
-      &.ember-attacher-fade,
-      &.ember-attacher-fill,
-      &.ember-attacher-none,
-      &.ember-attacher-shift {
+      > .ember-attacher-fade,
+      > .ember-attacher-fill,
+      > .ember-attacher-shift,
+      > .ember-attacher-scale,
+      > .ember-attacher-perspective {
+        transform: var(--ember-attacher-offset);
+        opacity: 1;
+
+        @starting-style {
+          opacity: 0;
+        }
+      }
+
+      > .ember-attacher-none {
         transform: var(--ember-attacher-offset);
         opacity: 1;
       }
+    }
 
-      &.ember-attacher-scale {
-        transform: var(--ember-attacher-offset) scale(1);
-        opacity: 1;
+    @media (prefers-reduced-motion: no-preference) {
+      &:is(:popover-open, .\:popover-open, [data-open], [data-closing]) > :is(.ember-attacher-tooltip, .ember-attacher-popover),
+      &:is(:popover-open, .\:popover-open, [data-open], [data-closing]) .ember-attacher-fill-circle {
+        will-change: transform;
       }
 
-      &.ember-attacher-perspective {
-        transform: var(--ember-attacher-offset) var(--ember-attacher-perspective-show);
-        opacity: 1;
+      .ember-attacher-fill-circle {
+        transform: var(--ember-attacher-circle-hide);
+      }
+
+      > .ember-attacher-fill {
+        transform: var(--ember-attacher-rest);
+
+        > .ember-attacher-arrow {
+          transform: var(--ember-attacher-arrow-rotate) scale(0);
+        }
+      }
+
+      > .ember-attacher-shift {
+        transform: var(--ember-attacher-rest);
+      }
+
+      > .ember-attacher-scale {
+        transform: var(--ember-attacher-rest) scale(0);
+      }
+
+      > .ember-attacher-perspective {
+        transform: var(--ember-attacher-rest) var(--ember-attacher-perspective-hide);
+      }
+
+      &:is(:popover-open, .\:popover-open, [data-open]):where(:not([data-closing])) {
+        .ember-attacher-fill-circle {
+          transform: scale(1.2) translate(-50%, -50%);
+
+          @starting-style {
+            transform: var(--ember-attacher-circle-hide);
+          }
+        }
+
+        > .ember-attacher-fill > .ember-attacher-arrow {
+          transform: var(--ember-attacher-arrow-rotate) scale(1);
+
+          @starting-style {
+            transform: var(--ember-attacher-arrow-rotate) scale(0);
+          }
+        }
+
+        > .ember-attacher-fill,
+        > .ember-attacher-shift {
+          transform: var(--ember-attacher-offset);
+
+          @starting-style {
+            transform: var(--ember-attacher-rest);
+          }
+        }
+
+        > .ember-attacher-scale {
+          transform: var(--ember-attacher-offset) scale(1);
+
+          @starting-style {
+            transform: var(--ember-attacher-rest) scale(0);
+          }
+        }
+
+        > .ember-attacher-perspective {
+          transform: var(--ember-attacher-offset) var(--ember-attacher-perspective-show);
+
+          @starting-style {
+            transform: var(--ember-attacher-rest) var(--ember-attacher-perspective-hide);
+          }
+        }
       }
     }
   }
@@ -221,13 +319,12 @@
   max-width: var(--ember-attacher-max-width);
   padding: var(--ember-attacher-padding);
   position: relative;
-  will-change: transform;
 
   &.ember-attacher-fill {
     background-color: transparent;
   }
 
-  >.ember-attacher-arrow {
+  > .ember-attacher-arrow {
     background-color: var(--ember-attacher-fill);
     border-style: solid;
     border-width: var(--ember-attacher-arrow-border-width, var(--ember-attacher-border-width, 1px));
@@ -238,7 +335,7 @@
     z-index: -1;
   }
 
-  >.ember-attacher-fill-backdrop {
+  > .ember-attacher-fill-backdrop {
     border-radius: inherit;
     inset: 0;
     overflow: hidden;
@@ -246,19 +343,21 @@
     position: absolute;
     z-index: -1;
 
-    >div[x-circle] {
+    > .ember-attacher-fill-circle {
       background-color: var(--ember-attacher-fill);
       border-radius: 50%;
       left: 50%;
       opacity: 0;
       position: absolute;
-      transition-duration: calc(var(--ember-attacher-transition-duration, 0ms) * 0.8);
-      transition-property: transform, opacity;
+      transition-property: opacity;
       transition-timing-function: ease-out;
       width: 120%;
       width: calc(100% + 2rem);
-      will-change: transform;
       z-index: -1;
+
+      @media (prefers-reduced-motion: no-preference) {
+        transition-property: transform, opacity;
+      }
 
       &::before {
         content: "";
@@ -271,7 +370,6 @@
 }
 
 @media (max-width: 450px) {
-
   .ember-attacher-tooltip,
   .ember-attacher-popover {
     max-width: 96%;
@@ -289,13 +387,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
   .ember-attacher,
-  .ember-attacher>div,
+  .ember-attacher > div,
   .ember-attacher .ember-attacher-arrow,
-  .ember-attacher div[x-circle] {
-    --ember-attacher-transition-duration: 0ms !important;
+  .ember-attacher .ember-attacher-fill-circle {
     transition-delay: 0ms !important;
-    transition-duration: 0ms !important;
+    transition-duration: min(var(--ember-attacher-transition-duration, 0ms), 100ms);
   }
 }
