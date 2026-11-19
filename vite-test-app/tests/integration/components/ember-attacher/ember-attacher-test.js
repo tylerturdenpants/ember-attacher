@@ -217,6 +217,56 @@ module('Integration | Component | ember attacher', function (hooks) {
     }
   });
 
+  test('degrades cleanly without native Popover API support (e.g. Safari < 17): in-place [data-open] host with timer-based exit', async function (assert) {
+    const proto = HTMLElement.prototype;
+    const original = Object.getOwnPropertyDescriptor(proto, 'showPopover');
+    const originalHide = Object.getOwnPropertyDescriptor(proto, 'hidePopover');
+    delete proto.showPopover;
+    delete proto.hidePopover;
+
+    try {
+      await render(hbs`
+        <div id="clip" style="overflow: hidden;">
+          <button id="legacy-trigger" type="button">Trigger</button>
+          <AttachPopover
+            @id="legacy-attachment"
+            @target="#legacy-trigger"
+            @showOn="click"
+            @hideOn="click"
+            @showDuration={{0}}
+            @hideDuration={{60}}
+          >
+            Legacy body
+          </AttachPopover>
+        </div>
+      `);
+
+      const el = find('#legacy-attachment');
+      assert.false(el.hasAttribute('popover'), 'no [popover] attribute without native support');
+      assert.strictEqual(el.parentElement.id, 'clip', 'host renders in place (no Top Layer)');
+      assert.strictEqual(getComputedStyle(el).display, 'none', 'hidden by default');
+
+      await click('#legacy-trigger');
+      assert.true(el.hasAttribute('data-open'), '[data-open] drives visibility');
+      assert.strictEqual(getComputedStyle(el).display, 'block', 'displayed via [data-open]');
+      assert.strictEqual(getComputedStyle(el).opacity, '1', 'fully opaque when open');
+      assert.true(isVisible(el), 'isVisible works without :popover-open');
+
+      find('#legacy-trigger').click();
+      assert.true(el.hasAttribute('data-closing'), 'data-closing set on exit');
+      assert.strictEqual(getComputedStyle(el).display, 'block', 'stays displayed during exit window');
+      assert.strictEqual(getComputedStyle(el).pointerEvents, 'none', 'closing host does not steal clicks');
+      await settled();
+      assert.false(el.hasAttribute('data-closing'), 'data-closing removed after exit');
+      assert.false(el.hasAttribute('data-open'), 'data-open removed after exit');
+      assert.strictEqual(getComputedStyle(el).display, 'none', 'hidden again after exit');
+      assert.false(isVisible(el), 'isVisible false after exit');
+    } finally {
+      if (original) Object.defineProperty(proto, 'showPopover', original);
+      if (originalHide) Object.defineProperty(proto, 'hidePopover', originalHide);
+    }
+  });
+
   test('falls back cleanly when showPopover throws', async function (assert) {
     const originalShowPopover = HTMLElement.prototype.showPopover;
     HTMLElement.prototype.showPopover = function () {
