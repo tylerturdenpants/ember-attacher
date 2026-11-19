@@ -4,39 +4,41 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render, click, find, settled, waitFor } from '@ember/test-helpers';
 
-module('Integration | Component | isShown', function(hooks) {
+module('Integration | Component | isShown', function (hooks) {
   setupRenderingTest(hooks);
 
-  test('isShown works with showOn/hideOn set to "click"', async function(assert) {
+  test('isShown works with showOn/hideOn set to "click"', async function (assert) {
     assert.expect(3);
 
     await render(hbs`
-      <button id="toggle-show">
+      <button id="toggle-show" type="button">
         Click me, captain!
-
-        {{#attach-popover id='attachment'
-                          hideOn='click'
-                          isShown=true
-                          showOn='click'}}
-          isShown w/ hideOn/ShowOn of 'click'
-        {{/attach-popover}}
       </button>
+      <AttachPopover
+        @id="attachment"
+        @target="#toggle-show"
+        @hideOn="click"
+        @isShown={{true}}
+        @showOn="click"
+      >
+        isShown w/ hideOn/ShowOn of 'click'
+      </AttachPopover>
     `);
 
     const attachment = find('#attachment');
 
-    assert.equal(isVisible(attachment), true, 'Initially shown');
+    assert.true(isVisible(attachment), 'Initially shown');
 
     await click('#toggle-show');
 
-    assert.equal(isVisible(attachment), false, 'Now hidden');
+    assert.false(isVisible(attachment), 'Now hidden');
 
     await click('#toggle-show');
 
-    assert.equal(isVisible(attachment), true, 'Shown again after click');
+    assert.true(isVisible(attachment), 'Shown again after click');
   });
 
-  test('isShown works with showOn/hideOn set to `null`', async function(assert) {
+  test('isShown works with showOn/hideOn set to `null`', async function (assert) {
     assert.expect(3);
 
     this.closePopover = () => {
@@ -48,42 +50,42 @@ module('Integration | Component | isShown', function(hooks) {
     };
 
     this.set('isShown', false);
-
     this.set('hideOn', null);
     this.set('showOn', null);
 
     await render(hbs`
-      <button id="open" {{on 'click' this.openPopover}}>
+      <button id="open" type="button" {{on "click" this.openPopover}}>
         Click me, captain!
-
-        {{#attach-popover id='attachment'
-                          hideOn=this.hideOn
-                          isShown=this.isShown
-                          showOn=this.showOn}}
-          isShown w/ hideOn/ShowOn of 'none'
-
-          <button id="close" {{on 'click' this.closePopover}}>
-            Close
-          </button>
-
-        {{/attach-popover}}
       </button>
+      <AttachPopover
+        @id="attachment"
+        @target="#open"
+        @hideOn={{this.hideOn}}
+        @isShown={{this.isShown}}
+        @showOn={{this.showOn}}
+      >
+        isShown w/ hideOn/ShowOn of 'none'
+
+        <button id="close" type="button" {{on "click" this.closePopover}}>
+          Close
+        </button>
+      </AttachPopover>
     `);
 
     const attachment = await waitFor('#attachment');
 
-    assert.equal(isVisible(attachment), false, 'Initially hidden');
+    assert.false(isVisible(attachment), 'Initially hidden');
 
     await click('#open');
 
-    assert.equal(isVisible(attachment), true, 'Now shown');
+    assert.true(isVisible(attachment), 'Now shown');
 
     await click('#close');
 
-    assert.equal(isVisible(attachment), false, 'Hidden again');
+    assert.false(isVisible(attachment), 'Hidden again');
   });
 
-  test('isShown works with showOn/hideOn set to `null` with lazyRender', async function(assert) {
+  test('isShown works with showOn/hideOn set to `null` with lazyRender', async function (assert) {
     assert.expect(3);
 
     this.closePopover = () => {
@@ -95,27 +97,27 @@ module('Integration | Component | isShown', function(hooks) {
     };
 
     this.set('isShown', false);
-
     this.set('hideOn', null);
     this.set('showOn', null);
 
     await render(hbs`
-      <button id="open" {{on 'click' this.openPopover}}>
+      <button id="open" type="button" {{on "click" this.openPopover}}>
         Click me, captain!
-
-        {{#attach-popover id='attachment'
-                          hideOn=this.hideOn
-                          isShown=this.isShown
-                          lazyRender=true
-                          showOn=this.showOn}}
-          isShown w/ hideOn/ShowOn of 'none'
-
-          <button id="close" {{on 'click' this.closePopover}}>
-            Close
-          </button>
-
-        {{/attach-popover}}
       </button>
+      <AttachPopover
+        @id="attachment"
+        @target="#open"
+        @hideOn={{this.hideOn}}
+        @isShown={{this.isShown}}
+        @lazyRender={{true}}
+        @showOn={{this.showOn}}
+      >
+        isShown w/ hideOn/ShowOn of 'none'
+
+        <button id="close" type="button" {{on "click" this.closePopover}}>
+          Close
+        </button>
+      </AttachPopover>
     `);
 
     assert.strictEqual(find('#close'), null, 'Inner content not present in DOM before first show');
@@ -126,14 +128,14 @@ module('Integration | Component | isShown', function(hooks) {
 
     await settled();
 
-    assert.equal(isVisible(attachment), true, 'Now shown');
+    assert.true(isVisible(attachment), 'Now shown');
 
     await click('#close');
 
-    assert.equal(isVisible(attachment), false, 'Hidden again');
+    assert.false(isVisible(attachment), 'Hidden again');
   });
 
-  test('nested attachers open and close as expected', async function(assert) {
+  test('nested attachers open and close as expected', async function (assert) {
     assert.expect(7);
 
     this.openParentPopover = () => {
@@ -153,54 +155,58 @@ module('Integration | Component | isShown', function(hooks) {
 
     this.setProperties({
       childIsShown: false,
-      parentIsShown: false
+      parentIsShown: false,
     });
 
     await render(hbs`
-      <button id="openParent" {{on 'click' this.openParentPopover}}>
+      <button id="openParent" type="button" {{on "click" this.openParentPopover}}>
         Open parent
-
-        {{#attach-popover hideOn=this.hideOn
-                          id='parent'
-                          isShown=this.parentIsShown
-                          showOn=this.showOn
-                          interactive=true}}
-          <button id="openChild" {{on 'click' this.openChildPopover}}>
-            Open child
-
-            {{#attach-popover hideDuration=0
-                              hideOn='none'
-                              id='child'
-                              isShown=this.childIsShown
-                              showOn='none'}}
-              <button id="closeChild" {{on 'click' this.closeChildPopover}}>
-                Close child
-              </button>
-            {{/attach-popover}}
-          </button>
-        {{/attach-popover}}
       </button>
+      <AttachPopover
+        @hideOn={{this.hideOn}}
+        @id="parent"
+        @target="#openParent"
+        @isShown={{this.parentIsShown}}
+        @showOn={{this.showOn}}
+        @interactive={{true}}
+      >
+        <button id="openChild" type="button" {{on "click" this.openChildPopover}}>
+          Open child
+        </button>
+        <AttachPopover
+          @hideDuration={{0}}
+          @hideOn="none"
+          @id="child"
+          @target="#openChild"
+          @isShown={{this.childIsShown}}
+          @showOn="none"
+        >
+          <button id="closeChild" type="button" {{on "click" this.closeChildPopover}}>
+            Close child
+          </button>
+        </AttachPopover>
+      </AttachPopover>
     `);
 
     const childAttacher = find('#child');
     const parentAttacher = find('#parent');
 
-    assert.equal(getComputedStyle(parentAttacher).display, 'none', 'parent initially hidden');
-    assert.equal(getComputedStyle(childAttacher).display, 'none', 'child initially hidden');
+    assert.strictEqual(getComputedStyle(parentAttacher).display, 'none', 'parent initially hidden');
+    assert.strictEqual(getComputedStyle(childAttacher).display, 'none', 'child initially hidden');
 
     await click('#openParent');
 
-    assert.equal(getComputedStyle(parentAttacher).display, 'block', 'parent shown');
+    assert.strictEqual(getComputedStyle(parentAttacher).display, 'block', 'parent shown');
 
-    assert.equal(getComputedStyle(childAttacher).display, 'none', 'child still hidden');
+    assert.strictEqual(getComputedStyle(childAttacher).display, 'none', 'child still hidden');
 
     await click(parentAttacher.querySelector('#openChild'));
 
-    assert.equal(getComputedStyle(childAttacher).display, 'block', 'child shown');
+    assert.strictEqual(getComputedStyle(childAttacher).display, 'block', 'child shown');
 
     await click('#closeChild');
 
-    assert.equal(getComputedStyle(parentAttacher).display, 'block', 'parent still shown');
-    assert.equal(getComputedStyle(childAttacher).display, 'none', 'child hidden');
+    assert.strictEqual(getComputedStyle(parentAttacher).display, 'block', 'parent still shown');
+    assert.strictEqual(getComputedStyle(childAttacher).display, 'none', 'child hidden');
   });
 });

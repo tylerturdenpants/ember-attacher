@@ -4,26 +4,27 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { click, clearRender, focus, render, find } from '@ember/test-helpers';
 
-module('Integration | Component | ember attacher', function(hooks) {
+module('Integration | Component | ember attacher', function (hooks) {
   setupRenderingTest(hooks);
 
-  test('it leaves no content', async function(assert) {
-    await render(hbs`<div id='wrapper'><AttachPopover /></div>`);
+  test('it leaves no content', async function (assert) {
+    await render(hbs`
+      <div id="wrapper"><button id="empty-target" type="button"></button><AttachPopover @target="#empty-target" /></div>
+    `);
 
     const wrapper = find('#wrapper');
 
-    assert.equal(wrapper.textContent, '');
+    assert.strictEqual(wrapper.textContent, '');
   });
 
-  test('it renders', async function(assert) {
+  test('it renders', async function (assert) {
     assert.expect(2);
 
     await render(hbs`
-      <div>
-        {{#attach-popover id='attachment'}}
-          floating text
-        {{/attach-popover}}
-      </div>
+      <div id="render-target">Target</div>
+      <AttachPopover @id="attachment" @target="#render-target">
+        floating text
+      </AttachPopover>
     `);
 
     const attachment = find('#attachment');
@@ -33,17 +34,16 @@ module('Integration | Component | ember attacher', function(hooks) {
     assert.ok(attachment.innerHTML.includes('floating text'));
   });
 
-  test('uses the user-supplied popover class over global config class', async function(assert) {
+  test('uses the user-supplied popover class over global config class', async function (assert) {
     this.owner.resolveRegistration('config:environment').emberAttacher = {
-      class: 'different-default'
+      class: 'different-default',
     };
 
     await render(hbs`
-      <div id="target">
-        {{#attach-popover id='attachment' class='some-class some-other-class'}}
-          tooltip text
-        {{/attach-popover}}
-      </div>
+      <div id="target">Target</div>
+      <AttachPopover @id="attachment" @target="#target" @class="some-class some-other-class">
+        tooltip text
+      </AttachPopover>
     `);
 
     const popover = find('#attachment > .some-class');
@@ -55,27 +55,26 @@ module('Integration | Component | ember attacher', function(hooks) {
         'some-class',
         'some-other-class',
         'ember-attacher-hide',
-        'ember-attacher-without-arrow'
+        'ember-attacher-without-arrow',
       ],
       'it adds the user-supplied default classes'
     );
   });
 
-  test('uses the user-supplied default popover class - separate config', async function(assert) {
+  test('uses the user-supplied default popover class - separate config', async function (assert) {
     assert.expect(1);
 
     this.owner.resolveRegistration('config:environment').emberAttacher = {
       popover: {
         class: 'user-defined',
-      }
+      },
     };
 
     await render(hbs`
-      <div>
-        {{#attach-popover id='attachment'}}
-          floating text
-        {{/attach-popover}}
-      </div>
+      <div id="separate-target">Target</div>
+      <AttachPopover @id="attachment" @target="#separate-target">
+        floating text
+      </AttachPopover>
     `);
 
     const popover = find('#attachment > .user-defined');
@@ -87,12 +86,13 @@ module('Integration | Component | ember attacher', function(hooks) {
     );
   });
 
-  test('teleports the floating element to the default container', async function(assert) {
+  test('teleports the floating element to the default container', async function (assert) {
     await render(hbs`
       <div id="target">
-        {{#attach-popover id='attachment'}}
+        Target
+        <AttachPopover @id="attachment" @target="#target">
           floating text
-        {{/attach-popover}}
+        </AttachPopover>
       </div>
     `);
 
@@ -107,12 +107,12 @@ module('Integration | Component | ember attacher', function(hooks) {
     assert.dom('#target #attachment').doesNotExist('not left in the target when renderInPlace is false');
   });
 
-  test('renderInPlace keeps the floating element inside the target', async function(assert) {
+  test('renderInPlace keeps the floating element inside the target', async function (assert) {
     await render(hbs`
       <div id="target">
-        {{#attach-popover id='attachment' renderInPlace=true}}
+        <AttachPopover @id="attachment" @target="#target" @renderInPlace={{true}}>
           floating text
-        {{/attach-popover}}
+        </AttachPopover>
       </div>
     `);
 
@@ -125,50 +125,30 @@ module('Integration | Component | ember attacher', function(hooks) {
     assert.dom('#attachment').doesNotHaveAttribute('popover', 'renderInPlace omits popover="manual"');
   });
 
-  test('promotes to Top-Layer popover="manual" host and updates isVisible() across initial positioning frame and exit animation completion', async function(assert) {
+  test('promotes to Top-Layer popover="manual" host and updates isVisible() across initial positioning frame and exit animation completion', async function (assert) {
     this.set('isShown', false);
 
     await render(hbs`
-      <div id="custom-container"></div>
-
       <button id="top-layer-trigger" type="button">
         Trigger
-        <AttachPopover
-          @id="top-layer-attachment"
-          @isShown={{this.isShown}}
-          @showOn="click"
-          @hideOn="click"
-          @hideDuration={{50}}
-        >
-          Top layer content
-        </AttachPopover>
       </button>
-
-      <button id="custom-container-trigger" type="button">
-        Custom Container Trigger
-        <AttachPopover
-          @id="custom-container-attachment"
-          @floatingElementContainer="#custom-container"
-          @isShown={{true}}
-        >
-          Custom container content
-        </AttachPopover>
-      </button>
+      <AttachPopover
+        @id="top-layer-attachment"
+        @target="#top-layer-trigger"
+        @isShown={{this.isShown}}
+        @showOn="click"
+        @hideOn="click"
+        @hideDuration={{50}}
+      >
+        Top layer content
+      </AttachPopover>
     `);
 
     const topLayerEl = find('#top-layer-attachment');
-    const customContainerEl = find('#custom-container-attachment');
 
     assert.dom(topLayerEl).hasAttribute('popover', 'manual', 'default host gets popover="manual"');
     assert.false(topLayerEl.matches(':popover-open'), 'not :popover-open while hidden');
     assert.false(isVisible(topLayerEl), 'isVisible is false while hidden');
-
-    assert.dom(customContainerEl).doesNotHaveAttribute(
-      'popover',
-      'custom @floatingElementContainer falls back to {{#in-element}} without popover="manual"'
-    );
-    assert.strictEqual(customContainerEl.parentElement, find('#custom-container'));
-    assert.true(isVisible(customContainerEl), 'custom container attachment is visible when shown');
 
     // Open top-layer attachment
     await click('#top-layer-trigger');
@@ -203,7 +183,7 @@ module('Integration | Component | ember attacher', function(hooks) {
     assert.strictEqual(topLayerEl.style.display, 'none', 'display is none after exit animation completion');
   });
 
-  test('falls back cleanly when showPopover throws or .ember-application is absent', async function(assert) {
+  test('falls back cleanly when showPopover throws or .ember-application is absent', async function (assert) {
     const appContainers = Array.from(document.querySelectorAll('.ember-application'));
     appContainers.forEach((el) => el.classList.remove('ember-application'));
 
@@ -216,10 +196,10 @@ module('Integration | Component | ember attacher', function(hooks) {
       await render(hbs`
         <button id="fallback-trigger" type="button">
           Fallback Trigger
-          <AttachPopover @id="fallback-attachment" @showOn="click" @hideOn="click">
-            Fallback body
-          </AttachPopover>
         </button>
+        <AttachPopover @id="fallback-attachment" @target="#fallback-trigger" @showOn="click" @hideOn="click">
+          Fallback body
+        </AttachPopover>
       `);
 
       const attachment = document.getElementById('fallback-attachment');
@@ -244,7 +224,7 @@ module('Integration | Component | ember attacher', function(hooks) {
     }
   });
 
-  test('interactive AttachPopover inside native dialog.showModal() is clickable, focusable, non-inert, and stacked above the modal', async function(assert) {
+  test('interactive AttachPopover inside native dialog.showModal() is clickable, focusable, non-inert, and stacked above the modal', async function (assert) {
     let actionCount = 0;
     this.set('onInsideAction', () => {
       actionCount += 1;
@@ -254,19 +234,20 @@ module('Integration | Component | ember attacher', function(hooks) {
       <dialog id="native-modal-dialog">
         <button id="modal-popover-trigger" type="button">
           Open Modal Popover
-          <AttachPopover
-            @id="modal-popover"
-            @class="ember-attacher-popover"
-            @showOn="click"
-            @hideOn="clickout"
-            @interactive={{true}}
-            @animation="none"
-          >
-            <button id="modal-popover-action" type="button" {{on "click" this.onInsideAction}}>
-              Inside Modal Action
-            </button>
-          </AttachPopover>
         </button>
+        <AttachPopover
+          @id="modal-popover"
+          @target="#modal-popover-trigger"
+          @class="ember-attacher-popover"
+          @showOn="click"
+          @hideOn="clickout"
+          @interactive={{true}}
+          @animation="none"
+        >
+          <button id="modal-popover-action" type="button" {{on "click" this.onInsideAction}}>
+            Inside Modal Action
+          </button>
+        </AttachPopover>
       </dialog>
     `);
 

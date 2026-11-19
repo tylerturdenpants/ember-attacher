@@ -8,6 +8,39 @@ module.exports = async function () {
     command: 'pnpm run test',
     scenarios: [
       {
+        name: 'ember-lts-4.12',
+        npm: {
+          devDependencies: {
+            'ember-source': '~4.12.4',
+            '@glimmer/component': '^1.1.2',
+          },
+        },
+      },
+      {
+        name: 'ember-lts-5.12',
+        npm: {
+          devDependencies: {
+            'ember-source': '~5.12.0',
+          },
+        },
+      },
+      {
+        name: 'ember-lts-6.12',
+        npm: {
+          devDependencies: {
+            'ember-source': '~6.12.0',
+          },
+        },
+      },
+      {
+        name: 'ember-7.4',
+        npm: {
+          devDependencies: {
+            'ember-source': '~7.4.1',
+          },
+        },
+      },
+      {
         name: 'ember-release',
         allowedToFail: true,
         npm: {

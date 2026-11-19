@@ -4,45 +4,48 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render, click, find, settled } from '@ember/test-helpers';
 
-module('Integration | Component | onChange', function(hooks) {
+module('Integration | Component | onChange', function (hooks) {
   setupRenderingTest(hooks);
 
-  test('fires the onChange hook when visibility is toggled', async function(assert) {
+  test('fires the onChange hook when visibility is toggled', async function (assert) {
     assert.expect(5);
 
     this.set('isShown', true);
+    this.set('onChange', (val) => this.set('isShown', val));
 
     await render(hbs`
-      <button id="click-toggle">
+      <button id="click-toggle" type="button">
         Click me, captain!
-
-        {{#attach-popover id='attachment'
-                          hideOn='click'
-                          isShown=this.isShown
-                          onChange=(fn (mut this.isShown))
-                          showOn='click'}}
-          showOn click
-        {{/attach-popover}}
       </button>
+      <AttachPopover
+        @id="attachment"
+        @target="#click-toggle"
+        @hideOn="click"
+        @isShown={{this.isShown}}
+        @onChange={{this.onChange}}
+        @showOn="click"
+      >
+        showOn click
+      </AttachPopover>
     `);
 
     const attachment = find('#attachment');
 
-    assert.equal(isVisible(attachment), true, 'Initially shown');
+    assert.true(isVisible(attachment), 'Initially shown');
 
     await click('#click-toggle');
 
-    assert.equal(isVisible(attachment), false, 'Now hidden');
-    assert.equal(this.isShown, false);
+    assert.false(isVisible(attachment), 'Now hidden');
+    assert.false(this.isShown);
 
     // Show again by toggling isShown
     this.set('isShown', true);
 
     await settled();
 
-    assert.equal(isVisible(attachment), true, 'Shown again');
+    assert.true(isVisible(attachment), 'Shown again');
 
     // Make sure isShown is still true
-    assert.equal(this.isShown, true);
+    assert.true(this.isShown);
   });
 });

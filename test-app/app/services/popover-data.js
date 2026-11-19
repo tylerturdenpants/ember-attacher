@@ -1,19 +1,20 @@
 import Service from '@ember/service';
+import { tracked } from '@glimmer/tracking';
 
 export default class PopoverData extends Service {
-  animation = 'shift';
-  arrow = false;
-  autoUpdate = false;
-  hideDelay = 0;
-  hideDuration = 300;
-  hideOn = 'click';
-  interactive = false;
-  isShown = false;
-  lazyRender = false;
-  placement = 'top';
-  renderInPlace = false;
-  showDelay = 0;
-  showDuration = 300;
-  showOn = 'click';
-  useCapture = false;
+  @tracked animation = 'shift';
+  @tracked arrow = false;
+  @tracked autoUpdate = false;
+  @tracked hideDelay = 0;
+  @tracked hideDuration = 300;
+  @tracked hideOn = 'click';
+  @tracked interactive = false;
+  @tracked isShown = false;
+  @tracked lazyRender = false;
+  @tracked placement = 'top';
+  @tracked renderInPlace = false;
+  @tracked showDelay = 0;
+  @tracked showDuration = 300;
+  @tracked showOn = 'click';
+  @tracked useCapture = false;
 }

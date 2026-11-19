@@ -116,7 +116,7 @@ module('Integration | Component | deprecations & 4.4 regressions', function (hoo
     );
   });
 
-  test('emits zero deprecations on 4.4 explicit-target APIs', async function (assert) {
+  test('emits zero deprecations on explicit-target APIs', async function (assert) {
     this.set('middleware', [offset(6)]);
 
     const deprecations = await collectDeprecations(async () => {

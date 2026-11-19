@@ -57,12 +57,13 @@
     "globals": "^17.14.0",
     "qunit": "^2.26.0",
     "qunit-dom": "^3.6.0",
+    "sinon": "^22.1.0",
     "testem": "^3.21.5",
     "typescript": "~5.8.3",
     "vite": "^8.3.6"
   },
   "engines": {
-    "node": ">= 20.19.0"
+    "node": ">= 20"
   },
   "ember": {
     "edition": "octane"

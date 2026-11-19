@@ -5,6 +5,7 @@ import loadInitializers from 'ember-load-initializers';
 import config from 'vite-test-app/config/environment';
 
 import 'ember-attacher/styles';
+import './styles/app.css';
 
 export default class App extends Application {
   modulePrefix = config.modulePrefix;

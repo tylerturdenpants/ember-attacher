@@ -4,62 +4,66 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { click, find, render, triggerKeyEvent, waitUntil, waitFor } from '@ember/test-helpers';
 
-module('Integration | Component | hideOn "escapekey"', function(hooks) {
+module('Integration | Component | hideOn "escapekey"', function (hooks) {
   setupRenderingTest(hooks);
 
-  test('hides when the escape key is pressed', async function(assert) {
+  test('hides when the escape key is pressed', async function (assert) {
     assert.expect(2);
 
     await render(hbs`
-      <div>
-        {{#attach-popover id='attachment'
-                          hideOn='escapekey'
-                          isShown=true}}
-          hideOn click
-        {{/attach-popover}}
-      </div>
+      <div id="target">Target</div>
+      <AttachPopover
+        @id="attachment"
+        @target="#target"
+        @hideOn="escapekey"
+        @isShown={{true}}
+      >
+        hideOn escapekey
+      </AttachPopover>
     `);
 
     const attachment = await waitFor('#attachment');
 
-    assert.equal(isVisible(attachment), true, 'Initially shown');
+    assert.true(isVisible(attachment), 'Initially shown');
 
     // Press escape key (keyCode === 27)
     await triggerKeyEvent(document, 'keydown', 27);
 
     await waitUntil(() => isVisible(attachment) === false);
 
-    assert.equal(isVisible(attachment), false, 'Now hidden');
+    assert.false(isVisible(attachment), 'Now hidden');
   });
 
-  test('Escape dismisses nested Attachments LIFO (deepest child first, then parent)', async function(assert) {
+  test('Escape dismisses nested Attachments LIFO (deepest child first, then parent)', async function (assert) {
     await render(hbs`
       <button id="parent-trigger" type="button">
         Parent
+      </button>
+      <AttachPopover
+        @id="parent-escape-popover"
+        @target="#parent-trigger"
+        @isShown={{true}}
+        @showOn="click"
+        @hideOn="escapekey"
+        @hideDuration={{0}}
+        @interactive={{true}}
+        @animation="none"
+      >
+        <button id="child-trigger" type="button">
+          Child
+        </button>
         <AttachPopover
-          @id="parent-escape-popover"
-          @isShown={{true}}
+          @id="child-escape-popover"
+          @target="#child-trigger"
           @showOn="click"
           @hideOn="escapekey"
           @hideDuration={{0}}
           @interactive={{true}}
           @animation="none"
         >
-          <button id="child-trigger" type="button">
-            Child
-            <AttachPopover
-              @id="child-escape-popover"
-              @showOn="click"
-              @hideOn="escapekey"
-              @hideDuration={{0}}
-              @interactive={{true}}
-              @animation="none"
-            >
-              Nested child body
-            </AttachPopover>
-          </button>
+          Nested child body
         </AttachPopover>
-      </button>
+      </AttachPopover>
     `);
 
     const parentPopover = find('#parent-escape-popover');
@@ -92,36 +96,37 @@ module('Integration | Component | hideOn "escapekey"', function(hooks) {
     assert.false(isVisible(parentPopover), 'Second Escape dismissed parent');
   });
 
-  test('Escape dismisses LIFO across mixed Top-Layer parent and portaled child', async function(assert) {
+  test('Escape dismisses LIFO across mixed Top-Layer parent and in-place child', async function (assert) {
     await render(hbs`
-      <div id="portal-escape-host"></div>
       <button id="mixed-parent-trigger" type="button">
         Parent
+      </button>
+      <AttachPopover
+        @id="mixed-parent-escape"
+        @target="#mixed-parent-trigger"
+        @isShown={{true}}
+        @showOn="click"
+        @hideOn="escapekey"
+        @hideDuration={{0}}
+        @interactive={{true}}
+        @animation="none"
+      >
+        <button id="mixed-child-trigger" type="button">
+          Child
+        </button>
         <AttachPopover
-          @id="mixed-parent-escape"
-          @isShown={{true}}
+          @id="mixed-child-escape"
+          @target="#mixed-child-trigger"
+          @renderInPlace={{true}}
           @showOn="click"
           @hideOn="escapekey"
           @hideDuration={{0}}
           @interactive={{true}}
           @animation="none"
         >
-          <button id="mixed-child-trigger" type="button">
-            Child
-            <AttachPopover
-              @id="mixed-child-escape"
-              @floatingElementContainer="#portal-escape-host"
-              @showOn="click"
-              @hideOn="escapekey"
-              @hideDuration={{0}}
-              @interactive={{true}}
-              @animation="none"
-            >
-              Portaled child body
-            </AttachPopover>
-          </button>
+          In-place child body
         </AttachPopover>
-      </button>
+      </AttachPopover>
     `);
 
     const parentPopover = find('#mixed-parent-escape');
@@ -132,12 +137,12 @@ module('Integration | Component | hideOn "escapekey"', function(hooks) {
 
     await click('#mixed-child-trigger');
     assert.true(isVisible(parentPopover), 'Top-Layer parent open');
-    assert.true(isVisible(childPopover), 'Portaled child open');
+    assert.true(isVisible(childPopover), 'In-place child open');
 
     await triggerKeyEvent(document, 'keydown', 'Escape');
     await waitUntil(() => isVisible(childPopover) === false);
 
-    assert.false(isVisible(childPopover), 'First Escape closed portaled child');
+    assert.false(isVisible(childPopover), 'First Escape closed in-place child');
     assert.true(isVisible(parentPopover), 'Top-Layer parent remains open after first Escape');
 
     await triggerKeyEvent(document, 'keydown', 'Escape');

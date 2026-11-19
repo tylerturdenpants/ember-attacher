@@ -13,27 +13,30 @@
         class="styles-gallery__cell{{if (eq example.placement 'left') ' styles-gallery__cell--left'}}{{if (eq example.placement 'right') ' styles-gallery__cell--right'}}"
         data-test-styles-gallery-cell={{example.label}}
       >
-        <button type="button" class="styles-gallery__target hover-me">
-          {{example.label}}
-
-          <AttachTooltip
-            @animation={{example.animation}}
-            @arrow={{example.arrow}}
-            @class={{example.tooltipClass}}
-            @hideDelay={{0}}
-            @hideDuration={{0}}
-            @hideOn={{null}}
-            @isShown={{true}}
-            @overflowPadding={{false}}
-            @placement={{example.placement}}
-            @renderInPlace={{true}}
-            @showDelay={{0}}
-            @showDuration={{0}}
-            @showOn={{null}}
-          >
+        <AttachTooltip
+          @animation={{example.animation}}
+          @arrow={{example.arrow}}
+          @class={{example.tooltipClass}}
+          @hideDelay={{0}}
+          @hideDuration={{0}}
+          @hideOn={{null}}
+          @isShown={{true}}
+          @middleware={{this.noFlipOrShift}}
+          @placement={{example.placement}}
+          @renderInPlace={{true}}
+          @showDelay={{0}}
+          @showDuration={{0}}
+          @showOn={{null}}
+        >
+          <:target as |target|>
+            <button type="button" class="styles-gallery__target hover-me" {{target}}>
+              {{example.label}}
+            </button>
+          </:target>
+          <:content>
             {{example.text}}
-          </AttachTooltip>
-        </button>
+          </:content>
+        </AttachTooltip>
       </div>
     {{/each}}
   </div>

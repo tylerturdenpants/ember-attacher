@@ -16,6 +16,7 @@ module('Integration | Component | positioning lifecycle resilience', function (h
           <button id="trigger" type="button">Trigger</button>
           <AttachPopover
             @id="lifecycle-attachment"
+            @target="#trigger"
             @isShown={{true}}
             @autoUpdate={{true}}
             @animation="none"
@@ -45,6 +46,7 @@ module('Integration | Component | positioning lifecycle resilience', function (h
         <button id="trigger" type="button">Trigger</button>
         <AttachPopover
           @id="lifecycle-attachment"
+          @target="#trigger"
           @isShown={{this.isShown}}
           @autoUpdate={{true}}
           @animation="none"
@@ -78,6 +80,7 @@ module('Integration | Component | positioning lifecycle resilience', function (h
         <button id="trigger" type="button">Trigger</button>
         <AttachPopover
           @id="rapid-attachment"
+          @target="#trigger"
           @isShown={{this.isShown}}
           @autoUpdate={{true}}
           @animation="none"
@@ -113,6 +116,7 @@ module('Integration | Component | positioning lifecycle resilience', function (h
         <button id="trigger" type="button">Trigger</button>
         <AttachPopover
           @id="zero-duration-attachment"
+          @target="#trigger"
           @isShown={{this.isShown}}
           @autoUpdate={{true}}
           @animation="none"
@@ -142,6 +146,4 @@ module('Integration | Component | positioning lifecycle resilience', function (h
 
     assert.false(isVisible(attachment), 'Attachment remains hidden after options change and resize');
   });
-
 });
-

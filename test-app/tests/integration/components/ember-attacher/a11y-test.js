@@ -13,10 +13,10 @@ module('Integration | Component | a11y defaults', function (hooks) {
     await render(hbs`
       <button id="auto-trigger" type="button">
         Auto trigger
-        <AttachPopover @id="auto-popover" @showOn="click" @hideOn="click" @animation="none">
-          Auto body
-        </AttachPopover>
       </button>
+      <AttachPopover @id="auto-popover" @target="#auto-trigger" @showOn="click" @hideOn="click" @animation="none">
+        Auto body
+      </AttachPopover>
 
       <button
         id="custom-trigger"
@@ -26,12 +26,12 @@ module('Integration | Component | a11y defaults', function (hooks) {
         aria-expanded="false"
       >
         Custom trigger
-        {{#if this.showSecond}}
-          <AttachPopover @id="custom-popover" @showOn="click" @hideOn="click" @animation="none">
-            Custom body
-          </AttachPopover>
-        {{/if}}
       </button>
+      {{#if this.showSecond}}
+        <AttachPopover @id="custom-popover" @target="#custom-trigger" @showOn="click" @hideOn="click" @animation="none">
+          Custom body
+        </AttachPopover>
+      {{/if}}
     `);
 
     const autoTrigger = find('#auto-trigger');
@@ -67,17 +67,17 @@ module('Integration | Component | a11y defaults', function (hooks) {
     await render(hbs`
       <button id="menu-trigger" type="button">
         Menu
-        <AttachPopover @id="menu-popover" @ariaRole="menu" @showOn="click">
-          Menu items
-        </AttachPopover>
       </button>
+      <AttachPopover @id="menu-popover" @target="#menu-trigger" @ariaRole="menu" @showOn="click">
+        Menu items
+      </AttachPopover>
 
       <button id="future-role-trigger" type="button">
         Custom
-        <AttachPopover @id="future-role-popover" @ariaRole="custom-popup" @showOn="click">
-          Custom items
-        </AttachPopover>
       </button>
+      <AttachPopover @id="future-role-popover" @target="#future-role-trigger" @ariaRole="custom-popup" @showOn="click">
+        Custom items
+      </AttachPopover>
     `);
 
     assert.dom('#menu-trigger').hasAttribute('aria-haspopup', 'menu');
@@ -95,26 +95,27 @@ module('Integration | Component | a11y defaults', function (hooks) {
 
       <button id="escape-focus-trigger" type="button">
         Open menu
-        <AttachPopover
-          @id="escape-focus-popover"
-          @showOn="click"
-          @hideOn="escapekey"
-          @interactive={{true}}
-          @animation="none"
-          @hideDuration={{0}}
-        >
-          <button id="inside-popover-btn" type="button">Action</button>
-        </AttachPopover>
       </button>
+      <AttachPopover
+        @id="escape-focus-popover"
+        @target="#escape-focus-trigger"
+        @showOn="click"
+        @hideOn="escapekey"
+        @interactive={{true}}
+        @animation="none"
+        @hideDuration={{0}}
+      >
+        <button id="inside-popover-btn" type="button">Action</button>
+      </AttachPopover>
 
       <button id="pre-wired-target" type="button" aria-describedby="pre-wired-tip">
         Pre-wired
-        {{#if this.showPreWired}}
-          <AttachTooltip @id="pre-wired-tip" @showOn="focus" @hideOn="blur" @animation="none">
-            Pre-wired tooltip
-          </AttachTooltip>
-        {{/if}}
       </button>
+      {{#if this.showPreWired}}
+        <AttachTooltip @id="pre-wired-tip" @target="#pre-wired-target" @showOn="focus" @hideOn="blur" @animation="none">
+          Pre-wired tooltip
+        </AttachTooltip>
+      {{/if}}
     `);
 
     await click('#escape-focus-trigger');
@@ -171,18 +172,19 @@ module('Integration | Component | a11y defaults', function (hooks) {
       <button id="other-btn" type="button">Other</button>
       <button id="focus-show-trigger" type="button">
         Hover or focus me
-        <AttachPopover
-          @id="focus-show-popover"
-          @showOn="mouseenter focus"
-          @hideOn="blur escapekey"
-          @interactive={{true}}
-          @animation="none"
-          @showDuration={{0}}
-          @hideDuration={{0}}
-        >
-          <button id="focus-show-inside" type="button">Inside</button>
-        </AttachPopover>
       </button>
+      <AttachPopover
+        @id="focus-show-popover"
+        @target="#focus-show-trigger"
+        @showOn="mouseenter focus"
+        @hideOn="blur escapekey"
+        @interactive={{true}}
+        @animation="none"
+        @showDuration={{0}}
+        @hideDuration={{0}}
+      >
+        <button id="focus-show-inside" type="button">Inside</button>
+      </AttachPopover>
     `);
 
     const popover = find('#focus-show-popover');
@@ -231,7 +233,7 @@ module('Integration | Component | a11y defaults', function (hooks) {
     });
 
     await render(hbs`
-      <AttachTooltip @id="virtual-tooltip" @explicitTarget={{this.virtualTarget}} @isShown={{true}}>
+      <AttachTooltip @id="virtual-tooltip" @target={{this.virtualTarget}} @isShown={{true}}>
         Virtual tooltip
       </AttachTooltip>
     `);
@@ -254,7 +256,7 @@ module('Integration | Component | a11y defaults', function (hooks) {
       </div>
       <AttachPopover
         @id="virtual-corridor-popover"
-        @explicitTarget={{this.virtualTarget}}
+        @target={{this.virtualTarget}}
         @middleware={{this.middleware}}
         @placement="bottom"
         @hideOn="mouseleave"
