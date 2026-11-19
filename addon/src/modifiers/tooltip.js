@@ -1,7 +1,7 @@
 import { getOwner } from '@ember/application';
 import { registerDestructor } from '@ember/destroyable';
 import Modifier from 'ember-modifier';
-import { getTooltipPool } from '../lib/singleton-tooltip-pool.js';
+import { getTooltipPool } from '../lib/singleton-tooltip-pool';
 
 /**
  * `{{tooltip "Text" class="..." ...}}` modifier for void and simple targets.

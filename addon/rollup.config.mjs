@@ -1,5 +1,6 @@
 import { Addon } from '@embroider/addon-dev/rollup';
 import babel from '@rollup/plugin-babel';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import { transform } from 'lightningcss';
 import fs from 'fs';
 import path from 'path';
@@ -115,8 +116,13 @@ export default {
     // Flatten nested source CSS into dist/styles (implicit-styles / exports["./styles"])
     cssHandler(),
 
-    // Emit hand-authored TypeScript & Glint declaration files into dist/
+    // Emit hand-authored TypeScript & Glint declaration files into dist/.
+    // declarations/ remains the sole published type contract until component/core
+    // .gts/.ts conversion is complete and tsc/glint declaration emit replaces this.
     dtsHandler(),
+
+    // Resolve extensionless relative imports to .js/.gjs/.ts/.gts sources
+    nodeResolve({ extensions: ['.js', '.gjs', '.ts', '.gts'] }),
 
     // Converts .hbs files to JS
     addon.hbs(),
@@ -127,7 +133,7 @@ export default {
     // Run JS through Babel so the template colocation plugin wires templates to components
     babel({
       babelHelpers: 'bundled',
-      extensions: ['.js', '.gjs', '.ts'],
+      extensions: ['.js', '.gjs', '.ts', '.gts'],
       configFile: './babel.config.json',
     }),
 

@@ -1,5 +1,5 @@
 import Component from '@glimmer/component';
-import AttacherCore from '../lib/attacher-core.js';
+import AttacherCore from '../lib/attacher-core';
 
 export default class BasicAttacher extends Component {
   constructor(owner, args) {

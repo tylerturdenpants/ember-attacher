@@ -3,6 +3,7 @@ import eslintPluginEmberRecommended from 'eslint-plugin-ember/configs/recommende
 import decoratorPositionRecommended from 'eslint-plugin-decorator-position/config/recommended';
 import nodePlugin from 'eslint-plugin-n';
 import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 const nodeFiles = [
   '.template-lintrc.js',
@@ -42,6 +43,9 @@ export default [
         ecmaVersion: 2018,
         sourceType: 'module',
         babelOptions: {
+          // Ignore babel.config.json (its async template-compilation plugin cannot run in ESLint)
+          configFile: false,
+          babelrc: false,
           plugins: [['@babel/plugin-proposal-decorators', { version: 'legacy' }]],
         },
       },
@@ -62,6 +66,25 @@ export default [
           FunctionExpression: { parameters: 'first' },
         },
       ],
+      'ember/no-observers': 'off',
+      'ember/no-runloop': 'off',
+    },
+  },
+  ...tseslint.configs.recommended.map((config) => ({
+    ...config,
+    files: ['**/*.ts'],
+  })),
+  {
+    files: ['**/*.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
+    },
+    rules: {
+      'ember/no-jquery': 'error',
+      quotes: ['error', 'single', { allowTemplateLiterals: true, avoidEscape: true }],
+      'prefer-const': 'error',
       'ember/no-observers': 'off',
       'ember/no-runloop': 'off',
     },

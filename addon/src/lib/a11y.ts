@@ -13,15 +13,15 @@ import { runInDebug, warn } from '@ember/debug';
 
 const KNOWN_HASPOPUP_ROLES = new Set(['dialog', 'menu', 'listbox', 'tree', 'grid', 'true', 'false']);
 
-function splitTokens(value) {
+function splitTokens(value: string | null | undefined): string[] {
   return value ? value.trim().split(/\s+/).filter(Boolean) : [];
 }
 
-function normalizeText(value) {
+function normalizeText(value: unknown): string {
   return value ? String(value).replace(/\s+/g, ' ').trim() : '';
 }
 
-function collectAccessibleText(node, ignoreId) {
+function collectAccessibleText(node: Node | null | undefined, ignoreId?: string | null): string {
   if (!node) {
     return '';
   }
@@ -34,41 +34,43 @@ function collectAccessibleText(node, ignoreId) {
     return '';
   }
 
+  const el = node as Element;
+
   if (
-    (ignoreId && node.id === ignoreId) ||
-    node.classList?.contains('ember-attacher') ||
-    node.getAttribute('aria-hidden') === 'true' ||
-    node.hidden
+    (ignoreId && el.id === ignoreId) ||
+    el.classList?.contains('ember-attacher') ||
+    el.getAttribute('aria-hidden') === 'true' ||
+    (el as HTMLElement).hidden
   ) {
     return '';
   }
 
-  const tag = node.tagName ? node.tagName.toLowerCase() : '';
+  const tag = el.tagName ? el.tagName.toLowerCase() : '';
   if (tag === 'img' || tag === 'area') {
-    return ` ${node.getAttribute('alt') || ''} `;
+    return ` ${el.getAttribute('alt') || ''} `;
   }
 
   if (tag === 'input') {
-    const type = (node.getAttribute('type') || '').toLowerCase();
+    const type = (el.getAttribute('type') || '').toLowerCase();
     if (type === 'button' || type === 'submit' || type === 'reset') {
-      return ` ${node.getAttribute('value') || ''} `;
+      return ` ${el.getAttribute('value') || ''} `;
     }
     return '';
   }
 
   if (tag === 'svg') {
-    const svgLabel = node.getAttribute('aria-label');
+    const svgLabel = el.getAttribute('aria-label');
     if (svgLabel) {
       return ` ${svgLabel} `;
     }
-    const titleEl = node.querySelector('title');
+    const titleEl = el.querySelector('title');
     return titleEl ? ` ${titleEl.textContent || ''} ` : '';
   }
 
   let text = '';
-  const children = node.childNodes;
+  const children = el.childNodes;
   for (let i = 0; i < children.length; i += 1) {
-    text += collectAccessibleText(children[i], ignoreId);
+    text += collectAccessibleText(children[i] as Node, ignoreId);
   }
   return text;
 }
@@ -81,7 +83,10 @@ function collectAccessibleText(node, ignoreId) {
  * @param {string | null} [ignoreId]
  * @returns {string}
  */
-export function getTargetAccessibleName(target, ignoreId = null) {
+export function getTargetAccessibleName(
+  target: Element | null | undefined,
+  ignoreId: string | null = null
+): string {
   if (!target || typeof target.getAttribute !== 'function') {
     return '';
   }
@@ -120,11 +125,11 @@ export function getTargetAccessibleName(target, ignoreId = null) {
  * without clobbering pre-existing caller attributes or tokens.
  */
 export class AttachmentAriaController {
-  _boundTarget = null;
+  _boundTarget: Element | null = null;
   _isTooltip = false;
-  _attachmentId = null;
-  _ariaRole = undefined;
-  _tooltipMode = 'describedby';
+  _attachmentId: string | null = null;
+  _ariaRole: string | undefined = undefined;
+  _tooltipMode: 'describedby' | 'labelledby' | 'none' = 'describedby';
   _addedDescribedByToken = false;
   _addedLabelledByToken = false;
   _ownsHasPopup = false;
@@ -144,7 +149,24 @@ export class AttachmentAriaController {
    *   tooltipText?: string | null,
    * }} options
    */
-  bind(target, { isTooltip, id, ariaRole, isOpen, attachmentEl = null, tooltipText = null }) {
+  bind(
+    target: Element | null | undefined,
+    {
+      isTooltip,
+      id,
+      ariaRole,
+      isOpen,
+      attachmentEl = null,
+      tooltipText = null,
+    }: {
+      isTooltip: boolean;
+      id: string;
+      ariaRole?: string;
+      isOpen: boolean;
+      attachmentEl?: Element | null;
+      tooltipText?: string | null;
+    }
+  ): void {
     if (
       this._boundTarget &&
       (this._boundTarget !== target ||
@@ -215,7 +237,7 @@ export class AttachmentAriaController {
    *
    * @param {boolean} isOpen
    */
-  setOpen(isOpen) {
+  setOpen(isOpen: boolean): void {
     const target = this._boundTarget;
     if (!target) {
       return;
@@ -257,7 +279,7 @@ export class AttachmentAriaController {
   /**
    * Remove only the attributes and tokens added by this controller.
    */
-  unbind() {
+  unbind(): void {
     const target = this._boundTarget;
     if (!target) {
       return;
@@ -295,7 +317,7 @@ export class AttachmentAriaController {
     this._ariaRole = undefined;
   }
 
-  _setTokenOnOpen(target, attrName, isOpen) {
+  _setTokenOnOpen(target: Element, attrName: string, isOpen: boolean): void {
     const id = this._attachmentId;
     if (!id) {
       return;
@@ -314,7 +336,12 @@ export class AttachmentAriaController {
     }
   }
 
-  _ensureAttributeToken(target, attrName, token, alreadyOwned) {
+  _ensureAttributeToken(
+    target: Element,
+    attrName: string,
+    token: string | null,
+    alreadyOwned: boolean
+  ): boolean {
     if (!token) {
       return alreadyOwned;
     }
@@ -327,7 +354,7 @@ export class AttachmentAriaController {
     return alreadyOwned;
   }
 
-  _removeAttributeToken(target, attrName, token) {
+  _removeAttributeToken(target: Element, attrName: string, token: string | null): void {
     if (!token) {
       return;
     }
@@ -348,7 +375,10 @@ export class AttachmentAriaController {
  * @param {Element | null} target
  * @param {Element | null} floatingElement
  */
-export function restoreFocusOnEscape(target, floatingElement) {
+export function restoreFocusOnEscape(
+  target: HTMLElement | null | undefined,
+  floatingElement: Element | null | undefined
+): void {
   if (!target || typeof target.focus !== 'function' || typeof document === 'undefined') {
     return;
   }

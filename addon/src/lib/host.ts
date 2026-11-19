@@ -1,12 +1,10 @@
 import { warn } from '@ember/debug';
-import { isElementTarget } from './target-resolution.js';
+import { isElementTarget } from './target-resolution';
 
 /**
  * Whether the current browser environment supports Top-Layer `[popover="manual"]`.
- *
- * @returns {boolean}
  */
-export function supportsPopoverHost() {
+export function supportsPopoverHost(): boolean {
   return (
     typeof HTMLElement !== 'undefined' &&
     typeof HTMLElement.prototype.showPopover === 'function'
@@ -18,10 +16,8 @@ export function supportsPopoverHost() {
  * so Top-Layer attachments opened inside `showModal()` stay DOM-inside the modal
  * and do not become inert.
  *
- * @param {Element | null | undefined} contextNode
- * @returns {Element | null}
  */
-export function getModalDialogContainer(contextNode) {
+export function getModalDialogContainer(contextNode: unknown): Element | null {
   if (!isElementTarget(contextNode) || typeof contextNode.closest !== 'function') {
     return null;
   }
@@ -37,12 +33,10 @@ export function getModalDialogContainer(contextNode) {
  * Promote a `[popover]` host element into the browser Top Layer.
  * If `showPopover()` throws, logs a debug warning and removes `[popover]` so the
  * in-place host remains visible instead of matching UA `:not(:popover-open)`.
- *
- * @param {Element | null | undefined} el
  */
-export function showPopoverHost(el) {
+export function showPopoverHost(el: Element | null | undefined): void {
   if (
-    el &&
+    el instanceof HTMLElement &&
     el.isConnected &&
     el.hasAttribute('popover') &&
     typeof el.showPopover === 'function'
@@ -53,7 +47,7 @@ export function showPopoverHost(el) {
       }
     } catch (error) {
       warn(
-        `[ember-attacher] Top-layer showPopover failed: ${error?.message ?? error}`,
+        `[ember-attacher] Top-layer showPopover failed: ${(error as Error)?.message ?? error}`,
         false,
         { id: 'ember-attacher.popover-error' }
       );
@@ -64,12 +58,10 @@ export function showPopoverHost(el) {
 
 /**
  * Remove a `[popover]` host element from the browser Top Layer.
- *
- * @param {Element | null | undefined} el
  */
-export function hidePopoverHost(el) {
+export function hidePopoverHost(el: Element | null | undefined): void {
   if (
-    el &&
+    el instanceof HTMLElement &&
     el.isConnected &&
     el.hasAttribute('popover') &&
     typeof el.hidePopover === 'function'
@@ -80,7 +72,7 @@ export function hidePopoverHost(el) {
       }
     } catch (error) {
       warn(
-        `[ember-attacher] Top-layer hidePopover failed: ${error?.message ?? error}`,
+        `[ember-attacher] Top-layer hidePopover failed: ${(error as Error)?.message ?? error}`,
         false,
         { id: 'ember-attacher.popover-error' }
       );

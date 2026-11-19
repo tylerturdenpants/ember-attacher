@@ -12,7 +12,8 @@
     "prepare": "pnpm run build",
     "prepublishOnly": "pnpm run build",
     "start": "rollup --config rollup.config.mjs --watch",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "typecheck": "ember-tsc --noEmit"
   },
   "types": "./dist/index.d.ts",
   "typesVersions": {
@@ -109,15 +110,21 @@
     "@babel/eslint-parser": "^7.29.13",
     "@babel/plugin-proposal-decorators": "^8.0.2",
     "@babel/plugin-transform-class-properties": "^8.0.1",
+    "@babel/plugin-transform-typescript": "^7.29.9",
     "@embroider/addon-dev": "^8.5.0",
+    "@glint/ember-tsc": "^1.14.4",
     "@rollup/plugin-babel": "^7.1.0",
-    "babel-plugin-ember-template-compilation": "^2.4.1",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "babel-plugin-ember-template-compilation": "^4.0.1",
+    "ember-source": "~7.4.1",
     "eslint": "~9.39.5",
     "eslint-plugin-decorator-position": "^6.1.1",
     "eslint-plugin-ember": "^13.11.0",
     "eslint-plugin-n": "^18.5.0",
     "globals": "^17.14.0",
     "lightningcss": "^1.33.0",
-    "rollup": "^4.68.5"
+    "rollup": "^4.68.5",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.73.0"
   }
 }

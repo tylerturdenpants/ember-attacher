@@ -1,23 +1,18 @@
 import { buildWaiter } from '@ember/test-waiters';
 
+export interface ScheduledHandle {
+  cancel: () => void;
+}
+
 export const attacherWaiter = buildWaiter('basic-attacher');
 
-/**
- * Cancel a scheduled task handle if present.
- *
- * @param {{ cancel?: () => void } | null | undefined} handle
- */
-export function cancelScheduled(handle) {
+/** Cancel a scheduled task handle if present. */
+export function cancelScheduled(handle: Partial<ScheduledHandle> | null | undefined): void {
   handle?.cancel?.();
 }
 
-/**
- * Defer a callback to a microtask while holding a test-waiter token until it runs or cancels.
- *
- * @param {() => void} fn
- * @returns {{ cancel: () => void }}
- */
-export function scheduleMicrotask(fn) {
+/** Defer a callback to a microtask while holding a test-waiter token until it runs or cancels. */
+export function scheduleMicrotask(fn: () => void): ScheduledHandle {
   let active = true;
   const token = attacherWaiter.beginAsync();
 
@@ -40,14 +35,8 @@ export function scheduleMicrotask(fn) {
   };
 }
 
-/**
- * Schedule a `setTimeout` tracked by `@ember/test-waiters`, returning a cancellable handle.
- *
- * @param {() => void} fn
- * @param {number} ms
- * @returns {{ cancel: () => void }}
- */
-export function scheduleTimeout(fn, ms) {
+/** Schedule a `setTimeout` tracked by `@ember/test-waiters`, returning a cancellable handle. */
+export function scheduleTimeout(fn: () => void, ms: number): ScheduledHandle {
   let active = true;
   const token = attacherWaiter.beginAsync();
   const timerId = setTimeout(() => {
@@ -70,16 +59,13 @@ export function scheduleTimeout(fn, ms) {
   };
 }
 
-/**
- * Cancel any existing handle and either run synchronously (`immediate` or `!ms`) or after `ms`.
- *
- * @param {{ cancel?: () => void } | null | undefined} currentHandle
- * @param {() => void} fn
- * @param {number} ms
- * @param {boolean} [immediate=false]
- * @returns {{ cancel: () => void } | null}
- */
-export function debounceTimeout(currentHandle, fn, ms, immediate = false) {
+/** Cancel any existing handle and either run synchronously (`immediate` or `!ms`) or after `ms`. */
+export function debounceTimeout(
+  currentHandle: Partial<ScheduledHandle> | null | undefined,
+  fn: () => void,
+  ms: number,
+  immediate = false
+): ScheduledHandle | null {
   cancelScheduled(currentHandle);
   if (immediate || !ms) {
     fn();

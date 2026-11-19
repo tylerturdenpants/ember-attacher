@@ -1,6 +1,6 @@
 import { isHTMLSafe } from '@ember/template';
-import AttacherCore, { resolveTooltipClass } from './attacher-core.js';
-import { cancelScheduled, scheduleMicrotask } from './schedule.js';
+import AttacherCore, { resolveTooltipClass } from './attacher-core';
+import { cancelScheduled, scheduleMicrotask } from './schedule';
 
 const poolsByDocument = new WeakMap();
 const BASE_ARGS = Object.freeze({ ariaRole: 'tooltip' });

@@ -1,4 +1,4 @@
-import { elementContainsEvent } from './dom.js';
+import { elementContainsEvent } from './dom';
 
 const activeAttachers = new Set();
 const floatingElementParentMap = new WeakMap();
