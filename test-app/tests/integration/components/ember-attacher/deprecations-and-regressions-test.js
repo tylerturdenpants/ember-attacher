@@ -41,7 +41,7 @@ async function collectDeprecations(fn) {
 module('Integration | Component | deprecations & 4.4 regressions', function (hooks) {
   setupRenderingTest(hooks);
 
-  test('emits until: 5.0.0 deprecations for implicit parent targets and legacy 4.x args/APIs', async function (assert) {
+  test('emits until: 5.0.0 deprecations for remaining legacy 4.x args/APIs', async function (assert) {
     this.set('middleware', [offset(4)]);
     this.set('legacyStyle', htmlSafe('color: white;'));
     this.set('noop', () => {});
@@ -53,18 +53,12 @@ module('Integration | Component | deprecations & 4.4 regressions', function (hoo
       await render(hbs`
         <button id="legacy-ext-target" type="button">External</button>
 
-        <div id="implicit-wrap">
-          <AttachTooltip @id="implicit-tip">Implicit tooltip</AttachTooltip>
-          <AttachPopover @id="implicit-pop">Implicit popover</AttachPopover>
-        </div>
-
         <AttachPopover
           @id="legacy-args-pop"
           @explicitTarget="#legacy-ext-target"
           @flip="bottom left"
           @overflowPadding={{8}}
           @floatingUiOptions={{hash strategy="fixed"}}
-          @floatingElementContainer=".ember-application"
           @isOffset={{true}}
           @style={{this.legacyStyle}}
           @additionalClass="legacy-extra"
@@ -86,14 +80,12 @@ module('Integration | Component | deprecations & 4.4 regressions', function (hoo
 
     const ids = new Set(deprecations.map((d) => d.options?.id));
     const expectedIds = [
-      'ember-attacher.implicit-parent-target',
       'ember-attacher.arg.explicit-target',
       'ember-attacher.api.reference',
       'ember-attacher.api.set-reference',
       'ember-attacher.arg.flip',
       'ember-attacher.arg.overflow-padding',
       'ember-attacher.arg.floating-ui-options',
-      'ember-attacher.arg.floating-element-container',
       'ember-attacher.arg.is-offset',
       'ember-attacher.arg.style',
       'ember-attacher.arg.additional-class',
@@ -106,14 +98,6 @@ module('Integration | Component | deprecations & 4.4 regressions', function (hoo
       const entry = deprecations.find((d) => d.options?.id === id);
       assert.strictEqual(entry.options.until, '5.0.0', `${id} targets until: 5.0.0`);
     }
-
-    const implicitEntry = deprecations.find(
-      (d) => d.options?.id === 'ember-attacher.implicit-parent-target'
-    );
-    assert.false(
-      implicitEntry.message.includes('<meta'),
-      'implicit parent deprecation does not warn about <meta hidden>'
-    );
   });
 
   test('emits zero deprecations on explicit-target APIs', async function (assert) {

@@ -1,5 +1,4 @@
-{{~this.syncAttacherArgs
-  this.core
+{{~this.core.syncArgs
   @target
   @explicitTarget
   @isShown
@@ -7,14 +6,27 @@
   @strategy
   @showOn
   @hideOn
+  @showDelay
+  @hideDelay
+  @showDuration
+  @hideDuration
+  @animation
+  @interactive
   @arrow
   @autoUpdate
+  @lazyRender
+  @renderInPlace
   @id
   @ariaRole
+  @class
   @middleware
+  @flip
   @overflowPadding
   @useCapture
-  @renderInPlace
-  @floatingElementContainer
   @floatingUiOptions
+  @isOffset
+  @style
+  @additionalClass
+  @configKey
+  @onChange
 ~}}{{yield this.core.api}}

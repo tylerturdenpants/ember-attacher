@@ -43,8 +43,8 @@ module('Acceptance | styles gallery', function (hooks) {
         `${label} shell is shown (CSS loaded)`
       );
 
-      const inner = shell.querySelector('.ember-attacher-show');
-      assert.ok(inner, `${label} inner has show class`);
+      const inner = shell.firstElementChild;
+      assert.ok(inner, `${label} inner element exists`);
       await waitUntil(
         () => getComputedStyle(inner).opacity === '1',
         { timeout: 2000 }

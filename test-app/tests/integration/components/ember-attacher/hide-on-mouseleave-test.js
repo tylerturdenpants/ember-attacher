@@ -16,6 +16,7 @@ module('Integration | Component | hideOn "mouseleave"', function (hooks) {
         @id="attachment"
         @target="#target"
         @hideOn="mouseleave"
+        @interactive={{false}}
         @isShown={{true}}
       >
         hideOn mouseleave

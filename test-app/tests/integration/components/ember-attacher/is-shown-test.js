@@ -167,6 +167,7 @@ module('Integration | Component | isShown', function (hooks) {
         @id="parent"
         @target="#openParent"
         @isShown={{this.parentIsShown}}
+        @lazyRender={{false}}
         @showOn={{this.showOn}}
         @interactive={{true}}
       >

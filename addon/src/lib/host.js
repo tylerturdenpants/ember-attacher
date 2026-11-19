@@ -1,4 +1,4 @@
-import { assert, warn } from '@ember/debug';
+import { warn } from '@ember/debug';
 import { isElementTarget } from './target-resolution.js';
 
 /**
@@ -34,63 +34,9 @@ export function getModalDialogContainer(contextNode) {
 }
 
 /**
- * Resolve the DOM destination element for `MaybeInElement`.
- *
- * @param {{
- *   renderInPlace: boolean,
- *   parentElement: Element | null,
- *   maybeContainer: Element | string | null | undefined,
- *   hasCustomContainer: boolean,
- *   modalContainer: Element | null,
- *   usePopoverHost: boolean,
- * }} options
- * @returns {Element | undefined}
- */
-export function resolveHostContainer({
-  renderInPlace,
-  parentElement,
-  maybeContainer,
-  hasCustomContainer,
-  modalContainer,
-  usePopoverHost,
-}) {
-  if (renderInPlace) {
-    return parentElement;
-  }
-
-  if (maybeContainer instanceof Element) {
-    return maybeContainer;
-  }
-
-  if (!hasCustomContainer && modalContainer) {
-    return modalContainer;
-  }
-
-  if (typeof maybeContainer === 'string') {
-    const possibleContainers = document.querySelectorAll(maybeContainer);
-
-    // DEFAULTS.floatingElementContainer is '.ember-application'; embedded or
-    // standalone Top-Layer mounts without .ember-application fall back to body.
-    if (possibleContainers.length === 0 && !hasCustomContainer && usePopoverHost) {
-      return document.body;
-    }
-
-    assert(
-      `floatingElementContainer selector "${maybeContainer}" found ` +
-        `${possibleContainers.length} possible containers when there should be exactly 1`,
-      possibleContainers.length === 1
-    );
-
-    return possibleContainers[0];
-  }
-
-  return undefined;
-}
-
-/**
  * Promote a `[popover]` host element into the browser Top Layer.
  * If `showPopover()` throws, logs a debug warning and removes `[popover]` so the
- * `{{#in-element}}` portal fallback stays visible instead of matching UA `:not(:popover-open)`.
+ * in-place host remains visible instead of matching UA `:not(:popover-open)`.
  *
  * @param {Element | null | undefined} el
  */

@@ -1,25 +1,39 @@
-{{~#if (has-block "target")~}}{{yield this.core.api.target this.core.api to="target"}}{{~/if~}}{{~#unless this.core.renderFloatingElement~}}<meta hidden {{this.core.parentFinder (has-block "target")}} {{this.core.targetDidUpdate this.core.hideOn this.core.showOn @target @explicitTarget @id}} {{this.core.isShownDidUpdate this.core.controlledIsShown}}/>{{~/unless~}}{{~#if this.core.renderFloatingElement~}}<this.MaybeInElement @destinationElement={{this.core._floatingElementContainer}} @renderInPlace={{this.core._renderInPlace}}><div
-      class="ember-attacher"
-      id={{this.core.id}}
-      popover={{this.core._popoverAttr}}
-      role={{this.core.ariaRole}}
-      {{this.core.setupFloatingElement (has-block "target")}}
-      {{this.core.targetDidUpdate this.core.hideOn this.core.showOn @target @explicitTarget @id}}
-      {{this.core.isShownDidUpdate this.core.controlledIsShown}}
-      {{this.core.optionsDidUpdate this.core.autoUpdate this.core.animation this.core.arrow this.core.useCapture this.core.placement this.core.strategy this.core._renderInPlace this.core._middleware this.core.id this.core.ariaRole}}
-      ...attributes
-    >
-      {{#if this.core.shouldRenderFloatingElement}}
-        <div class={{this.core._class}} style={{this.core._style}}>
-          {{~#if (has-block "content")~}}{{yield this.core.api to="content"}}{{~else if (has-block)~}}{{yield this.core.api}}{{~/if~}}
-          {{#if this.core.arrow}}
-            <div class="ember-attacher-arrow" x-arrow {{this.core.insertArrow}}></div>
-          {{/if}}
-          {{#if this.core.isFillAnimation}}
-            <div class="ember-attacher-fill-backdrop" aria-hidden="true">
-              <div x-circle></div>
-            </div>
-          {{/if}}
-        </div>
-      {{/if}}
-    </div></this.MaybeInElement>{{~/if~}}
+{{~#if (has-block "target")~}}{{yield this.core.api.target this.core.api to="target"}}{{~/if~}}{{~this.core.syncArgs
+  @target
+  @explicitTarget
+  @isShown
+  @placement
+  @strategy
+  @showOn
+  @hideOn
+  @showDelay
+  @hideDelay
+  @showDuration
+  @hideDuration
+  @animation
+  @interactive
+  @arrow
+  @autoUpdate
+  @lazyRender
+  @renderInPlace
+  @id
+  @ariaRole
+  @class
+  @middleware
+  @flip
+  @overflowPadding
+  @useCapture
+  @floatingUiOptions
+  @isOffset
+  @style
+  @additionalClass
+  @configKey
+  @onChange
+~}}<div
+  class="ember-attacher"
+  id={{this.core.id}}
+  popover={{this.core.popoverAttr}}
+  role={{this.core.ariaRole}}
+  {{this.core.setupFloatingElement (has-block "target")}}
+  ...attributes
+>{{~#if this.core.shouldRenderFloatingElement~}}<div class={{this.core.innerClass}} style={{this.core.innerStyle}}>{{~#if (has-block "content")~}}{{yield this.core.api to="content"}}{{~else if (has-block)~}}{{yield this.core.api}}{{~/if~}}{{~#if this.core.arrow~}}<div class="ember-attacher-arrow" {{this.core.insertArrow}}></div>{{~/if~}}{{~#if this.core.isFillAnimation~}}<div class="ember-attacher-fill-backdrop" aria-hidden="true"><div class="ember-attacher-fill-circle"></div></div>{{~/if~}}</div>{{~/if~}}</div>

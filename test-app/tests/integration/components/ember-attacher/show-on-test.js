@@ -8,24 +8,30 @@ module('Integration | Component | showOn', function (hooks) {
   setupRenderingTest(hooks);
 
   test('uses the defaults when passed `undefined`', async function (assert) {
-    assert.expect(4);
+    assert.expect(6);
 
     this.set('showOn', undefined);
 
     await render(hbs`
       <button id="target" type="button">Target</button>
-      <AttachPopover @id="attachment" @target="#target" @hideOn="click" @showOn={{this.showOn}}>
+      <AttachTooltip @id="attachment" @target="#target" @hideOn="click" @interactive={{false}} @showOn={{this.showOn}}>
         showOn mouseenter
+      </AttachTooltip>
+
+      <button id="popover-target" type="button">Popover target</button>
+      <AttachPopover @id="popover-attachment" @target="#popover-target" @showOn={{this.showOn}}>
+        showOn click
       </AttachPopover>
     `);
 
     const attachment = find('#attachment');
+    const popoverAttachment = find('#popover-attachment');
 
     assert.false(isVisible(attachment), 'Initially hidden');
 
     await triggerEvent('#target', 'mouseenter');
 
-    assert.true(isVisible(attachment), 'Now shown');
+    assert.true(isVisible(attachment), 'Tooltip opens on mouseenter by default');
 
     await click('#target');
 
@@ -33,7 +39,11 @@ module('Integration | Component | showOn', function (hooks) {
 
     await triggerEvent('#target', 'focus');
 
-    assert.true(isVisible(attachment), 'Shown again');
+    assert.true(isVisible(attachment), 'Tooltip opens on focus by default');
+
+    assert.false(isVisible(popoverAttachment), 'Popover initially hidden');
+    await click('#popover-target');
+    assert.true(isVisible(popoverAttachment), 'Popover opens on click by default');
   });
 
   test('sets showOn to an empty array when passed `null`', async function (assert) {
