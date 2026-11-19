@@ -1,7 +1,13 @@
 ## Unreleased
 
 #### :rocket: Enhancement
-* **`assertAttached()` test helper:** `ember-attacher/test-support` exports `assertAttached(assert, attachment, target, { placement, maxGap, tolerance, message })`, which checks that an open attachment is visible, on its resolved side, close to and overlapping its target, with the arrow pointing at the target, inside the viewport and not covered.
+* **`assertAttached()` test helper:** `ember-attacher/test-support` exports `assertAttached(assert, attachment, target, { placement, maxGap, tolerance, message })` (plus `AssertAttachedOptions`, `ElementOrSelector`, and `ResultPusher`), which checks that an open attachment is visible, on its resolved side, close to and overlapping its target, with the arrow pointing at the target, inside the viewport and not covered.
+
+#### :bug: Bug Fix
+* **Native `::backdrop` clickout:** `hideOn="clickout"` on interactive Top-Layer `[popover]` hosts now treats pointer clicks targeting `floatingElement` directly outside its rendered bounding boxes (i.e. on `::backdrop`) as outside clicks instead of keeping the popover open.
+
+#### :memo: Documentation
+* **5.0 Recipes:** Added cookbook recipes in `README.md` (and cross-linked from `addon/docs/upgrade-guide-5.0.md`) for custom `flip`/`shift` `boundary` constraints, coordinate/`VirtualElement` targets with `autoUpdate` `{ animationFrame: true }`, `{{#in-element}}` + `@renderInPlace` stacking, and `a.setTarget()` for externally replaced DOM nodes.
 
 ## v5.0.0-beta.1 (2026-11-19)
 

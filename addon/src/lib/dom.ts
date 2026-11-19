@@ -39,6 +39,77 @@ export function elementContainsEvent(
   );
 }
 
+function getEventClientPoint(event: Event | null | undefined): PointerOrigin | null {
+  if (!event) {
+    return null;
+  }
+
+  const touch = (event as TouchEvent).changedTouches?.[0];
+  if (touch) {
+    return { x: touch.clientX, y: touch.clientY };
+  }
+
+  if ('clientX' in event && 'clientY' in event) {
+    const mouseEvent = event as MouseEvent;
+    const x = mouseEvent.clientX;
+    const y = mouseEvent.clientY;
+    // Keyboard/synthetic clicks without pointer coordinates default to (0, 0) with detail === 0.
+    if (x === 0 && y === 0 && !mouseEvent.detail) {
+      return null;
+    }
+    return { x, y };
+  }
+
+  return null;
+}
+
+function isPointWithinElementBoxes(element: Element, x: number, y: number): boolean {
+  const rect = element.getBoundingClientRect();
+  if (rect.width === 0 && rect.height === 0) {
+    return true;
+  }
+
+  if (isPointInRect(x, y, rect)) {
+    return true;
+  }
+
+  for (const child of element.children) {
+    const childRect = child.getBoundingClientRect();
+    if ((childRect.width > 0 || childRect.height > 0) && isPointInRect(x, y, childRect)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Determine whether a click/touch event landed inside a floating host element.
+ *
+ * Unlike `elementContainsEvent`, direct hits targeting a Top-Layer `[popover]`'s
+ * `::backdrop` (`event.target === element` with pointer coordinates outside the
+ * popover's rendered boxes) return `false` so clickout dismisses the popover.
+ */
+export function floatingElementContainsEvent(
+  element: Element | null | undefined,
+  event: Event | null | undefined
+): boolean {
+  if (!elementContainsEvent(element, event)) {
+    return false;
+  }
+
+  if (!element || event?.target !== element) {
+    return true;
+  }
+
+  const point = getEventClientPoint(event);
+  if (!point) {
+    return true;
+  }
+
+  return isPointWithinElementBoxes(element, point.x, point.y);
+}
+
 const CORRIDOR_BUFFER = 2;
 
 function isPointInRect(x: number, y: number, rect: RectLike): boolean {

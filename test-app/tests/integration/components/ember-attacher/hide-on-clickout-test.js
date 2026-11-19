@@ -383,4 +383,42 @@ module('Integration | Component | hideOn "clickout"', function (hooks) {
     assert.false(isVisible(childEl), 'Child closes on outside click');
     assert.false(isVisible(parentEl), 'Parent closes on outside click');
   });
+
+  test('dismisses interactive popover when clicking ::backdrop outside its box while keeping internal clicks open', async function (assert) {
+    await render(hbs`
+      <button id="backdrop-trigger" type="button" style="margin: 100px;">Trigger</button>
+      <AttachPopover
+        @id="backdrop-popover"
+        @target="#backdrop-trigger"
+        @placement="bottom"
+        @hideOn="clickout"
+        @hideDuration={{0}}
+        @interactive={{true}}
+        @isShown={{true}}
+      >
+        Popover body
+      </AttachPopover>
+    `);
+
+    const popoverEl = find('#backdrop-popover');
+    assert.true(isVisible(popoverEl), 'Popover is initially open');
+
+    // Synthetic (0, 0) event without pointer detail keeps popover open
+    await triggerEvent(popoverEl, 'click', { clientX: 0, clientY: 0, detail: 0 });
+    assert.true(isVisible(popoverEl), 'Synthetic non-pointer click at (0, 0) stays open');
+
+    // Direct hit on the host/inner box inside its rect stays open
+    const rect = popoverEl.getBoundingClientRect();
+    await triggerEvent(popoverEl, 'click', {
+      clientX: rect.left + rect.width / 2,
+      clientY: rect.top + rect.height / 2,
+      detail: 1,
+    });
+    assert.true(isVisible(popoverEl), 'Click within popover bounding box stays open');
+
+    // ::backdrop click targets floatingElement with pointer coords outside its rendered boxes
+    await triggerEvent(popoverEl, 'click', { clientX: 5, clientY: 5, detail: 1 });
+    await waitUntil(() => isVisible(popoverEl) === false);
+    assert.false(isVisible(popoverEl), '::backdrop click outside popover closes it');
+  });
 });

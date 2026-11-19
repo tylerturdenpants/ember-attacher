@@ -185,6 +185,111 @@ Below are the 5.0 defaults (shared defaults from `addon/src/defaults.ts`; `<Atta
 }
 ```
 
+## Recipes
+
+### Pinning and flipping within a custom boundary
+
+Pass Floating UI `flip` and `shift` options with a custom `boundary` element via `@middleware` to keep an attachment constrained inside a scroll area or layout panel:
+
+```gts
+import { tracked } from '@glimmer/tracking';
+import { modifier } from 'ember-modifier';
+import { AttachPopover, flip, shift } from 'ember-attacher';
+
+export default class BoundaryDemo {
+  @tracked containerEl = null;
+
+  registerContainer = modifier((element) => {
+    this.containerEl = element;
+  });
+
+  get boundaryMiddleware() {
+    if (!this.containerEl) return [];
+    return [
+      flip({ boundary: this.containerEl }),
+      shift({ boundary: this.containerEl, padding: 8 }),
+    ];
+  }
+
+  <template>
+    <div {{this.registerContainer}}>
+      <button id="panel-btn" type="button">Options</button>
+      <AttachPopover @target="#panel-btn" @middleware={{this.boundaryMiddleware}}>
+        Stays within containerEl
+      </AttachPopover>
+    </div>
+  </template>
+}
+```
+
+### Coordinate / virtual targets (`VirtualElement`, no DOM trigger)
+
+Pass any `{ getBoundingClientRect() }` object to `@target` with `@showOn={{null}}` and controlled `@isShown` (or `a.show(virtualTarget)`). Add `@autoUpdate={{hash animationFrame=true}}` when tracking moving coordinates or externally animated elements:
+
+```gts
+import { hash } from '@ember/helper';
+import { AttachPopover } from 'ember-attacher';
+
+const cursorTarget = {
+  getBoundingClientRect() {
+    return { x: 160, y: 120, top: 120, left: 160, right: 160, bottom: 120, width: 0, height: 0 };
+  },
+};
+
+<template>
+  <AttachPopover
+    @target={{cursorTarget}}
+    @showOn={{null}}
+    @isShown={{true}}
+    @autoUpdate={{hash animationFrame=true}}
+  >
+    Positioned at virtual coordinates
+  </AttachPopover>
+</template>
+```
+
+### Portal / body-level stacking with `{{#in-element}}` + `@renderInPlace`
+
+By default, components promote in place to the browser Top Layer (`popover="manual"`). When you want explicit DOM container placement and `z-index` stacking instead, opt out of Top Layer with `@renderInPlace={{true}}` inside `{{#in-element}}`:
+
+```hbs
+{{#in-element this.portalContainer insertBefore=null}}
+  <AttachPopover
+    @target="#trigger"
+    @renderInPlace={{true}}
+    @class="my-z-indexed-popover"
+  >
+    Rendered inside portalContainer with traditional CSS stacking
+  </AttachPopover>
+{{/in-element}}
+```
+
+### Re-binding externally replaced DOM elements (`@target` / `a.setTarget`)
+
+String selectors in `@target` resolve once when `@target` mounts or changes. If a third-party widget (such as a calendar or data grid) tears down and recreates target nodes without re-rendering your template, pass a tracked element via `@target={{this.targetEl}}` (or use `<AttachPopover @target={{null}} as |a|>` and call `a.setTarget(el, data)`):
+
+```gts
+import { tracked } from '@glimmer/tracking';
+import { AttachPopover } from 'ember-attacher';
+
+export default class ExternalWidgetOverlay {
+  @tracked targetEl = null;
+  @tracked activeEvent = null;
+
+  // Hook into widget mount / click callbacks:
+  onWidgetItemMounted = (el, eventData) => {
+    this.targetEl = el;
+    this.activeEvent = eventData;
+  };
+
+  <template>
+    <AttachPopover @target={{this.targetEl}}>
+      {{this.activeEvent.title}}
+    </AttachPopover>
+  </template>
+}
+```
+
 ## User-defined defaults
 
 User-defined defaults can be configured in the consuming app's `config/environment.js`:

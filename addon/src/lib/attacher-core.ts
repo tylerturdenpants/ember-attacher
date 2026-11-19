@@ -24,7 +24,12 @@ import {
   unregisterAttacher,
 } from './attachment-tree';
 import { getDelayGroup, peekDelayGroup } from './delay-group';
-import { elementContainsEvent, isCursorInSafePolygon, type PointerOrigin } from './dom';
+import {
+  elementContainsEvent,
+  floatingElementContainsEvent,
+  isCursorInSafePolygon,
+  type PointerOrigin,
+} from './dom';
 import {
   getModalDialogContainer,
   hidePopoverHost,
@@ -1201,10 +1206,10 @@ export default class AttacherCore {
     );
     const useCapture = Boolean(
       opts.useCapture ??
-        baseArgs.useCapture ??
-        keyedEnv?.useCapture ??
-        env.useCapture ??
-        DEFAULTS.useCapture
+      baseArgs.useCapture ??
+      keyedEnv?.useCapture ??
+      env.useCapture ??
+      DEFAULTS.useCapture
     );
     const showOnKey = showOn.join(' ');
 
@@ -1998,7 +2003,7 @@ export default class AttacherCore {
       return;
     }
 
-    if (!this._opt('interactive') || !elementContainsEvent(this._floatingElement, event)) {
+    if (!this._opt('interactive') || !floatingElementContainsEvent(this._floatingElement, event)) {
       this._hideAfterDelay();
     }
   }

@@ -55,7 +55,7 @@ Backed by a single document-scoped Top-Layer DOM node and a `300ms` warm delay-g
 </AttachTooltip>
 ```
 
-For lists or grids, pass row data to `{{target row}}` to share one attachment instance across items (`a.data` yields the active item's payload).
+For lists or grids, pass row data to `{{target row}}` to share one attachment instance across items (`a.data` yields the active item's payload). When a third-party widget destroys and recreates target elements under the same selector, call `a.setTarget(newEl)` or use `{{a.target}}`; see the [Recipes](../../README.md#recipes) in the README for examples (`boundary`, virtual targets + `animationFrame: true`, `{{#in-element}}` + `@renderInPlace`, and `a.setTarget()`).
 
 ### External targets & declarative triggers: `@target`, `[popovertarget]`, `[interestfor]`
 
