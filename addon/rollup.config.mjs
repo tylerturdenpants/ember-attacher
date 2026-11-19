@@ -20,8 +20,10 @@ function cssHandler() {
     },
     generateBundle() {
       const source = fs.readFileSync(path.resolve(cssEntry));
-      // Flatten native nesting so implicit-styles stay compatible with older
-      // consumer browserslists (the old sass.compile() output was always flat).
+      // Flatten native nesting for older consumer browserslists (the old
+      // sass.compile() output was always flat). @starting-style and
+      // transition-behavior: allow-discrete pass through verbatim as
+      // progressive enhancements (Chrome 117+, Safari 17.5+, Firefox 129+).
       const { code } = transform({
         filename: cssFileName,
         code: source,

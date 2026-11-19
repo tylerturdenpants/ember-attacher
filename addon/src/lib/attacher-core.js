@@ -178,7 +178,6 @@ function createTargetModifier(core) {
  * `<Attacher>`, and the `{{tooltip}}` singleton pool.
  */
 export default class AttacherCore {
-  @tracked _isStartingAnimation = false;
   @tracked _arrowElement = null;
   @tracked _currentTarget = null;
   @tracked _registeredTarget = null;
@@ -492,7 +491,6 @@ export default class AttacherCore {
   }
 
   get innerClass() {
-    const showOrHideClass = `ember-attacher-${this._isStartingAnimation ? 'show' : 'hide'}`;
     const arrowClass = `ember-attacher-${this.arrow ? 'with' : 'without'}-arrow`;
     const additionalClass = this._getAdditionalClass
       ? this._getAdditionalClass()
@@ -501,7 +499,6 @@ export default class AttacherCore {
       `ember-attacher-${this._opt('animation')}`,
       this._opt('class') || '',
       additionalClass,
-      showOrHideClass,
       arrowClass,
     ]
       .filter(Boolean)
@@ -990,7 +987,10 @@ export default class AttacherCore {
 
     const trigger =
       this._pendingPopoverTrigger ||
-      (event.source?.hasAttribute?.('popovertarget') ? event.source : null);
+      (event.source?.hasAttribute?.('popovertarget') ||
+      event.source?.hasAttribute?.('interestfor')
+        ? event.source
+        : null);
     this._pendingPopoverTrigger = null;
 
     if (!trigger && this._popoverTargetEntries.size === 0) {
@@ -1232,7 +1232,6 @@ export default class AttacherCore {
 
     el.setAttribute('data-open', '');
     el.setAttribute('aria-hidden', 'false');
-    this._setTracked('_isStartingAnimation', true);
 
     this._syncingPopoverHost = true;
     try {
@@ -1247,30 +1246,33 @@ export default class AttacherCore {
   }
 
   _waitForExitAnimations(element, hideDuration, onDone) {
-    if (hideDuration <= 0 || !element || typeof element.getAnimations !== 'function') {
+    if (hideDuration <= 0 || !element) {
       onDone();
       return;
     }
 
-    const animations = element.getAnimations({ subtree: true });
-    if (animations.length === 0) {
-      onDone();
-      return;
+    // Flush styles so CSS transitions triggered by [data-closing] are registered
+    // before querying WAAPI animations on the same turn.
+    if (typeof getComputedStyle === 'function') {
+      void getComputedStyle(element).opacity;
     }
+
+    const animations =
+      typeof element.getAnimations === 'function' ? element.getAnimations({ subtree: true }) : [];
 
     const generation = this._closeGeneration;
     const token = attacherWaiter.beginAsync();
     let done = false;
-    let failsafeId = null;
+    let timeoutId = null;
 
     const finish = () => {
       if (done) {
         return;
       }
       done = true;
-      if (failsafeId !== null) {
-        clearTimeout(failsafeId);
-        failsafeId = null;
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
       }
       attacherWaiter.endAsync(token);
       this._activeCloseCancel = null;
@@ -1282,17 +1284,24 @@ export default class AttacherCore {
     this._activeCloseCancel = () => {
       if (!done) {
         done = true;
-        if (failsafeId !== null) {
-          clearTimeout(failsafeId);
-          failsafeId = null;
+        if (timeoutId !== null) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
         }
         attacherWaiter.endAsync(token);
         this._activeCloseCancel = null;
       }
     };
 
-    failsafeId = setTimeout(finish, Math.max(hideDuration + 250, 2000));
-    Promise.allSettled(animations.map((anim) => anim.finished)).then(finish);
+    if (animations.length > 0) {
+      timeoutId = setTimeout(finish, hideDuration + 250);
+      Promise.allSettled(animations.map((anim) => anim.finished)).then(finish);
+    } else {
+      // Fall back to hideDuration timer when no WAAPI animations are reported
+      // (older engines, headless custom markup without CSS transitions, etc.)
+      // so exit never silently short-circuits to an instant hide.
+      timeoutId = setTimeout(finish, hideDuration);
+    }
   }
 
   _finishHide() {
@@ -1690,7 +1699,6 @@ export default class AttacherCore {
     }
 
     this._aria.setOpen(false);
-    this._setTracked('_isStartingAnimation', false);
     this._isHidden = true;
     this._notifyRenderStateChange();
 

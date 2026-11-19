@@ -5,6 +5,11 @@
   --ember-attacher-distance (default 10px) is the inner animation gap. Set it on
   .ember-attacher or an ancestor to change distance without Floating UI offset()
   middleware. --ember-attacher-offset / --ember-attacher-arrow-rotate stay internal.
+
+  @starting-style and transition-behavior: allow-discrete progressively enhance
+  Top-Layer entry/exit transitions in Chrome 117+, Safari 17.5+, and Firefox 129+.
+  Older engines display immediately on entry and fall back to the JS hideDuration
+  timer on exit.
 */
 
 :where(:root) {
@@ -20,7 +25,6 @@
   left: 0;
   display: none;
   opacity: 0;
-  perspective: 800px;
   transition-property: transform, opacity, display, overlay;
   transition-duration: var(--ember-attacher-transition-duration, 0ms);
   transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -55,6 +59,7 @@
   &[data-closing] {
     display: block;
     opacity: 0;
+    pointer-events: none;
   }
 
   > div {
@@ -238,7 +243,7 @@
       }
 
       > .ember-attacher-perspective {
-        transform: var(--ember-attacher-rest) var(--ember-attacher-perspective-hide);
+        transform: perspective(800px) var(--ember-attacher-rest) var(--ember-attacher-perspective-hide);
       }
 
       &:is(:popover-open, .\:popover-open, [data-open]):where(:not([data-closing])) {
@@ -276,10 +281,10 @@
         }
 
         > .ember-attacher-perspective {
-          transform: var(--ember-attacher-offset) var(--ember-attacher-perspective-show);
+          transform: perspective(800px) var(--ember-attacher-offset) var(--ember-attacher-perspective-show);
 
           @starting-style {
-            transform: var(--ember-attacher-rest) var(--ember-attacher-perspective-hide);
+            transform: perspective(800px) var(--ember-attacher-rest) var(--ember-attacher-perspective-hide);
           }
         }
       }

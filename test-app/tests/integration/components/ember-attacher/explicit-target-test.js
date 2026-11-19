@@ -425,6 +425,23 @@ module('Integration | Component | explicit target', function (hooks) {
     await triggerKeyEvent(document, 'keydown', 'Escape');
     await waitUntil(() => !isVisible(tip));
     assert.false(isVisible(tip), 'Escape dismisses [interestfor] tooltip');
+
+    // Native invoker beforetoggle with event.source carrying [interestfor]
+    const openEvt = new Event('beforetoggle');
+    Object.defineProperty(openEvt, 'newState', { value: 'open' });
+    Object.defineProperty(openEvt, 'source', { value: btn });
+    tip.dispatchEvent(openEvt);
+    tip.showPopover?.();
+    await settled();
+    assert.true(isVisible(tip), 'native beforetoggle with [interestfor] source opens tooltip');
+
+    const closeEvt = new Event('beforetoggle');
+    Object.defineProperty(closeEvt, 'newState', { value: 'closed' });
+    Object.defineProperty(closeEvt, 'source', { value: btn });
+    tip.dispatchEvent(closeEvt);
+    tip.hidePopover?.();
+    await settled();
+    assert.false(isVisible(tip), 'native beforetoggle with [interestfor] source closes tooltip');
   });
 
   test('asserts in debug when no target binding is supplied while allowing nullable @target={{this.dynamicTarget}}', async function (assert) {
@@ -484,6 +501,7 @@ module('Integration | Component | explicit target', function (hooks) {
     const circleEl = host.querySelector('.ember-attacher-fill-circle');
 
     assert.strictEqual(getComputedStyle(inner).willChange, 'auto', 'idle/closed attachment avoids permanent will-change: transform');
+    assert.strictEqual(getComputedStyle(host).perspective, 'none', 'non-perspective host avoids permanent 3D perspective context');
     assert.false(arrowEl.hasAttribute('x-arrow'), 'no legacy x-arrow attribute rendered');
     assert.ok(circleEl, 'uses .ember-attacher-fill-circle class hook');
   });

@@ -2,7 +2,7 @@ import { hbs } from 'ember-cli-htmlbars';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-import { click, clearRender, focus, render, find } from '@ember/test-helpers';
+import { click, clearRender, focus, render, find, settled } from '@ember/test-helpers';
 
 module('Integration | Component | ember attacher', function (hooks) {
   setupRenderingTest(hooks);
@@ -54,7 +54,6 @@ module('Integration | Component | ember attacher', function (hooks) {
         'ember-attacher-fill',
         'some-class',
         'some-other-class',
-        'ember-attacher-hide',
         'ember-attacher-without-arrow',
       ],
       'it adds the user-supplied default classes'
@@ -171,13 +170,51 @@ module('Integration | Component | ember attacher', function (hooks) {
     topLayerEl.showPopover();
     assert.true(isVisible(topLayerEl), 'isVisible is true again when :popover-open');
 
-    // Close and verify exit animation completion calls hidePopover() and hides element
-    await click('#top-layer-trigger');
+    // Close and verify exit transition does not intercept pointer events and waits before hidePopover()
+    find('#top-layer-trigger').click();
+
+    assert.true(topLayerEl.hasAttribute('data-closing'), 'sets data-closing immediately on exit');
+    assert.true(topLayerEl.matches(':popover-open'), 'stays in Top Layer while exit animation runs');
+    assert.strictEqual(
+      getComputedStyle(topLayerEl).pointerEvents,
+      'none',
+      'closing overlay disables pointer-events so clicks pass through'
+    );
+    const closingRect = topLayerEl.getBoundingClientRect();
+    const hitDuringClose = document.elementFromPoint(
+      closingRect.left + closingRect.width / 2,
+      closingRect.top + closingRect.height / 2
+    );
+    assert.false(
+      topLayerEl.contains(hitDuringClose),
+      'hit-test passes through closing overlay'
+    );
+
+    await settled();
 
     assert.false(isVisible(topLayerEl), 'isVisible is false after exit animation');
     assert.false(topLayerEl.matches(':popover-open'), 'hidePopover() called on exit animation completion');
     assert.false(topLayerEl.hasAttribute('data-closing'), 'data-closing removed after exit completes');
     assert.strictEqual(getComputedStyle(topLayerEl).display, 'none', 'display is none after exit animation completion');
+
+    // Empty getAnimations() falls back to hideDuration timer instead of instant-hiding
+    await click('#top-layer-trigger');
+    assert.true(isVisible(topLayerEl), 're-opened for empty-WAAPI fallback check');
+
+    const originalGetAnimations = topLayerEl.getAnimations;
+    topLayerEl.getAnimations = () => [];
+    try {
+      find('#top-layer-trigger').click();
+      assert.true(
+        topLayerEl.hasAttribute('data-closing') && topLayerEl.matches(':popover-open'),
+        'empty getAnimations() falls back to hideDuration timer instead of instant hide'
+      );
+      await settled();
+      assert.false(isVisible(topLayerEl), 'fallback timer finishes hide cleanly');
+      assert.false(topLayerEl.matches(':popover-open'), 'hidePopover() called after fallback timer');
+    } finally {
+      topLayerEl.getAnimations = originalGetAnimations;
+    }
   });
 
   test('falls back cleanly when showPopover throws', async function (assert) {
