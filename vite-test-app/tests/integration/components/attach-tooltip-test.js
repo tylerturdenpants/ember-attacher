@@ -1,16 +1,7 @@
 import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 import { find, focus, render, settled, triggerEvent } from '@ember/test-helpers';
-import QUnit, { module, test } from 'qunit';
-
-QUnit.assert.contains = function (actual, expected, message) {
-  this.pushResult({
-    result: expected.every((elem) => actual.includes(elem)),
-    actual,
-    expected,
-    message,
-  });
-};
+import { module, test } from 'qunit';
 
 module('Integration | Component | attach tooltip', function (hooks) {
   setupRenderingTest(hooks);

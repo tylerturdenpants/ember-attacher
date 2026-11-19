@@ -8,9 +8,9 @@
 
 ## Compatibility
 
-* Ember.js v3.28 through v6.x and v7.x (including Embroider + Vite)
-* Ember CLI v3.28 or above
-* Node.js v18 or above
+* Ember.js v4.12 through v6.x and v7.x (including Embroider + Vite)
+* Ember CLI v4.12 or above
+* Node.js v20 or above
 
 Tooltips and popovers made easy.
 Just drop an `<AttachTooltip/>` or `<AttachPopover/>` in a parent and your floating element is ready to go!

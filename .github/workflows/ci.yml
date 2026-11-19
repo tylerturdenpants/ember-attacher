@@ -123,16 +123,24 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     timeout-minutes: 10
-    continue-on-error: true
+    continue-on-error: ${{ matrix.experimental }}
 
     strategy:
       fail-fast: false
       matrix:
-        try-scenario:
-          - ember-lts-6.12
-          - ember-release
-          - ember-beta
-          - ember-canary
+        include:
+          - try-scenario: ember-lts-4.12
+            experimental: false
+          - try-scenario: ember-lts-5.12
+            experimental: false
+          - try-scenario: ember-lts-6.12
+            experimental: false
+          - try-scenario: ember-release
+            experimental: true
+          - try-scenario: ember-beta
+            experimental: true
+          - try-scenario: ember-canary
+            experimental: true
 
     steps:
       - name: Checkout
