@@ -116,7 +116,9 @@ export default {
     // Flatten nested source CSS into dist/styles (implicit-styles / exports["./styles"])
     cssHandler(),
 
-    // Emit hand-authored TypeScript & Glint declaration files into dist/
+    // Emit hand-authored TypeScript & Glint declaration files into dist/.
+    // declarations/ remains the sole published type contract until component/core
+    // .gts/.ts conversion is complete and tsc/glint declaration emit replaces this.
     dtsHandler(),
 
     // Resolve extensionless relative imports to .js/.gjs/.ts/.gts sources

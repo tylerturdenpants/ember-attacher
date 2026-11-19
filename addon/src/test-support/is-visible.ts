@@ -1,4 +1,4 @@
-export type AttachmentSelector = string | Element | Window | Document | null | undefined;
+import type { AttachmentSelector } from '../../declarations/test-support/is-visible';
 
 export function isVisible(selector: AttachmentSelector, contextEl?: Element | null): boolean {
   const attachment =

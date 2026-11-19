@@ -13,6 +13,6 @@
     "typecheck": "pnpm --filter ember-attacher run typecheck && pnpm --filter vite-test-app run typecheck"
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^16.0.3"
+    "typescript-eslint": "^8.73.0"
   }
 }

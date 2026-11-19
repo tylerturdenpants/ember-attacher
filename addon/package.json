@@ -112,8 +112,6 @@
     "@babel/plugin-transform-class-properties": "^8.0.1",
     "@babel/plugin-transform-typescript": "^7.29.9",
     "@embroider/addon-dev": "^8.5.0",
-    "@glimmer/component": "^2.2.1",
-    "@glimmer/tracking": "^1.1.2",
     "@glint/ember-tsc": "^1.14.4",
     "@rollup/plugin-babel": "^7.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
@@ -126,6 +124,7 @@
     "globals": "^17.14.0",
     "lightningcss": "^1.33.0",
     "rollup": "^4.68.5",
-    "typescript": "~5.8.3"
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.73.0"
   }
 }
