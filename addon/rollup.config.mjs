@@ -12,14 +12,33 @@ const addon = new Addon({
 
 const cssFileName = 'styles/ember-attacher.css';
 const cssEntry = `src/${cssFileName}`;
+const rootReadmePath = path.resolve('..', 'README.md');
+const pkgReadmePath = path.resolve('README.md');
+const repoBlobBase = 'https://github.com/tylerturdenpants/ember-attacher/blob/master/';
+
+function syncPackageReadme() {
+  if (!fs.existsSync(rootReadmePath)) {
+    return;
+  }
+  const source = fs.readFileSync(rootReadmePath, 'utf8');
+  const rewritten = source.replace(
+    /\]\(((?!https?:\/\/|#|mailto:)[^)]+)\)/g,
+    (_match, target) => `](${repoBlobBase}${target.replace(/^\.\//, '')})`
+  );
+  fs.writeFileSync(pkgReadmePath, rewritten);
+}
 
 function cssHandler() {
   return {
     name: 'css-handler',
     buildStart() {
       this.addWatchFile(path.resolve(cssEntry));
+      if (fs.existsSync(rootReadmePath)) {
+        this.addWatchFile(rootReadmePath);
+      }
     },
     generateBundle() {
+      syncPackageReadme();
       const source = fs.readFileSync(path.resolve(cssEntry));
       // Flatten native nesting for older consumer browserslists (the old
       // sass.compile() output was always flat). @starting-style and

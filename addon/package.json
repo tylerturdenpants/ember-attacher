@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "build": "rollup --config rollup.config.mjs",
+    "prepack": "pnpm run build",
     "prepare": "pnpm run build",
     "prepublishOnly": "pnpm run build",
     "start": "rollup --config rollup.config.mjs --watch",
@@ -55,7 +56,8 @@
   },
   "files": [
     "addon-main.js",
-    "dist"
+    "dist",
+    "README.md"
   ],
   "sideEffects": [
     "./dist/styles/*.css"

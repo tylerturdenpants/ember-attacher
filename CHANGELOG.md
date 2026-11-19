@@ -4,6 +4,7 @@
 * **`assertAttached()` test helper:** `ember-attacher/test-support` exports `assertAttached(assert, attachment, target, { placement, maxGap, tolerance, message })` (plus `AssertAttachedOptions`, `ElementOrSelector`, and `ResultPusher`), which checks that an open attachment is visible, on its resolved side, close to and overlapping its target, with the arrow pointing at the target, inside the viewport and not covered.
 
 #### :bug: Bug Fix
+* **Published npm `README.md`:** Sync root `README.md` into the published `addon/` package during build (`addon/rollup.config.mjs`, `addon/package.json` `files`) with GitHub blob links so npm displays the package README instead of missing it.
 * **Native `::backdrop` clickout:** `hideOn="clickout"` on interactive Top-Layer `[popover]` hosts now treats pointer clicks targeting `floatingElement` directly outside its rendered bounding boxes (i.e. on `::backdrop`) as outside clicks instead of keeping the popover open.
 
 #### :memo: Documentation
