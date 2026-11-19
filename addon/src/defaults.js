@@ -1,19 +1,25 @@
+export const POPOVER_DEFAULTS = Object.freeze({
+  showOn: 'click',
+  hideOn: 'click clickout escapekey',
+  interactive: true,
+  lazyRender: true,
+});
+
 export default {
   animation: 'fill',
   arrow: false,
-  autoUpdate: false,
+  autoUpdate: true,
   flip: null,
   hideDelay: 0,
   hideDuration: 300,
   hideOn: 'mouseleave blur escapekey',
-  interactive: false,
+  interactive: true,
   isOffset: false,
   isShown: false,
   lazyRender: false,
   middleware: null,
   placement: 'top',
   strategy: 'absolute',
-  floatingElementContainer: '.ember-application',
   floatingUiOptions: null,
   renderInPlace: false,
   showDelay: 0,
@@ -22,5 +28,5 @@ export default {
   style: null,
   tooltipClass: 'ember-attacher-floating ember-attacher-tooltip',
   useCapture: false,
-  overflowPadding: 5
+  overflowPadding: 5,
 };

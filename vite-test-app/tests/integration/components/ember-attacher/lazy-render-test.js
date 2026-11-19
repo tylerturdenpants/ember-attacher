@@ -32,7 +32,14 @@ module('Integration | Component | lazyRender', function (hooks) {
 
     await render(hbs`
       <div id="target">Target</div>
-      <AttachPopover @id="attachment" @target="#target" @lazyRender={{true}}>
+      <AttachPopover
+        @id="attachment"
+        @target="#target"
+        @showOn="mouseenter"
+        @hideOn="mouseleave"
+        @interactive={{false}}
+        @lazyRender={{true}}
+      >
         lazy tooltip
       </AttachPopover>
     `);
@@ -67,10 +74,15 @@ module('Integration | Component | lazyRender', function (hooks) {
     assert.ok(true, 'destroyed without throwing after lazy first paint');
   });
 
-  test('lazily render will default to false which will eager render the yield block', async function (assert) {
-    assert.expect(1);
+  test('AttachTooltip defaults lazyRender to false while AttachPopover defaults lazyRender to true', async function (assert) {
+    assert.expect(2);
 
     await render(hbs`
+      <button id="toggle-tip" type="button">Tooltip target</button>
+      <AttachTooltip @id="eager-tooltip" @target="#toggle-tip">
+        <div id="eager-tooltip-body"></div>
+      </AttachTooltip>
+
       <button id="toggle-show" type="button">
         Click me, captain!
       </button>
@@ -79,7 +91,8 @@ module('Integration | Component | lazyRender', function (hooks) {
       </AttachPopover>
     `);
 
-    assert.dom('#should-not-be-present-until-clicked').exists('Has initially rendered the yield block.');
+    assert.dom('#eager-tooltip-body').exists('AttachTooltip eagerly renders yield block by default.');
+    assert.dom('#should-not-be-present-until-clicked').doesNotExist('AttachPopover lazily renders yield block by default.');
   });
 
   test('runs ...attributes modifiers on mount with @lazyRender={{true}} and drives transition duration via CSSOM without inline style attributes', async function (assert) {
@@ -124,9 +137,9 @@ module('Integration | Component | lazyRender', function (hooks) {
     assert.dom('#lazy-inner').exists('inner content is rendered after trigger');
 
     const innerBox = host.querySelector('.ember-attacher-fill');
-    const circle = host.querySelector('div[x-circle]');
+    const circle = host.querySelector('.ember-attacher-fill-circle');
     assert.strictEqual(innerBox.getAttribute('style'), null, 'inner animated container has no inline style attribute (strict CSP)');
-    assert.strictEqual(circle.getAttribute('style'), null, 'x-circle has no inline style attribute (strict CSP)');
+    assert.strictEqual(circle.getAttribute('style'), null, '.ember-attacher-fill-circle has no inline style attribute (strict CSP)');
     assert.strictEqual(
       host.style.getPropertyValue('--ember-attacher-transition-duration'),
       '450ms',
@@ -140,7 +153,7 @@ module('Integration | Component | lazyRender', function (hooks) {
     assert.strictEqual(
       getComputedStyle(circle).transitionDuration,
       '0.36s',
-      'x-circle consumes 0.8x --ember-attacher-transition-duration in CSS'
+      '.ember-attacher-fill-circle consumes 0.8x --ember-attacher-transition-duration in CSS'
     );
   });
 });
