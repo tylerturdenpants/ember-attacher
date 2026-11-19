@@ -1,6 +1,6 @@
 import { registerDeprecationHandler } from '@ember/debug';
-import { htmlSafe } from '@ember/template';
 import { hbs } from 'ember-cli-htmlbars';
+import * as EmberAttacherModule from 'ember-attacher';
 import { isVisible, offset } from 'ember-attacher';
 import { isVisible as testSupportIsVisible } from 'ember-attacher/test-support';
 import { module, test } from 'qunit';
@@ -41,63 +41,34 @@ async function collectDeprecations(fn) {
 module('Integration | Component | deprecations & 4.4 regressions', function (hooks) {
   setupRenderingTest(hooks);
 
-  test('emits until: 5.0.0 deprecations for remaining legacy 4.x args/APIs', async function (assert) {
-    this.set('middleware', [offset(4)]);
-    this.set('legacyStyle', htmlSafe('color: white;'));
-    this.set('noop', () => {});
-    this.set('captureSetRef', (api) => {
-      api.setReference(find('#legacy-ext-target'));
+  test('removes BasicAttacher export and removed 4.x yielded aliases in 5.0', async function (assert) {
+    assert.strictEqual(
+      EmberAttacherModule.BasicAttacher,
+      undefined,
+      'BasicAttacher is no longer exported from ember-attacher in 5.0'
+    );
+
+    let yieldedApi = null;
+    this.set('captureApi', (api) => {
+      yieldedApi = api;
+      return '';
     });
 
-    const deprecations = await collectDeprecations(async () => {
-      await render(hbs`
-        <button id="legacy-ext-target" type="button">External</button>
+    await render(hbs`
+      <button id="clean-5-target" type="button">Target</button>
+      <AttachPopover @id="clean-5-pop" @target="#clean-5-target" @lazyRender={{false}} as |a|>
+        {{this.captureApi a}}
+        Body
+      </AttachPopover>
+    `);
 
-        <AttachPopover
-          @id="legacy-args-pop"
-          @explicitTarget="#legacy-ext-target"
-          @flip="bottom left"
-          @overflowPadding={{8}}
-          @floatingUiOptions={{hash strategy="fixed"}}
-          @isOffset={{true}}
-          @style={{this.legacyStyle}}
-          @additionalClass="legacy-extra"
-          @onInitializeAttacher={{this.noop}}
-          @onWillDestroy={{this.noop}}
-          @showOn="click"
-          @hideOn="click"
-          as |a|
-        >
-          <span {{a.reference}}>Legacy ref</span>
-          <button id="call-set-ref" type="button" {{on "click" (fn this.captureSetRef a)}}>SetRef</button>
-        </AttachPopover>
-      `);
-
-      await click('#legacy-ext-target');
-      await click('#call-set-ref');
-      await clearRender();
-    });
-
-    const ids = new Set(deprecations.map((d) => d.options?.id));
-    const expectedIds = [
-      'ember-attacher.arg.explicit-target',
-      'ember-attacher.api.reference',
-      'ember-attacher.api.set-reference',
-      'ember-attacher.arg.flip',
-      'ember-attacher.arg.overflow-padding',
-      'ember-attacher.arg.floating-ui-options',
-      'ember-attacher.arg.is-offset',
-      'ember-attacher.arg.style',
-      'ember-attacher.arg.additional-class',
-      'ember-attacher.arg.on-initialize-attacher',
-      'ember-attacher.arg.on-will-destroy',
-    ];
-
-    for (const id of expectedIds) {
-      assert.true(ids.has(id), `emits deprecation "${id}"`);
-      const entry = deprecations.find((d) => d.options?.id === id);
-      assert.strictEqual(entry.options.until, '5.0.0', `${id} targets until: 5.0.0`);
-    }
+    assert.strictEqual(yieldedApi.reference, undefined, 'yielded a.reference removed in 5.0');
+    assert.strictEqual(yieldedApi.setReference, undefined, 'yielded a.setReference removed in 5.0');
+    assert.ok(
+      typeof yieldedApi.target === 'function' || typeof yieldedApi.target === 'object',
+      'yielded a.target modifier present'
+    );
+    assert.strictEqual(typeof yieldedApi.setTarget, 'function', 'yielded a.setTarget method present');
   });
 
   test('emits zero deprecations on explicit-target APIs', async function (assert) {

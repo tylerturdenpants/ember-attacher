@@ -13,6 +13,7 @@
       { "allowDeclareFields": true, "onlyRemoveTypeImports": true }
     ],
     ["@babel/plugin-proposal-decorators", { "version": "legacy" }],
+    "@babel/plugin-transform-class-static-block",
     ["@babel/plugin-transform-class-properties", { "loose": true }]
   ]
 }

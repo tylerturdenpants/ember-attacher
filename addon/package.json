@@ -98,7 +98,6 @@
       "./components/attach-popover.js": "./dist/_app_/components/attach-popover.js",
       "./components/attach-tooltip.js": "./dist/_app_/components/attach-tooltip.js",
       "./components/attacher.js": "./dist/_app_/components/attacher.js",
-      "./components/basic-attacher.js": "./dist/_app_/components/basic-attacher.js",
       "./modifiers/tooltip.js": "./dist/_app_/modifiers/tooltip.js"
     }
   },
@@ -110,8 +109,11 @@
     "@babel/eslint-parser": "^7.29.13",
     "@babel/plugin-proposal-decorators": "^8.0.2",
     "@babel/plugin-transform-class-properties": "^8.0.1",
+    "@babel/plugin-transform-class-static-block": "^8.1.2",
     "@babel/plugin-transform-typescript": "^7.29.9",
     "@embroider/addon-dev": "^8.5.0",
+    "@glimmer/component": "^2.2.1",
+    "@glimmer/tracking": "^1.1.2",
     "@glint/ember-tsc": "^1.14.4",
     "@rollup/plugin-babel": "^7.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",

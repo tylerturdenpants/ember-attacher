@@ -1,34 +1,42 @@
 # ember-attacher 5.0 Upgrade Guide
 
-`ember-attacher` 4.4 introduces the additive explicit-target and non-wrapper APIs (`{{tooltip}}`, `<Attacher>`, `@target`, `<:target>`/`<:content>` blocks, and `[popovertarget]` pairing) alongside `until: '5.0.0'` deprecations so you can migrate incrementally before upgrading to `5.0.0`.
+`ember-attacher` 5.0.0 completes the cleanup begun with 4.4.0's additive APIs and `until: '5.0.0'` deprecations. The addon is now authored in strict `.gts` / `.ts` with generated `.d.ts` & Glint declarations, runloop-free scheduling, single-pass in-place Top-Layer rendering, native Web Animations / `@starting-style` lifecycle, modern accessibility defaults, and a pruned API surface.
 
-## Compatibility & Platform Floor (5.0)
+## Compatibility & Platform Floor
 
-- **`ember-source`:** `>= 4.12` LTS (4.x supports `3.28` through `7.x`).
+- **`ember-source`:** `>= 4.12` LTS (tested across Classic 4.12 / 5.12 / 6.12 and Vite 4.12–7.4 / Canary).
 - **Node.js:** `>= 20` LTS.
-- **TypeScript / Glint:** Full `.d.ts` declarations and `EmberAttacherRegistry` are published directly from `'ember-attacher'`, `'ember-attacher/template-registry'`, and `'ember-attacher/test-support'`.
-- **Styles:** Packaged plain CSS (`ember-attacher/styles` and `implicit-styles`) with zero Sass dependency and strict CSP compliance (`--ember-attacher-transition-duration` applied via CSSOM).
+- **TypeScript / Glint:** Declarations and `EmberAttacherRegistry` are emitted directly from addon `.ts`/`.gts` sources and published from `'ember-attacher'`, `'ember-attacher/template-registry'`, and `'ember-attacher/test-support'`.
+- **Styles:** Packaged plain CSS (`ember-attacher/styles` and `implicit-styles`) with zero Sass dependency and strict CSP compatibility (`--ember-attacher-transition-duration` driven via CSSOM).
+- **Top-Layer entry/exit transitions:** `@starting-style` and `transition-behavior: allow-discrete` enhance Chrome 117+, Safari 17.5+, and Firefox 129+. Older engines show immediately on entry and fall back to a `hideDuration` exit timer cleanly.
 
 ---
 
-## 1. Bind Explicit Targets (Implicit Parent Target Removed in 5.0)
+## 1. Bind Explicit Targets (`<AttachTooltip>` / `<AttachPopover>` Assert Without One)
 
-Attaching implicitly to a parent DOM element (`<button>Label <AttachTooltip>...</AttachTooltip></button>`) is deprecated in `4.4` (`ember-attacher.implicit-parent-target`) and removed in `5.0`. In `5.0`, an attachment with no bound Target asserts in debug builds and stays inert in production and SSR (it never falls back to `document.body`).
+Implicit parent target resolution (`<button>Label <AttachTooltip>...</AttachTooltip></button>`) is removed in `5.0.0`.
 
-Choose whichever 4.4 explicit-target pattern fits your call site:
+In `5.0.0`, `<AttachTooltip>` and `<AttachPopover>` assert in debug builds when initial mount completes with no target binding mechanism supplied (while staying inert in production and SSR and never falling back to `document.body`).
+
+Valid target bindings:
+
+- `@target` (`Element | string | VirtualElement`) — nullable reactive bindings like `@target={{this.dynamicTarget}}` are valid when `@target` is passed explicitly (`'target' in args`).
+- `<:target>` block parameter modifier (`<:target as |target|>`)
+- Yielded `{{a.target data}}` modifier or `a.setTarget(el, data)`
+- Declarative HTML invokers matching `@id`: `[popovertarget="<id>"]` or `[interestfor="<id>"]`
 
 ### Simple text tooltips: `{{tooltip}}` modifier
 
 Backed by a single document-scoped Top-Layer DOM node and a `300ms` warm delay-group handoff across adjacent tooltips:
 
 ```hbs
-{{!-- Before --}}
+{{!-- 4.x (removed) --}}
 <button type="button">
   Save
   <AttachTooltip @placement="top">Save changes</AttachTooltip>
 </button>
 
-{{!-- After (4.4+) --}}
+{{!-- 5.0 --}}
 <button type="button" {{tooltip "Save changes" placement="top"}}>
   Save
 </button>
@@ -37,13 +45,6 @@ Backed by a single document-scoped Top-Layer DOM node and a `300ms` warm delay-g
 ### Rich content or shared multi-target tooltips: `<:target>` / `<:content>` blocks
 
 ```hbs
-{{!-- Before --}}
-<button type="button">
-  Help
-  <AttachTooltip>Rich <strong>HTML</strong> tooltip</AttachTooltip>
-</button>
-
-{{!-- After (4.4+) --}}
 <AttachTooltip>
   <:target as |target|>
     <button type="button" {{target}}>Help</button>
@@ -56,20 +57,26 @@ Backed by a single document-scoped Top-Layer DOM node and a `300ms` warm delay-g
 
 For lists or grids, pass row data to `{{target row}}` to share one attachment instance across items (`a.data` yields the active item's payload).
 
-### External targets: `@target` or `[popovertarget]`
+### External targets & declarative triggers: `@target`, `[popovertarget]`, `[interestfor]`
 
 ```hbs
 {{!-- Via @target (Element, unique CSS selector, or VirtualElement) --}}
 <button id="menu-btn" type="button">Options</button>
-<AttachPopover @target="#menu-btn" @showOn="click" @hideOn="click clickout escapekey">
+<AttachPopover @target="#menu-btn">
   Menu items
 </AttachPopover>
 
-{{!-- Or native HTML popovertarget pairing --}}
+{{!-- Native HTML popovertarget pairing --}}
 <button type="button" popovertarget="help-popover">Help</button>
 <AttachPopover @id="help-popover">
   Help panel
 </AttachPopover>
+
+{{!-- Declarative [interestfor] hover/focus tooltip pairing --}}
+<button type="button" interestfor="field-tip">Info</button>
+<AttachTooltip @id="field-tip">
+  Explains what this control does.
+</AttachTooltip>
 ```
 
 ### Custom markup with zero wrapper elements: `<Attacher as |a|>`
@@ -89,37 +96,41 @@ For lists or grids, pass row data to `{{target row}}` to share one attachment in
 
 ---
 
-## 2. Deprecated Arguments & APIs (`until: '5.0.0'`)
+## 2. In-Place Top-Layer `[popover="manual"]` Host (No `{{#in-element}}`)
 
-All legacy options below remain functional in `4.4.0` with `until: '5.0.0'` deprecation warnings and are removed in `5.0.0`:
+In 4.x, `<AttachTooltip>` and `<AttachPopover>` wrapped a `<meta hidden>` marker and teleported the host node into `.ember-application` via `{{#in-element}}` (`MaybeInElement`) / `@floatingElementContainer`.
 
-| Deprecated in 4.4 | Deprecation ID | 4.4+ / 5.0 Replacement |
-|---|---|---|
-| Implicit parent element | `ember-attacher.implicit-parent-target` | `{{tooltip}}`, `@target`, `{{a.target}}`, `<:target>`, or `[popovertarget]` |
-| `@explicitTarget` | `ember-attacher.arg.explicit-target` | `@target` |
-| `{{a.reference}}` | `ember-attacher.api.reference` | `{{a.target}}` |
-| `a.setReference(...)` | `ember-attacher.api.set-reference` | `a.setTarget(...)` |
-| `@flip` | `ember-attacher.arg.flip` | `@middleware={{array (flip fallbackPlacements=...)}}` via `flip` imported from `'ember-attacher'` |
-| `@overflowPadding` | `ember-attacher.arg.overflow-padding` | `shift({ padding })` / `flip({ padding })` via `@middleware` |
-| `@floatingUiOptions` | `ember-attacher.arg.floating-ui-options` | `@placement`, `@strategy`, and `@middleware` |
-| `@floatingElementContainer` | `ember-attacher.arg.floating-element-container` | Default Top-Layer `[popover="manual"]` Host (no portal selector needed), or `@renderInPlace={{true}}` |
-| `@isOffset` | `ember-attacher.arg.is-offset` | Remove; diagonal `safePolygon` hover corridor is automatic when `@interactive={{true}}` |
-| `@style` | `ember-attacher.arg.style` | CSS classes (`@class` / `class="..."`) or `--ember-attacher-*` custom properties |
-| `@additionalClass` | `ember-attacher.arg.additional-class` | `@class` or `class="..."` |
-| `@onInitializeAttacher` | `ember-attacher.arg.on-initialize-attacher` | Element modifier on the Target or Attachment |
-| `@onWillDestroy` | `ember-attacher.arg.on-will-destroy` | Element modifier teardown or `registerDestructor` |
-| `@configKey` / `<BasicAttacher>` | *(removed in 5.0)* | `<AttachTooltip>`, `<AttachPopover>`, `<Attacher>`, or `{{tooltip}}` |
+In **`5.0.0`**:
 
-Re-exported Floating UI middleware builders can be imported directly from `'ember-attacher'`:
-`{ arrow, autoPlacement, flip, hide, inline, limitShift, offset, shift, size }`.
+- Component hosts (`<AttachTooltip>`, `<AttachPopover>`) render `<div class="ember-attacher" popover="manual">` **directly in place in 1 render pass** (`@floatingElementContainer`, `<meta hidden>`, and `MaybeInElement` are removed).
+- When shown, `showPopover()` promotes `.ember-attacher` into the browser **Top Layer**, escaping ancestor `overflow` clipping and stacking contexts without moving DOM nodes.
+- Pass `@renderInPlace={{true}}` to omit `popover="manual"` and render purely in place (using `[data-open]` without Top-Layer promotion).
+- In environments without native Popover API support (e.g. Safari `< 17`), the host falls back to `[data-open]` / `[data-closing]` in place cleanly without `popover` attributes (note: without Top Layer, `overflow: hidden` ancestors can clip an in-place attachment).
+- Only the singleton `{{tooltip}}` modifier pool (`TooltipDomHost`) appends its shared host node imperatively to `modalContainer || ownerRootElement || document.body`.
+- **Test impact:** Application/integration tests that previously queried `.ember-application > .ember-attacher` should query the rendered element directly by ID/selector or render inside `#ember-testing` (since `.ember-attacher` stays in place in DOM order even when promoted to the Top Layer).
 
 ---
 
-## 3. Default Behavior Changes in 5.0
+## 3. Native Animations, Selectors & Performance
 
-In `4.x`, all component defaults remain unchanged for backwards compatibility. In **`5.0.0`**, the following defaults change:
+`ember-attacher` 5.0 replaces `@ember/runloop` timers and class-toggling animation hacks with native CSS + Web Animations (`WAAPI`):
 
-### `<AttachPopover>` defaults in 5.0
+- **Entry/exit CSS pipeline:** Open state toggles `:is(:popover-open, .\:popover-open, [data-open]):where(:not([data-closing]))` with `@starting-style`, `transition-property: transform, opacity, display, overlay;`, and `transition-behavior: allow-discrete;`.
+- **Exit lifecycle:** Closing sets `aria-hidden="true"` and `[data-closing]` (`pointer-events: none` so closing overlays never steal clicks), awaits `floatingElement.getAnimations({ subtree: true })` (falling back to a `hideDuration` `setTimeout` timer when `getAnimations()` returns empty), then clears duration and calls `hidePopover()`.
+- **Instant show/hide (`0ms`):** `@showDuration={{0}}` and `@hideDuration={{0}}` complete synchronously in 0 frames with zero rAF or timer delay.
+- **Reduced motion:** Spatial motion transforms are gated inside `@media (prefers-reduced-motion: no-preference)`. Under `@media (prefers-reduced-motion: reduce)`, delays are `0ms` and opacity fade duration is capped at `min(var(--ember-attacher-transition-duration, 0ms), 100ms)`.
+- **GPU hygiene:** Idle attachments no longer carry permanent `will-change: transform` or `perspective: 800px` contexts.
+- **DOM / attribute changes:**
+  - `data-placement` is now set alongside `x-placement` (`x-placement` remains populated for 5.0 migration compatibility).
+  - `div[x-circle]` was replaced by `.ember-attacher-fill-circle`.
+  - `x-arrow` was removed from arrow elements (style `.ember-attacher-arrow` instead).
+  - Internal `.ember-attacher-show` and `.ember-attacher-hide` classes were removed.
+
+---
+
+## 4. Accessibility Contracts & 5.0 Defaults
+
+### `<AttachPopover>` defaults
 
 | Option | 4.x Default | 5.0 Default |
 |---|---|---|
@@ -128,16 +139,49 @@ In `4.x`, all component defaults remain unchanged for backwards compatibility. I
 | `@interactive` | `false` | `true` |
 | `@lazyRender` | `false` | `true` |
 
-If you want hover-triggered `<AttachPopover>` behavior in 5.0 (or already opt into explicit triggers in 4.4), pass `@showOn`, `@hideOn`, `@interactive`, and `@lazyRender` explicitly.
+Pass `@showOn`, `@hideOn`, `@interactive`, or `@lazyRender` explicitly when hover-triggered `<AttachPopover>` behavior is desired.
 
-### `@autoUpdate` default in 5.0
+### Other 5.0 defaults
 
-- **`4.x`:** `false`
-- **`5.0`:** `true` while open (automatically tracks scroll, resize, and layout shifts via Floating UI `autoUpdate` only while visible, stopping cleanly on hide/teardown).
+- **`@autoUpdate`:** Defaults to `true` (tracks scroll, resize, and layout shifts via Floating UI `autoUpdate` only while open, and stops immediately on hide/teardown).
+- **WCAG 1.4.13 Hoverable Tooltips (`@interactive`):** `<AttachTooltip>` and `{{tooltip}}` now default `@interactive={{true}}` with the automatic diagonal `safePolygon` pointer corridor so magnification and pointer users can hover onto tooltip content without it disappearing. Pass `@interactive={{false}}` (or `interactive=false` on `{{tooltip}}`) to opt out.
+
+### Smart Tooltip ARIA
+
+- **Nameless triggers** (e.g., an icon-only `<button><svg aria-hidden="true" .../></button>` with no accessible name): binds `aria-labelledby` upfront pointing to the tooltip ID so screen readers name the control from the tooltip even before opening.
+- **Duplicate descriptions:** when a tooltip's text matches the trigger's existing accessible name (e.g., `<button aria-label="Save">` with tooltip `"Save"`), duplicate `aria-describedby` is suppressed.
+- **Supplemental descriptions:** otherwise, token-safe `aria-describedby` is bound only while the tooltip is open, preserving any existing caller tokens.
 
 ---
 
-## 4. Testing Helpers
+## 5. Removed 4.x Components, Arguments & APIs
+
+`<BasicAttacher>` and every deprecated 4.x argument/helper have been removed from runtime code and TypeScript declarations:
+
+| Removed in 5.0 | Replacement |
+|---|---|
+| `<BasicAttacher>` component & module | `<AttachTooltip>`, `<AttachPopover>`, `<Attacher>`, or `{{tooltip}}` |
+| `@configKey` | `<AttachTooltip>`, `<AttachPopover>`, or `@ariaRole="tooltip"` |
+| Implicit parent target | `@target`, `<:target>`, `{{a.target}}`, `a.setTarget()`, `[popovertarget]`, or `[interestfor]` |
+| `@explicitTarget` | `@target` |
+| `{{a.reference}}` | `{{a.target}}` |
+| `a.setReference(...)` | `a.setTarget(...)` |
+| `@flip="top left"` | `@middleware={{array (flip fallbackPlacements=(array "top" "left"))}}` (default `flip()` runs automatically when not overridden) |
+| `@overflowPadding={{8}}` | `shift({ padding: 8 })` / `flip({ padding: 8 })` via `@middleware` (default `shift({ limiter: limitShift(), padding: 5 })` runs automatically when not overridden) |
+| `@floatingUiOptions` | `@placement`, `@strategy`, and `@middleware` |
+| `@floatingElementContainer` | Built-in Top-Layer `[popover="manual"]` host (no selector needed) or `@renderInPlace={{true}}` |
+| `@isOffset` | Remove; diagonal `safePolygon` corridor is automatic when `@interactive={{true}}` |
+| `@style` | CSS classes (`@class` / `class="..."`) or `--ember-attacher-*` custom properties |
+| `@additionalClass` | `@class` or `class="..."` |
+| `@onInitializeAttacher` | Element modifier on the Target or Attachment |
+| `@onWillDestroy` | Element modifier teardown or `registerDestructor` |
+
+Floating UI middleware builders are re-exported directly from `'ember-attacher'`:
+`{ arrow, autoPlacement, flip, hide, inline, limitShift, offset, shift, size }`.
+
+---
+
+## 6. Testing Helpers
 
 Import `isVisible` from `'ember-attacher/test-support'`:
 
