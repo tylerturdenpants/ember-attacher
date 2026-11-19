@@ -4,28 +4,30 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render, click } from '@ember/test-helpers';
 
-module('Integration | Component | hideOn "click"', function(hooks) {
+module('Integration | Component | hideOn "click"', function (hooks) {
   setupRenderingTest(hooks);
 
-  test('hides when the target is clicked', async function(assert) {
+  test('hides when the target is clicked', async function (assert) {
     assert.expect(2);
 
     await render(hbs`
-      <button id="click-toggle">
+      <button id="click-toggle" type="button">
         Click me, captain!
-
-        {{#attach-popover id='attachment'
-                          hideOn='click'
-                          isShown=true}}
-          hideOn click
-        {{/attach-popover}}
       </button>
+      <AttachPopover
+        @id="attachment"
+        @target="#click-toggle"
+        @hideOn="click"
+        @isShown={{true}}
+      >
+        hideOn click
+      </AttachPopover>
     `);
 
-    assert.equal(isVisible('#attachment'), true, 'Initially shown');
+    assert.true(isVisible('#attachment'), 'Initially shown');
 
     await click('#click-toggle');
 
-    assert.equal(isVisible('#attachment'), false, 'Now hidden');
+    assert.false(isVisible('#attachment'), 'Now hidden');
   });
 });

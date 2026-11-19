@@ -7,16 +7,15 @@ function cssVar(element, name) {
   return getComputedStyle(element).getPropertyValue(name).trim();
 }
 
-module('Integration | CSS custom properties', function(hooks) {
+module('Integration | CSS custom properties', function (hooks) {
   setupRenderingTest(hooks);
 
-  test('tooltip look defaults match the current hex', async function(assert) {
+  test('tooltip look defaults match the current hex', async function (assert) {
     await render(hbs`
-      <div>
-        <AttachTooltip @id="token-tooltip" @animation="none" @arrow={{true}} @isShown={{true}}>
-          tooltip text
-        </AttachTooltip>
-      </div>
+      <button id="token-target" type="button">Target</button>
+      <AttachTooltip @id="token-tooltip" @target="#token-target" @animation="none" @arrow={{true}} @isShown={{true}}>
+        tooltip text
+      </AttachTooltip>
     `);
 
     const inner = find('#token-tooltip > .ember-attacher-tooltip');
@@ -38,35 +37,37 @@ module('Integration | CSS custom properties', function(hooks) {
     assert.strictEqual(getComputedStyle(arrow).backgroundColor, 'rgb(51, 51, 51)');
   });
 
-  test('one fill override restyles body, arrow, and fill disc', async function(assert) {
+  test('one fill override restyles body, arrow, and fill disc', async function (assert) {
     await render(hbs`
       <style>
         .token-fill-override {
           --ember-attacher-fill: rgb(10, 20, 30);
         }
       </style>
-      <div>
-        <AttachTooltip
-          @id="override-body"
-          @animation="none"
-          @arrow={{true}}
-          @isShown={{true}}
-          @class="token-fill-override"
-        >
-          body and arrow
-        </AttachTooltip>
-        <AttachTooltip
-          @id="override-disc"
-          @animation="fill"
-          @arrow={{true}}
-          @placement="bottom"
-          @showDuration={{0}}
-          @isShown={{true}}
-          @class="token-fill-override"
-        >
-          fill disc
-        </AttachTooltip>
-      </div>
+      <button id="override-body-target" type="button">Body target</button>
+      <AttachTooltip
+        @id="override-body"
+        @target="#override-body-target"
+        @animation="none"
+        @arrow={{true}}
+        @isShown={{true}}
+        @class="token-fill-override"
+      >
+        body and arrow
+      </AttachTooltip>
+      <button id="override-disc-target" type="button">Disc target</button>
+      <AttachTooltip
+        @id="override-disc"
+        @target="#override-disc-target"
+        @animation="fill"
+        @arrow={{true}}
+        @placement="bottom"
+        @showDuration={{0}}
+        @isShown={{true}}
+        @class="token-fill-override"
+      >
+        fill disc
+      </AttachTooltip>
     `);
 
     const bodyInner = find('#override-body > .ember-attacher-tooltip');
@@ -89,18 +90,18 @@ module('Integration | CSS custom properties', function(hooks) {
     assert.strictEqual(getComputedStyle(disc).backgroundColor, 'rgb(10, 20, 30)');
   });
 
-  test('dummy popover token overrides win over packaged defaults', async function(assert) {
+  test('dummy popover token overrides win over packaged defaults', async function (assert) {
     await render(hbs`
-      <div>
-        <AttachPopover
-          @id="dummy-popover"
-          @animation="fill"
-          @isShown={{true}}
-          @class="ember-attacher-popover custom-popover-css"
-        >
-          dummy look
-        </AttachPopover>
-      </div>
+      <button id="dummy-popover-target" type="button">Dummy target</button>
+      <AttachPopover
+        @id="dummy-popover"
+        @target="#dummy-popover-target"
+        @animation="fill"
+        @isShown={{true}}
+        @class="ember-attacher-popover custom-popover-css"
+      >
+        dummy look
+      </AttachPopover>
     `);
 
     const inner = find('#dummy-popover > .ember-attacher-popover');
@@ -113,21 +114,22 @@ module('Integration | CSS custom properties', function(hooks) {
     assert.strictEqual(getComputedStyle(inner).color, 'rgb(51, 51, 51)');
   });
 
-  test('AttachPopover does not get tooltip look unless ember-attacher-popover is opted in', async function(assert) {
+  test('AttachPopover does not get tooltip look unless ember-attacher-popover is opted in', async function (assert) {
     await render(hbs`
-      <div>
-        <AttachPopover @id="plain-popover" @animation="none" @isShown={{true}}>
-          plain
-        </AttachPopover>
-        <AttachPopover
-          @id="look-popover"
-          @animation="none"
-          @isShown={{true}}
-          @class="ember-attacher-popover"
-        >
-          look
-        </AttachPopover>
-      </div>
+      <button id="plain-popover-target" type="button">Plain</button>
+      <AttachPopover @id="plain-popover" @target="#plain-popover-target" @animation="none" @isShown={{true}}>
+        plain
+      </AttachPopover>
+      <button id="look-popover-target" type="button">Look</button>
+      <AttachPopover
+        @id="look-popover"
+        @target="#look-popover-target"
+        @animation="none"
+        @isShown={{true}}
+        @class="ember-attacher-popover"
+      >
+        look
+      </AttachPopover>
     `);
 
     const plain = find('#plain-popover > .ember-attacher-none');
@@ -139,19 +141,19 @@ module('Integration | CSS custom properties', function(hooks) {
     assert.strictEqual(getComputedStyle(look).backgroundColor, 'rgb(51, 51, 51)');
   });
 
-  test('light theme reassigns the same public tokens', async function(assert) {
+  test('light theme reassigns the same public tokens', async function (assert) {
     await render(hbs`
-      <div>
-        <AttachTooltip
-          @id="light-tooltip"
-          @animation="none"
-          @arrow={{true}}
-          @isShown={{true}}
-          @class="ember-attacher-light-theme"
-        >
-          light
-        </AttachTooltip>
-      </div>
+      <button id="light-tooltip-target" type="button">Light target</button>
+      <AttachTooltip
+        @id="light-tooltip"
+        @target="#light-tooltip-target"
+        @animation="none"
+        @arrow={{true}}
+        @isShown={{true}}
+        @class="ember-attacher-light-theme"
+      >
+        light
+      </AttachTooltip>
     `);
 
     const inner = find('#light-tooltip > .ember-attacher-tooltip');
@@ -166,13 +168,12 @@ module('Integration | CSS custom properties', function(hooks) {
     assert.strictEqual(getComputedStyle(arrow).backgroundColor, 'rgb(243, 246, 249)');
   });
 
-  test('distance token defaults to 10px on .ember-attacher', async function(assert) {
+  test('distance token defaults to 10px on .ember-attacher', async function (assert) {
     await render(hbs`
-      <div>
-        <AttachTooltip @id="distance-tooltip" @animation="none" @isShown={{true}}>
-          tooltip text
-        </AttachTooltip>
-      </div>
+      <button id="distance-target" type="button">Distance target</button>
+      <AttachTooltip @id="distance-tooltip" @target="#distance-target" @animation="none" @isShown={{true}}>
+        tooltip text
+      </AttachTooltip>
     `);
 
     const floating = find('#distance-tooltip');
@@ -180,7 +181,7 @@ module('Integration | CSS custom properties', function(hooks) {
     assert.strictEqual(cssVar(floating, '--ember-attacher-distance'), '10px');
   });
 
-  test('border-width token synchronizes body and arrow borders', async function(assert) {
+  test('border-width token synchronizes body and arrow borders', async function (assert) {
     await render(hbs`
       <style>
         .custom-border-tooltip {
@@ -188,17 +189,17 @@ module('Integration | CSS custom properties', function(hooks) {
           --ember-attacher-border-width: 2px;
         }
       </style>
-      <div>
-        <AttachTooltip
-          @id="bordered-tooltip"
-          @animation="none"
-          @arrow={{true}}
-          @isShown={{true}}
-          @class="custom-border-tooltip"
-        >
-          bordered
-        </AttachTooltip>
-      </div>
+      <button id="bordered-target" type="button">Bordered target</button>
+      <AttachTooltip
+        @id="bordered-tooltip"
+        @target="#bordered-target"
+        @animation="none"
+        @arrow={{true}}
+        @isShown={{true}}
+        @class="custom-border-tooltip"
+      >
+        bordered
+      </AttachTooltip>
     `);
 
     const inner = find('#bordered-tooltip > .ember-attacher-tooltip');
@@ -210,24 +211,24 @@ module('Integration | CSS custom properties', function(hooks) {
     assert.strictEqual(getComputedStyle(arrow).borderBottomColor, 'rgb(255, 0, 0)');
   });
 
-  test('arrow-size token scales the arrow dimensions', async function(assert) {
+  test('arrow-size token scales the arrow dimensions', async function (assert) {
     await render(hbs`
       <style>
         .custom-arrow-tooltip {
           --ember-attacher-arrow-size: 16px;
         }
       </style>
-      <div>
-        <AttachTooltip
-          @id="big-arrow-tooltip"
-          @animation="none"
-          @arrow={{true}}
-          @isShown={{true}}
-          @class="custom-arrow-tooltip"
-        >
-          big arrow
-        </AttachTooltip>
-      </div>
+      <button id="big-arrow-target" type="button">Big arrow target</button>
+      <AttachTooltip
+        @id="big-arrow-tooltip"
+        @target="#big-arrow-target"
+        @animation="none"
+        @arrow={{true}}
+        @isShown={{true}}
+        @class="custom-arrow-tooltip"
+      >
+        big arrow
+      </AttachTooltip>
     `);
 
     const inner = find('#big-arrow-tooltip > .ember-attacher-tooltip');
@@ -237,7 +238,7 @@ module('Integration | CSS custom properties', function(hooks) {
     assert.strictEqual(getComputedStyle(arrow).height, '16px');
   });
 
-  test('z-index token applies to .ember-attacher', async function(assert) {
+  test('z-index token applies to .ember-attacher', async function (assert) {
     await render(hbs`
       <style>
         .custom-z-index {
@@ -245,8 +246,10 @@ module('Integration | CSS custom properties', function(hooks) {
         }
       </style>
       <div class="custom-z-index">
+        <button id="z-index-target" type="button">Z-index target</button>
         <AttachTooltip
           @id="z-index-tooltip"
+          @target="#z-index-target"
           @animation="none"
           @isShown={{true}}
           @renderInPlace={{true}}

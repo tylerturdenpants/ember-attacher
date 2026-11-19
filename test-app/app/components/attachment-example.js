@@ -11,25 +11,22 @@ export default class AttachmentExample extends Component {
 
   @tracked isConfiguringTooltip = true;
 
-  constructor() {
-    super(...arguments);
-    this.animationOptions = [
-      'fade',
-      'fill',
-      'none',
-      'perspective',
-      'scale',
-      'shift'
-    ];
-    this.hideOnOptions = ['click', 'clickout', 'mouseleave blur escapekey'];
-    this.placementOptions = [
-      'bottom', 'bottom-start', 'bottom-end',
-      'left', 'left-start', 'left-end',
-      'right', 'right-start', 'right-end',
-      'top', 'top-start', 'top-end',
-    ];
-    this.showOnOptions = ['click', 'mouseenter focus'];
-  }
+  animationOptions = [
+    'fade',
+    'fill',
+    'none',
+    'perspective',
+    'scale',
+    'shift',
+  ];
+  hideOnOptions = ['click', 'clickout', 'mouseleave blur escapekey'];
+  placementOptions = [
+    'bottom', 'bottom-start', 'bottom-end',
+    'left', 'left-start', 'left-end',
+    'right', 'right-start', 'right-end',
+    'top', 'top-start', 'top-end',
+  ];
+  showOnOptions = ['click', 'mouseenter focus'];
 
   get service() {
     return this.isConfiguringTooltip ? this.tooltipData : this.popoverData;
@@ -37,32 +34,32 @@ export default class AttachmentExample extends Component {
 
   @action
   toggleArrow() {
-    this.service.toggleProperty('arrow');
+    this.service.arrow = !this.service.arrow;
   }
 
   @action
   toggleAutoUpdate() {
-    this.service.toggleProperty('autoUpdate');
+    this.service.autoUpdate = !this.service.autoUpdate;
   }
 
   @action
   toggleInteractive() {
-    this.service.toggleProperty('interactive');
+    this.service.interactive = !this.service.interactive;
   }
 
   @action
   toggleIsShown() {
-    this.service.toggleProperty('isShown');
+    this.service.isShown = !this.service.isShown;
   }
 
   @action
   toggleLazyRender() {
-    this.service.toggleProperty('lazyRender');
+    this.service.lazyRender = !this.service.lazyRender;
   }
 
   @action
   toggleRenderInPlace() {
-    this.service.toggleProperty('renderInPlace');
+    this.service.renderInPlace = !this.service.renderInPlace;
   }
 
   @action
@@ -71,22 +68,52 @@ export default class AttachmentExample extends Component {
   }
 
   @action
+  setTooltipIsShown(isShown) {
+    this.tooltipData.isShown = isShown;
+  }
+
+  @action
+  setPopoverIsShown(isShown) {
+    this.popoverData.isShown = isShown;
+  }
+
+  @action
   updateAnimation({ target }) {
-    this.service.set('animation', target.value);
+    this.service.animation = target.value;
+  }
+
+  @action
+  updateHideDelay({ target }) {
+    this.service.hideDelay = Number(target.value) || 0;
+  }
+
+  @action
+  updateHideDuration({ target }) {
+    this.service.hideDuration = Number(target.value) || 0;
   }
 
   @action
   updateHideOn({ target }) {
-    this.service.set('hideOn', target.value);
+    this.service.hideOn = target.value;
   }
 
   @action
   updatePlacement({ target }) {
-    this.service.set('placement', target.value);
+    this.service.placement = target.value;
+  }
+
+  @action
+  updateShowDelay({ target }) {
+    this.service.showDelay = Number(target.value) || 0;
+  }
+
+  @action
+  updateShowDuration({ target }) {
+    this.service.showDuration = Number(target.value) || 0;
   }
 
   @action
   updateShowOn({ target }) {
-    this.service.set('showOn', target.value);
+    this.service.showOn = target.value;
   }
 }

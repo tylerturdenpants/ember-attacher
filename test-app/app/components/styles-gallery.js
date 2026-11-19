@@ -1,6 +1,11 @@
 import Component from '@glimmer/component';
 
 export default class StylesGallery extends Component {
+  noFlipOrShift = [
+    { name: 'flip', fn: () => ({}) },
+    { name: 'shift', fn: () => ({}) },
+  ];
+
   examples = [
     {
       label: 'top',

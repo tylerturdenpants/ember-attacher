@@ -13,6 +13,19 @@
     <link rel="stylesheet" href="/@embroider/virtual/app.css">
     <link rel="stylesheet" href="/@embroider/virtual/test-support.css">
 
+    <style>
+      #ember-testing {
+        transform: none;
+        width: 100%;
+        height: 100%;
+      }
+
+      #ember-testing-container {
+        width: 1000px;
+        height: 1000px;
+      }
+    </style>
+
     {{content-for "head-footer"}}
     {{content-for "test-head-footer"}}
   </head>
@@ -34,7 +47,7 @@
 
     <script type="module">
       import { start } from './test-helper';
-      import.meta.glob("./**/*.{js,ts,gjs,gts}", { eager: true });
+      import.meta.glob("./**/*-test.{js,ts,gjs,gts}", { eager: true });
       start();
     </script>
 

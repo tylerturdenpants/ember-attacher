@@ -14,45 +14,44 @@ module('Integration | Component | explicit target', function (hooks) {
   setupRenderingTest(hooks);
 
   test('it processes the explicit target change', async function (assert) {
-    this.set('explicitTarget', null);
+    this.set('target', '#old-target');
 
     await render(hbs`
       <div>
-        <button id="new-target" />
-        <button id="old-target">
-          <AttachTooltip @id="attachment" @explicitTarget={{this.explicitTarget}} @showOn="focus">
-            Floating element
-          </AttachTooltip>
-        </button>
+        <button id="new-target" type="button">New</button>
+        <button id="old-target" type="button">Old</button>
+        <AttachTooltip @id="attachment" @target={{this.target}} @showOn="focus">
+          Floating element
+        </AttachTooltip>
       </div>
     `);
 
     assert.dom('#old-target').doesNotHaveAria('describedby', 'tooltip aria-describedby is open-only');
     await focus('#old-target');
     const attachment = find('#attachment');
-    assert.equal(isVisible(attachment), true, 'Is shown on focus');
+    assert.true(isVisible(attachment), 'Is shown on focus');
     assert.dom('#old-target').hasAria('describedby', 'attachment');
     await focus('#new-target');
-    assert.equal(isVisible(attachment), false, 'Hides after focusing on another target');
+    assert.false(isVisible(attachment), 'Hides after focusing on another target');
     assert.dom('#old-target').doesNotHaveAria('describedby', 'removes aria-describedby on hide');
-    this.set('explicitTarget', find('#new-target'));
+    this.set('target', find('#new-target'));
     await settled();
     await focus('#old-target');
-    assert.equal(isVisible(attachment), false, 'Not showing on old target focus');
+    assert.false(isVisible(attachment), 'Not showing on old target focus');
     await focus('#new-target');
-    assert.equal(isVisible(attachment), true, 'Is shown on new target focus');
+    assert.true(isVisible(attachment), 'Is shown on new target focus');
     assert.dom('#old-target').doesNotHaveAria('describedby');
     assert.dom('#new-target').hasAria('describedby', 'attachment');
   });
 
-  test('resolves @explicitTarget CSS selector strings', async function (assert) {
+  test('resolves @target CSS selector strings', async function (assert) {
     await render(hbs`
       <div>
-        <button id="selector-target">Selector target</button>
+        <button id="selector-target" type="button">Selector target</button>
         <div id="mount">
           <AttachPopover
             @id="attachment"
-            @explicitTarget="#selector-target"
+            @target="#selector-target"
             @showOn="click"
             @hideOn="click"
           >
@@ -63,13 +62,13 @@ module('Integration | Component | explicit target', function (hooks) {
     `);
 
     const attachment = find('#attachment');
-    assert.equal(isVisible(attachment), false, 'Initially hidden');
+    assert.false(isVisible(attachment), 'Initially hidden');
 
     await click('#selector-target');
-    assert.equal(isVisible(attachment), true, 'Shown when selector target is clicked');
+    assert.true(isVisible(attachment), 'Shown when selector target is clicked');
 
     await click('#selector-target');
-    assert.equal(isVisible(attachment), false, 'Hidden when selector target is clicked again');
+    assert.false(isVisible(attachment), 'Hidden when selector target is clicked again');
   });
 
   test('positions against a Floating UI virtual reference', async function (assert) {
@@ -92,7 +91,7 @@ module('Integration | Component | explicit target', function (hooks) {
       <div id="mount">
         <AttachPopover
           @id="attachment"
-          @explicitTarget={{this.virtualTarget}}
+          @target={{this.virtualTarget}}
           @isShown={{true}}
           @showOn={{null}}
           @hideOn={{null}}
@@ -105,21 +104,21 @@ module('Integration | Component | explicit target', function (hooks) {
 
     const attachment = find('#attachment');
     assert.ok(attachment, 'Floating element rendered for virtual target');
-    assert.equal(isVisible(attachment), true, 'Shown via @isShown with virtual target');
+    assert.true(isVisible(attachment), 'Shown via @isShown with virtual target');
     assert.dom('#attachment').hasAttribute('x-placement', 'bottom');
   });
 
-  test('yielded setReference registers an external Element target', async function (assert) {
+  test('yielded setTarget registers an external Element target', async function (assert) {
     this.set(
       'registerExternalTarget',
-      modifier((_element, [setReference]) => {
-        setReference(document.getElementById('external-target'));
+      modifier((_element, [setTarget]) => {
+        setTarget(document.getElementById('external-target'));
       })
     );
 
     await render(hbs`
       <div>
-        <button id="external-target">External</button>
+        <button id="external-target" type="button">External</button>
         <div id="mount">
           <AttachPopover
             @id="attachment"
@@ -128,7 +127,7 @@ module('Integration | Component | explicit target', function (hooks) {
             @lazyRender={{false}}
             as |attacher|
           >
-            <span {{this.registerExternalTarget attacher.setReference}}></span>
+            <span {{this.registerExternalTarget attacher.setTarget}}></span>
             Floating element
           </AttachPopover>
         </div>
@@ -136,22 +135,22 @@ module('Integration | Component | explicit target', function (hooks) {
     `);
 
     const attachment = find('#attachment');
-    assert.equal(isVisible(attachment), false, 'Initially hidden');
+    assert.false(isVisible(attachment), 'Initially hidden');
 
     await click('#mount');
-    assert.equal(isVisible(attachment), false, 'Parent mount click does not show');
+    assert.false(isVisible(attachment), 'Parent mount click does not show');
 
     await click('#external-target');
-    assert.equal(isVisible(attachment), true, 'Shown when setReference target is clicked');
+    assert.true(isVisible(attachment), 'Shown when setTarget element is clicked');
   });
 
-  test('yielded reference modifier exists on first render and retargets', async function (assert) {
-    let sawReferenceOnFirstYield = false;
+  test('yielded target modifier exists on first render and retargets', async function (assert) {
+    let sawTargetOnFirstYield = false;
 
     this.set(
-      'captureReference',
-      modifier((_element, [reference]) => {
-        sawReferenceOnFirstYield = typeof reference === 'function' || typeof reference === 'object';
+      'captureTarget',
+      modifier((_element, [target]) => {
+        sawTargetOnFirstYield = typeof target === 'function' || typeof target === 'object';
       })
     );
 
@@ -164,23 +163,23 @@ module('Integration | Component | explicit target', function (hooks) {
           @lazyRender={{false}}
           as |attacher|
         >
-          <span {{this.captureReference attacher.reference}}></span>
-          <button id="yielded-ref" {{attacher.reference}} type="button">Inner ref</button>
+          <span {{this.captureTarget attacher.target}}></span>
+          <button id="yielded-ref" {{attacher.target}} type="button">Inner target</button>
           Floating element
         </AttachPopover>
       </div>
     `);
 
-    assert.ok(sawReferenceOnFirstYield, 'reference modifier is defined on first yield');
+    assert.ok(sawTargetOnFirstYield, 'target modifier is defined on first yield');
 
     const attachment = find('#attachment');
-    assert.equal(isVisible(attachment), false, 'Initially hidden');
+    assert.false(isVisible(attachment), 'Initially hidden');
 
     await click('#wrapper');
-    assert.equal(isVisible(attachment), false, 'Wrapper (parent) click does not show after retarget');
+    assert.false(isVisible(attachment), 'Wrapper (parent) click does not show after retarget');
 
     await click('#yielded-ref');
-    assert.equal(isVisible(attachment), true, 'Shown when yielded reference element is clicked');
+    assert.true(isVisible(attachment), 'Shown when yielded target element is clicked');
   });
 
   test('virtual reference with contextElement receives show events', async function (assert) {
@@ -200,7 +199,7 @@ module('Integration | Component | explicit target', function (hooks) {
         <div id="mount">
           <AttachPopover
             @id="attachment"
-            @explicitTarget={{this.virtualTarget}}
+            @target={{this.virtualTarget}}
             @showOn="click"
             @hideOn="click"
           >
@@ -215,10 +214,10 @@ module('Integration | Component | explicit target', function (hooks) {
     await settled();
 
     const attachment = find('#attachment');
-    assert.equal(isVisible(attachment), false, 'Initially hidden');
+    assert.false(isVisible(attachment), 'Initially hidden');
 
     await click('#context-target');
-    assert.equal(isVisible(attachment), true, 'Shown via virtual contextElement click');
+    assert.true(isVisible(attachment), 'Shown via virtual contextElement click');
   });
 
   test('AttachTooltip handles virtual reference without throwing', async function (assert) {
@@ -241,7 +240,7 @@ module('Integration | Component | explicit target', function (hooks) {
       <div id="mount">
         <AttachTooltip
           @id="attachment"
-          @explicitTarget={{this.virtualTarget}}
+          @target={{this.virtualTarget}}
           @isShown={{true}}
           @showOn={{null}}
           @hideOn={{null}}
@@ -253,7 +252,7 @@ module('Integration | Component | explicit target', function (hooks) {
 
     const attachment = find('#attachment');
     assert.ok(attachment, 'Tooltip rendered for virtual target');
-    assert.equal(isVisible(attachment), true, 'Tooltip visible for virtual target');
+    assert.true(isVisible(attachment), 'Tooltip visible for virtual target');
   });
 
   test('coordinate-only VirtualElement without contextElement dismisses on document clickout and escapekey, and supports inline() getClientRects', async function (assert) {
@@ -285,7 +284,7 @@ module('Integration | Component | explicit target', function (hooks) {
       <div id="mount">
         <AttachPopover
           @id="virtual-popover"
-          @explicitTarget={{this.virtualTarget}}
+          @target={{this.virtualTarget}}
           @isShown={{true}}
           @showOn={{null}}
           @hideOn="clickout escapekey"
@@ -359,19 +358,17 @@ module('Integration | Component | explicit target', function (hooks) {
     this.set('middleware', [customFlip, customShift, customArrow, inspector]);
 
     await render(hbs`
-      <button id="strategy-target" type="button">
-        Target
-        <AttachPopover
-          @id="middleware-popover"
-          @isShown={{true}}
-          @arrow={{true}}
-          @flip="left right"
-          @strategy="fixed"
-          @middleware={{this.middleware}}
-        >
-          Popover content
-        </AttachPopover>
-      </button>
+      <button id="strategy-target" type="button">Target</button>
+      <AttachPopover
+        @id="middleware-popover"
+        @target="#strategy-target"
+        @isShown={{true}}
+        @arrow={{true}}
+        @strategy="fixed"
+        @middleware={{this.middleware}}
+      >
+        Popover content
+      </AttachPopover>
     `);
 
     const attachment = find('#middleware-popover');

@@ -4,32 +4,37 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render, click } from '@ember/test-helpers';
 
-module('Integration | Component | useCapture "true"', function(hooks) {
+module('Integration | Component | useCapture "true"', function (hooks) {
   setupRenderingTest(hooks);
 
-  test('hides a popover when the clicked element does not bubble the click event', async function(assert) {
+  test('hides a popover when the clicked element does not bubble the click event', async function (assert) {
     assert.expect(2);
 
+    this.set('stopClick', (e) => {
+      e.stopPropagation();
+    });
+
     await render(hbs`
-      <div id="click-out-target" {{on 'click' (fn (mut this.unusedVar) bubbles=false)}}>
-      </div>
+      <div id="click-out-target" {{on "click" this.stopClick}}></div>
 
-      <button>
+      <button id="target-btn" type="button">
         Click me, captain!
-
-        {{#attach-popover id='attachment'
-                          hideOn='clickout'
-                          isShown=true
-                          useCapture=true}}
-          hideOn clickout
-        {{/attach-popover}}
       </button>
+      <AttachPopover
+        @id="attachment"
+        @target="#target-btn"
+        @hideOn="clickout"
+        @isShown={{true}}
+        @useCapture={{true}}
+      >
+        hideOn clickout
+      </AttachPopover>
     `);
 
-    assert.equal(isVisible('#attachment'), true, 'Initially shown');
+    assert.true(isVisible('#attachment'), 'Initially shown');
 
     await click('#click-out-target');
 
-    assert.equal(isVisible('#attachment'), false, 'Now hidden');
+    assert.false(isVisible('#attachment'), 'Now hidden');
   });
 });

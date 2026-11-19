@@ -5,7 +5,6 @@ import {
   AttachPopover,
   AttachTooltip,
   Attacher,
-  BasicAttacher,
   arrow,
   autoPlacement,
   flip,
@@ -42,31 +41,34 @@ module('Integration | Vite + .gjs | ember-attacher root exports', function (hook
     await render(<template>
       <button id="vite-tooltip-btn" type="button">
         Tooltip Trigger
-        <AttachTooltip @id="vite-tooltip" @showOn="click" @hideOn="click">
-          Vite tooltip content
-        </AttachTooltip>
       </button>
+      <AttachTooltip @id="vite-tooltip" @target="#vite-tooltip-btn" @showOn="click" @hideOn="click">
+        Vite tooltip content
+      </AttachTooltip>
 
       <button id="vite-popover-btn" type="button">Popover Trigger</button>
       <AttachPopover
         @id="vite-popover"
-        @explicitTarget="#vite-popover-btn"
+        @target="#vite-popover-btn"
         @showOn="click"
         @hideOn="click"
       >
         Vite popover content
       </AttachPopover>
 
-      <div id="vite-basic-target">
-        <BasicAttacher @id="vite-basic" @showOn="click" @hideOn="click">
-          Vite basic content
-        </BasicAttacher>
-      </div>
+      <Attacher @id="vite-attacher" @showOn="click" @hideOn="click" as |a|>
+        <button id="vite-attacher-target" type="button" {{a.target}}>
+          Attacher Trigger
+        </button>
+        <div id="vite-attacher-panel" {{a.attachment}}>
+          Vite attacher content
+        </div>
+      </Attacher>
     </template>);
 
     assert.false(isVisible('#vite-tooltip'), 'tooltip starts hidden');
     assert.false(isVisible('#vite-popover'), 'popover starts hidden');
-    assert.false(isVisible('#vite-basic'), 'basic attacher starts hidden');
+    assert.false(isVisible('#vite-attacher-panel'), 'Attacher starts hidden');
 
     await click('#vite-tooltip-btn');
     assert.true(isVisible('#vite-tooltip'), 'tooltip opens on click');
@@ -77,10 +79,10 @@ module('Integration | Vite + .gjs | ember-attacher root exports', function (hook
     );
 
     await click('#vite-popover-btn');
-    assert.true(isVisible('#vite-popover'), 'popover opens for @explicitTarget');
+    assert.true(isVisible('#vite-popover'), 'popover opens for @target');
 
-    await click('#vite-basic-target');
-    assert.true(isVisible('#vite-basic'), 'BasicAttacher opens on click');
+    await click('#vite-attacher-target');
+    assert.true(isVisible('#vite-attacher-panel'), 'Attacher opens on click');
   });
 
   test('Attacher and tooltip root exports work in Ember 7 + Vite .gjs', async function (assert) {

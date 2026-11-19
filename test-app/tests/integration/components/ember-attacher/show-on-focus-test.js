@@ -2,31 +2,29 @@ import { hbs } from 'ember-cli-htmlbars';
 import { isVisible } from 'ember-attacher';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-
 import { render, find, triggerEvent } from '@ember/test-helpers';
 
-module('Integration | Component | showOn "focus"', function(hooks) {
+module('Integration | Component | showOn "focus"', function (hooks) {
   setupRenderingTest(hooks);
 
-  test('shows when the target gains focus', async function(assert) {
+  test('shows when the target gains focus', async function (assert) {
     assert.expect(2);
 
     await render(hbs`
-      <button id="target">
+      <button id="target" type="button">
         Focus me, captain!
-
-        {{#attach-popover id='attachment' showOn='focus'}}
-          showOn focus
-        {{/attach-popover}}
       </button>
+      <AttachPopover @id="attachment" @target="#target" @showOn="focus">
+        showOn focus
+      </AttachPopover>
     `);
 
     const attachment = find('#attachment');
 
-    assert.equal(isVisible(attachment), false, 'Initially hidden');
+    assert.false(isVisible(attachment), 'Initially hidden');
 
     await triggerEvent('#target', 'focus');
 
-    assert.equal(isVisible(attachment), true, 'Now shown');
+    assert.true(isVisible(attachment), 'Now shown');
   });
 });

@@ -1,0 +1,33 @@
+import { hbs } from 'ember-cli-htmlbars';
+import { isVisible } from 'ember-attacher';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
+import { render, click } from '@ember/test-helpers';
+
+module('Integration | Component | hideOn "click"', function (hooks) {
+  setupRenderingTest(hooks);
+
+  test('hides when the target is clicked', async function (assert) {
+    assert.expect(2);
+
+    await render(hbs`
+      <button id="click-toggle" type="button">
+        Click me, captain!
+      </button>
+      <AttachPopover
+        @id="attachment"
+        @target="#click-toggle"
+        @hideOn="click"
+        @isShown={{true}}
+      >
+        hideOn click
+      </AttachPopover>
+    `);
+
+    assert.true(isVisible('#attachment'), 'Initially shown');
+
+    await click('#click-toggle');
+
+    assert.false(isVisible('#attachment'), 'Now hidden');
+  });
+});

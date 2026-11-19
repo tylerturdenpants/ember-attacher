@@ -1,0 +1,31 @@
+import { hbs } from 'ember-cli-htmlbars';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
+
+import { render, click } from '@ember/test-helpers';
+
+module('Integration | Component | aria-hidden', function(hooks) {
+  setupRenderingTest(hooks);
+
+  test('aria-hidden updates when shown/hidden', async function(assert) {
+    assert.expect(2);
+
+    await render(hbs`
+      <button id="click-toggle" type="button">
+        Click me, captain!
+      </button>
+
+      <AttachPopover @id="attachment" @target="#click-toggle" @hideOn="click" @showOn="click">
+        showOn/hideOn click updates aria-hidden
+      </AttachPopover>
+    `);
+
+    await click('#click-toggle');
+
+    assert.dom('#attachment').hasAttribute('aria-hidden', 'false', 'When shown, aria-hidden="false"');
+
+    await click('#click-toggle');
+
+    assert.dom('#attachment').hasAttribute('aria-hidden', 'true', 'When hidden aria-hidden="true"');
+  });
+});

@@ -3,23 +3,21 @@ import { isVisible } from 'ember-attacher';
 import { modifier } from 'ember-modifier';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-
 import { render, click, find, triggerEvent, waitFor, clearRender } from '@ember/test-helpers';
 
-module('Integration | Component | lazyRender', function(hooks) {
+module('Integration | Component | lazyRender', function (hooks) {
   setupRenderingTest(hooks);
 
-  test('will lazily render the yield block when lazyRender is passed as true', async function(assert) {
+  test('will lazily render the yield block when lazyRender is passed as true', async function (assert) {
     assert.expect(2);
 
     await render(hbs`
-      <button id="toggle-show">
+      <button id="toggle-show" type="button">
         Click me, captain!
-
-        {{#attach-popover id='attachment' lazyRender=true}}
-          <div id='should-not-be-present-until-clicked'></div>
-        {{/attach-popover}}
       </button>
+      <AttachPopover @id="attachment" @target="#toggle-show" @lazyRender={{true}}>
+        <div id="should-not-be-present-until-clicked"></div>
+      </AttachPopover>
     `);
 
     assert.dom('#should-not-be-present-until-clicked').doesNotExist('Has not initially rendered the yield block.');
@@ -29,15 +27,14 @@ module('Integration | Component | lazyRender', function(hooks) {
     assert.dom('#should-not-be-present-until-clicked').exists('Has rendered the yield block.');
   });
 
-  test('lazyRender hides on first mouseleave after first show', async function(assert) {
+  test('lazyRender hides on first mouseleave after first show', async function (assert) {
     assert.expect(4);
 
     await render(hbs`
-      <div id="target">
-        {{#attach-popover id='attachment' lazyRender=true}}
-          lazy tooltip
-        {{/attach-popover}}
-      </div>
+      <div id="target">Target</div>
+      <AttachPopover @id="attachment" @target="#target" @lazyRender={{true}}>
+        lazy tooltip
+      </AttachPopover>
     `);
 
     assert.dom('#attachment').exists('Outer host element is mounted before first show.');
@@ -47,20 +44,19 @@ module('Integration | Component | lazyRender', function(hooks) {
 
     const attachment = await waitFor('#attachment');
 
-    assert.equal(isVisible(attachment), true, 'Shown after first mouseenter.');
+    assert.true(isVisible(attachment), 'Shown after first mouseenter.');
 
     await triggerEvent('#target', 'mouseleave');
 
-    assert.equal(isVisible(attachment), false, 'Hidden after first mouseleave.');
+    assert.false(isVisible(attachment), 'Hidden after first mouseleave.');
   });
 
-  test('clearRender after first paint of a lazy popover does not throw', async function(assert) {
+  test('clearRender after first paint of a lazy popover does not throw', async function (assert) {
     await render(hbs`
-      <div id="target">
-        {{#attach-popover id='attachment' lazyRender=true}}
-          lazy tooltip
-        {{/attach-popover}}
-      </div>
+      <div id="target">Target</div>
+      <AttachPopover @id="attachment" @target="#target" @lazyRender={{true}}>
+        lazy tooltip
+      </AttachPopover>
     `);
 
     assert.dom('#attachment').exists('Outer host element is mounted before first show.');
@@ -71,23 +67,22 @@ module('Integration | Component | lazyRender', function(hooks) {
     assert.ok(true, 'destroyed without throwing after lazy first paint');
   });
 
-  test('lazily render will default to false which will eager render the yeild block', async function(assert) {
+  test('lazily render will default to false which will eager render the yield block', async function (assert) {
     assert.expect(1);
 
     await render(hbs`
-      <button id="toggle-show">
+      <button id="toggle-show" type="button">
         Click me, captain!
-
-        {{#attach-popover id='attachment'}}
-          <div id='should-not-be-present-until-clicked'></div>
-        {{/attach-popover}}
       </button>
+      <AttachPopover @id="attachment" @target="#toggle-show">
+        <div id="should-not-be-present-until-clicked"></div>
+      </AttachPopover>
     `);
 
     assert.dom('#should-not-be-present-until-clicked').exists('Has initially rendered the yield block.');
   });
 
-  test('runs ...attributes modifiers on mount with @lazyRender={{true}} and drives transition duration via CSSOM without inline style attributes', async function(assert) {
+  test('runs ...attributes modifiers on mount with @lazyRender={{true}} and drives transition duration via CSSOM without inline style attributes', async function (assert) {
     let modifierInstalledElement = null;
 
     this.set(
@@ -100,19 +95,20 @@ module('Integration | Component | lazyRender', function(hooks) {
     await render(hbs`
       <button id="target" type="button">
         Target
-        <AttachPopover
-          @id="lazy-csp-attachment"
-          @lazyRender={{true}}
-          @showOn="click"
-          @hideOn="click"
-          @showDuration={{450}}
-          @animation="fill"
-          data-test-splatted="yes"
-          {{this.trackMount}}
-        >
-          <span id="lazy-inner">Lazy inner body</span>
-        </AttachPopover>
       </button>
+      <AttachPopover
+        @id="lazy-csp-attachment"
+        @target="#target"
+        @lazyRender={{true}}
+        @showOn="click"
+        @hideOn="click"
+        @showDuration={{450}}
+        @animation="fill"
+        data-test-splatted="yes"
+        {{this.trackMount}}
+      >
+        <span id="lazy-inner">Lazy inner body</span>
+      </AttachPopover>
     `);
 
     const host = find('#lazy-csp-attachment');

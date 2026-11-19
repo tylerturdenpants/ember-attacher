@@ -11,13 +11,13 @@ module('Integration | Component | aria-hidden', function(hooks) {
     assert.expect(2);
 
     await render(hbs`
-      <button id="click-toggle">
+      <button id="click-toggle" type="button">
         Click me, captain!
-
-        {{#attach-popover id='attachment' hideOn='click' showOn='click'}}
-          showOn/hideOn click updates aria-hidden
-        {{/attach-popover}}
       </button>
+
+      <AttachPopover @id="attachment" @target="#click-toggle" @hideOn="click" @showOn="click">
+        showOn/hideOn click updates aria-hidden
+      </AttachPopover>
     `);
 
     await click('#click-toggle');

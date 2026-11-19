@@ -8,6 +8,14 @@ module.exports = async function () {
     command: 'pnpm run test',
     scenarios: [
       {
+        name: 'ember-lts-6.12',
+        npm: {
+          devDependencies: {
+            'ember-source': '~6.12.0',
+          },
+        },
+      },
+      {
         name: 'ember-release',
         allowedToFail: true,
         npm: {

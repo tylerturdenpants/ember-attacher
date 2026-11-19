@@ -91,7 +91,8 @@ jobs:
       fail-fast: false
       matrix:
         try-scenario:
-          - ember-lts-3.28
+          - ember-lts-4.12
+          - ember-lts-5.12
           - ember-lts-6.12
           - embroider-optimized
 
@@ -113,11 +114,6 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Pin v1 dependencies for Ember 3.28
-        if: matrix.try-scenario == 'ember-lts-3.28'
-        run: |
-          printf '%s\n' '' 'overrides:' "  '@ember/test-waiters': '~3.1.0'" "  '@glimmer/component': '~1.1.2'" >> pnpm-workspace.yaml
-
       - name: Run Tests
         run: ./node_modules/.bin/ember try:one ${{ matrix.try-scenario }}
         working-directory: test-app
@@ -133,6 +129,7 @@ jobs:
       fail-fast: false
       matrix:
         try-scenario:
+          - ember-lts-6.12
           - ember-release
           - ember-beta
           - ember-canary

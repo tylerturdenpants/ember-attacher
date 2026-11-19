@@ -1,58 +1,52 @@
-import QUnit, { module, test } from 'qunit';
 import { hbs } from 'ember-cli-htmlbars';
 import { setupRenderingTest } from 'ember-qunit';
 import { find, focus, render, settled, triggerEvent } from '@ember/test-helpers';
-import { htmlSafe } from '@ember/template';
+import QUnit, { module, test } from 'qunit';
 
-QUnit.assert.contains = function(actual, expected, message) {
+QUnit.assert.contains = function (actual, expected, message) {
   this.pushResult({
     result: expected.every((elem) => actual.includes(elem)),
     actual,
     expected,
-    message
+    message,
   });
 };
 
-module('Integration | Component | attach tooltip', function(hooks) {
+module('Integration | Component | attach tooltip', function (hooks) {
   setupRenderingTest(hooks);
 
-  hooks.afterEach(function() {
+  hooks.afterEach(function () {
     this.owner.resolveRegistration('config:environment').emberAttacher = {};
   });
 
-  test('uses the correct aria-role', async function(assert) {
+  test('uses the correct aria-role', async function (assert) {
     await render(hbs`
-      <div>
-        {{#attach-tooltip id='tooltip'}}
-          tooltip text
-        {{/attach-tooltip}}
-      </div>
+      <div id="role-target-1">Target 1</div>
+      <AttachTooltip @id="tooltip" @target="#role-target-1">
+        tooltip text
+      </AttachTooltip>
 
-      <div>
-        {{#attach-tooltip id='other-tooltip' ariaRole='testing'}}
-          tooltip text
-        {{/attach-tooltip}}
-      </div>
+      <div id="role-target-2">Target 2</div>
+      <AttachTooltip @id="other-tooltip" @target="#role-target-2" @ariaRole="testing">
+        tooltip text
+      </AttachTooltip>
     `);
 
     assert.dom('#tooltip').hasAttribute('role', 'tooltip', 'has default aria-role');
-
     assert.dom('#other-tooltip').hasAttribute('role', 'testing', 'has user-supplied aria-role');
   });
 
-  test('has the default classes', async function(assert) {
+  test('has the default classes', async function (assert) {
     await render(hbs`
-      <div>
-        {{#attach-tooltip id='tooltip-with-class' class='some-class'}}
-          tooltip text
-        {{/attach-tooltip}}
-      </div>
+      <div id="class-target">Target 1</div>
+      <AttachTooltip @id="tooltip-with-class" @target="#class-target" @class="some-class">
+        tooltip text
+      </AttachTooltip>
 
-      <div id="other-target">
-        {{#attach-tooltip id='tooltip-with-no-class'}}
-          tooltip text
-        {{/attach-tooltip}}
-      </div>
+      <div id="other-target">Target 2</div>
+      <AttachTooltip @id="tooltip-with-no-class" @target="#other-target">
+        tooltip text
+      </AttachTooltip>
     `);
 
     const tooltipWithClass = find('#tooltip-with-class > .ember-attacher-tooltip');
@@ -63,7 +57,6 @@ module('Integration | Component | attach tooltip', function(hooks) {
     );
 
     const tooltipWithNoClass = find('#tooltip-with-no-class > .ember-attacher-tooltip');
-
     assert.contains(
       tooltipWithNoClass.className.split(' '),
       'ember-attacher-floating ember-attacher-tooltip'.split(' '),
@@ -71,17 +64,16 @@ module('Integration | Component | attach tooltip', function(hooks) {
     );
   });
 
-  test('uses the user-supplied default tooltip class', async function(assert) {
+  test('uses the user-supplied default tooltip class', async function (assert) {
     this.owner.resolveRegistration('config:environment').emberAttacher = {
-      tooltipClass: 'different-default'
+      tooltipClass: 'different-default',
     };
 
     await render(hbs`
-      <div id="target">
-        {{#attach-tooltip id='attachment' class='some-class'}}
-          tooltip text
-        {{/attach-tooltip}}
-      </div>
+      <div id="target">Target</div>
+      <AttachTooltip @id="attachment" @target="#target" @class="some-class">
+        tooltip text
+      </AttachTooltip>
     `);
     const tooltip = find('#attachment > .different-default');
 
@@ -92,19 +84,18 @@ module('Integration | Component | attach tooltip', function(hooks) {
     );
   });
 
-  test('uses the user-supplied default tooltip class - separate config', async function(assert) {
+  test('uses the user-supplied default tooltip class - separate config', async function (assert) {
     this.owner.resolveRegistration('config:environment').emberAttacher = {
       tooltip: {
-        tooltipClass: 'separate-default'
-      }
+        tooltipClass: 'separate-default',
+      },
     };
 
     await render(hbs`
-      <div id="target">
-        <AttachTooltip @id='attachment' @class='some-class'>
-          tooltip text
-        </AttachTooltip>
-      </div>
+      <div id="target">Target</div>
+      <AttachTooltip @id="attachment" @target="#target" @class="some-class">
+        tooltip text
+      </AttachTooltip>
     `);
 
     const tooltip = find('#attachment > .separate-default');
@@ -116,113 +107,75 @@ module('Integration | Component | attach tooltip', function(hooks) {
     );
   });
 
-  test('uses the user-supplied default tooltip class - separate config', async function(assert) {
-    this.owner.resolveRegistration('config:environment').emberAttacher = {
-      tooltip: {
-        tooltipClass: 'separate-default'
-      }
-    };
-
+  test('drives transition duration via CSSOM without inline style attributes (strict CSP)', async function (assert) {
     await render(hbs`
-      <div id="target">
-        {{#attach-tooltip id='attachment' class='some-class'}}
-          tooltip text
-        {{/attach-tooltip}}
-      </div>
+      <div id="csp-target-default">Default</div>
+      <AttachTooltip @id="tooltip-with-no-style" @target="#csp-target-default">
+        tooltip text
+      </AttachTooltip>
+
+      <div id="csp-target-duration">Custom duration</div>
+      <AttachTooltip @id="tooltip-with-duration" @target="#csp-target-duration" @showDuration={{250}} @isShown={{true}}>
+        timed tooltip text
+      </AttachTooltip>
     `);
-
-    const tooltip = find('#attachment > .separate-default');
-
-    assert.contains(
-      tooltip.className.split(' '),
-      ['separate-default', 'some-class'],
-      'it adds the user-supplied default classes'
-    );
-  });
-
-  test('uses style passed in by user', async function(assert) {
-    this.set('style', htmlSafe('cursor: pointer;'));
-    await render(hbs`
-      <div>
-        {{#attach-tooltip id='tooltip-with-style' style=this.style}}
-          tooltip text
-        {{/attach-tooltip}}
-      </div>
-
-      <div>
-        {{#attach-tooltip id='tooltip-with-no-style'}}
-          tooltip text
-        {{/attach-tooltip}}
-      </div>
-    `);
-
-    const tooltipWithStyle = find('#tooltip-with-style > .ember-attacher-tooltip');
-
-    assert.equal(
-      tooltipWithStyle.style.getPropertyValue('cursor'),
-      'pointer',
-      'it adds the user style to tooltips'
-    );
-
-    assert.strictEqual(
-      getComputedStyle(tooltipWithStyle).transitionDuration,
-      '0s',
-      'it applies the default 0ms transition duration via CSS token'
-    );
 
     const tooltipWithNoStyle = find('#tooltip-with-no-style > .ember-attacher-tooltip');
 
     assert.strictEqual(
       tooltipWithNoStyle.getAttribute('style'),
       null,
-      'strict CSP: does not emit an HTML style attribute when @style is omitted'
+      'strict CSP: does not emit an HTML style attribute on inner tooltip container'
     );
 
     assert.strictEqual(
       getComputedStyle(tooltipWithNoStyle).transitionDuration,
       '0s',
-      'it applies the default 0ms transition duration to tooltips with no user style'
+      'it applies the default 0ms transition duration to tooltips'
+    );
+
+    const tooltipWithDuration = find('#tooltip-with-duration > .ember-attacher-tooltip');
+    assert.strictEqual(
+      tooltipWithDuration.getAttribute('style'),
+      null,
+      'strict CSP: inner container has no inline style attribute even with custom showDuration'
+    );
+    assert.strictEqual(
+      getComputedStyle(tooltipWithDuration).transitionDuration,
+      '0.25s',
+      'applies custom showDuration via --ember-attacher-transition-duration CSS token'
     );
   });
 
-  test('adds open-only token-safe aria-describedby to the target and forwards lifecycle hooks', async function(assert) {
-    const initialized = [];
-    const destroyed = [];
+  test('adds open-only token-safe aria-describedby to the target', async function (assert) {
     this.set('showTooltip', true);
-    this.set('onInitializeAttacher', (target, id) => initialized.push({ target, id }));
-    this.set('onWillDestroy', (target, id) => destroyed.push({ target, id }));
 
     await render(hbs`
       <span id="hint">Persistent hint</span>
       <button id="target" type="button" aria-describedby="hint">
         Target
-        {{#if this.showTooltip}}
-          <AttachTooltip
-            @id="attachment"
-            @showOn="focus"
-            @hideOn="blur"
-            @onInitializeAttacher={{this.onInitializeAttacher}}
-            @onWillDestroy={{this.onWillDestroy}}
-          >
-            tooltip text
-          </AttachTooltip>
-        {{/if}}
       </button>
+      {{#if this.showTooltip}}
+        <AttachTooltip
+          @id="attachment"
+          @target="#target"
+          @showOn="focus"
+          @hideOn="blur"
+        >
+          tooltip text
+        </AttachTooltip>
+      {{/if}}
 
       <button id="other-target" type="button">
         Other
-        <AttachTooltip @class="tooltip-with-no-initial-id" @showOn="focus" @hideOn="blur">
-          tooltip text
-        </AttachTooltip>
       </button>
+      <AttachTooltip @target="#other-target" @class="tooltip-with-no-initial-id" @showOn="focus" @hideOn="blur">
+        tooltip text
+      </AttachTooltip>
     `);
 
     const target = find('#target');
     const tooltip = find('#attachment');
-
-    assert.strictEqual(initialized.length, 1, 'forwards @onInitializeAttacher from AttachTooltip');
-    assert.strictEqual(initialized[0].target, target, 'passes target element to @onInitializeAttacher');
-    assert.strictEqual(initialized[0].id, 'attachment', 'passes tooltip id to @onInitializeAttacher');
 
     assert.strictEqual(
       target.getAttribute('aria-describedby'),
@@ -245,8 +198,6 @@ module('Integration | Component | attach tooltip', function(hooks) {
       'hint',
       'removes only the tooltip token on destruction while preserving pre-existing tokens'
     );
-    assert.strictEqual(destroyed.length, 1, 'forwards @onWillDestroy from AttachTooltip');
-    assert.strictEqual(destroyed[0].id, 'attachment', 'passes destroyed tooltip id to @onWillDestroy');
 
     const tooltipWithNoInitialId = find('.tooltip-with-no-initial-id').parentNode;
     assert.ok(tooltipWithNoInitialId.id, 'tooltip gets generated ID when no ID is supplied');

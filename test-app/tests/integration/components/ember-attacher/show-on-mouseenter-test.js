@@ -4,28 +4,27 @@ import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render, find, triggerEvent } from '@ember/test-helpers';
 
-module('Integration | Component | showOn "mouseenter"', function(hooks) {
+module('Integration | Component | showOn "mouseenter"', function (hooks) {
   setupRenderingTest(hooks);
 
-  test('shows when the user mouses over the target', async function(assert) {
+  test('shows when the user mouses over the target', async function (assert) {
     assert.expect(2);
 
     await render(hbs`
-      <button id="target">
+      <button id="target" type="button">
         Mouseenter me, captain!
-
-        {{#attach-popover id='attachment' showOn='mouseenter'}}
-          showOn mouseenter
-        {{/attach-popover}}
       </button>
+      <AttachPopover @id="attachment" @target="#target" @showOn="mouseenter">
+        showOn mouseenter
+      </AttachPopover>
     `);
 
     const attachment = find('#attachment');
 
-    assert.equal(isVisible(attachment), false, 'Initially hidden');
+    assert.false(isVisible(attachment), 'Initially hidden');
 
     await triggerEvent('#target', 'mouseenter');
 
-    assert.equal(isVisible(attachment), true, 'Now shown');
+    assert.true(isVisible(attachment), 'Now shown');
   });
 });
