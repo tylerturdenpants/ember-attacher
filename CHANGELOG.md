@@ -1,3 +1,8 @@
+## Unreleased
+
+#### :rocket: Enhancement
+* **`assertAttached()` test helper:** `ember-attacher/test-support` exports `assertAttached(assert, attachment, target, { placement, maxGap, tolerance, message })`, which checks that an open attachment is visible, on its resolved side, close to and overlapping its target, with the arrow pointing at the target, inside the viewport and not covered.
+
 ## v5.0.0-beta.1 (2026-11-19)
 
 > **Beta of the 5.0 line** — not a stable release. Install with `npm i ember-attacher@beta` or `npm i ember-attacher@5.0.0-beta.1`. The npm `latest` dist-tag remains on the 4.x line. See [#1131](https://github.com/tylerturdenpants/ember-attacher/pull/1131). Includes tip-of-PR restore of immediate `a.show` / `a.hide` / `a.toggle` semantics and related fixes after `5.0.0-beta.0` staging.

@@ -26,7 +26,13 @@ import {
   type TooltipModifierOptions,
   type VirtualElement,
 } from 'ember-attacher';
-import { isVisible } from 'ember-attacher/test-support';
+import {
+  assertAttached,
+  isVisible,
+  type AssertAttachedOptions,
+  type ElementOrSelector,
+  type ResultPusher,
+} from 'ember-attacher/test-support';
 import DirectPopover from 'ember-attacher/components/attach-popover';
 import DirectTooltip from 'ember-attacher/components/attach-tooltip';
 import DirectAttacher from 'ember-attacher/components/attacher';
@@ -298,6 +304,26 @@ function fn<A, R>(callback: (a: A, b: Element) => R, a: A): () => R {
 
 // @ts-expect-error: isVisible rejects arbitrary numbers
 isVisible(123);
+
+// Verify test-support assertAttached accepts find() / querySelector() Element | null and options
+const _assertPusher: ResultPusher = {
+  pushResult: (_res) => {},
+};
+const _attachSelector: ElementOrSelector = find('#my-tooltip');
+const _attachOptions: AssertAttachedOptions = {
+  placement: 'bottom-start',
+  maxGap: 16,
+  tolerance: 2,
+  message: 'positioned cleanly',
+};
+assertAttached(_assertPusher, _attachSelector, find('#trigger'), _attachOptions);
+assertAttached(_assertPusher, '#tip', document.querySelector('#trigger'));
+
+// @ts-expect-error: assertAttached rejects invalid placement literals
+assertAttached(_assertPusher, '#tip', '#trigger', { placement: 'nowhere' });
+
+// @ts-expect-error: assertAttached rejects arbitrary numbers
+assertAttached(_assertPusher, 123, '#trigger');
 
 // @ts-expect-error: VirtualElement requires getBoundingClientRect()
 const _badVirtual: VirtualElement = { contextElement: targetEl };

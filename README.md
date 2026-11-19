@@ -290,6 +290,16 @@ test('example', async function (assert) {
 
 `import { isVisible } from 'ember-attacher'` is also supported for convenience.
 
+To check that an open attachment actually sits next to its target, use `assertAttached()`. It pushes one QUnit result listing every problem it finds: not visible, wrong `data-placement`, wrong side, gap larger than `maxGap` (default `24`px), no cross-axis overlap with the target, arrow not pointing at the target, overflowing the viewport, or covered by another element.
+
+```javascript
+import { triggerEvent } from '@ember/test-helpers';
+import { assertAttached } from 'ember-attacher/test-support';
+
+await triggerEvent('#trigger', 'mouseenter');
+assertAttached(assert, '#tip', '#trigger', { placement: 'bottom' });
+```
+
 ## Development setup
 
 See the [Contributing](CONTRIBUTING.md) guide for details.
