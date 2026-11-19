@@ -166,8 +166,8 @@ Pass `@showOn`, `@hideOn`, `@interactive`, or `@lazyRender` explicitly when hove
 | `@explicitTarget` | `@target` |
 | `{{a.reference}}` | `{{a.target}}` |
 | `a.setReference(...)` | `a.setTarget(...)` |
-| `@flip="top left"` | `@middleware={{array (flip fallbackPlacements=(array "top" "left"))}}` (default `flip()` runs automatically when not overridden) |
-| `@overflowPadding={{8}}` | `shift({ padding: 8 })` / `flip({ padding: 8 })` via `@middleware` (default `shift({ limiter: limitShift(), padding: 5 })` runs automatically when not overridden) |
+| `@flip="top left"` | `@middleware={{array (flip fallbackPlacements=(array "top" "left"))}}` (default `flip()` always runs unless a `flip` entry overrides it, e.g. `{ name: 'flip', fn: () => ({}) }` to disable) |
+| `@overflowPadding={{8}}` | `shift({ padding: 8 })` / `flip({ padding: 8 })` via `@middleware` (default `shift({ limiter: limitShift(), padding: 5 })` always runs unless a `shift` entry overrides it) |
 | `@floatingUiOptions` | `@placement`, `@strategy`, and `@middleware` |
 | `@floatingElementContainer` | Built-in Top-Layer `[popover="manual"]` host (no selector needed) or `@renderInPlace={{true}}` |
 | `@isOffset` | Remove; diagonal `safePolygon` corridor is automatic when `@interactive={{true}}` |

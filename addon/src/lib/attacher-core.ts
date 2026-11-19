@@ -229,8 +229,21 @@ export function resolveTooltipClass(envConfig: EmberAttacherEnvConfig | null | u
 }
 
 const TRUTHY_OPTION_KEYS = new Set<keyof AttacherArgs>(['animation', 'class']);
+const REMOVED_4X_ARGS: Readonly<Record<string, string>> = {
+  explicitTarget: 'Use `@target` instead.',
+  flip: 'Pass `flip()` in `@middleware` instead.',
+  overflowPadding: 'Pass `shift({ padding })` / `flip({ padding })` in `@middleware` instead.',
+  floatingUiOptions: 'Use `@placement`, `@strategy`, and `@middleware` instead.',
+  floatingElementContainer: 'Use the default Top-Layer host or `@renderInPlace={{true}}`.',
+  isOffset: 'Remove; the diagonal safePolygon corridor is active automatically when `@interactive={{true}}`.',
+  style: 'Style via `@class` / `class="..."` or `--ember-attacher-*` CSS custom properties instead.',
+  additionalClass: 'Use `@class` or `class="..."` instead.',
+  onInitializeAttacher: 'Use an element modifier on the Target or Attachment instead.',
+  onWillDestroy: 'Use an element modifier teardown or `registerDestructor` instead.',
+  configKey: 'Use `<AttachTooltip>` or `<AttachPopover>` instead.',
+};
 const EMPTY_OBJECT: EmberAttacherEnvConfig = Object.freeze({});
-const rawEnvByOwner = new WeakMap<object, EmberAttacherEnvConfig | null>();
+const rawEnvByOwner = new WeakMap<object, { emberAttacher?: EmberAttacherEnvConfig } | null>();
 
 function readEmberAttacherEnv(owner: InternalOwner | null | undefined): EmberAttacherEnvConfig {
   if (!owner || typeof owner !== 'object') {
@@ -239,14 +252,14 @@ function readEmberAttacherEnv(owner: InternalOwner | null | undefined): EmberAtt
 
   let env = rawEnvByOwner.get(owner);
   if (env === undefined) {
-    const registered = owner.resolveRegistration?.('config:environment') as
-      | { emberAttacher?: EmberAttacherEnvConfig }
-      | undefined;
-    env = registered?.emberAttacher || null;
+    env =
+      (owner.resolveRegistration?.('config:environment') as
+        | { emberAttacher?: EmberAttacherEnvConfig }
+        | undefined) || null;
     rawEnvByOwner.set(owner, env);
   }
 
-  return env || EMPTY_OBJECT;
+  return env?.emberAttacher || EMPTY_OBJECT;
 }
 
 function resolveOwnerRootElement(
@@ -327,6 +340,7 @@ function createTargetModifier(core: AttacherCore): AttacherTargetModifier {
     _installed = false;
     _destroyed = false;
     _mountHandle: ScheduledHandle | null = null;
+    private _lastBoundData: unknown = undefined;
 
     constructor(owner: Owner, args: { positional: [unknown?]; named: { data?: unknown } }) {
       super(owner, args);
@@ -350,7 +364,12 @@ function createTargetModifier(core: AttacherCore): AttacherTargetModifier {
       }
 
       core._usedTargetModifier = true;
-      const data = positional.length > 0 ? positional[0] : named?.data;
+      const boundData = positional.length > 0 ? positional[0] : named?.data;
+      const data =
+        this._installed && element === this._element && boundData === this._lastBoundData
+          ? core._registeredEntries.get(element)?.data
+          : boundData;
+      this._lastBoundData = boundData;
       const entry = core.registerTargetElement(element, data, null, getOwner(this) ?? null);
 
       if (!this._installed) {
@@ -437,6 +456,7 @@ export default class AttacherCore {
   _restoreFocusOnHide = false;
   _suppressFocusShow = false;
   _lastUseCaptureArgumentValue: boolean;
+  _warnedRemovedArgs = new Set<string>();
   _cleanup: (() => void) | null = null;
 
   readonly api: AttacherBlockParams;
@@ -888,6 +908,8 @@ export default class AttacherCore {
         return;
       }
 
+      this._warnRemoved4xArgs(this._getArgs() as Record<string, unknown> | undefined);
+
       const targetKey = `${this._opt('showOn')}|${this._opt('hideOn')}|${this.id}|${this._renderInPlace}`;
       const targetArg = this.targetArg;
       const isInitialSync = !this._prevSyncedTargetKey;
@@ -931,6 +953,10 @@ export default class AttacherCore {
     options: AttacherArgs | null = null,
     owner: Owner | null = null
   ): RegisteredEntry {
+    if (options) {
+      this._warnRemoved4xArgs(options as Record<string, unknown>);
+    }
+
     let entry = this._registeredEntries.get(element);
     const isNew = !entry;
     if (!entry) {
@@ -1457,20 +1483,19 @@ export default class AttacherCore {
       target = undefined;
     }
 
-    if (target != null && target !== this._currentTarget) {
+    if (target !== undefined) {
       const targetEl = target as AttachmentTarget;
       const entry = isElementTarget(targetEl) ? this._registeredEntries.get(targetEl) : undefined;
       if (entry) {
-        this._activateRegisteredEntry(entry);
         if (data !== undefined) {
-          this._setTracked('_data', data);
-          this._notifyRenderStateChange();
+          entry.data = data;
         }
+        this._activateRegisteredEntry(entry);
       } else if (isElementTarget(targetEl) || isVirtualReference(targetEl)) {
-        this._switchTargetFromEvent(targetEl, data, null);
+        this._switchTargetFromEvent(targetEl, data, this._activeEntryOptions);
       } else {
         runInDebug(() => {
-          warn('[ember-attacher] show(target) requires a DOM Element or VirtualElement', {
+          warn('[ember-attacher] Ignoring non-Target argument passed to show().', false, {
             id: 'ember-attacher.invalid-show-target',
           });
         });
@@ -1480,15 +1505,22 @@ export default class AttacherCore {
       this._notifyRenderStateChange();
     }
 
-    this._showAfterDelay();
+    this._show();
+    if (!this._isDestroyed) {
+      scheduleMicrotask(() => {
+        if (!this._isDestroyed && !this._isHidden) {
+          this._addListenersForHideEvents();
+        }
+      });
+    }
   }
 
   hide(): void {
-    this._hideAfterDelay();
+    this._hide();
   }
 
   toggle(): void {
-    if (!this._isHidden && !this._isHiding) {
+    if (this._isShown || !this._isHidden) {
       this.hide();
     } else {
       this.show();
@@ -1531,6 +1563,25 @@ export default class AttacherCore {
 
       this._setTracked('_registeredTarget', nextTarget);
       this._initializeAttacher();
+    });
+  }
+
+  _warnRemoved4xArgs(args: Record<string, unknown> | undefined): void {
+    if (!args) {
+      return;
+    }
+
+    runInDebug(() => {
+      for (const argName of Object.keys(REMOVED_4X_ARGS)) {
+        if (args[argName] !== undefined && !this._warnedRemovedArgs.has(argName)) {
+          this._warnedRemovedArgs.add(argName);
+          warn(
+            `[ember-attacher] @${argName} was removed in 5.0.0 and is ignored. ${REMOVED_4X_ARGS[argName]}`,
+            false,
+            { id: `ember-attacher.removed-arg.${argName}` }
+          );
+        }
+      }
     });
   }
 

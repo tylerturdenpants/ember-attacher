@@ -486,4 +486,57 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
     await waitUntil(() => !isVisible(hoverClickPanel));
     assert.false(isVisible(hoverClickPanel), 'hideOn="click" closes registered target opened by mouseenter');
   });
+
+  test('a.show, a.hide, and a.toggle act immediately regardless of showDelay/hideDelay and persist registered entry.data', async function (assert) {
+    let api = null;
+    this.set('captureApi', (a) => {
+      api = a;
+      return '';
+    });
+
+    await render(hbs`
+      <AttachTooltip @id="imperative-delay-tip" @showDelay={{500}} @hideDelay={{500}} @showDuration={{0}} @hideDuration={{0}}>
+        <:target as |target a|>
+          {{this.captureApi a}}
+          <button id="imp-target-a" type="button" {{target "Initial A"}}>A</button>
+          <button id="imp-target-b" type="button" {{target "Initial B"}}>B</button>
+        </:target>
+        <:content as |a|>
+          {{a.data}}
+        </:content>
+      </AttachTooltip>
+    `);
+
+    const tip = find('#imperative-delay-tip');
+    const targetA = find('#imp-target-a');
+    const targetB = find('#imp-target-b');
+
+    const t0 = Date.now();
+    api.show(targetA, 'Updated A');
+    assert.true(
+      tip.hasAttribute('data-open') && tip.matches(':popover-open'),
+      'a.show() opens immediately without waiting 500ms showDelay'
+    );
+    await settled();
+    assert.ok(Date.now() - t0 < 250, 'settled without waiting 500ms showDelay');
+    assert.true(isVisible(tip), 'tooltip is visible after positioning microtask');
+    assert.dom(tip).hasText('Updated A', 'a.show(registeredEl, data) updates active data');
+
+    // Switch away then back so _activateRegisteredEntry runs against entry.data
+    api.show(targetB);
+    await settled();
+    assert.dom(tip).hasText('Initial B', 'switches to target B immediately');
+    api.show(targetA);
+    await settled();
+    assert.dom(tip).hasText('Updated A', 'persists updated entry.data across entry switches');
+
+    api.hide();
+    assert.false(isVisible(tip), 'a.hide() closes immediately without waiting 500ms hideDelay');
+
+    api.toggle();
+    await settled();
+    assert.true(isVisible(tip), 'a.toggle() opens immediately when closed');
+    api.toggle();
+    assert.false(isVisible(tip), 'a.toggle() closes immediately when open');
+  });
 });

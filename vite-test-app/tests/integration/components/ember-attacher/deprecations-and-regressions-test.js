@@ -42,9 +42,8 @@ module('Integration | Component | deprecations & 4.4 regressions', function (hoo
   setupRenderingTest(hooks);
 
   test('removes BasicAttacher export and removed 4.x yielded aliases in 5.0', async function (assert) {
-    assert.strictEqual(
-      EmberAttacherModule.BasicAttacher,
-      undefined,
+    assert.false(
+      Object.prototype.hasOwnProperty.call(EmberAttacherModule, 'BasicAttacher'),
       'BasicAttacher is no longer exported from ember-attacher in 5.0'
     );
 
