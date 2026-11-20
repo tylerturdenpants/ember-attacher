@@ -33,22 +33,53 @@ module('Integration | test-support | assertAttached', function (hooks) {
     mounted = [];
   });
 
-  test('passes for an open tooltip placed against its target', async function (assert) {
+  test('measures the painted tooltip offset against its target', async function (assert) {
     await render(<template>
       <button id="trigger" type="button" style="margin: 100px">Trigger</button>
-      <AttachTooltip @id="tip" @target="#trigger" @placement="bottom" @arrow={{true}}>
+      <AttachTooltip @id="tip" @target="#trigger" @placement="bottom" @arrow={{true}} @showDuration={{0}}>
         Tooltip text
       </AttachTooltip>
     </template>);
 
     await triggerEvent('#trigger', 'mouseenter');
 
-    const recorder = recordingAssert();
-    assertAttached(recorder, '#tip', '#trigger', { placement: 'bottom' });
+    const passRecorder = recordingAssert();
+    assertAttached(passRecorder, '#tip', '#trigger', { placement: 'bottom' });
 
-    assert.strictEqual(recorder.results.length, 1, 'pushes exactly one result');
-    assert.deepEqual(recorder.results[0].actual, [], 'reports no problems');
-    assert.true(recorder.results[0].result, 'result passes');
+    assert.strictEqual(passRecorder.results.length, 1, 'pushes exactly one result');
+    assert.deepEqual(passRecorder.results[0].actual, [], 'default 10px distance fits maxGap 24');
+    assert.true(passRecorder.results[0].result, 'result passes at default maxGap');
+
+    const tightRecorder = recordingAssert();
+    assertAttached(tightRecorder, '#tip', '#trigger', { placement: 'bottom', maxGap: 0 });
+    assert.false(tightRecorder.results[0].result, 'fails when maxGap is tighter than --ember-attacher-distance');
+    assert.true(
+      tightRecorder.results[0].actual.some((problem) => problem.includes('gap')),
+      'names the gap problem for default 10px painted offset',
+    );
+
+    await render(<template>
+      <button id="far-trigger" type="button" style="margin: 100px">Trigger</button>
+      <AttachTooltip
+        @id="far-tip"
+        @target="#far-trigger"
+        @placement="bottom"
+        @showDuration={{0}}
+        style="--ember-attacher-distance: 80px"
+      >
+        Tooltip text
+      </AttachTooltip>
+    </template>);
+
+    await triggerEvent('#far-trigger', 'mouseenter');
+
+    const farRecorder = recordingAssert();
+    assertAttached(farRecorder, '#far-tip', '#far-trigger', { placement: 'bottom' });
+    assert.false(farRecorder.results[0].result, 'fails when --ember-attacher-distance exceeds default maxGap');
+    assert.true(
+      farRecorder.results[0].actual.some((problem) => problem.includes('gap')),
+      'detects painted transform distance even when host stays flush',
+    );
   });
 
   test('fails when the attachment is not shown', async function (assert) {

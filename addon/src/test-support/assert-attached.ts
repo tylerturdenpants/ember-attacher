@@ -54,6 +54,18 @@ function resolve(elementOrSelector: ElementOrSelector): Element | null {
     : (elementOrSelector ?? null);
 }
 
+function resolvePaintedElement(attachment: Element): Element {
+  return (
+    attachment.querySelector(
+      ':scope > .ember-attacher-tooltip, :scope > .ember-attacher-popover',
+    ) ??
+    (attachment.classList.contains('ember-attacher')
+      ? attachment.querySelector(':scope > div:not(.ember-attacher-arrow)')
+      : null) ??
+    attachment
+  );
+}
+
 function findProblems(
   attachment: Element | null,
   target: Element | null,
@@ -71,7 +83,8 @@ function findProblems(
     problems.push(`expected placement "${placement}", got "${resolved}"`);
   }
 
-  const a = attachment.getBoundingClientRect();
+  const painted = resolvePaintedElement(attachment);
+  const a = painted.getBoundingClientRect();
   const t = target.getBoundingClientRect();
   const side = resolved.split('-')[0] as 'top' | 'bottom' | 'left' | 'right';
   const vertical = side === 'top' || side === 'bottom';
@@ -117,9 +130,9 @@ function findProblems(
     problems.push('attachment overflows the viewport');
   }
 
-  if (getComputedStyle(attachment).pointerEvents !== 'none') {
+  if (getComputedStyle(painted).pointerEvents !== 'none') {
     const hit = document.elementFromPoint(a.left + a.width / 2, a.top + a.height / 2);
-    if (hit && !attachment.contains(hit)) {
+    if (hit && !painted.contains(hit)) {
       problems.push(`attachment is covered by ${describe(hit)}`);
     }
   }

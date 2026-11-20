@@ -236,7 +236,7 @@ module('Integration | CSS custom properties', function (hooks) {
     const rect = arrow.getBoundingClientRect();
 
     assert.ok(Math.abs(rect.width - 16 * Math.SQRT2) < 0.25, 'width scales with arrow-size diagonal (~22.6px)');
-    assert.ok(Math.abs(rect.height - (16 * Math.SQRT2) / 2) < 0.25, 'height scales with half-diagonal (~11.3px)');
+    assert.ok(Math.abs(rect.height - ((16 * Math.SQRT2) / 2 + 1)) < 0.25, 'height scales with half-diagonal + 1px seam overlap (~12.3px)');
   });
 
   test('arrow-width, arrow-height, and line-height tokens customize arrow dimensions and text', async function (assert) {
@@ -268,7 +268,7 @@ module('Integration | CSS custom properties', function (hooks) {
 
     assert.strictEqual(getComputedStyle(arrow).transform, 'none', 'renders unrotated clip-path triangle without skew');
     assert.strictEqual(Math.round(rect.width), 12);
-    assert.strictEqual(Math.round(rect.height), 5);
+    assert.strictEqual(Math.round(rect.height), 6, 'includes 1px inner edge overlap');
     assert.strictEqual(getComputedStyle(arrow).top, '-5px', 'bottom placement protrudes by exact arrow-height');
     assert.strictEqual(getComputedStyle(inner).lineHeight, '22px');
   });
