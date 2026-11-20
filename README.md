@@ -149,6 +149,7 @@ Below are the 5.0 defaults (shared defaults from `addon/src/defaults.ts`; `<Atta
 
   // Floating UI middleware array merged and deduplicated by `m.name`.
   // Default `flip()` and `shift({ limiter: limitShift(), padding: 5 })` apply unless overridden.
+  // Pass `hide()` when you want attachments to hide once their target scrolls out of a clipping container.
   // Re-exported builders from 'ember-attacher':
   // { arrow, autoPlacement, flip, hide, inline, limitShift, offset, shift, size }
   middleware: null,
@@ -333,10 +334,13 @@ Default token values use `:where()` so an app class can override them even if ad
   --ember-attacher-border: var(--ember-attacher-fill);
   --ember-attacher-border-width: 0px; /* set to 1px+ when you need a visible border */
   --ember-attacher-arrow-size: 10px;
+  --ember-attacher-arrow-width: var(--ember-attacher-arrow-size);
+  --ember-attacher-arrow-height: var(--ember-attacher-arrow-size);
   --ember-attacher-padding: 0.5rem 1rem;
   --ember-attacher-shadow: none;
   --ember-attacher-max-width: 400px;
   --ember-attacher-font-size: inherit;
+  --ember-attacher-line-height: inherit;
   --ember-attacher-text-align: center;
 }
 ```

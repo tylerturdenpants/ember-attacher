@@ -238,6 +238,38 @@ module('Integration | CSS custom properties', function (hooks) {
     assert.strictEqual(getComputedStyle(arrow).height, '16px');
   });
 
+  test('arrow-width, arrow-height, and line-height tokens customize arrow dimensions and text', async function (assert) {
+    await render(hbs`
+      <style>
+        .custom-rect-arrow-tooltip {
+          --ember-attacher-arrow-width: 14px;
+          --ember-attacher-arrow-height: 8px;
+          --ember-attacher-line-height: 22px;
+        }
+      </style>
+      <button id="rect-arrow-target" type="button" style="margin: 100px;">Rect arrow target</button>
+      <AttachTooltip
+        @id="rect-arrow-tooltip"
+        @target="#rect-arrow-target"
+        @placement="bottom"
+        @animation="none"
+        @arrow={{true}}
+        @isShown={{true}}
+        @class="custom-rect-arrow-tooltip"
+      >
+        rect arrow
+      </AttachTooltip>
+    `);
+
+    const inner = find('#rect-arrow-tooltip > .ember-attacher-tooltip');
+    const arrow = inner.querySelector('.ember-attacher-arrow');
+
+    assert.strictEqual(getComputedStyle(arrow).width, '14px');
+    assert.strictEqual(getComputedStyle(arrow).height, '8px');
+    assert.strictEqual(getComputedStyle(arrow).top, '-4px', 'bottom placement offsets by -0.5 * arrow-height');
+    assert.strictEqual(getComputedStyle(inner).lineHeight, '22px');
+  });
+
   test('z-index token applies to .ember-attacher', async function (assert) {
     await render(hbs`
       <style>

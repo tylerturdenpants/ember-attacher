@@ -1,3 +1,8 @@
+## Unreleased
+
+#### :rocket: Enhancement
+* **Arrow width/height & `line-height` CSS tokens:** Added `--ember-attacher-arrow-width`, `--ember-attacher-arrow-height` (falling back to `--ember-attacher-arrow-size`), and `--ember-attacher-line-height` (`inherit`) on `.ember-attacher-tooltip` / `.ember-attacher-popover`, and evaluated arrow edge offsets directly on `.ember-attacher-arrow` so overrides on the inner class apply cleanly.
+
 ## v5.0.0-beta.2 (2026-11-19)
 
 > **Beta of the 5.0 line** — not a stable release. Install with `npm i ember-attacher@beta` or `npm i ember-attacher@5.0.0-beta.2`. The npm `latest` dist-tag remains on the 4.x line. See [#1132](https://github.com/tylerturdenpants/ember-attacher/pull/1132).

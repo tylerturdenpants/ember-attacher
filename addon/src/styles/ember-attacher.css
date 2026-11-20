@@ -71,7 +71,6 @@
   &[data-placement^=top],
   &[x-placement^=top] {
     --ember-attacher-arrow-rotate: rotate(-45deg);
-    --ember-attacher-arrow-bottom: calc(-0.5 * var(--ember-attacher-arrow-size, 10px));
     --ember-attacher-circle-hide: scale(0) translate(-50%, -50%);
     --ember-attacher-circle-origin: 0% 50%;
     --ember-attacher-rest: translateY(0);
@@ -79,12 +78,15 @@
     --ember-attacher-perspective-hide: rotateX(90deg);
     --ember-attacher-perspective-show: rotateX(0);
     --ember-attacher-perspective-origin: bottom;
+
+    .ember-attacher-arrow {
+      bottom: calc(-0.5 * var(--ember-attacher-arrow-height, var(--ember-attacher-arrow-size, 10px)));
+    }
   }
 
   &[data-placement^=bottom],
   &[x-placement^=bottom] {
     --ember-attacher-arrow-rotate: rotate(135deg);
-    --ember-attacher-arrow-top: calc(-0.5 * var(--ember-attacher-arrow-size, 10px));
     --ember-attacher-circle-hide: scale(0) translate(-50%, -50%);
     --ember-attacher-circle-origin: 0% -50%;
     --ember-attacher-rest: translateY(0);
@@ -92,13 +94,15 @@
     --ember-attacher-perspective-hide: rotateX(-90deg);
     --ember-attacher-perspective-show: rotateX(0);
     --ember-attacher-perspective-origin: top;
+
+    .ember-attacher-arrow {
+      top: calc(-0.5 * var(--ember-attacher-arrow-height, var(--ember-attacher-arrow-size, 10px)));
+    }
   }
 
   &[data-placement^=left],
   &[x-placement^=left] {
     --ember-attacher-arrow-rotate: rotate(225deg);
-    --ember-attacher-arrow-right: calc(-0.5 * var(--ember-attacher-arrow-size, 10px));
-    --ember-attacher-arrow-top: 50%;
     --ember-attacher-circle-hide: scale(0) translate(-50%, -33%);
     --ember-attacher-circle-origin: 50% 5%;
     --ember-attacher-rest: translateX(0);
@@ -106,13 +110,16 @@
     --ember-attacher-perspective-hide: rotateY(-90deg);
     --ember-attacher-perspective-show: rotateY(0);
     --ember-attacher-perspective-origin: right;
+
+    .ember-attacher-arrow {
+      right: calc(-0.5 * var(--ember-attacher-arrow-width, var(--ember-attacher-arrow-size, 10px)));
+      top: 50%;
+    }
   }
 
   &[data-placement^=right],
   &[x-placement^=right] {
     --ember-attacher-arrow-rotate: rotate(45deg);
-    --ember-attacher-arrow-left: calc(-0.5 * var(--ember-attacher-arrow-size, 10px));
-    --ember-attacher-arrow-top: 50%;
     --ember-attacher-circle-hide: scale(0) translate(-50%, -33%);
     --ember-attacher-circle-origin: -50% 5%;
     --ember-attacher-rest: translateX(0);
@@ -120,6 +127,11 @@
     --ember-attacher-perspective-hide: rotateY(90deg);
     --ember-attacher-perspective-show: rotateY(0);
     --ember-attacher-perspective-origin: left;
+
+    .ember-attacher-arrow {
+      left: calc(-0.5 * var(--ember-attacher-arrow-width, var(--ember-attacher-arrow-size, 10px)));
+      top: 50%;
+    }
   }
 
   &[data-placement^=top],
@@ -132,10 +144,6 @@
   &[x-placement^=right] {
     .ember-attacher-arrow {
       transform: var(--ember-attacher-arrow-rotate);
-      top: var(--ember-attacher-arrow-top, auto);
-      right: var(--ember-attacher-arrow-right, auto);
-      bottom: var(--ember-attacher-arrow-bottom, auto);
-      left: var(--ember-attacher-arrow-left, auto);
     }
 
     .ember-attacher-fill-circle {
@@ -301,10 +309,13 @@
   --ember-attacher-border: var(--ember-attacher-fill);
   --ember-attacher-border-width: 0px;
   --ember-attacher-arrow-size: 10px;
+  --ember-attacher-arrow-width: var(--ember-attacher-arrow-size);
+  --ember-attacher-arrow-height: var(--ember-attacher-arrow-size);
   --ember-attacher-padding: 0.5rem 1rem;
   --ember-attacher-shadow: none;
   --ember-attacher-max-width: 400px;
   --ember-attacher-font-size: inherit;
+  --ember-attacher-line-height: inherit;
   --ember-attacher-text-align: center;
 }
 
@@ -318,6 +329,7 @@
   box-shadow: var(--ember-attacher-shadow);
   color: var(--ember-attacher-text);
   font-size: var(--ember-attacher-font-size);
+  line-height: var(--ember-attacher-line-height);
   text-align: var(--ember-attacher-text-align);
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
@@ -334,8 +346,8 @@
     border-style: solid;
     border-width: var(--ember-attacher-arrow-border-width, var(--ember-attacher-border-width, 1px));
     border-color: transparent transparent var(--ember-attacher-border) var(--ember-attacher-border);
-    height: var(--ember-attacher-arrow-size, 10px);
-    width: var(--ember-attacher-arrow-size, 10px);
+    height: var(--ember-attacher-arrow-height, var(--ember-attacher-arrow-size, 10px));
+    width: var(--ember-attacher-arrow-width, var(--ember-attacher-arrow-size, 10px));
     position: absolute;
     z-index: -1;
   }

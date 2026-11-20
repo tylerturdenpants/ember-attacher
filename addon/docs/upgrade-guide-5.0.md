@@ -144,6 +144,7 @@ Pass `@showOn`, `@hideOn`, `@interactive`, or `@lazyRender` explicitly when hove
 ### Other 5.0 defaults
 
 - **`@autoUpdate`:** Defaults to `true` (tracks scroll, resize, and layout shifts via Floating UI `autoUpdate` only while open, and stops immediately on hide/teardown).
+- **Hiding scrolled-out targets (`hide()`):** Because Top-Layer `[popover="manual"]` hosts escape ancestor `overflow` clipping, pass `@middleware={{array (hide)}}` (imported from `'ember-attacher'`) when you want an attachment to hide (`[data-reference-hidden]`, `visibility: hidden`) once its target scrolls out of a clipping container.
 - **WCAG 1.4.13 Hoverable Tooltips (`@interactive`):** `<AttachTooltip>` and `{{tooltip}}` now default `@interactive={{true}}` with the automatic diagonal `safePolygon` pointer corridor so magnification and pointer users can hover onto tooltip content without it disappearing. Pass `@interactive={{false}}` (or `interactive=false` on `{{tooltip}}`) to opt out.
 
 ### Smart Tooltip ARIA
