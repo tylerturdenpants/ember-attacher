@@ -1,7 +1,7 @@
 ## Unreleased
 
 #### :bug: Bug Fix
-* **Unrotated `clip-path` arrow geometry (#1132):** Replaced rotated-square arrow CSS with unrotated `clip-path` triangles (plus a border chevron collar when `--ember-attacher-border-width > 0`) so unequal `--ember-attacher-arrow-width` / `--ember-attacher-arrow-height` values (e.g. `12px` × `5px`) render true crisp pointers instead of skewed bars, while preserving `--ember-attacher-arrow-size` (`* √2` × `/ √2`) proportions.
+* **Unrotated `clip-path` arrow geometry (#1132):** Replaced rotated-square arrow CSS with unrotated `clip-path` triangles (plus an exact mitered border chevron via `hypot()` when `--ember-attacher-border-width > 0`) so unequal `--ember-attacher-arrow-width` / `--ember-attacher-arrow-height` values (e.g. `12px` × `5px`) render true crisp pointers instead of skewed bars, while preserving `--ember-attacher-arrow-size` (`* √2` × `/ √2`) proportions.
 
 ## v5.0.0-beta.3 (2026-11-20)
 

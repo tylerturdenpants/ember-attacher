@@ -79,22 +79,20 @@
     --ember-attacher-perspective-origin: bottom;
 
     .ember-attacher-arrow {
-      bottom: calc(-1 * (var(--_ah) + var(--_ab)));
-      clip-path: polygon(0 0, 100% 0, 100% var(--_ab), 50% 100%, 0 var(--_ab));
-      height: calc(var(--_ah) + var(--_ab));
-      transform-origin: 50% 0%;
-      width: var(--_aw);
+      bottom: calc(-1 * var(--_full-h));
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      height: var(--_full-h);
+      transform-origin: 50% var(--_ab);
+      width: var(--_full-w);
 
       &::before {
         clip-path: polygon(
           0 0,
-          calc(1.4 * var(--_ab)) 0,
-          50% calc(100% - 1.4 * var(--_ab)),
-          calc(100% - 1.4 * var(--_ab)) 0,
+          var(--_in-x) 0,
+          50% calc(100% - var(--_dy)),
+          calc(100% - var(--_in-x)) 0,
           100% 0,
-          100% var(--_ab),
-          50% 100%,
-          0 var(--_ab)
+          50% 100%
         );
       }
     }
@@ -111,22 +109,20 @@
     --ember-attacher-perspective-origin: top;
 
     .ember-attacher-arrow {
-      clip-path: polygon(50% 0, 100% calc(100% - var(--_ab)), 100% 100%, 0 100%, 0 calc(100% - var(--_ab)));
-      height: calc(var(--_ah) + var(--_ab));
-      top: calc(-1 * (var(--_ah) + var(--_ab)));
-      transform-origin: 50% 100%;
-      width: var(--_aw);
+      clip-path: polygon(50% 0, 100% 100%, 0 100%);
+      height: var(--_full-h);
+      top: calc(-1 * var(--_full-h));
+      transform-origin: 50% calc(100% - var(--_ab));
+      width: var(--_full-w);
 
       &::before {
         clip-path: polygon(
           50% 0,
-          100% calc(100% - var(--_ab)),
           100% 100%,
-          calc(100% - 1.4 * var(--_ab)) 100%,
-          50% calc(1.4 * var(--_ab)),
-          calc(1.4 * var(--_ab)) 100%,
-          0 100%,
-          0 calc(100% - var(--_ab))
+          calc(100% - var(--_in-x)) 100%,
+          50% var(--_dy),
+          var(--_in-x) 100%,
+          0 100%
         );
       }
     }
@@ -143,23 +139,21 @@
     --ember-attacher-perspective-origin: right;
 
     .ember-attacher-arrow {
-      clip-path: polygon(0 0, var(--_ab) 0, 100% 50%, var(--_ab) 100%, 0 100%);
-      height: var(--_aw);
-      right: calc(-1 * (var(--_ah) + var(--_ab)));
+      clip-path: polygon(0 0, 100% 50%, 0 100%);
+      height: var(--_full-w);
+      right: calc(-1 * var(--_full-h));
       top: 50%;
-      transform-origin: 0% 50%;
-      width: calc(var(--_ah) + var(--_ab));
+      transform-origin: var(--_ab) 50%;
+      width: var(--_full-h);
 
       &::before {
         clip-path: polygon(
           0 0,
-          var(--_ab) 0,
           100% 50%,
-          var(--_ab) 100%,
           0 100%,
-          0 calc(100% - 1.4 * var(--_ab)),
-          calc(100% - 1.4 * var(--_ab)) 50%,
-          0 calc(1.4 * var(--_ab))
+          0 calc(100% - var(--_in-x)),
+          calc(100% - var(--_dy)) 50%,
+          0 var(--_in-x)
         );
       }
     }
@@ -176,22 +170,20 @@
     --ember-attacher-perspective-origin: left;
 
     .ember-attacher-arrow {
-      clip-path: polygon(calc(100% - var(--_ab)) 0, 100% 0, 100% 100%, calc(100% - var(--_ab)) 100%, 0 50%);
-      height: var(--_aw);
-      left: calc(-1 * (var(--_ah) + var(--_ab)));
+      clip-path: polygon(100% 0, 100% 100%, 0 50%);
+      height: var(--_full-w);
+      left: calc(-1 * var(--_full-h));
       top: 50%;
-      transform-origin: 100% 50%;
-      width: calc(var(--_ah) + var(--_ab));
+      transform-origin: calc(100% - var(--_ab)) 50%;
+      width: var(--_full-h);
 
       &::before {
         clip-path: polygon(
-          calc(100% - var(--_ab)) 0,
           100% 0,
-          100% calc(1.4 * var(--_ab)),
-          calc(1.4 * var(--_ab)) 50%,
-          100% calc(100% - 1.4 * var(--_ab)),
+          100% var(--_in-x),
+          var(--_dy) 50%,
+          100% calc(100% - var(--_in-x)),
           100% 100%,
-          calc(100% - var(--_ab)) 100%,
           0 50%
         );
       }
@@ -401,6 +393,13 @@
     --_aw: var(--ember-attacher-arrow-width, calc(var(--ember-attacher-arrow-size, 10px) * 1.4142));
     --_ah: var(--ember-attacher-arrow-height, calc(var(--ember-attacher-arrow-size, 10px) * 0.7071));
     --_ab: var(--ember-attacher-arrow-border-width, var(--ember-attacher-border-width, 0px));
+    --_half: calc(var(--_aw) / 2);
+    --_hyp: hypot(var(--_half), var(--_ah));
+    --_dy: calc(var(--_ab) * (var(--_hyp) / var(--_half)));
+    --_ext-x: calc(var(--_ab) * (var(--_half) / var(--_ah)));
+    --_in-x: calc(var(--_ab) * (var(--_hyp) / var(--_ah)));
+    --_full-w: calc(var(--_aw) + 2 * var(--_ext-x));
+    --_full-h: calc(var(--_ah) + var(--_ab));
     background-color: var(--ember-attacher-fill);
     pointer-events: none;
     position: absolute;
