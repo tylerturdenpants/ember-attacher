@@ -1,5 +1,9 @@
 ## Unreleased
 
+## v5.0.0-beta.4 (2026-11-20)
+
+> **Beta of the 5.0 line** — not a stable release. Install with `npm i ember-attacher@beta` or `npm i ember-attacher@5.0.0-beta.4`. The npm `latest` dist-tag remains on the 4.x line. See [#1132](https://github.com/tylerturdenpants/ember-attacher/pull/1132).
+
 #### :bug: Bug Fix
 * **Unrotated `clip-path` arrow geometry (#1132):** Replaced rotated-square arrow CSS with unrotated `clip-path` triangles (plus an exact mitered border chevron via `hypot()` when `--ember-attacher-border-width > 0`) so unequal `--ember-attacher-arrow-width` / `--ember-attacher-arrow-height` values (e.g. `12px` × `5px`) render true crisp pointers instead of skewed bars, while preserving `--ember-attacher-arrow-size` (`* √2` × `/ √2`) proportions.
 
