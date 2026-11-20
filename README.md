@@ -97,6 +97,7 @@ A target-attached tooltip component (default `ariaRole="tooltip"`).
 An interactive popover component (default `ariaRole="dialog"`, `showOn="click"`, `hideOn="click clickout escapekey"`, `interactive=true`, `lazyRender=true`).
 
 * Must be bound to a Target (`@target`, `<:target>`, `{{a.target}}`, `a.setTarget()`, or `[popovertarget]`).
+* Has **no default visual look** (tooltip styles are not applied automatically); pass `@class="ember-attacher-popover"` to opt into the packaged styling or supply your own class.
 * Renders `<div class="ember-attacher" popover="manual">` in place in 1 pass and promotes to the browser Top Layer on open (`@renderInPlace={{true}}` opts out of Top Layer).
 * While mounted, sets `aria-haspopup` (matching `@ariaRole` or `'dialog'`), `aria-controls`, and `aria-expanded` on the Target when not already provided by the caller.
 * Restores focus to the Target when dismissed via `Escape` while focus is inside the popover.
@@ -148,6 +149,7 @@ Below are the 5.0 defaults (shared defaults from `addon/src/defaults.ts`; `<Atta
 
   // Floating UI middleware array merged and deduplicated by `m.name`.
   // Default `flip()` and `shift({ limiter: limitShift(), padding: 5 })` apply unless overridden.
+  // Pass `hide()` when you want attachments to hide once their target scrolls out of a clipping container.
   // Re-exported builders from 'ember-attacher':
   // { arrow, autoPlacement, flip, hide, inline, limitShift, offset, shift, size }
   middleware: null,
@@ -185,6 +187,111 @@ Below are the 5.0 defaults (shared defaults from `addon/src/defaults.ts`; `<Atta
 }
 ```
 
+## Recipes
+
+### Pinning and flipping within a custom boundary
+
+Pass Floating UI `flip` and `shift` options with a custom `boundary` element via `@middleware` to keep an attachment constrained inside a scroll area or layout panel:
+
+```gts
+import { tracked } from '@glimmer/tracking';
+import { modifier } from 'ember-modifier';
+import { AttachPopover, flip, shift } from 'ember-attacher';
+
+export default class BoundaryDemo {
+  @tracked containerEl = null;
+
+  registerContainer = modifier((element) => {
+    this.containerEl = element;
+  });
+
+  get boundaryMiddleware() {
+    if (!this.containerEl) return [];
+    return [
+      flip({ boundary: this.containerEl }),
+      shift({ boundary: this.containerEl, padding: 8 }),
+    ];
+  }
+
+  <template>
+    <div {{this.registerContainer}}>
+      <button id="panel-btn" type="button">Options</button>
+      <AttachPopover @target="#panel-btn" @middleware={{this.boundaryMiddleware}}>
+        Stays within containerEl
+      </AttachPopover>
+    </div>
+  </template>
+}
+```
+
+### Coordinate / virtual targets (`VirtualElement`, no DOM trigger)
+
+Pass any `{ getBoundingClientRect() }` object to `@target` with `@showOn={{null}}` and controlled `@isShown` (or `a.show(virtualTarget)`). Add `@autoUpdate={{hash animationFrame=true}}` when tracking moving coordinates or externally animated elements:
+
+```gts
+import { hash } from '@ember/helper';
+import { AttachPopover } from 'ember-attacher';
+
+const cursorTarget = {
+  getBoundingClientRect() {
+    return { x: 160, y: 120, top: 120, left: 160, right: 160, bottom: 120, width: 0, height: 0 };
+  },
+};
+
+<template>
+  <AttachPopover
+    @target={{cursorTarget}}
+    @showOn={{null}}
+    @isShown={{true}}
+    @autoUpdate={{hash animationFrame=true}}
+  >
+    Positioned at virtual coordinates
+  </AttachPopover>
+</template>
+```
+
+### Portal / body-level stacking with `{{#in-element}}` + `@renderInPlace`
+
+By default, components promote in place to the browser Top Layer (`popover="manual"`). When you want explicit DOM container placement and `z-index` stacking instead, opt out of Top Layer with `@renderInPlace={{true}}` inside `{{#in-element}}`:
+
+```hbs
+{{#in-element this.portalContainer insertBefore=null}}
+  <AttachPopover
+    @target="#trigger"
+    @renderInPlace={{true}}
+    @class="my-z-indexed-popover"
+  >
+    Rendered inside portalContainer with traditional CSS stacking
+  </AttachPopover>
+{{/in-element}}
+```
+
+### Re-binding externally replaced DOM elements (`@target` / `a.setTarget`)
+
+String selectors in `@target` resolve once when `@target` mounts or changes. If a third-party widget (such as a calendar or data grid) tears down and recreates target nodes without re-rendering your template, pass a tracked element via `@target={{this.targetEl}}` (or use `<AttachPopover @target={{null}} as |a|>` and call `a.setTarget(el, data)`):
+
+```gts
+import { tracked } from '@glimmer/tracking';
+import { AttachPopover } from 'ember-attacher';
+
+export default class ExternalWidgetOverlay {
+  @tracked targetEl = null;
+  @tracked activeEvent = null;
+
+  // Hook into widget mount / click callbacks:
+  onWidgetItemMounted = (el, eventData) => {
+    this.targetEl = el;
+    this.activeEvent = eventData;
+  };
+
+  <template>
+    <AttachPopover @target={{this.targetEl}}>
+      {{this.activeEvent.title}}
+    </AttachPopover>
+  </template>
+}
+```
+
 ## User-defined defaults
 
 User-defined defaults can be configured in the consuming app's `config/environment.js`:
@@ -214,7 +321,7 @@ See [defaults.ts](./addon/src/defaults.ts) for all configurable keys.
 
 ## Styles
 
-`ember-attacher` provides CSS for the default tooltip class, `ember-attacher-tooltip` (`ember-attacher/styles`; also injected via `implicit-styles`). `<AttachPopover>` has no packaged look unless you opt in with `@class="ember-attacher-popover"` (same tokens as the tooltip; not applied automatically).
+`ember-attacher` provides CSS for the default tooltip class, `ember-attacher-tooltip` (`ember-attacher/styles`, also auto-injected via `ember-addon.implicit-styles` when the host app depends on `ember-attacher` directly). If an intermediate addon only lists `ember-attacher` as a `peerDependency`, the host app must also depend on `ember-attacher` directly or `import 'ember-attacher/styles';`. `<AttachPopover>` has no packaged look unless you opt in with `@class="ember-attacher-popover"` (same tokens as the tooltip; not applied automatically).
 
 Default token values use `:where()` so an app class can override them even if addon `implicit-styles` load last.
 
@@ -227,10 +334,14 @@ Default token values use `:where()` so an app class can override them even if ad
   --ember-attacher-border: var(--ember-attacher-fill);
   --ember-attacher-border-width: 0px; /* set to 1px+ when you need a visible border */
   --ember-attacher-arrow-size: 10px;
+  /* Optional independent pointer dimensions (default to arrow-size * √2 and / √2):
+     --ember-attacher-arrow-width: 12px;
+     --ember-attacher-arrow-height: 5px; */
   --ember-attacher-padding: 0.5rem 1rem;
   --ember-attacher-shadow: none;
   --ember-attacher-max-width: 400px;
   --ember-attacher-font-size: inherit;
+  --ember-attacher-line-height: inherit;
   --ember-attacher-text-align: center;
 }
 ```
@@ -289,6 +400,16 @@ test('example', async function (assert) {
 ```
 
 `import { isVisible } from 'ember-attacher'` is also supported for convenience.
+
+To check that an open attachment actually sits next to its target, use `assertAttached()`. It pushes one QUnit result listing every problem it finds: not visible, wrong `data-placement`, wrong side, gap larger than `maxGap` (default `24`px), no cross-axis overlap with the target, arrow not pointing at the target, overflowing the viewport, or covered by another element.
+
+```javascript
+import { triggerEvent } from '@ember/test-helpers';
+import { assertAttached } from 'ember-attacher/test-support';
+
+await triggerEvent('#trigger', 'mouseenter');
+assertAttached(assert, '#tip', '#trigger', { placement: 'bottom' });
+```
 
 ## Development setup
 

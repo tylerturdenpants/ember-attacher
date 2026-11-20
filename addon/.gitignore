@@ -3,6 +3,7 @@
 # compiled output
 /dist/
 /tmp/
+/README.md
 
 # dependencies
 /bower_components/

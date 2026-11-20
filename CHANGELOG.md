@@ -1,3 +1,70 @@
+## Unreleased
+
+## v5.0.0 (2026-11-20)
+
+> **Stable 5.0.0.** Install with `npm i ember-attacher@latest` or `npm i ember-attacher@5.0.0`. See [`addon/docs/upgrade-guide-5.0.md`](addon/docs/upgrade-guide-5.0.md). Prereleases `5.0.0-beta.0`–`5.0.0-beta.4` were for testing; the npm `beta` dist-tag remains on `5.0.0-beta.4` unless retargeted. Shipped via [#1132](https://github.com/tylerturdenpants/ember-attacher/pull/1132) (plus the earlier 5.0 PRs [#1125](https://github.com/tylerturdenpants/ember-attacher/pull/1125) / [#1126](https://github.com/tylerturdenpants/ember-attacher/pull/1126) / [#1127](https://github.com/tylerturdenpants/ember-attacher/pull/1127) / [#1129](https://github.com/tylerturdenpants/ember-attacher/pull/1129) / [#1131](https://github.com/tylerturdenpants/ember-attacher/pull/1131)).
+
+#### :boom: Breaking Change
+* **Platform & Test Floor (#1125):** Raised minimum `ember-source` / `ember-cli` floor to `>= 4.12 LTS` and `Node.js >= 20 LTS`; dropped Ember 3.28 and Node 18.
+* **Removed `<BasicAttacher>` & 4.x Deprecations (#1127 / #1131):** Removed `BasicAttacher`, implicit parent target fallback (debug `assert()` fires when no target binding is supplied, while allowing nullable reactive `@target={{this.dynamicTarget}}`), `@explicitTarget`, `a.reference`, `a.setReference()`, `@flip`, `@overflowPadding`, `@floatingUiOptions`, `@floatingElementContainer`, `@isOffset`, `@style`, `@additionalClass`, `@onInitializeAttacher`, `@onWillDestroy`, and `@configKey`.
+* **1-Pass In-Place Top-Layer Host (#1126):** Removed `<meta hidden>`, `MaybeInElement` (`{{#in-element}}`), and `@floatingElementContainer` portaling for components; `<AttachTooltip>` and `<AttachPopover>` render in place and promote to the Top Layer via `popover="manual"`.
+* **5.0 Component Defaults & Accessibility (#1126):**
+  * `<AttachPopover>` defaults to `showOn: 'click'`, `hideOn: 'click clickout escapekey'`, `interactive: true`, and `lazyRender: true`.
+  * `<AttachTooltip>` and `{{tooltip}}` default `interactive: true` (WCAG 1.4.13 hoverable tooltips; opt out with `@interactive={{false}}`).
+  * `@autoUpdate` defaults to `true`.
+* **CSS & Animation Contract (#1126):** Replaced `div[x-circle]` with `.ember-attacher-fill-circle`, removed `x-arrow`, removed `.ember-attacher-show` / `.ember-attacher-hide` classes, gated spatial motion under `@media (prefers-reduced-motion: no-preference)`, removed permanent idle `will-change: transform` and `perspective: 800px`, and migrated show/hide lifecycle to CSS `@starting-style` + `transition-behavior: allow-discrete` + WAAPI `getAnimations({ subtree: true })` with zero pre-`computePosition` `rAF` delay.
+
+#### :rocket: Enhancement
+* **Native `.gts` / `.ts` & Single-Owner Declarations (#1127, #1129 / #1131):** Converted `addon/src/` to strict `.ts` and `.gts` components, emitting `.d.ts` and `EmberAttacherRegistry` directly from source during build and validating negative contracts via `@glint-expect-error`.
+* **Accessibility & Triggers (#1126):** Smart Tooltip ARIA (`aria-labelledby` upfront on nameless icon triggers, duplicate `aria-describedby` suppression, open-only `aria-describedby` otherwise), `[interestfor="<id>"]` trigger pairing alongside `[popovertarget="<id>"]`, `data-placement` emitted alongside `x-placement`, and removal of all `@ember/runloop` and `@ember/object` imports.
+* **`assertAttached()` test helper (#1132):** `ember-attacher/test-support` exports `assertAttached(assert, attachment, target, { placement, maxGap, tolerance, message })` (plus related types), which checks that an open attachment is visible, on its resolved side, close to and overlapping its target, with the arrow pointing at the target, inside the viewport and not covered. Measures the painted box and guards `hypot()` chevron / 1px arrow-base overlap for clip-path arrows.
+* **Arrow width/height & `line-height` CSS tokens (#1132):** Added `--ember-attacher-arrow-width`, `--ember-attacher-arrow-height` (falling back to `--ember-attacher-arrow-size`), and `--ember-attacher-line-height` (`inherit`) on `.ember-attacher-tooltip` / `.ember-attacher-popover`.
+
+#### :bug: Bug Fix
+* **Published npm `README.md` (#1132):** Sync root `README.md` into the published `addon/` package during build so npm displays the package README.
+* **Unrotated `clip-path` arrow geometry (#1132):** Replaced rotated-square arrow CSS with unrotated `clip-path` triangles (plus an exact mitered border chevron via `hypot()` when `--ember-attacher-border-width > 0`) so unequal arrow width/height values render crisp pointers.
+
+#### :memo: Documentation & Housecleaning
+* **No Sass/SCSS dependency:** the published addon ships plain CSS (`ember-attacher/styles`); consumers do **not** need `sass`, `scss`, or `ember-cli-sass` to use ember-attacher.
+* **5.0 Documentation (#1127 / #1131 / #1132):** Updated `addon/docs/upgrade-guide-5.0.md`, `README.md`, and recipes for custom Floating UI boundaries, `VirtualElement` targets, `{{#in-element}}` + `@renderInPlace`, `a.setTarget()`, peerDependency CSS loading / `implicit-styles`, AttachPopover styling, and opt-in `hide()` middleware.
+
+#### Committers: 1
+- Petro Zubar ([@pzubar](https://github.com/pzubar))
+
+## v5.0.0-beta.4 (2026-11-20)
+
+> **Beta of the 5.0 line** — not a stable release. Install with `npm i ember-attacher@beta` or `npm i ember-attacher@5.0.0-beta.4`. The npm `latest` dist-tag remains on the 4.x line. See [#1132](https://github.com/tylerturdenpants/ember-attacher/pull/1132).
+
+#### :bug: Bug Fix
+* **Unrotated `clip-path` arrow geometry (#1132):** Replaced rotated-square arrow CSS with unrotated `clip-path` triangles (plus an exact mitered border chevron via `hypot()` when `--ember-attacher-border-width > 0`) so unequal `--ember-attacher-arrow-width` / `--ember-attacher-arrow-height` values (e.g. `12px` × `5px`) render true crisp pointers instead of skewed bars, while preserving `--ember-attacher-arrow-size` (`* √2` × `/ √2`) proportions.
+
+## v5.0.0-beta.3 (2026-11-20)
+
+> **Beta of the 5.0 line** — not a stable release. Install with `npm i ember-attacher@beta` or `npm i ember-attacher@5.0.0-beta.3`. The npm `latest` dist-tag remains on the 4.x line. See [#1132](https://github.com/tylerturdenpants/ember-attacher/pull/1132).
+
+#### :rocket: Enhancement
+* **Arrow width/height & `line-height` CSS tokens (#1132):** Added `--ember-attacher-arrow-width`, `--ember-attacher-arrow-height` (falling back to `--ember-attacher-arrow-size`), and `--ember-attacher-line-height` (`inherit`) on `.ember-attacher-tooltip` / `.ember-attacher-popover`, and evaluated arrow edge offsets directly on `.ember-attacher-arrow` so overrides on the inner class apply cleanly.
+
+#### :bug: Bug Fix
+* **Revert `::backdrop` clickout workaround (#1132):** Removed the beta.2 Top-Layer `::backdrop` outside-click path after verifying it was a no-op in real browsers; also drop the duplicate `prepublishOnly` build script.
+
+#### :memo: Documentation
+* **CSS loading & AttachPopover styling (#1132):** Clarified that `ember-addon.implicit-styles` only auto-inject when the host depends on `ember-attacher` directly (peerDependency hosts must depend or `import 'ember-attacher/styles';`), and that `<AttachPopover>` has no packaged look unless `@class="ember-attacher-popover"`.
+* **Opt-in `hide()` middleware (#1132):** Documented `@middleware={{array (hide)}}` for hiding Top-Layer attachments when their target scrolls out of a clipping container.
+
+## v5.0.0-beta.2 (2026-11-19)
+
+> **Beta of the 5.0 line** — not a stable release. Install with `npm i ember-attacher@beta` or `npm i ember-attacher@5.0.0-beta.2`. The npm `latest` dist-tag remains on the 4.x line. See [#1132](https://github.com/tylerturdenpants/ember-attacher/pull/1132).
+
+#### :rocket: Enhancement
+* **`assertAttached()` test helper (#1132):** `ember-attacher/test-support` exports `assertAttached(assert, attachment, target, { placement, maxGap, tolerance, message })` (plus `AssertAttachedOptions`, `ElementOrSelector`, and `ResultPusher`), which checks that an open attachment is visible, on its resolved side, close to and overlapping its target, with the arrow pointing at the target, inside the viewport and not covered.
+
+#### :bug: Bug Fix
+* **Published npm `README.md` (#1132):** Sync root `README.md` into the published `addon/` package during build (`addon/rollup.config.mjs`, `addon/package.json` `files`) with GitHub blob links so npm displays the package README instead of missing it.
+
+#### :memo: Documentation
+* **5.0 Recipes (#1132):** Added cookbook recipes in `README.md` (and cross-linked from `addon/docs/upgrade-guide-5.0.md`) for custom `flip`/`shift` `boundary` constraints, coordinate/`VirtualElement` targets with `autoUpdate` `{ animationFrame: true }`, `{{#in-element}}` + `@renderInPlace` stacking, and `a.setTarget()` for externally replaced DOM nodes.
+
 ## v5.0.0-beta.1 (2026-11-19)
 
 > **Beta of the 5.0 line** — not a stable release. Install with `npm i ember-attacher@beta` or `npm i ember-attacher@5.0.0-beta.1`. The npm `latest` dist-tag remains on the 4.x line. See [#1131](https://github.com/tylerturdenpants/ember-attacher/pull/1131). Includes tip-of-PR restore of immediate `a.show` / `a.hide` / `a.toggle` semantics and related fixes after `5.0.0-beta.0` staging.

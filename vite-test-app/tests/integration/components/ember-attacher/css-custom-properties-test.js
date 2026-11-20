@@ -207,8 +207,8 @@ module('Integration | CSS custom properties', function (hooks) {
 
     assert.strictEqual(getComputedStyle(inner).borderTopWidth, '2px');
     assert.strictEqual(getComputedStyle(inner).borderTopColor, 'rgb(255, 0, 0)');
-    assert.strictEqual(getComputedStyle(arrow).borderBottomWidth, '2px');
-    assert.strictEqual(getComputedStyle(arrow).borderBottomColor, 'rgb(255, 0, 0)');
+    assert.strictEqual(getComputedStyle(arrow, '::before').backgroundColor, 'rgb(255, 0, 0)');
+    assert.ok(parseFloat(getComputedStyle(arrow).height) > 8, 'bordered arrow height includes 2px collar');
   });
 
   test('arrow-size token scales the arrow dimensions', async function (assert) {
@@ -233,9 +233,44 @@ module('Integration | CSS custom properties', function (hooks) {
 
     const inner = find('#big-arrow-tooltip > .ember-attacher-tooltip');
     const arrow = inner.querySelector('.ember-attacher-arrow');
+    const rect = arrow.getBoundingClientRect();
 
-    assert.strictEqual(getComputedStyle(arrow).width, '16px');
-    assert.strictEqual(getComputedStyle(arrow).height, '16px');
+    assert.ok(Math.abs(rect.width - 16 * Math.SQRT2) < 0.25, 'width scales with arrow-size diagonal (~22.6px)');
+    assert.ok(Math.abs(rect.height - ((16 * Math.SQRT2) / 2 + 1)) < 0.25, 'height scales with half-diagonal + 1px seam overlap (~12.3px)');
+  });
+
+  test('arrow-width, arrow-height, and line-height tokens customize arrow dimensions and text', async function (assert) {
+    await render(hbs`
+      <style>
+        .custom-rect-arrow-tooltip {
+          --ember-attacher-arrow-width: 12px;
+          --ember-attacher-arrow-height: 5px;
+          --ember-attacher-line-height: 22px;
+        }
+      </style>
+      <button id="rect-arrow-target" type="button" style="margin: 100px;">Rect arrow target</button>
+      <AttachTooltip
+        @id="rect-arrow-tooltip"
+        @target="#rect-arrow-target"
+        @placement="bottom"
+        @animation="none"
+        @arrow={{true}}
+        @isShown={{true}}
+        @class="custom-rect-arrow-tooltip"
+      >
+        rect arrow
+      </AttachTooltip>
+    `);
+
+    const inner = find('#rect-arrow-tooltip > .ember-attacher-tooltip');
+    const arrow = inner.querySelector('.ember-attacher-arrow');
+    const rect = arrow.getBoundingClientRect();
+
+    assert.strictEqual(getComputedStyle(arrow).transform, 'none', 'renders unrotated clip-path triangle without skew');
+    assert.strictEqual(Math.round(rect.width), 12);
+    assert.strictEqual(Math.round(rect.height), 6, 'includes 1px inner edge overlap');
+    assert.strictEqual(getComputedStyle(arrow).top, '-5px', 'bottom placement protrudes by exact arrow-height');
+    assert.strictEqual(getComputedStyle(inner).lineHeight, '22px');
   });
 
   test('z-index token applies to .ember-attacher', async function (assert) {

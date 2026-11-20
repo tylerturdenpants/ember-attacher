@@ -1,6 +1,6 @@
 {
   "name": "ember-attacher",
-  "version": "5.0.0-beta.1",
+  "version": "5.0.0",
   "description": "Tooltips and popovers for Ember.js apps",
   "keywords": [
     "ember-addon",
@@ -9,8 +9,8 @@
   ],
   "scripts": {
     "build": "rollup --config rollup.config.mjs",
+    "prepack": "pnpm run build",
     "prepare": "pnpm run build",
-    "prepublishOnly": "pnpm run build",
     "start": "rollup --config rollup.config.mjs --watch",
     "lint": "eslint .",
     "typecheck": "ember-tsc --noEmit"
@@ -55,7 +55,8 @@
   },
   "files": [
     "addon-main.js",
-    "dist"
+    "dist",
+    "README.md"
   ],
   "sideEffects": [
     "./dist/styles/*.css"

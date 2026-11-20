@@ -7,7 +7,7 @@
 - **`ember-source`:** `>= 4.12` LTS (tested across Classic 4.12 / 5.12 / 6.12 and Vite 4.12–7.4 / Canary).
 - **Node.js:** `>= 20` LTS.
 - **TypeScript / Glint:** Declarations and `EmberAttacherRegistry` are emitted directly from addon `.ts`/`.gts` sources and published from `'ember-attacher'`, `'ember-attacher/template-registry'`, and `'ember-attacher/test-support'`.
-- **Styles:** Packaged plain CSS (`ember-attacher/styles` and `implicit-styles`) with zero Sass dependency and strict CSP compatibility (`--ember-attacher-transition-duration` driven via CSSOM).
+- **Styles:** Packaged plain CSS (`ember-attacher/styles`, also auto-injected via the `ember-addon.implicit-styles` manifest when the host app depends on `ember-attacher` directly; if an intermediate addon only lists `ember-attacher` as a `peerDependency`, the host app must also depend on `ember-attacher` or `import 'ember-attacher/styles';`) with zero Sass dependency and strict CSP compatibility (`--ember-attacher-transition-duration` driven via CSSOM).
 - **Top-Layer entry/exit transitions:** `@starting-style` and `transition-behavior: allow-discrete` enhance Chrome 117+, Safari 17.5+, and Firefox 129+. Older engines show immediately on entry and fall back to a `hideDuration` exit timer cleanly.
 
 ---
@@ -55,7 +55,7 @@ Backed by a single document-scoped Top-Layer DOM node and a `300ms` warm delay-g
 </AttachTooltip>
 ```
 
-For lists or grids, pass row data to `{{target row}}` to share one attachment instance across items (`a.data` yields the active item's payload).
+For lists or grids, pass row data to `{{target row}}` to share one attachment instance across items (`a.data` yields the active item's payload). When a third-party widget destroys and recreates target elements under the same selector, call `a.setTarget(newEl)` or use `{{a.target}}`; see the [Recipes](../../README.md#recipes) in the README for examples (`boundary`, virtual targets + `animationFrame: true`, `{{#in-element}}` + `@renderInPlace`, and `a.setTarget()`).
 
 ### External targets & declarative triggers: `@target`, `[popovertarget]`, `[interestfor]`
 
@@ -139,11 +139,12 @@ In **`5.0.0`**:
 | `@interactive` | `false` | `true` |
 | `@lazyRender` | `false` | `true` |
 
-Pass `@showOn`, `@hideOn`, `@interactive`, or `@lazyRender` explicitly when hover-triggered `<AttachPopover>` behavior is desired.
+Pass `@showOn`, `@hideOn`, `@interactive`, or `@lazyRender` explicitly when hover-triggered `<AttachPopover>` behavior is desired. `<AttachPopover>` also intentionally ships with **no default look**—pass `@class="ember-attacher-popover"` to opt into the packaged popover styling.
 
 ### Other 5.0 defaults
 
 - **`@autoUpdate`:** Defaults to `true` (tracks scroll, resize, and layout shifts via Floating UI `autoUpdate` only while open, and stops immediately on hide/teardown).
+- **Hiding scrolled-out targets (`hide()`):** Because Top-Layer `[popover="manual"]` hosts escape ancestor `overflow` clipping, pass `@middleware={{array (hide)}}` (imported from `'ember-attacher'`) when you want an attachment to hide (`[data-reference-hidden]`, `visibility: hidden`) once its target scrolls out of a clipping container.
 - **WCAG 1.4.13 Hoverable Tooltips (`@interactive`):** `<AttachTooltip>` and `{{tooltip}}` now default `@interactive={{true}}` with the automatic diagonal `safePolygon` pointer corridor so magnification and pointer users can hover onto tooltip content without it disappearing. Pass `@interactive={{false}}` (or `interactive=false` on `{{tooltip}}`) to opt out.
 
 ### Smart Tooltip ARIA

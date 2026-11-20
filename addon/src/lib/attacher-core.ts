@@ -1201,10 +1201,10 @@ export default class AttacherCore {
     );
     const useCapture = Boolean(
       opts.useCapture ??
-        baseArgs.useCapture ??
-        keyedEnv?.useCapture ??
-        env.useCapture ??
-        DEFAULTS.useCapture
+      baseArgs.useCapture ??
+      keyedEnv?.useCapture ??
+      env.useCapture ??
+      DEFAULTS.useCapture
     );
     const showOnKey = showOn.join(' ');
 
