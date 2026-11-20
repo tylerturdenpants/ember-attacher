@@ -334,8 +334,9 @@ Default token values use `:where()` so an app class can override them even if ad
   --ember-attacher-border: var(--ember-attacher-fill);
   --ember-attacher-border-width: 0px; /* set to 1px+ when you need a visible border */
   --ember-attacher-arrow-size: 10px;
-  --ember-attacher-arrow-width: var(--ember-attacher-arrow-size);
-  --ember-attacher-arrow-height: var(--ember-attacher-arrow-size);
+  /* Optional independent pointer dimensions (default to arrow-size * √2 and / √2):
+     --ember-attacher-arrow-width: 12px;
+     --ember-attacher-arrow-height: 5px; */
   --ember-attacher-padding: 0.5rem 1rem;
   --ember-attacher-shadow: none;
   --ember-attacher-max-width: 400px;

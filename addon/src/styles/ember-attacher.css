@@ -70,7 +70,6 @@
 
   &[data-placement^=top],
   &[x-placement^=top] {
-    --ember-attacher-arrow-rotate: rotate(-45deg);
     --ember-attacher-circle-hide: scale(0) translate(-50%, -50%);
     --ember-attacher-circle-origin: 0% 50%;
     --ember-attacher-rest: translateY(0);
@@ -80,13 +79,29 @@
     --ember-attacher-perspective-origin: bottom;
 
     .ember-attacher-arrow {
-      bottom: calc(-0.5 * var(--ember-attacher-arrow-height, var(--ember-attacher-arrow-size, 10px)));
+      bottom: calc(-1 * (var(--_ah) + var(--_ab)));
+      clip-path: polygon(0 0, 100% 0, 100% var(--_ab), 50% 100%, 0 var(--_ab));
+      height: calc(var(--_ah) + var(--_ab));
+      transform-origin: 50% 0%;
+      width: var(--_aw);
+
+      &::before {
+        clip-path: polygon(
+          0 0,
+          calc(1.4 * var(--_ab)) 0,
+          50% calc(100% - 1.4 * var(--_ab)),
+          calc(100% - 1.4 * var(--_ab)) 0,
+          100% 0,
+          100% var(--_ab),
+          50% 100%,
+          0 var(--_ab)
+        );
+      }
     }
   }
 
   &[data-placement^=bottom],
   &[x-placement^=bottom] {
-    --ember-attacher-arrow-rotate: rotate(135deg);
     --ember-attacher-circle-hide: scale(0) translate(-50%, -50%);
     --ember-attacher-circle-origin: 0% -50%;
     --ember-attacher-rest: translateY(0);
@@ -96,13 +111,29 @@
     --ember-attacher-perspective-origin: top;
 
     .ember-attacher-arrow {
-      top: calc(-0.5 * var(--ember-attacher-arrow-height, var(--ember-attacher-arrow-size, 10px)));
+      clip-path: polygon(50% 0, 100% calc(100% - var(--_ab)), 100% 100%, 0 100%, 0 calc(100% - var(--_ab)));
+      height: calc(var(--_ah) + var(--_ab));
+      top: calc(-1 * (var(--_ah) + var(--_ab)));
+      transform-origin: 50% 100%;
+      width: var(--_aw);
+
+      &::before {
+        clip-path: polygon(
+          50% 0,
+          100% calc(100% - var(--_ab)),
+          100% 100%,
+          calc(100% - 1.4 * var(--_ab)) 100%,
+          50% calc(1.4 * var(--_ab)),
+          calc(1.4 * var(--_ab)) 100%,
+          0 100%,
+          0 calc(100% - var(--_ab))
+        );
+      }
     }
   }
 
   &[data-placement^=left],
   &[x-placement^=left] {
-    --ember-attacher-arrow-rotate: rotate(225deg);
     --ember-attacher-circle-hide: scale(0) translate(-50%, -33%);
     --ember-attacher-circle-origin: 50% 5%;
     --ember-attacher-rest: translateX(0);
@@ -112,14 +143,30 @@
     --ember-attacher-perspective-origin: right;
 
     .ember-attacher-arrow {
-      right: calc(-0.5 * var(--ember-attacher-arrow-width, var(--ember-attacher-arrow-size, 10px)));
+      clip-path: polygon(0 0, var(--_ab) 0, 100% 50%, var(--_ab) 100%, 0 100%);
+      height: var(--_aw);
+      right: calc(-1 * (var(--_ah) + var(--_ab)));
       top: 50%;
+      transform-origin: 0% 50%;
+      width: calc(var(--_ah) + var(--_ab));
+
+      &::before {
+        clip-path: polygon(
+          0 0,
+          var(--_ab) 0,
+          100% 50%,
+          var(--_ab) 100%,
+          0 100%,
+          0 calc(100% - 1.4 * var(--_ab)),
+          calc(100% - 1.4 * var(--_ab)) 50%,
+          0 calc(1.4 * var(--_ab))
+        );
+      }
     }
   }
 
   &[data-placement^=right],
   &[x-placement^=right] {
-    --ember-attacher-arrow-rotate: rotate(45deg);
     --ember-attacher-circle-hide: scale(0) translate(-50%, -33%);
     --ember-attacher-circle-origin: -50% 5%;
     --ember-attacher-rest: translateX(0);
@@ -129,8 +176,25 @@
     --ember-attacher-perspective-origin: left;
 
     .ember-attacher-arrow {
-      left: calc(-0.5 * var(--ember-attacher-arrow-width, var(--ember-attacher-arrow-size, 10px)));
+      clip-path: polygon(calc(100% - var(--_ab)) 0, 100% 0, 100% 100%, calc(100% - var(--_ab)) 100%, 0 50%);
+      height: var(--_aw);
+      left: calc(-1 * (var(--_ah) + var(--_ab)));
       top: 50%;
+      transform-origin: 100% 50%;
+      width: calc(var(--_ah) + var(--_ab));
+
+      &::before {
+        clip-path: polygon(
+          calc(100% - var(--_ab)) 0,
+          100% 0,
+          100% calc(1.4 * var(--_ab)),
+          calc(1.4 * var(--_ab)) 50%,
+          100% calc(100% - 1.4 * var(--_ab)),
+          100% 100%,
+          calc(100% - var(--_ab)) 100%,
+          0 50%
+        );
+      }
     }
   }
 
@@ -142,10 +206,6 @@
   &[x-placement^=bottom],
   &[x-placement^=left],
   &[x-placement^=right] {
-    .ember-attacher-arrow {
-      transform: var(--ember-attacher-arrow-rotate);
-    }
-
     .ember-attacher-fill-circle {
       transform: scale(1.2) translate(-50%, -50%);
       opacity: 0;
@@ -158,10 +218,8 @@
       opacity: 0;
 
       > .ember-attacher-arrow {
-        clip-path: polygon(0 0, 100% 100%, 0 100%);
         opacity: 0;
-        transform: var(--ember-attacher-arrow-rotate);
-        transform-origin: center center;
+        transform: none;
         transition-delay: 0ms;
         transition-duration: calc(var(--ember-attacher-transition-duration, 0ms) * 0.45);
         transition-property: transform, opacity;
@@ -238,7 +296,7 @@
         transform: var(--ember-attacher-rest);
 
         > .ember-attacher-arrow {
-          transform: var(--ember-attacher-arrow-rotate) scale(0);
+          transform: scale(0);
         }
       }
 
@@ -264,10 +322,10 @@
         }
 
         > .ember-attacher-fill > .ember-attacher-arrow {
-          transform: var(--ember-attacher-arrow-rotate) scale(1);
+          transform: scale(1);
 
           @starting-style {
-            transform: var(--ember-attacher-arrow-rotate) scale(0);
+            transform: scale(0);
           }
         }
 
@@ -309,8 +367,6 @@
   --ember-attacher-border: var(--ember-attacher-fill);
   --ember-attacher-border-width: 0px;
   --ember-attacher-arrow-size: 10px;
-  --ember-attacher-arrow-width: var(--ember-attacher-arrow-size);
-  --ember-attacher-arrow-height: var(--ember-attacher-arrow-size);
   --ember-attacher-padding: 0.5rem 1rem;
   --ember-attacher-shadow: none;
   --ember-attacher-max-width: 400px;
@@ -342,14 +398,20 @@
   }
 
   > .ember-attacher-arrow {
+    --_aw: var(--ember-attacher-arrow-width, calc(var(--ember-attacher-arrow-size, 10px) * 1.4142));
+    --_ah: var(--ember-attacher-arrow-height, calc(var(--ember-attacher-arrow-size, 10px) * 0.7071));
+    --_ab: var(--ember-attacher-arrow-border-width, var(--ember-attacher-border-width, 0px));
     background-color: var(--ember-attacher-fill);
-    border-style: solid;
-    border-width: var(--ember-attacher-arrow-border-width, var(--ember-attacher-border-width, 1px));
-    border-color: transparent transparent var(--ember-attacher-border) var(--ember-attacher-border);
-    height: var(--ember-attacher-arrow-height, var(--ember-attacher-arrow-size, 10px));
-    width: var(--ember-attacher-arrow-width, var(--ember-attacher-arrow-size, 10px));
+    pointer-events: none;
     position: absolute;
-    z-index: -1;
+    z-index: 1;
+
+    &::before {
+      background-color: var(--ember-attacher-border);
+      content: "";
+      inset: 0;
+      position: absolute;
+    }
   }
 
   > .ember-attacher-fill-backdrop {
