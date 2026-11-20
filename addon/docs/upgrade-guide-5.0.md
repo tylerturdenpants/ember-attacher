@@ -7,7 +7,7 @@
 - **`ember-source`:** `>= 4.12` LTS (tested across Classic 4.12 / 5.12 / 6.12 and Vite 4.12–7.4 / Canary).
 - **Node.js:** `>= 20` LTS.
 - **TypeScript / Glint:** Declarations and `EmberAttacherRegistry` are emitted directly from addon `.ts`/`.gts` sources and published from `'ember-attacher'`, `'ember-attacher/template-registry'`, and `'ember-attacher/test-support'`.
-- **Styles:** Packaged plain CSS (`ember-attacher/styles` and `implicit-styles`) with zero Sass dependency and strict CSP compatibility (`--ember-attacher-transition-duration` driven via CSSOM).
+- **Styles:** Packaged plain CSS (`ember-attacher/styles`, also auto-injected via the `ember-addon.implicit-styles` manifest when the host app depends on `ember-attacher` directly; if an intermediate addon only lists `ember-attacher` as a `peerDependency`, the host app must also depend on `ember-attacher` or `import 'ember-attacher/styles';`) with zero Sass dependency and strict CSP compatibility (`--ember-attacher-transition-duration` driven via CSSOM).
 - **Top-Layer entry/exit transitions:** `@starting-style` and `transition-behavior: allow-discrete` enhance Chrome 117+, Safari 17.5+, and Firefox 129+. Older engines show immediately on entry and fall back to a `hideDuration` exit timer cleanly.
 
 ---
@@ -139,7 +139,7 @@ In **`5.0.0`**:
 | `@interactive` | `false` | `true` |
 | `@lazyRender` | `false` | `true` |
 
-Pass `@showOn`, `@hideOn`, `@interactive`, or `@lazyRender` explicitly when hover-triggered `<AttachPopover>` behavior is desired.
+Pass `@showOn`, `@hideOn`, `@interactive`, or `@lazyRender` explicitly when hover-triggered `<AttachPopover>` behavior is desired. `<AttachPopover>` also intentionally ships with **no default look**—pass `@class="ember-attacher-popover"` to opt into the packaged popover styling.
 
 ### Other 5.0 defaults
 

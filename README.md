@@ -97,6 +97,7 @@ A target-attached tooltip component (default `ariaRole="tooltip"`).
 An interactive popover component (default `ariaRole="dialog"`, `showOn="click"`, `hideOn="click clickout escapekey"`, `interactive=true`, `lazyRender=true`).
 
 * Must be bound to a Target (`@target`, `<:target>`, `{{a.target}}`, `a.setTarget()`, or `[popovertarget]`).
+* Has **no default visual look** (tooltip styles are not applied automatically); pass `@class="ember-attacher-popover"` to opt into the packaged styling or supply your own class.
 * Renders `<div class="ember-attacher" popover="manual">` in place in 1 pass and promotes to the browser Top Layer on open (`@renderInPlace={{true}}` opts out of Top Layer).
 * While mounted, sets `aria-haspopup` (matching `@ariaRole` or `'dialog'`), `aria-controls`, and `aria-expanded` on the Target when not already provided by the caller.
 * Restores focus to the Target when dismissed via `Escape` while focus is inside the popover.
@@ -319,7 +320,7 @@ See [defaults.ts](./addon/src/defaults.ts) for all configurable keys.
 
 ## Styles
 
-`ember-attacher` provides CSS for the default tooltip class, `ember-attacher-tooltip` (`ember-attacher/styles`; also injected via `implicit-styles`). `<AttachPopover>` has no packaged look unless you opt in with `@class="ember-attacher-popover"` (same tokens as the tooltip; not applied automatically).
+`ember-attacher` provides CSS for the default tooltip class, `ember-attacher-tooltip` (`ember-attacher/styles`, also auto-injected via `ember-addon.implicit-styles` when the host app depends on `ember-attacher` directly). If an intermediate addon only lists `ember-attacher` as a `peerDependency`, the host app must also depend on `ember-attacher` directly or `import 'ember-attacher/styles';`. `<AttachPopover>` has no packaged look unless you opt in with `@class="ember-attacher-popover"` (same tokens as the tooltip; not applied automatically).
 
 Default token values use `:where()` so an app class can override them even if addon `implicit-styles` load last.
 
