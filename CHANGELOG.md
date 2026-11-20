@@ -1,7 +1,18 @@
 ## Unreleased
 
+## v5.0.0-beta.3 (2026-11-20)
+
+> **Beta of the 5.0 line** — not a stable release. Install with `npm i ember-attacher@beta` or `npm i ember-attacher@5.0.0-beta.3`. The npm `latest` dist-tag remains on the 4.x line. See [#1132](https://github.com/tylerturdenpants/ember-attacher/pull/1132).
+
 #### :rocket: Enhancement
-* **Arrow width/height & `line-height` CSS tokens:** Added `--ember-attacher-arrow-width`, `--ember-attacher-arrow-height` (falling back to `--ember-attacher-arrow-size`), and `--ember-attacher-line-height` (`inherit`) on `.ember-attacher-tooltip` / `.ember-attacher-popover`, and evaluated arrow edge offsets directly on `.ember-attacher-arrow` so overrides on the inner class apply cleanly.
+* **Arrow width/height & `line-height` CSS tokens (#1132):** Added `--ember-attacher-arrow-width`, `--ember-attacher-arrow-height` (falling back to `--ember-attacher-arrow-size`), and `--ember-attacher-line-height` (`inherit`) on `.ember-attacher-tooltip` / `.ember-attacher-popover`, and evaluated arrow edge offsets directly on `.ember-attacher-arrow` so overrides on the inner class apply cleanly.
+
+#### :bug: Bug Fix
+* **Revert `::backdrop` clickout workaround (#1132):** Removed the beta.2 Top-Layer `::backdrop` outside-click path after verifying it was a no-op in real browsers; also drop the duplicate `prepublishOnly` build script.
+
+#### :memo: Documentation
+* **CSS loading & AttachPopover styling (#1132):** Clarified that `ember-addon.implicit-styles` only auto-inject when the host depends on `ember-attacher` directly (peerDependency hosts must depend or `import 'ember-attacher/styles';`), and that `<AttachPopover>` has no packaged look unless `@class="ember-attacher-popover"`.
+* **Opt-in `hide()` middleware (#1132):** Documented `@middleware={{array (hide)}}` for hiding Top-Layer attachments when their target scrolls out of a clipping container.
 
 ## v5.0.0-beta.2 (2026-11-19)
 
