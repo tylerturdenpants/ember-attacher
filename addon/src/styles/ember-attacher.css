@@ -63,9 +63,72 @@
   }
 
   > div {
+    position: relative;
     transition-duration: var(--ember-attacher-transition-duration, 0ms);
     transition-property: transform, opacity;
     transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+
+    > .ember-attacher-arrow {
+      --_aw: var(--ember-attacher-arrow-width, calc(var(--ember-attacher-arrow-size, 10px) * 1.4142));
+      --_ah: var(--ember-attacher-arrow-height, calc(var(--ember-attacher-arrow-size, 10px) * 0.7071));
+      --_ab: var(--ember-attacher-arrow-border-width, var(--ember-attacher-border-width, 0px));
+      --_full-w: var(--_aw);
+      --_full-h: var(--_ah);
+      background-color: var(--ember-attacher-fill, #333);
+      pointer-events: none;
+      position: absolute;
+      z-index: 1;
+
+      @supports (width: hypot(1px, 1px)) and (width: calc(1px * (2px / 1px))) {
+        --_half: calc(var(--_aw) / 2);
+        --_hyp: hypot(var(--_half), var(--_ah));
+        --_dy: calc(var(--_ab) * (var(--_hyp) / var(--_half)));
+        --_ext-x: calc(var(--_ab) * (var(--_half) / var(--_ah)));
+        --_in-x: calc(var(--_ab) * (var(--_hyp) / var(--_ah)));
+        --_full-w: calc(var(--_aw) + 2 * var(--_ext-x));
+        --_full-h: calc(var(--_ah) + var(--_ab));
+
+        &::before {
+          background-color: var(--ember-attacher-border, var(--ember-attacher-fill, #333));
+          content: "";
+          inset: 0;
+          position: absolute;
+        }
+      }
+    }
+
+    > .ember-attacher-fill-backdrop {
+      border-radius: inherit;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      position: absolute;
+      z-index: -1;
+
+      > .ember-attacher-fill-circle {
+        background-color: var(--ember-attacher-fill, transparent);
+        border-radius: 50%;
+        left: 50%;
+        opacity: 0;
+        position: absolute;
+        transition-property: opacity;
+        transition-timing-function: ease-out;
+        width: 120%;
+        width: calc(100% + 2rem);
+        z-index: -1;
+
+        @media (prefers-reduced-motion: no-preference) {
+          transition-property: transform, opacity;
+        }
+
+        &::before {
+          content: "";
+          padding-top: 100%;
+          padding-top: calc(75% + 2rem);
+          float: left;
+        }
+      }
+    }
   }
 
   &[data-placement^=top],
@@ -77,6 +140,11 @@
     --ember-attacher-perspective-hide: rotateX(90deg);
     --ember-attacher-perspective-show: rotateX(0);
     --ember-attacher-perspective-origin: bottom;
+
+    &[data-offset] {
+      --ember-attacher-rest: translateY(var(--ember-attacher-slide-distance, var(--ember-attacher-distance, 10px)));
+      --ember-attacher-offset: translateY(0);
+    }
 
     .ember-attacher-arrow {
       bottom: calc(-1 * var(--_full-h));
@@ -110,6 +178,11 @@
     --ember-attacher-perspective-show: rotateX(0);
     --ember-attacher-perspective-origin: top;
 
+    &[data-offset] {
+      --ember-attacher-rest: translateY(calc(-1 * var(--ember-attacher-slide-distance, var(--ember-attacher-distance, 10px))));
+      --ember-attacher-offset: translateY(0);
+    }
+
     .ember-attacher-arrow {
       clip-path: polygon(50% 0, 100% calc(100% - 1px), 100% 100%, 0 100%, 0 calc(100% - 1px));
       height: calc(var(--_full-h) + 1px);
@@ -141,6 +214,11 @@
     --ember-attacher-perspective-hide: rotateY(-90deg);
     --ember-attacher-perspective-show: rotateY(0);
     --ember-attacher-perspective-origin: right;
+
+    &[data-offset] {
+      --ember-attacher-rest: translateX(var(--ember-attacher-slide-distance, var(--ember-attacher-distance, 10px)));
+      --ember-attacher-offset: translateX(0);
+    }
 
     .ember-attacher-arrow {
       clip-path: polygon(0 0, 1px 0, 100% 50%, 1px 100%, 0 100%);
@@ -174,6 +252,11 @@
     --ember-attacher-perspective-hide: rotateY(90deg);
     --ember-attacher-perspective-show: rotateY(0);
     --ember-attacher-perspective-origin: left;
+
+    &[data-offset] {
+      --ember-attacher-rest: translateX(calc(-1 * var(--ember-attacher-slide-distance, var(--ember-attacher-distance, 10px))));
+      --ember-attacher-offset: translateX(0);
+    }
 
     .ember-attacher-arrow {
       clip-path: polygon(calc(100% - 1px) 0, 100% 0, 100% 100%, calc(100% - 1px) 100%, 0 50%);
@@ -283,7 +366,7 @@
     }
 
     @media (prefers-reduced-motion: no-preference) {
-      &:is(:popover-open, .\:popover-open, [data-open], [data-closing]) > :is(.ember-attacher-tooltip, .ember-attacher-popover),
+      &:is(:popover-open, .\:popover-open, [data-open], [data-closing]) > div,
       &:is(:popover-open, .\:popover-open, [data-open], [data-closing]) .ember-attacher-fill-circle {
         will-change: transform;
       }
@@ -395,68 +478,6 @@
 
   &.ember-attacher-fill {
     background-color: transparent;
-  }
-
-  > .ember-attacher-arrow {
-    --_aw: var(--ember-attacher-arrow-width, calc(var(--ember-attacher-arrow-size, 10px) * 1.4142));
-    --_ah: var(--ember-attacher-arrow-height, calc(var(--ember-attacher-arrow-size, 10px) * 0.7071));
-    --_ab: var(--ember-attacher-arrow-border-width, var(--ember-attacher-border-width, 0px));
-    --_full-w: var(--_aw);
-    --_full-h: var(--_ah);
-    background-color: var(--ember-attacher-fill);
-    pointer-events: none;
-    position: absolute;
-    z-index: 1;
-
-    @supports (width: hypot(1px, 1px)) and (width: calc(1px * (2px / 1px))) {
-      --_half: calc(var(--_aw) / 2);
-      --_hyp: hypot(var(--_half), var(--_ah));
-      --_dy: calc(var(--_ab) * (var(--_hyp) / var(--_half)));
-      --_ext-x: calc(var(--_ab) * (var(--_half) / var(--_ah)));
-      --_in-x: calc(var(--_ab) * (var(--_hyp) / var(--_ah)));
-      --_full-w: calc(var(--_aw) + 2 * var(--_ext-x));
-      --_full-h: calc(var(--_ah) + var(--_ab));
-
-      &::before {
-        background-color: var(--ember-attacher-border);
-        content: "";
-        inset: 0;
-        position: absolute;
-      }
-    }
-  }
-
-  > .ember-attacher-fill-backdrop {
-    border-radius: inherit;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-    position: absolute;
-    z-index: -1;
-
-    > .ember-attacher-fill-circle {
-      background-color: var(--ember-attacher-fill);
-      border-radius: 50%;
-      left: 50%;
-      opacity: 0;
-      position: absolute;
-      transition-property: opacity;
-      transition-timing-function: ease-out;
-      width: 120%;
-      width: calc(100% + 2rem);
-      z-index: -1;
-
-      @media (prefers-reduced-motion: no-preference) {
-        transition-property: transform, opacity;
-      }
-
-      &::before {
-        content: "";
-        padding-top: 100%;
-        padding-top: calc(75% + 2rem);
-        float: left;
-      }
-    }
   }
 }
 

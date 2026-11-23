@@ -1,4 +1,5 @@
 import Component from '@glimmer/component';
+import { hash } from '@ember/helper';
 import { on } from '@ember/modifier';
 import { find } from '@ember/test-helpers';
 import {
@@ -68,6 +69,10 @@ type _VerifyRegistry = [
 const _defaults: EmberAttacherDefaults = DEFAULTS;
 const _defaultPlacement: Placement = _defaults.placement;
 const _defaultStrategy: Strategy = _defaults.strategy;
+const _defaultOffset = _defaults.offset;
+const _defaultPopoverClass: string = _defaults.popoverClass;
+void _defaultOffset;
+void _defaultPopoverClass;
 
 // Verify test-support & root isVisible
 const _v1: boolean = isVisible('#my-tooltip');
@@ -164,6 +169,7 @@ export class ValidUsageDemo extends Component {
       @isShown={{true}}
       @lazyRender={{true}}
       @middleware={{customMiddleware}}
+      @offset={{8}}
       @onChange={{handleChange}}
       @placement="top-start"
       @renderInPlace={{false}}
@@ -183,6 +189,7 @@ export class ValidUsageDemo extends Component {
     <AttachPopover
       @target={{fullVirtualTarget}}
       @ariaRole="menu"
+      @offset={{hash mainAxis=8 crossAxis=4}}
       @placement={{_defaultPlacement}}
       @strategy={{_defaultStrategy}}
       @interactive={{true}}
@@ -210,13 +217,13 @@ export class ValidUsageDemo extends Component {
       </:content>
     </AttachTooltip>
 
-    <button type="button" {{tooltip "Quick hint" class="singleton-tip" placement="bottom" arrow=true}}>
+    <button type="button" {{tooltip "Quick hint" class="singleton-tip" placement="bottom" arrow=true offset=6}}>
       Singleton tooltip
     </button>
 
     <input aria-label="Filter" {{DirectTooltipModifier "Search" placement="right"}} />
 
-    <Attacher @placement="bottom-start" @showOn="click" @hideOn="clickout escapekey" as |a|>
+    <Attacher @placement="bottom-start" @offset={{10}} @showOn="click" @hideOn="clickout escapekey" as |a|>
       <button type="button" {{a.target itemA}}>Open Headless</button>
       {{#if a.shouldRender}}
         <div class="headless-panel" {{a.attachment}}>

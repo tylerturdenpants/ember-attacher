@@ -61,18 +61,21 @@ export default class AttacherOverlay extends Component<AttacherOverlaySignature>
     @arrow
     @autoUpdate
     @lazyRender
+    @middleware
+    @offset
+    @onChange
+    @placement
     @renderInPlace
     @id
     @ariaRole
     @class
-    @middleware
     @useCapture
-    @onChange
   ~}}<div
     class="ember-attacher"
     id={{this.core.id}}
     popover={{this.core.popoverAttr}}
     role={{this.core.ariaRole}}
+    data-offset={{if this.core.hasOffset ""}}
     {{this.core.setupFloatingElement (has-block "target")}}
     ...attributes
   >{{~#if this.core.shouldRenderFloatingElement~}}<div class={{this.core.innerClass}}>{{~#if (has-block "content")~}}{{yield this.core.api to="content"}}{{~else if (has-block)~}}{{yield this.core.api}}{{~/if~}}{{~#if this.core.arrow~}}<div class="ember-attacher-arrow" {{this.core.insertArrow}}></div>{{~/if~}}{{~#if this.core.isFillAnimation~}}<div class="ember-attacher-fill-backdrop" aria-hidden="true"><div class="ember-attacher-fill-circle"></div></div>{{~/if~}}</div>{{~/if~}}</div></template>

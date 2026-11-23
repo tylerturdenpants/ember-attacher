@@ -121,6 +121,12 @@ class TooltipDomHost {
     } else if (fillEl.parentNode === innerEl) {
       innerEl.removeChild(fillEl);
     }
+
+    if (state.hasOffset) {
+      hostEl.setAttribute('data-offset', '');
+    } else {
+      hostEl.removeAttribute('data-offset');
+    }
   }
 
   destroy(): void {
@@ -221,7 +227,7 @@ export class SingletonTooltipPool {
     }
     this._visibilitySyncHandles.clear();
 
-    if (this.doc) {
+    if (this.doc && poolsByDocument.get(this.doc) === this) {
       poolsByDocument.delete(this.doc);
     }
     this.core?.destroy();

@@ -87,7 +87,7 @@ If you're upgrading from **1.x to 2.x**, see the [2.0 upgrade guide](./addon/doc
 
 A target-attached tooltip component (default `ariaRole="tooltip"`).
 
-* Must be bound to a Target (`@target`, `<:target>`, `{{a.target}}`, `a.setTarget()`, `[popovertarget]`, or `[interestfor]`). Asserts in debug if no target binding is provided (nullable reactive `@target={{this.target}}` is supported).
+* Must be bound to a Target (`@target`, `<:target>`, `{{a.target}}`, `a.setTarget()`, `[popovertarget]`, or `[interestfor]`). Asserts in debug if no target binding is provided (nullable reactive `@target={{this.target}}` is supported). Relative `@target` tokens (`:previous`, `:previous(selector)`, `:closest(selector)`, `:parent`) resolve from the in-place Host without wrapper elements or `<meta hidden>`.
 * Has the default class `'ember-attacher-floating ember-attacher-tooltip'` (configurable via `tooltipClass`).
 * Hoverable by default (`@interactive={{true}}`) per WCAG 1.4.13 with an automatic `safePolygon` diagonal pointer corridor (pass `@interactive={{false}}` to opt out).
 * Smart Tooltip ARIA: binds `aria-labelledby` upfront on nameless triggers (such as icon buttons), suppresses duplicate `aria-describedby` when tooltip text matches the trigger's accessible name, and otherwise binds open-only token-safe `aria-describedby`.
@@ -96,8 +96,8 @@ A target-attached tooltip component (default `ariaRole="tooltip"`).
 
 An interactive popover component (default `ariaRole="dialog"`, `showOn="click"`, `hideOn="click clickout escapekey"`, `interactive=true`, `lazyRender=true`).
 
-* Must be bound to a Target (`@target`, `<:target>`, `{{a.target}}`, `a.setTarget()`, or `[popovertarget]`).
-* Has **no default visual look** (tooltip styles are not applied automatically); pass `@class="ember-attacher-popover"` to opt into the packaged styling or supply your own class.
+* Must be bound to a Target (`@target`, `<:target>`, `{{a.target}}`, `a.setTarget()`, `[popovertarget]`, or relative tokens such as `@target=":previous"`).
+* Has **no default visual look** by default (tooltip styles are not applied automatically); pass `@class="ember-attacher-popover"` or configure `ENV.emberAttacher.popoverClass` (or `popover.popoverClass`) to opt into default styling. Arrows and `--ember-attacher-*` tokens work with any custom `@class`.
 * Renders `<div class="ember-attacher" popover="manual">` in place in 1 pass and promotes to the browser Top Layer on open (`@renderInPlace={{true}}` opts out of Top Layer).
 * While mounted, sets `aria-haspopup` (matching `@ariaRole` or `'dialog'`), `aria-controls`, and `aria-expanded` on the Target when not already provided by the caller.
 * Restores focus to the Target when dismissed via `Escape` while focus is inside the popover.
@@ -154,6 +154,10 @@ Below are the 5.0 defaults (shared defaults from `addon/src/defaults.ts`; `<Atta
   // { arrow, autoPlacement, flip, hide, inline, limitShift, offset, shift, size }
   middleware: null,
 
+  // Shorthand Floating UI offset() option (number or OffsetOptions), prepended unless @middleware already has `offset`.
+  // When active, `.ember-attacher[data-offset]` uses Floating UI for the resting gap instead of `--ember-attacher-distance`.
+  offset: null,
+
   // Invoked with the new visibility boolean when the attachment shows or hides.
   onChange: null,
 
@@ -161,6 +165,9 @@ Below are the 5.0 defaults (shared defaults from `addon/src/defaults.ts`; `<Atta
   // 'top' | 'top-start' | 'top-end' | 'right' | 'right-start' | 'right-end'
   // | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'left-start' | 'left-end'
   placement: 'top',
+
+  // Default inner class applied to <AttachPopover> (configured via ENV.emberAttacher; '' keeps popovers unstyled).
+  popoverClass: '',
 
   // Renders in place without promoting to the browser Top Layer ([popover="manual"]).
   renderInPlace: false,
@@ -179,7 +186,7 @@ Below are the 5.0 defaults (shared defaults from `addon/src/defaults.ts`; `<Atta
   // CSS positioning strategy used by Floating UI ('absolute' | 'fixed').
   strategy: 'absolute',
 
-  // Attach Target (`Element | CSS selector | VirtualElement`).
+  // Attach Target (`Element | CSS selector | relative token (':previous' | ':previous(...)' | ':closest(...)' | ':parent') | VirtualElement`).
   target: null,
 
   // Registers target/document event listeners in the capture phase.
@@ -188,6 +195,21 @@ Below are the 5.0 defaults (shared defaults from `addon/src/defaults.ts`; `<Atta
 ```
 
 ## Recipes
+
+### Encapsulated sibling / relative targets (`:previous`, `:closest(...)`, `:parent`)
+
+Because 5.0 renders `.ember-attacher` directly in place, encapsulated popover or tooltip components can target an adjacent trigger without `<meta hidden>` or `ember-ref-bucket`:
+
+```hbs
+{{!-- Preferred: sibling placement keeps valid HTML and stacks cleanly (skipping .ember-attacher siblings) --}}
+<button type="button">Options</button>
+<AttachTooltip @target=":previous">Quick hint</AttachTooltip>
+<AttachPopover @target=":previous(button)" @offset={{8}}>
+  Menu items
+</AttachPopover>
+```
+
+Use `:closest(<selector>)` to resolve an ancestor wrapper (starting from `parentElement`), or `:parent` for non-interactive parent containers (avoid nesting interactive popovers inside `<button>` or `<a>`).
 
 ### Pinning and flipping within a custom boundary
 
@@ -321,7 +343,7 @@ See [defaults.ts](./addon/src/defaults.ts) for all configurable keys.
 
 ## Styles
 
-`ember-attacher` provides CSS for the default tooltip class, `ember-attacher-tooltip` (`ember-attacher/styles`, also auto-injected via `ember-addon.implicit-styles` when the host app depends on `ember-attacher` directly). If an intermediate addon only lists `ember-attacher` as a `peerDependency`, the host app must also depend on `ember-attacher` directly or `import 'ember-attacher/styles';`. `<AttachPopover>` has no packaged look unless you opt in with `@class="ember-attacher-popover"` (same tokens as the tooltip; not applied automatically).
+`ember-attacher` provides CSS for the default tooltip class, `ember-attacher-tooltip` (`ember-attacher/styles`, also auto-injected via `ember-addon.implicit-styles` when the host app depends on `ember-attacher` directly). If an intermediate addon only lists `ember-attacher` as a `peerDependency`, the host app must also depend on `ember-attacher` directly or `import 'ember-attacher/styles';`. `<AttachPopover>` has no packaged look unless you opt in with `@class="ember-attacher-popover"` or configure `ENV.emberAttacher.popoverClass` (arrow and fill-backdrop geometry work with any `@class` without needing `.ember-attacher-popover`).
 
 Default token values use `:where()` so an app class can override them even if addon `implicit-styles` load last.
 
@@ -349,7 +371,8 @@ Default token values use `:where()` so an app class can override them even if ad
 `.ember-attacher-light-theme` reassigns those same tokens (fill `#f3f6f9`, text `#203d5d`, border `#ced2e2`, `border-width: 1px`, and box shadow).
 
 Outer wrapper tokens on `.ember-attacher`:
-* `--ember-attacher-distance` (default `10px`): inner animation gap.
+* `--ember-attacher-distance` (default `10px`): inner animation gap when Floating UI `offset()` is not active.
+* `--ember-attacher-slide-distance` (defaults to `var(--ember-attacher-distance, 10px)`): entry/exit animation travel distance when `@offset` or `offset()` middleware sets `[data-offset]`.
 * `--ember-attacher-z-index` (default `9999`): stacking context (used for non-Top-Layer / `@renderInPlace` hosts).
 * `--ember-attacher-transition-duration` (default `0ms`): driven via CSSOM from `@showDuration` / `@hideDuration` (strict CSP `style-src` compatible without `'unsafe-inline'`). Spatial transforms opt in under `@media (prefers-reduced-motion: no-preference)`, and `@media (prefers-reduced-motion: reduce)` caps opacity transitions to `min(var(--ember-attacher-transition-duration, 0ms), 100ms)`.
 
