@@ -52,14 +52,14 @@
     "ember-source-channel-url": "^3.0.0",
     "ember-try": "~4.0.0",
     "eslint": "~9.39.5",
-    "eslint-plugin-ember": "^13.11.0",
+    "eslint-plugin-ember": "^13.11.2",
     "eslint-plugin-n": "^18.5.0",
     "globals": "^17.14.0",
     "qunit": "^2.26.0",
     "qunit-dom": "^3.6.0",
     "sinon": "^22.1.0",
     "testem": "^3.21.5",
-    "typescript": "~5.8.3",
+    "typescript": "~5.9.3",
     "vite": "^8.3.6"
   },
   "engines": {
