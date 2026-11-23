@@ -1,5 +1,19 @@
 ## Unreleased
 
+#### :rocket: Enhancement
+* **`@offset` shorthand & `[data-offset]` CSS separation (#1133, #1134):** Added `@offset` (`number | OffsetOptions`, plus `ENV.emberAttacher.offset`) prepending Floating UI `offset()` when `@middleware` has no `offset` entry, and introduced `--ember-attacher-slide-distance` + `.ember-attacher[data-offset]` so open resting distance does not double-count `--ember-attacher-distance`.
+* **`popoverClass` ENV configuration (#1133, #1134):** Added `ENV.emberAttacher.popoverClass` and `ENV.emberAttacher.popover.popoverClass` (defaulting to `''` so unstyled `<AttachPopover>` stays opt-in).
+* **Relative `@target` tokens (#1133, #1134):** Added `:previous`, `:previous(<selector>)` (skipping sibling `.ember-attacher` nodes and tracking conditional sibling swaps), `:closest(<selector>)` (starting from `parentElement`), and `:parent` for encapsulated in-place overlays without `<meta hidden>`.
+
+#### :bug: Bug Fix
+* **`<AttachPopover>` arrow & fill-backdrop CSS contract (#1133, #1134):** Moved `.ember-attacher-arrow` and `.ember-attacher-fill-backdrop` geometry onto `.ember-attacher > div` (keeping `.ember-attacher-fill-circle` transparent when `--ember-attacher-fill` is unset) so `@arrow={{true}}` works with any custom `@class`.
+* **Controlled `{{tooltip ... isShown=...}}` isolation (#1133, #1134):** Isolated `{{tooltip}}` modifiers passing `isShown !== undefined` into a dedicated host instance so hovering uncontrolled `{{tooltip}}`s never steals or hides controlled tooltips.
+* **Top-Layer clipping boundary (`topLayerAwarePlatform`) (#1133, #1134):** Scoped `clippingAncestors` at the nearest enclosing `:popover-open` / `:modal` Top-Layer host for non-Top-Layer references while keeping Top-Layer floating elements unclipped against `overflow: visible` parent dialogs/popovers.
+* **Descendant-attachment click guard & containing-target dismissal (#1133, #1134):** Prevented events bubbling out of in-place child attachments from re-triggering enclosing Target show/hide listeners, and prevented wide `:parent` / `:closest(...)` targets from swallowing outside `clickout` / `focusout` dismissal for other controls inside the container.
+
+#### :house: Internal
+* **Dev-tooling updates (#1133):** Bumped `eslint-plugin-ember` (`13.11.2`), `rollup` (`4.68.7`), `typescript` (`5.9.3`), and `webpack` (`5.113.0`), and ignored local `.plan/` and `.log/` directories in `.gitignore`.
+
 ## v5.0.0 (2026-11-20)
 
 > **Stable 5.0.0.** Install with `npm i ember-attacher@latest` or `npm i ember-attacher@5.0.0`. See [`addon/docs/upgrade-guide-5.0.md`](addon/docs/upgrade-guide-5.0.md). Prereleases `5.0.0-beta.0`–`5.0.0-beta.4` were for testing; the npm `beta` dist-tag remains on `5.0.0-beta.4` unless retargeted. Shipped via [#1132](https://github.com/tylerturdenpants/ember-attacher/pull/1132) (plus the earlier 5.0 PRs [#1125](https://github.com/tylerturdenpants/ember-attacher/pull/1125) / [#1126](https://github.com/tylerturdenpants/ember-attacher/pull/1126) / [#1127](https://github.com/tylerturdenpants/ember-attacher/pull/1127) / [#1129](https://github.com/tylerturdenpants/ember-attacher/pull/1129) / [#1131](https://github.com/tylerturdenpants/ember-attacher/pull/1131)).

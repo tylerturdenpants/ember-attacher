@@ -744,6 +744,55 @@ module('Integration | Component | explicit target', function (hooks) {
     );
   });
 
+  test('containing relative target (:closest) dismisses via clickout and focusout on other controls inside target', async function (assert) {
+    await render(hbs`
+      <section id="card-dismiss" class="card">
+        <button id="card-other-btn" type="button">Other control</button>
+        <AttachPopover
+          @id="card-pop"
+          @target=":closest(.card)"
+          @showOn="click"
+          @hideOn="clickout"
+          @showDuration={{0}}
+          @hideDuration={{0}}
+        >
+          <button id="card-pop-btn" type="button">Inside pop</button>
+        </AttachPopover>
+      </section>
+      <section id="card-focus-dismiss" class="card" tabindex="0">
+        <button id="card-focus-other-btn" type="button">Other focus control</button>
+        <AttachPopover
+          @id="card-focus-pop"
+          @target=":closest(.card)"
+          @showOn="click"
+          @hideOn="focusout"
+          @showDuration={{0}}
+          @hideDuration={{0}}
+        >
+          <button id="card-focus-pop-btn" type="button">Inside focus pop</button>
+        </AttachPopover>
+      </section>
+    `);
+
+    await click('#card-dismiss');
+    assert.true(isVisible(find('#card-pop')), ':closest(.card) opens on click and stays open past opening click');
+
+    await click('#card-pop-btn');
+    assert.true(isVisible(find('#card-pop')), 'clicking inside interactive :closest(.card) popover keeps it open');
+
+    await click('#card-other-btn');
+    assert.false(isVisible(find('#card-pop')), 'clicking another control inside :closest(.card) dismisses via clickout');
+
+    await click('#card-focus-dismiss');
+    assert.true(isVisible(find('#card-focus-pop')), ':closest(.card) opens for focusout check');
+
+    await click('#card-focus-pop-btn');
+    assert.true(isVisible(find('#card-focus-pop')), 'focusing inside interactive :closest(.card) popover keeps it open');
+
+    await focus('#card-focus-other-btn');
+    assert.false(isVisible(find('#card-focus-pop')), 'moving focus to another control inside :closest(.card) dismisses via focusout');
+  });
+
   test('does not assign permanent will-change on closed tooltips and removes x-arrow', async function (assert) {
     await render(hbs`
       <button id="perf-btn" type="button">Perf target</button>

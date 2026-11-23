@@ -81,7 +81,7 @@ If you're upgrading from **1.x to 2.x**, see the [2.0 upgrade guide](./addon/doc
 
 ### `{{tooltip}}` modifier
 
-`{{tooltip "Text" class="hint"}}` attaches a tooltip to a void or simple element such as `<button>` or `<input>`. Every `{{tooltip}}` in the document shares one singleton `.ember-attacher` DOM node with a `300ms` warm delay-group handoff across adjacent tooltips.
+`{{tooltip "Text" class="hint"}}` attaches a tooltip to a void or simple element such as `<button>` or `<input>`. Uncontrolled `{{tooltip}}` modifiers in the document share one singleton `.ember-attacher` DOM node with a `300ms` warm delay-group handoff across adjacent tooltips, while controlled `{{tooltip "..." isShown=...}}` modifiers allocate a dedicated host instance so concurrent or hover tooltips never steal or hide them.
 
 ### `<AttachTooltip/>`
 

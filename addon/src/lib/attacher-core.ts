@@ -477,6 +477,8 @@ export default class AttacherCore {
   _lastUseCaptureArgumentValue: boolean;
   _warnedRemovedArgs = new Set<string>();
   _cleanup: (() => void) | null = null;
+  _openingTriggerEvent: Event | null = null;
+  _openingTriggerHandle: ScheduledHandle | null = null;
   _relativeTargetObserver: MutationObserver | null = null;
   _observedRelativeParent: Element | null = null;
 
@@ -1258,6 +1260,7 @@ export default class AttacherCore {
       if (this._currentTarget !== trigger) {
         this._switchTargetFromEvent(trigger, undefined, null);
       }
+      this._markOpeningTriggerEvent(event);
       this._show();
       this._addListenersForHideEvents();
     } else {
@@ -1854,6 +1857,10 @@ export default class AttacherCore {
       return;
     }
 
+    if (this._isHidden || this._isHiding) {
+      this._markOpeningTriggerEvent(event);
+    }
+
     cancelScheduled(this._delayedVisibilityToggle);
     this._cancelCloseAnimation();
 
@@ -2099,15 +2106,67 @@ export default class AttacherCore {
     }
   }
 
+  _markOpeningTriggerEvent(event: Event | undefined): void {
+    cancelScheduled(this._openingTriggerHandle);
+    this._openingTriggerEvent = event ?? null;
+    if (event) {
+      this._openingTriggerHandle = scheduleMicrotask(() => {
+        this._openingTriggerHandle = null;
+        if (this._openingTriggerEvent === event) {
+          this._openingTriggerEvent = null;
+        }
+      });
+    } else {
+      this._openingTriggerHandle = null;
+    }
+  }
+
+  _isTargetContainingFloating(): boolean {
+    return Boolean(
+      this._listenerTarget &&
+        this._floatingElement &&
+        this._listenerTarget.contains(this._floatingElement)
+    );
+  }
+
+  _isEventInDismissRetentionZone(event: Event): boolean {
+    if (descendantAttachmentContainsEvent(this, event)) {
+      return true;
+    }
+
+    if (Boolean(this._opt('interactive')) && elementContainsEvent(this._floatingElement, event)) {
+      return true;
+    }
+
+    if (this._isTargetContainingFloating()) {
+      return this._openingTriggerEvent === event;
+    }
+
+    return elementContainsEvent(this._listenerTarget, event);
+  }
+
+  _isNodeInDismissRetentionZone(node: Node | null): boolean {
+    if (descendantAttachmentContainsNode(this, node)) {
+      return true;
+    }
+
+    if (Boolean(this._opt('interactive')) && Boolean(this._floatingElement?.contains(node))) {
+      return true;
+    }
+
+    if (this._isTargetContainingFloating()) {
+      return false;
+    }
+
+    return Boolean(this._listenerTarget?.contains(node));
+  }
+
   _hideOnClickOut(event: Event): void {
-    const target = this._listenerTarget;
-    if (elementContainsEvent(target, event) || descendantAttachmentContainsEvent(this, event)) {
+    if (this._isEventInDismissRetentionZone(event)) {
       return;
     }
 
-    if (!this._opt('interactive') || !elementContainsEvent(this._floatingElement, event)) {
-      this._hideAfterDelay();
-    }
+    this._hideAfterDelay();
   }
 
   _hideOnEscapeKey(rawEvent: Event): void {
@@ -2125,19 +2184,16 @@ export default class AttacherCore {
       return;
     }
 
-    const target = this._listenerTarget;
-    if (!target) {
+    if (!this._listenerTarget) {
       return;
     }
 
     const relatedNode = event.relatedTarget instanceof Node ? event.relatedTarget : null;
-    if (target.contains(relatedNode) || descendantAttachmentContainsNode(this, relatedNode)) {
+    if (this._isNodeInDismissRetentionZone(relatedNode)) {
       return;
     }
 
-    if (!this._opt('interactive') || !this._floatingElement?.contains(relatedNode)) {
-      this._hideAfterDelay();
-    }
+    this._hideAfterDelay();
   }
 
   _update(): void {
@@ -2285,6 +2341,8 @@ export default class AttacherCore {
 
     cancelScheduled(this._syncArgsHandle);
     cancelScheduled(this._setTargetHandle);
+    cancelScheduled(this._openingTriggerHandle);
+    this._openingTriggerEvent = null;
     this._cancelCloseAnimation();
     cancelScheduled(this._delayedVisibilityToggle);
 
