@@ -4,3 +4,5 @@ node_modules
 # and you can put in anything else that tends to accumulate in your environment:
 .pnpm-debug.log
 .DS_Store
+.plan/
+.log/

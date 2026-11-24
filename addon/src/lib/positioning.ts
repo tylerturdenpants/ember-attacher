@@ -2,16 +2,103 @@ import {
   arrow,
   flip,
   limitShift,
+  offset,
+  platform as defaultPlatform,
   shift,
   type ComputePositionConfig,
   type Middleware,
   type MiddlewareData,
+  type OffsetOptions,
   type Placement,
+  type Platform,
   type Strategy,
 } from '@floating-ui/dom';
 import { isElementTarget, type AttachmentTarget } from './target-resolution';
 
 const DEFAULT_SHIFT_PADDING = 5;
+const OVERFLOW_CLIP_RE = /auto|scroll|overlay|hidden|clip/;
+
+function isTopLayerElement(element: Element): boolean {
+  try {
+    if (element.matches(':popover-open')) {
+      return true;
+    }
+  } catch {
+    // Unsupported selector in older engines
+  }
+  try {
+    if (element.matches(':modal')) {
+      return true;
+    }
+  } catch {
+    // Unsupported selector in older engines
+  }
+  return false;
+}
+
+function findEnclosingTopLayerHost(element: Element): Element | null {
+  let current: Element | null = element.parentElement;
+  while (current) {
+    if (isTopLayerElement(current)) {
+      return current;
+    }
+    current = current.parentElement;
+  }
+  return null;
+}
+
+function collectOverflowAncestorsUpTo(element: Element, topLayerHost: Element): Element[] {
+  const ancestors: Element[] = [];
+  let current: Element | null = element.parentElement;
+  while (current) {
+    const isManagedTopLayerHost =
+      current.classList.contains('ember-attacher') && current.hasAttribute('popover');
+
+    if (!isManagedTopLayerHost && typeof getComputedStyle === 'function') {
+      const { overflow, overflowX, overflowY, display } = getComputedStyle(current);
+      if (
+        OVERFLOW_CLIP_RE.test(overflow + overflowY + overflowX) &&
+        display !== 'inline' &&
+        display !== 'contents'
+      ) {
+        ancestors.push(current);
+      }
+    }
+
+    if (current === topLayerHost) {
+      break;
+    }
+    current = current.parentElement;
+  }
+  return ancestors;
+}
+
+/**
+ * Floating UI platform adapter that stops `clippingAncestors` discovery at the
+ * nearest enclosing Top-Layer host (`:popover-open` or `:modal`), preventing
+ * background page overflow containers from falsely clipping references inside
+ * dialogs or nested popovers while preserving scroll clipping inside that host.
+ */
+export const topLayerAwarePlatform: Platform = {
+  ...defaultPlatform,
+  getClippingRect(args) {
+    if (
+      args.boundary === 'clippingAncestors' &&
+      isElementTarget(args.element) &&
+      !isTopLayerElement(args.element)
+    ) {
+      const topLayerHost = findEnclosingTopLayerHost(args.element);
+      if (topLayerHost) {
+        const scopedAncestors = collectOverflowAncestorsUpTo(args.element, topLayerHost);
+        return defaultPlatform.getClippingRect.call(this, {
+          ...args,
+          boundary: scopedAncestors,
+        });
+      }
+    }
+    return defaultPlatform.getClippingRect.call(this, args);
+  },
+};
 
 /** Check whether an attachment target (DOM Element or VirtualElement) is still connected. */
 export function isTargetConnected(target: AttachmentTarget | null | undefined): boolean {
@@ -32,8 +119,14 @@ export function isTargetConnected(target: AttachmentTarget | null | undefined): 
 
 export interface BuildMiddlewareOptions {
   rawMiddleware?: ComputePositionConfig['middleware'] | null;
+  offsetOptions?: OffsetOptions | null;
   arrowElement: Element | null;
   arrowEnabled: boolean;
+}
+
+/** Whether a normalized middleware pipeline includes an `offset` entry. */
+export function hasOffsetMiddleware(middleware: readonly Middleware[]): boolean {
+  return middleware.some((m) => m.name === 'offset');
 }
 
 /**
@@ -42,6 +135,7 @@ export interface BuildMiddlewareOptions {
  */
 export function buildMiddleware({
   rawMiddleware,
+  offsetOptions,
   arrowElement,
   arrowEnabled,
 }: BuildMiddlewareOptions): Middleware[] {
@@ -72,6 +166,10 @@ export function buildMiddleware({
     }
 
     middleware.push(m);
+  }
+
+  if (offsetOptions !== undefined && offsetOptions !== null && !hasOffsetMiddleware(middleware)) {
+    middleware.unshift(offset(offsetOptions));
   }
 
   if (!middleware.some((m) => m.name === 'flip')) {

@@ -29,14 +29,122 @@ export function isVirtualReference(value: unknown): value is VirtualElement {
   return typeof (value as Partial<VirtualElement>).getBoundingClientRect === 'function';
 }
 
+/** Whether a `@target` string uses a relative DOM token (`:previous`, `:previous(...)`, `:parent`, `:closest(...)`). */
+export function isRelativeTargetToken(value: unknown): value is string {
+  return typeof value === 'string' && value.startsWith(':');
+}
+
+/** Non-asserting lookup for relative target tokens used to detect stale DOM bindings. */
+export function peekRelativeTarget(
+  token: string,
+  floatingElement: Element | null | undefined
+): Element | null {
+  if (!floatingElement) {
+    return null;
+  }
+
+  if (token === ':parent') {
+    return floatingElement.parentElement;
+  }
+
+  if (token === ':previous' || (token.startsWith(':previous(') && token.endsWith(')'))) {
+    const selector = token === ':previous' ? null : token.slice(':previous('.length, -1).trim();
+    if (selector !== null && selector.length === 0) {
+      return null;
+    }
+    let sibling = floatingElement.previousElementSibling;
+    while (sibling?.classList.contains('ember-attacher')) {
+      sibling = sibling.previousElementSibling;
+    }
+    if (!sibling) {
+      return null;
+    }
+    if (selector && !sibling.matches(selector)) {
+      return null;
+    }
+    return sibling;
+  }
+
+  if (token.startsWith(':closest(') && token.endsWith(')')) {
+    const selector = token.slice(':closest('.length, -1).trim();
+    if (!selector) {
+      return null;
+    }
+    return floatingElement.parentElement?.closest(selector) ?? null;
+  }
+
+  return null;
+}
+
+function resolveRelativeTarget(
+  token: string,
+  floatingElement: Element | null | undefined
+): Element | null {
+  assert(
+    `@target="${token}" requires a mounted Attachment Host element (<AttachTooltip>, <AttachPopover>, or <Attacher @lazyRender={{false}}>).`,
+    floatingElement != null
+  );
+
+  if (!floatingElement) {
+    return null;
+  }
+
+  if (token === ':parent') {
+    const parent = floatingElement.parentElement;
+    assert('@target=":parent" could not resolve a parentElement', parent != null);
+    return parent;
+  }
+
+  if (token === ':previous' || (token.startsWith(':previous(') && token.endsWith(')'))) {
+    const selector = token === ':previous' ? null : token.slice(':previous('.length, -1).trim();
+    assert('@target=":previous()" requires a non-empty selector', selector === null || selector.length > 0);
+
+    let sibling = floatingElement.previousElementSibling;
+    while (sibling?.classList.contains('ember-attacher')) {
+      sibling = sibling.previousElementSibling;
+    }
+
+    assert(`@target="${token}" found no preceding non-attacher sibling element`, sibling != null);
+
+    if (sibling && selector) {
+      assert(
+        `@target="${token}" expected the preceding sibling <${sibling.tagName.toLowerCase()}> to match "${selector}"`,
+        sibling.matches(selector)
+      );
+      return sibling.matches(selector) ? sibling : null;
+    }
+
+    return sibling;
+  }
+
+  if (token.startsWith(':closest(') && token.endsWith(')')) {
+    const selector = token.slice(':closest('.length, -1).trim();
+    assert('@target=":closest()" requires a non-empty selector', selector.length > 0);
+
+    const match = floatingElement.parentElement?.closest(selector) ?? null;
+    assert(`@target="${token}" found no ancestor matching "${selector}"`, match != null);
+    return match;
+  }
+
+  assert(
+    `[ember-attacher] Unknown relative @target token "${token}". Supported: :previous, :previous(<selector>), :parent, :closest(<selector>).`,
+    false
+  );
+
+  return null;
+}
+
 /**
- * Resolve a public `@target` value (Element | selector | virtual ref).
+ * Resolve a public `@target` value (Element | selector | relative token | virtual ref).
  *
  * Selector strings use `querySelectorAll` and must match exactly one node.
+ * Relative tokens (`:previous`, `:previous(selector)`, `:parent`, `:closest(selector)`)
+ * resolve from the in-place `floatingElement` Host without `<meta hidden>` markers.
  */
 export function coerceTarget(
   value: AttachmentTargetInput | null | undefined,
-  root?: ParentNode | null
+  root?: ParentNode | null,
+  floatingElement?: Element | null
 ): AttachmentTarget | null {
   if (value == null) {
     return null;
@@ -47,6 +155,10 @@ export function coerceTarget(
   }
 
   if (typeof value === 'string') {
+    if (isRelativeTargetToken(value)) {
+      return resolveRelativeTarget(value, floatingElement);
+    }
+
     const doc = root ?? (typeof document !== 'undefined' ? document : null);
     assert(`@target selector "${value}" cannot be resolved without a document`, doc != null);
 
@@ -113,13 +225,15 @@ export function findTriggerTargetElements(
 }
 
 export interface ResolveAttachmentTargetOptions {
-  /** `@target` arg: Element, selector, or virtual reference. */
+  /** `@target` arg: Element, selector, relative token, or virtual reference. */
   target?: AttachmentTargetInput | null;
   /** Element registered via `{{a.target}}` / `a.setTarget()`. */
   registeredTarget?: AttachmentTarget | null;
   /** Native `[popovertarget]` / `[interestfor]` triggers. */
   triggerTargets?: readonly Element[];
   root?: ParentNode | null;
+  /** In-place Attachment Host element used to resolve relative `@target` tokens. */
+  floatingElement?: Element | null;
 }
 
 /** Pick the Floating UI reference: `@target`, then yielded registration, then native triggers. */
@@ -128,9 +242,10 @@ export function resolveAttachmentTarget({
   registeredTarget,
   triggerTargets,
   root,
+  floatingElement,
 }: ResolveAttachmentTargetOptions): AttachmentTarget | null {
   if (target != null) {
-    return coerceTarget(target, root);
+    return coerceTarget(target, root, floatingElement);
   }
 
   if (registeredTarget != null) {

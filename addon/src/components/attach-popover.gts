@@ -1,5 +1,9 @@
 import { getComponentTemplate, setComponentTemplate } from '@ember/component';
-import type { AttacherArgs, AttacherNamedBlocks } from '../lib/attacher-core';
+import {
+  resolvePopoverClass,
+  type AttacherArgs,
+  type AttacherNamedBlocks,
+} from '../lib/attacher-core';
 import AttacherOverlay, { type AttacherOverlaySignature } from '../lib/attacher-overlay';
 
 export type AttachPopoverArgs = AttacherArgs;
@@ -17,6 +21,10 @@ export default class AttachPopover extends AttacherOverlay {
 
   override get _defaultAriaRole(): string {
     return 'dialog';
+  }
+
+  override get _defaultClass(): string {
+    return resolvePopoverClass(this.core.envConfig);
   }
 }
 

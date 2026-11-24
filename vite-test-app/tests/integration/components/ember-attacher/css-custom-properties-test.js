@@ -10,6 +10,10 @@ function cssVar(element, name) {
 module('Integration | CSS custom properties', function (hooks) {
   setupRenderingTest(hooks);
 
+  hooks.afterEach(function () {
+    this.owner.resolveRegistration('config:environment').emberAttacher = {};
+  });
+
   test('tooltip look defaults match the current hex', async function (assert) {
     await render(hbs`
       <button id="token-target" type="button">Target</button>
@@ -139,6 +143,86 @@ module('Integration | CSS custom properties', function (hooks) {
     assert.notStrictEqual(getComputedStyle(plain).backgroundColor, 'rgb(51, 51, 51)');
     assert.strictEqual(cssVar(look, '--ember-attacher-fill'), '#333');
     assert.strictEqual(getComputedStyle(look).backgroundColor, 'rgb(51, 51, 51)');
+  });
+
+  test('AttachPopover @arrow and fill-backdrop work with custom @class without .ember-attacher-popover', async function (assert) {
+    await render(hbs`
+      <style>
+        .custom-arrow-popover {
+          background-color: rgb(255, 255, 255);
+          color: rgb(20, 20, 20);
+          --ember-attacher-fill: rgb(255, 255, 255);
+          --ember-attacher-border: rgb(0, 128, 0);
+          --ember-attacher-border-width: 2px;
+          --ember-attacher-arrow-size: 16px;
+        }
+        .white-no-token-popover {
+          background-color: rgb(255, 255, 255);
+          color: rgb(17, 17, 17);
+        }
+      </style>
+      <button id="custom-arrow-target" type="button" style="margin: 100px;">Custom</button>
+      <AttachPopover
+        @id="custom-arrow-popover"
+        @target="#custom-arrow-target"
+        @arrow={{true}}
+        @animation="none"
+        @isShown={{true}}
+        @class="custom-arrow-popover"
+      >
+        custom arrow
+      </AttachPopover>
+
+      <button id="white-fill-target" type="button" style="margin: 100px;">White</button>
+      <AttachPopover
+        @id="white-fill-popover"
+        @target="#white-fill-target"
+        @animation="fill"
+        @isShown={{true}}
+        @class="white-no-token-popover"
+      >
+        white fill
+      </AttachPopover>
+    `);
+
+    const host = find('#custom-arrow-popover');
+    const inner = host.querySelector('.custom-arrow-popover');
+    const arrow = host.querySelector(':scope > div > .ember-attacher-arrow');
+    const arrowRect = arrow.getBoundingClientRect();
+
+    assert.dom(inner).doesNotHaveClass('ember-attacher-popover');
+    assert.strictEqual(getComputedStyle(arrow).position, 'absolute');
+    assert.strictEqual(getComputedStyle(arrow).backgroundColor, 'rgb(255, 255, 255)');
+    assert.strictEqual(getComputedStyle(arrow, '::before').backgroundColor, 'rgb(0, 128, 0)');
+    assert.ok(arrowRect.width > 20, 'arrow width scales from --ember-attacher-arrow-size without .ember-attacher-popover');
+    assert.ok(arrowRect.height > 10, 'arrow height includes border collar without .ember-attacher-popover');
+
+    const whiteCircle = find('#white-fill-popover .ember-attacher-fill-circle');
+    assert.strictEqual(
+      getComputedStyle(whiteCircle).backgroundColor,
+      'rgba(0, 0, 0, 0)',
+      'fill circle stays transparent instead of painting currentColor over custom popovers without --ember-attacher-fill'
+    );
+  });
+
+  test('AttachPopover applies ENV.emberAttacher.popoverClass and popover.popoverClass', async function (assert) {
+    this.owner.resolveRegistration('config:environment').emberAttacher = {
+      popoverClass: 'env-popover-base',
+      popover: {
+        popoverClass: 'env-popover-specific',
+      },
+    };
+
+    await render(hbs`
+      <button id="env-popover-target" type="button">ENV target</button>
+      <AttachPopover @id="env-popover" @target="#env-popover-target" @isShown={{true}} @class="caller-class">
+        env popover
+      </AttachPopover>
+    `);
+
+    const inner = find('#env-popover > div');
+    assert.dom(inner).hasClass('env-popover-specific');
+    assert.dom(inner).hasClass('caller-class');
   });
 
   test('light theme reassigns the same public tokens', async function (assert) {

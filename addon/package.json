@@ -1,6 +1,6 @@
 {
   "name": "ember-attacher",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "Tooltips and popovers for Ember.js apps",
   "keywords": [
     "ember-addon",
@@ -122,12 +122,12 @@
     "ember-source": "~7.4.1",
     "eslint": "~9.39.5",
     "eslint-plugin-decorator-position": "^6.1.1",
-    "eslint-plugin-ember": "^13.11.0",
+    "eslint-plugin-ember": "^13.11.2",
     "eslint-plugin-n": "^18.5.0",
     "globals": "^17.14.0",
     "lightningcss": "^1.33.0",
-    "rollup": "^4.68.5",
-    "typescript": "~5.8.3",
+    "rollup": "^4.68.7",
+    "typescript": "~5.9.3",
     "typescript-eslint": "^8.73.0"
   }
 }

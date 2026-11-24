@@ -340,47 +340,76 @@ module('Integration | Component | non-wrapper API & shared tooltips', function (
     assert.false(isVisible(popByInvoker), 'clicking popovertargetaction="hide" closes paired AttachPopover');
   });
 
-  test('{{tooltip}} isolates per-entry showOn and supports reactive isShown re-open', async function (assert) {
+  test('{{tooltip}} isolates controlled isShown from the singleton pool and keeps per-entry showOn', async function (assert) {
     this.set('hoverLabel', 'Hover hint v1');
-    this.set('controlledOpen', true);
+    this.set('controlledOpenA', true);
+    this.set('controlledOpenB', true);
 
     await render(hbs`
       <button id="click-only-tip" type="button" {{tooltip "Click hint" showOn="click" hideOn="click" showDuration=0 hideDuration=0}}>
         Click tip
       </button>
-      <button id="hover-only-tip" type="button" {{tooltip this.hoverLabel showDuration=0 hideDuration=0}}>
+      <button id="hover-only-tip" type="button" {{tooltip this.hoverLabel interactive=false showDuration=0 hideDuration=0}}>
         Hover tip
       </button>
-      <button id="controlled-tip" type="button" {{tooltip "Controlled" isShown=this.controlledOpen showDuration=0 hideDuration=0}}>
-        Controlled tip
+      <button id="controlled-tip-a" type="button" {{tooltip "Controlled A" isShown=this.controlledOpenA showDuration=0 hideDuration=0}}>
+        Controlled A
+      </button>
+      <button id="controlled-tip-b" type="button" {{tooltip "Controlled B" isShown=this.controlledOpenB showDuration=0 hideDuration=0}}>
+        Controlled B
       </button>
     `);
 
-    const tipEl = find('.ember-attacher');
-    await waitUntil(() => isVisible(tipEl) && tipEl.textContent.trim() === 'Controlled');
+    const visibleTips = () =>
+      findAll('.ember-attacher')
+        .filter((el) => isVisible(el))
+        .map((el) => el.textContent.trim());
 
-    // Toggle controlled isShown false -> true on the same element
-    this.set('controlledOpen', false);
-    await waitUntil(() => !isVisible(tipEl));
+    await waitUntil(() => visibleTips().includes('Controlled A') && visibleTips().includes('Controlled B'));
+    assert.ok(
+      visibleTips().includes('Controlled A') && visibleTips().includes('Controlled B'),
+      'two concurrent controlled {{tooltip}} instances render simultaneously'
+    );
 
-    this.set('controlledOpen', true);
-    await waitUntil(() => isVisible(tipEl) && tipEl.textContent.trim() === 'Controlled');
+    // Hovering and leaving an uncontrolled {{tooltip}} must not steal or hide Controlled A
+    await triggerEvent('#hover-only-tip', 'mouseenter');
+    await waitUntil(() => visibleTips().includes('Hover hint v1'));
+    assert.ok(
+      visibleTips().includes('Controlled A'),
+      'hovering another {{tooltip}} does not hide controlled isShown=true tooltip'
+    );
 
-    this.set('controlledOpen', false);
-    await waitUntil(() => !isVisible(tipEl));
+    await triggerEvent('#hover-only-tip', 'mouseleave');
+    await waitUntil(() => !visibleTips().includes('Hover hint v1'));
+    assert.ok(
+      visibleTips().includes('Controlled A'),
+      'leaving another {{tooltip}} leaves controlled isShown=true tooltip open'
+    );
 
-    // Activate click-only entry, then update sibling hover-only entry text
+    // Toggle controlled isShown false -> true on Controlled A
+    this.set('controlledOpenA', false);
+    this.set('controlledOpenB', false);
+    await waitUntil(() => !visibleTips().includes('Controlled A') && !visibleTips().includes('Controlled B'));
+
+    this.set('controlledOpenA', true);
+    await waitUntil(() => visibleTips().includes('Controlled A'));
+
+    this.set('controlledOpenA', false);
+    await waitUntil(() => !visibleTips().includes('Controlled A'));
+
+    // Uncontrolled click/hover entries still share one singleton Attachment node
     await click('#click-only-tip');
-    await waitUntil(() => isVisible(tipEl) && tipEl.textContent.trim() === 'Click hint');
+    await waitUntil(() => visibleTips().includes('Click hint'));
+    const clickHost = findAll('.ember-attacher').find((el) => isVisible(el));
     await click('#click-only-tip');
-    await waitUntil(() => !isVisible(tipEl));
+    await waitUntil(() => !visibleTips().includes('Click hint'));
 
     this.set('hoverLabel', 'Hover hint v2');
     await settled();
 
     await triggerEvent('#hover-only-tip', 'mouseenter');
-    await waitUntil(() => isVisible(tipEl) && tipEl.textContent.trim() === 'Hover hint v2');
-    assert.dom(tipEl).hasText('Hover hint v2', 'sibling {{tooltip}} keeps default mouseenter trigger');
+    await waitUntil(() => isVisible(clickHost) && clickHost.textContent.trim() === 'Hover hint v2');
+    assert.dom(clickHost).hasText('Hover hint v2', 'uncontrolled {{tooltip}}s still share the singleton node');
   });
 
   test('{{a.target data}} updates data in place and unmounting active target hides instead of jumping to sibling', async function (assert) {

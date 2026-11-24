@@ -1,4 +1,4 @@
-import type { ComputePositionConfig, Placement, Strategy } from '@floating-ui/dom';
+import type { ComputePositionConfig, OffsetOptions, Placement, Strategy } from '@floating-ui/dom';
 
 export type AttacherAnimation =
   | 'fade'
@@ -27,7 +27,9 @@ export interface EmberAttacherDefaults {
   isShown: boolean;
   lazyRender: boolean;
   middleware: ComputePositionConfig['middleware'] | null;
+  offset: OffsetOptions | null;
   placement: Placement;
+  popoverClass: string;
   strategy: Strategy;
   renderInPlace: boolean;
   showDelay: number;
@@ -55,7 +57,9 @@ const DEFAULTS: EmberAttacherDefaults = {
   isShown: false,
   lazyRender: false,
   middleware: null,
+  offset: null,
   placement: 'top',
+  popoverClass: '',
   strategy: 'absolute',
   renderInPlace: false,
   showDelay: 0,

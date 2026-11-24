@@ -4,6 +4,7 @@ import { setupRenderingTest } from 'ember-qunit';
 import { clearRender, click, find, focus, render, settled, triggerEvent, triggerKeyEvent, waitUntil } from '@ember/test-helpers';
 import {
   arrow,
+  hide,
   inline,
   isVisible,
   offset,
@@ -485,6 +486,311 @@ module('Integration | Component | explicit target', function (hooks) {
 
     await triggerEvent('#later-target', 'mouseenter');
     assert.true(isVisible(find('#nullable-target-tip')), 'activates once reactive @target resolves');
+  });
+
+  test('@offset and offset() middleware measure exact gap without doubling CSS distance', async function (assert) {
+    this.set('offsetMw', [offset(6)]);
+
+    await render(hbs`
+      <div style="padding: 120px;">
+        <button id="offset-btn" type="button">Offset 12</button>
+        <AttachTooltip
+          @id="offset-tip"
+          @target="#offset-btn"
+          @offset={{12}}
+          @placement="bottom"
+          @animation="shift"
+          @isShown={{true}}
+          @showOn={{null}}
+          @hideOn={{null}}
+          @showDuration={{0}}
+          @hideDuration={{0}}
+        >
+          Offset 12 tip
+        </AttachTooltip>
+
+        <button id="mw-offset-btn" type="button">Middleware Offset 6</button>
+        <AttachTooltip
+          @id="mw-offset-tip"
+          @target="#mw-offset-btn"
+          @middleware={{this.offsetMw}}
+          @placement="bottom"
+          @animation="fade"
+          @isShown={{true}}
+          @showOn={{null}}
+          @hideOn={{null}}
+          @showDuration={{0}}
+          @hideDuration={{0}}
+        >
+          Middleware 6 tip
+        </AttachTooltip>
+      </div>
+    `);
+
+    const tip = find('#offset-tip');
+    const tipInner = tip.querySelector(':scope > div');
+    const btnRect = find('#offset-btn').getBoundingClientRect();
+    const tipRect = tipInner.getBoundingClientRect();
+    assert.dom(tip).hasAttribute('data-offset');
+    assert.ok(
+      Math.abs(tipRect.top - btnRect.bottom - 12) <= 1,
+      `expected 12px gap via @offset={{12}}, got ${tipRect.top - btnRect.bottom}px`
+    );
+
+    const mwTip = find('#mw-offset-tip');
+    const mwInner = mwTip.querySelector(':scope > div');
+    const mwBtnRect = find('#mw-offset-btn').getBoundingClientRect();
+    const mwTipRect = mwInner.getBoundingClientRect();
+    assert.dom(mwTip).hasAttribute('data-offset');
+    assert.ok(
+      Math.abs(mwTipRect.top - mwBtnRect.bottom - 6) <= 1,
+      `expected 6px gap via offset(6), got ${mwTipRect.top - mwBtnRect.bottom}px`
+    );
+  });
+
+  test('top-layer clipping ignores background overflow:hidden while preserving intra-dialog scroll clipping', async function (assert) {
+    this.set('hideMiddleware', [hide()]);
+    this.set('showModalDialog', modifier((el) => {
+      if (typeof el.showModal === 'function' && !el.open) {
+        el.showModal();
+      }
+    }));
+
+    await render(hbs`
+      <div style="width: 40px; height: 40px; overflow: hidden;">
+        <dialog id="test-modal" {{this.showModalDialog}} style="overflow: visible; padding: 16px;">
+          <div id="modal-scroll" style="height: 60px; overflow: auto; width: 240px;">
+            <button id="modal-visible-btn" type="button">Visible in modal</button>
+            <div style="height: 200px;">Spacer</div>
+            <button id="modal-scrolled-out-btn" type="button">Scrolled out</button>
+          </div>
+          <AttachTooltip
+            @id="modal-visible-tip"
+            @target="#modal-visible-btn"
+            @middleware={{this.hideMiddleware}}
+            @isShown={{true}}
+            @showDuration={{0}}
+            @hideDuration={{0}}
+          >
+            Visible modal tip
+          </AttachTooltip>
+          <AttachTooltip
+            @id="modal-hidden-tip"
+            @target="#modal-scrolled-out-btn"
+            @middleware={{this.hideMiddleware}}
+            @isShown={{true}}
+            @showDuration={{0}}
+            @hideDuration={{0}}
+          >
+            Scrolled out modal tip
+          </AttachTooltip>
+        </dialog>
+      </div>
+    `);
+
+    const visibleTip = find('#modal-visible-tip');
+    const hiddenTip = find('#modal-hidden-tip');
+    assert.dom(visibleTip).doesNotHaveAttribute('data-reference-hidden', 'background overflow:hidden does not clip modal target');
+    assert.true(isVisible(visibleTip));
+    assert.dom(hiddenTip).hasAttribute('data-reference-hidden', '', 'intra-modal scroll container still hides scrolled-out target');
+    assert.false(isVisible(hiddenTip));
+
+    // Cleanly close modal so test container resets
+    find('#test-modal')?.close?.();
+  });
+
+  test('top-layer child popover inside overflow:visible parent popover is not clipped by parent popover rect', async function (assert) {
+    await render(hbs`
+      <button id="outer-small-btn" type="button">Outer</button>
+      <AttachPopover
+        @id="outer-small-pop"
+        @target="#outer-small-btn"
+        @isShown={{true}}
+        @showDuration={{0}}
+        @hideDuration={{0}}
+      >
+        <div style="width: 60px;">
+          <button id="inner-child-btn" type="button">Go</button>
+          <AttachPopover
+            @id="inner-wide-pop"
+            @target="#inner-child-btn"
+            @placement="right"
+            @isShown={{true}}
+            @showDuration={{0}}
+            @hideDuration={{0}}
+          >
+            <div style="width: 240px;">Wide child popover content</div>
+          </AttachPopover>
+        </div>
+      </AttachPopover>
+    `);
+
+    const outer = find('#outer-small-pop');
+    const inner = find('#inner-wide-pop');
+    assert.strictEqual(outer.getAttribute('data-placement'), outer.getAttribute('x-placement'));
+    assert.strictEqual(
+      inner.getAttribute('data-placement'),
+      'right',
+      'wide child popover is not forced to flip by narrow overflow:visible parent popover'
+    );
+  });
+
+  test('relative @target tokens (:previous stacking, :parent, :closest) and descendant click guard', async function (assert) {
+    this.set('showConditionalBtn', false);
+
+    await render(hbs`
+      <div id="relative-root" style="padding: 80px;">
+        <button id="stack-btn" type="button">Stacked Trigger</button>
+        <AttachTooltip @id="stack-tip" @target=":previous" @showDuration={{0}} @hideDuration={{0}}>
+          Stacked tooltip
+        </AttachTooltip>
+        <AttachPopover @id="stack-pop" @target=":previous(button)" @showOn="click" @hideOn="click" @showDuration={{0}} @hideDuration={{0}}>
+          Stacked popover
+        </AttachPopover>
+
+        <div id="indicator-wrap" role="button" tabindex="0">
+          Indicator
+          <AttachPopover
+            @id="parent-pop"
+            @target=":parent"
+            @showOn="click"
+            @hideOn="click"
+            @showDuration={{0}}
+            @hideDuration={{0}}
+          >
+            <button id="inside-parent-pop-btn" type="button">Inside action</button>
+          </AttachPopover>
+        </div>
+
+        <section id="closest-card" class="card">
+          <div>
+            <AttachPopover
+              @id="closest-pop"
+              @target=":closest(.card)"
+              @class="card"
+              @showOn="click"
+              @hideOn="click"
+              @showDuration={{0}}
+              @hideDuration={{0}}
+            >
+              Closest card
+            </AttachPopover>
+          </div>
+        </section>
+
+        <div id="conditional-sibling-wrap">
+          {{#if this.showConditionalBtn}}
+            <button id="cond-btn-a" type="button">Cond A</button>
+          {{else}}
+            <button id="cond-btn-b" type="button">Cond B</button>
+          {{/if}}
+          <AttachPopover @id="cond-pop" @target=":previous" @showOn="click" @hideOn="click" @showDuration={{0}} @hideDuration={{0}}>
+            Conditional target
+          </AttachPopover>
+        </div>
+      </div>
+    `);
+
+    await triggerEvent('#stack-btn', 'mouseenter');
+    assert.true(isVisible(find('#stack-tip')), ':previous resolves past no other siblings');
+    await click('#stack-btn');
+    assert.true(isVisible(find('#stack-pop')), ':previous(button) skips sibling .ember-attacher tooltip');
+
+    // Trap 1: clicking inside an Attachment nested in its own Target must not close it via hideOn="click"
+    await click('#indicator-wrap');
+    assert.true(isVisible(find('#parent-pop')), ':parent opens on parent click');
+    await click('#inside-parent-pop-btn');
+    assert.true(isVisible(find('#parent-pop')), 'clicking inside nested Attachment does not bubble to close parent Target');
+    await click('#indicator-wrap');
+    assert.false(isVisible(find('#parent-pop')), 'clicking target directly still closes');
+
+    // :closest(.card) skips host even when host has class="card"
+    await click('#closest-card');
+    assert.true(isVisible(find('#closest-pop')), ':closest(.card) binds ancestor section rather than host itself');
+
+    // Conditional sibling swap updates static @target=":previous"
+    await click('#cond-btn-b');
+    assert.true(isVisible(find('#cond-pop')), 'binds initial sibling Cond B');
+    await click('#cond-btn-b');
+    this.set('showConditionalBtn', true);
+    await settled();
+    await click('#cond-btn-a');
+    assert.true(isVisible(find('#cond-pop')), 're-resolves static @target=":previous" when sibling swaps to Cond A');
+
+    // :previous(<selector>) asserts in debug when immediate non-attacher sibling does not match
+    let capturedError = null;
+    const prevIgnore = QUnit.config.current.ignoreGlobalErrors;
+    const prevWindowOnError = window.onerror;
+    QUnit.config.current.ignoreGlobalErrors = true;
+    window.onerror = (message, _source, _lineno, _colno, error) => {
+      capturedError = error || message;
+      return true;
+    };
+
+    try {
+      await render(hbs`
+        <span>Not a button</span>
+        <AttachPopover @id="mismatch-prev" @target=":previous(button)">Mismatch</AttachPopover>
+      `);
+    } finally {
+      window.onerror = prevWindowOnError;
+      QUnit.config.current.ignoreGlobalErrors = prevIgnore;
+      await clearRender();
+    }
+
+    assert.ok(
+      String(capturedError).includes('expected the preceding sibling <span> to match "button"'),
+      'debug assert fires when :previous(button) does not match immediate non-attacher sibling'
+    );
+  });
+
+  test('containing relative target (:closest) dismisses via clickout and focusout on other controls inside target', async function (assert) {
+    await render(hbs`
+      <section id="card-dismiss" class="card">
+        <button id="card-other-btn" type="button">Other control</button>
+        <AttachPopover
+          @id="card-pop"
+          @target=":closest(.card)"
+          @showOn="click"
+          @hideOn="clickout"
+          @showDuration={{0}}
+          @hideDuration={{0}}
+        >
+          <button id="card-pop-btn" type="button">Inside pop</button>
+        </AttachPopover>
+      </section>
+      <section id="card-focus-dismiss" class="card" tabindex="0">
+        <button id="card-focus-other-btn" type="button">Other focus control</button>
+        <AttachPopover
+          @id="card-focus-pop"
+          @target=":closest(.card)"
+          @showOn="click"
+          @hideOn="focusout"
+          @showDuration={{0}}
+          @hideDuration={{0}}
+        >
+          <button id="card-focus-pop-btn" type="button">Inside focus pop</button>
+        </AttachPopover>
+      </section>
+    `);
+
+    await click('#card-dismiss');
+    assert.true(isVisible(find('#card-pop')), ':closest(.card) opens on click and stays open past opening click');
+
+    await click('#card-pop-btn');
+    assert.true(isVisible(find('#card-pop')), 'clicking inside interactive :closest(.card) popover keeps it open');
+
+    await click('#card-other-btn');
+    assert.false(isVisible(find('#card-pop')), 'clicking another control inside :closest(.card) dismisses via clickout');
+
+    await click('#card-focus-dismiss');
+    assert.true(isVisible(find('#card-focus-pop')), ':closest(.card) opens for focusout check');
+
+    await click('#card-focus-pop-btn');
+    assert.true(isVisible(find('#card-focus-pop')), 'focusing inside interactive :closest(.card) popover keeps it open');
+
+    await focus('#card-focus-other-btn');
+    assert.false(isVisible(find('#card-focus-pop')), 'moving focus to another control inside :closest(.card) dismisses via focusout');
   });
 
   test('does not assign permanent will-change on closed tooltips and removes x-arrow', async function (assert) {

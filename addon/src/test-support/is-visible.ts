@@ -1,5 +1,34 @@
 export type AttachmentSelector = string | Element | Window | Document | null | undefined;
 
+function isElementVisible(element: Element): boolean {
+  const style = getComputedStyle(element);
+
+  if (style.display === 'none' || style.visibility === 'hidden') {
+    return false;
+  }
+
+  if (element.getAttribute('aria-hidden') === 'true') {
+    return false;
+  }
+
+  if (
+    element.hasAttribute('popover') &&
+    typeof element.matches === 'function' &&
+    typeof HTMLElement !== 'undefined' &&
+    typeof HTMLElement.prototype.showPopover === 'function'
+  ) {
+    try {
+      if (!element.matches(':popover-open')) {
+        return false;
+      }
+    } catch {
+      // Ignore if :popover-open selector is unsupported
+    }
+  }
+
+  return true;
+}
+
 export function isVisible(selector: AttachmentSelector, contextEl?: Element | null): boolean {
   const attachment =
     typeof selector === 'string' ? getAttachment(selector, contextEl) : selector;
@@ -12,32 +41,14 @@ export function isVisible(selector: AttachmentSelector, contextEl?: Element | nu
     return false;
   }
 
-  const style = getComputedStyle(attachment);
-
-  if (style.display === 'none' || style.visibility === 'hidden') {
+  // Host controls display/aria-hidden/[popover] while @class targets the inner element;
+  // check both so closed inner selectors return false while hidden sub-elements (e.g. arrow) stay accurate.
+  const host = attachment.closest('.ember-attacher');
+  if (host && host !== attachment && !isElementVisible(host)) {
     return false;
   }
 
-  if (attachment.getAttribute('aria-hidden') === 'true') {
-    return false;
-  }
-
-  if (
-    attachment.hasAttribute('popover') &&
-    typeof attachment.matches === 'function' &&
-    typeof HTMLElement !== 'undefined' &&
-    typeof HTMLElement.prototype.showPopover === 'function'
-  ) {
-    try {
-      if (!attachment.matches(':popover-open')) {
-        return false;
-      }
-    } catch {
-      // Ignore if :popover-open selector is unsupported
-    }
-  }
-
-  return true;
+  return isElementVisible(attachment);
 }
 
 function getAttachment(
