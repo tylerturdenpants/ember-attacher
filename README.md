@@ -88,7 +88,7 @@ If you're upgrading from **1.x to 2.x**, see the [2.0 upgrade guide](./addon/doc
 A target-attached tooltip component (default `ariaRole="tooltip"`).
 
 * Must be bound to a Target (`@target`, `<:target>`, `{{a.target}}`, `a.setTarget()`, `[popovertarget]`, or `[interestfor]`). Asserts in debug if no target binding is provided (nullable reactive `@target={{this.target}}` is supported). Relative `@target` tokens (`:previous`, `:previous(selector)`, `:closest(selector)`, `:parent`) resolve from the in-place Host without wrapper elements or `<meta hidden>`.
-* Has the default class `'ember-attacher-floating ember-attacher-tooltip'` (configurable via `tooltipClass`).
+* Has the default class `'ember-attacher-floating ember-attacher-tooltip'` (configurable via `ENV.emberAttacher.tooltipClass` or `tooltip.tooltipClass`, which **replaces** this default rather than appending—include `'ember-attacher-tooltip'` alongside custom theme classes such as `'ember-attacher-tooltip my-theme'` to keep packaged styles and `--ember-attacher-*` tokens, whereas per-instance `@class` / `class=` appends to it).
 * Hoverable by default (`@interactive={{true}}`) per WCAG 1.4.13 with an automatic `safePolygon` diagonal pointer corridor (pass `@interactive={{false}}` to opt out).
 * Smart Tooltip ARIA: binds `aria-labelledby` upfront on nameless triggers (such as icon buttons), suppresses duplicate `aria-describedby` when tooltip text matches the trigger's accessible name, and otherwise binds open-only token-safe `aria-describedby`.
 
@@ -140,7 +140,9 @@ Below are the 5.0 defaults (shared defaults from `addon/src/defaults.ts`; `<Atta
   // Keeps attachment open while pointer/focus enters it or traverses the safePolygon corridor.
   interactive: true,
 
-  // Controlled visibility flag.
+  // Controlled visibility flag. Does NOT disable default `showOn` / `hideOn` triggers;
+  // pass `@showOn={{null}} @hideOn={{null}}` (or `""`) for fully controlled attachments
+  // so native hover/focus/blur/Escape/clickout events cannot desync DOM state.
   isShown: false,
 
   // Defers rendering inner content until the attachment is first triggered.
@@ -343,7 +345,7 @@ See [defaults.ts](./addon/src/defaults.ts) for all configurable keys.
 
 ## Styles
 
-`ember-attacher` provides CSS for the default tooltip class, `ember-attacher-tooltip` (`ember-attacher/styles`, also auto-injected via `ember-addon.implicit-styles` when the host app depends on `ember-attacher` directly). If an intermediate addon only lists `ember-attacher` as a `peerDependency`, the host app must also depend on `ember-attacher` directly or `import 'ember-attacher/styles';`. `<AttachPopover>` has no packaged look unless you opt in with `@class="ember-attacher-popover"` or configure `ENV.emberAttacher.popoverClass` (arrow and fill-backdrop geometry work with any `@class` without needing `.ember-attacher-popover`).
+`ember-attacher` provides CSS for the default tooltip class, `ember-attacher-tooltip` (`ember-attacher/styles`, also auto-injected via `ember-addon.implicit-styles` when the host app depends on `ember-attacher` directly). If an intermediate addon only lists `ember-attacher` as a `peerDependency`, the host app must also depend on `ember-attacher` directly or `import 'ember-attacher/styles';`. Setting `ENV.emberAttacher.tooltipClass` (or `tooltip.tooltipClass`) replaces `'ember-attacher-floating ember-attacher-tooltip'`, so custom tooltip theme classes using `--ember-attacher-*` tokens must include `'ember-attacher-tooltip'` (e.g. `'ember-attacher-tooltip my-theme'`) unless opting out of base styles. `<AttachPopover>` has no packaged look unless you opt in with `@class="ember-attacher-popover"` or configure `ENV.emberAttacher.popoverClass` (arrow and fill-backdrop geometry work with any `@class` without needing `.ember-attacher-popover`).
 
 Default token values use `:where()` so an app class can override them even if addon `implicit-styles` load last.
 

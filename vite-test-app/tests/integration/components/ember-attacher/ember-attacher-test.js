@@ -314,4 +314,117 @@ module('Integration | Component | ember attacher', function (hooks) {
       await clearRender();
     }
   });
+
+  test('in-place attachment resets inherited white-space: nowrap at zero specificity', async function (assert) {
+    await render(hbs`
+      <style>
+        .custom-preline-override { white-space: pre-line; }
+      </style>
+      <div style="white-space: nowrap;">
+        <button id="nowrap-tip-trigger" type="button">Tip trigger</button>
+        <span id="nowrap-probe">Long tooltip content that should wrap normally at max-width instead of overflowing a single nowrap line inside an item row</span>
+        <AttachTooltip
+          @id="nowrap-tip"
+          @target="#nowrap-tip-trigger"
+          @showOn="click"
+          @hideOn="click"
+          @animation="none"
+          @showDuration={{0}}
+          @hideDuration={{0}}
+        >
+          Long tooltip content that should wrap normally at max-width instead of overflowing a single nowrap line inside an item row
+        </AttachTooltip>
+
+        <button id="nowrap-pop-trigger" type="button">Pop trigger</button>
+        <AttachPopover
+          @id="nowrap-pop"
+          @target="#nowrap-pop-trigger"
+          @class="nowrap-custom-pop"
+          @animation="none"
+          @showDuration={{0}}
+          @hideDuration={{0}}
+        >
+          Unstyled popover text
+        </AttachPopover>
+
+        <button id="preline-tip-trigger" type="button">Preline trigger</button>
+        <AttachTooltip
+          @id="preline-tip"
+          @target="#preline-tip-trigger"
+          @class="ember-attacher-tooltip custom-preline-override"
+          @showOn="click"
+          @hideOn="click"
+          @animation="none"
+          @showDuration={{0}}
+          @hideDuration={{0}}
+        >
+          Line 1
+          Line 2
+        </AttachTooltip>
+      </div>
+    `);
+
+    await click('#nowrap-tip-trigger');
+    const tipInner = find('#nowrap-tip > div');
+    const probeRect = find('#nowrap-probe').getBoundingClientRect();
+    const tipRect = tipInner.getBoundingClientRect();
+    assert.strictEqual(getComputedStyle(tipInner).whiteSpace, 'normal', 'tooltip resets inherited white-space: nowrap');
+    assert.true(
+      tipRect.width < probeRect.width && tipRect.width <= 432,
+      `wrapped tooltip (${Math.round(tipRect.width)}px) wraps narrower than inherited nowrap (${Math.round(probeRect.width)}px)`
+    );
+    assert.true(
+      tipRect.height > probeRect.height,
+      `wrapped tooltip (${Math.round(tipRect.height)}px) grows vertically across lines vs nowrap (${Math.round(probeRect.height)}px)`
+    );
+
+    await click('#nowrap-pop-trigger');
+    const popInner = find('#nowrap-pop > .nowrap-custom-pop');
+    assert.strictEqual(
+      getComputedStyle(popInner).whiteSpace,
+      'normal',
+      'unstyled popover also resets inherited white-space: nowrap'
+    );
+
+    await click('#preline-tip-trigger');
+    const overrideInner = find('#preline-tip > .custom-preline-override');
+    assert.strictEqual(
+      getComputedStyle(overrideInner).whiteSpace,
+      'pre-line',
+      'app class still overrides white-space over :where(.ember-attacher)'
+    );
+  });
+
+  test('isVisible() checks the enclosing .ember-attacher host when passed an inner element selector', async function (assert) {
+    await render(hbs`
+      <button id="inner-vis-trigger" type="button">Toggle</button>
+      <AttachPopover
+        @id="inner-vis-host"
+        @target="#inner-vis-trigger"
+        @class="ember-attacher-popover custom-inner-panel"
+        @lazyRender={{false}}
+        @showDuration={{0}}
+        @hideDuration={{0}}
+      >
+        Panel content
+        <span class="hidden-inner-child" style="display: none;">Hidden child</span>
+      </AttachPopover>
+    `);
+
+    assert.false(isVisible('.ember-attacher-popover'), 'isVisible(".ember-attacher-popover") is false while closed');
+    assert.false(isVisible('.custom-inner-panel'), 'isVisible(".custom-inner-panel") is false while closed');
+    assert.false(isVisible(find('.custom-inner-panel')), 'isVisible(innerEl) is false while closed');
+
+    await click('#inner-vis-trigger');
+    assert.true(isVisible('.ember-attacher-popover'), 'isVisible(".ember-attacher-popover") is true while open');
+    assert.true(isVisible('.custom-inner-panel'), 'isVisible(".custom-inner-panel") is true while open');
+    assert.false(
+      isVisible('.hidden-inner-child'),
+      'isVisible() still returns false for hidden child elements inside an open attachment'
+    );
+
+    await click('#inner-vis-trigger');
+    assert.false(isVisible('.ember-attacher-popover'), 'isVisible(".ember-attacher-popover") returns to false after close');
+    assert.false(isVisible('.custom-inner-panel'), 'isVisible(".custom-inner-panel") returns to false after close');
+  });
 });

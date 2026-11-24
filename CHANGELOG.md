@@ -10,6 +10,7 @@
 * **Controlled `{{tooltip ... isShown=...}}` isolation (#1133, #1134):** Isolated `{{tooltip}}` modifiers passing `isShown !== undefined` into a dedicated host instance so hovering uncontrolled `{{tooltip}}`s never steals or hides controlled tooltips.
 * **Top-Layer clipping boundary (`topLayerAwarePlatform`) (#1133, #1134):** Scoped `clippingAncestors` at the nearest enclosing `:popover-open` / `:modal` Top-Layer host for non-Top-Layer references while keeping Top-Layer floating elements unclipped against `overflow: visible` parent dialogs/popovers.
 * **Descendant-attachment click guard & containing-target dismissal (#1133, #1134):** Prevented events bubbling out of in-place child attachments from re-triggering enclosing Target show/hide listeners, and prevented wide `:parent` / `:closest(...)` targets from swallowing outside `clickout` / `focusout` dismissal for other controls inside the container.
+* **In-place `white-space: normal` reset & `isVisible()` inner-selector host check (#1133):** Reset inherited `white-space` to `normal` at zero specificity on `:where(.ember-attacher)` so overlays wrap inside `white-space: nowrap` ancestors while remaining overridable, and updated `isVisible()` to also verify the enclosing `.ember-attacher` host when queried by an inner element selector.
 
 #### :house: Internal
 * **Dev-tooling updates (#1133):** Bumped `eslint-plugin-ember` (`13.11.2`), `rollup` (`4.68.7`), `typescript` (`5.9.3`), and `webpack` (`5.113.0`), and ignored local `.plan/` and `.log/` directories in `.gitignore`.

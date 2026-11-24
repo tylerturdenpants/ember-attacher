@@ -18,6 +18,12 @@
   --ember-attacher-z-index: 9999;
 }
 
+/* Break inherited white-space (e.g. nowrap table cells / list rows) on in-place overlays
+   at zero specificity so caller outer/inner classes can still override regardless of CSS order. */
+:where(.ember-attacher) {
+  white-space: normal;
+}
+
 .ember-attacher {
   width: max-content;
   position: absolute;
