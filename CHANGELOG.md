@@ -1,5 +1,9 @@
 ## Unreleased
 
+## v5.1.0 (2026-11-24)
+
+> **Stable 5.1.0.** Install with `npm i ember-attacher@latest` or `npm i ember-attacher@5.1.0`. Prerelease `5.1.0-beta.0` was for testing; the npm `beta` dist-tag remains on `5.1.0-beta.0` unless retargeted. Five locked ergonomics / contract slices from [#1134](https://github.com/tylerturdenpants/ember-attacher/issues/1134) shipped via [#1133](https://github.com/tylerturdenpants/ember-attacher/pull/1133) (plus Dependabot tooling bumps).
+
 #### :rocket: Enhancement
 * **`@offset` shorthand & `[data-offset]` CSS separation (#1133, #1134):** Added `@offset` (`number | OffsetOptions`, plus `ENV.emberAttacher.offset`) prepending Floating UI `offset()` when `@middleware` has no `offset` entry, and introduced `--ember-attacher-slide-distance` + `.ember-attacher[data-offset]` so open resting distance does not double-count `--ember-attacher-distance`.
 * **`popoverClass` ENV configuration (#1133, #1134):** Added `ENV.emberAttacher.popoverClass` and `ENV.emberAttacher.popover.popoverClass` (defaulting to `''` so unstyled `<AttachPopover>` stays opt-in).
@@ -14,6 +18,13 @@
 
 #### :house: Internal
 * **Dev-tooling updates (#1133):** Bumped `eslint-plugin-ember` (`13.11.2`), `rollup` (`4.68.7`), `typescript` (`5.9.3`), and `webpack` (`5.113.0`), and ignored local `.plan/` and `.log/` directories in `.gitignore`.
+
+#### Committers: 1
+- Petro Zubar ([@pzubar](https://github.com/pzubar))
+
+## v5.1.0-beta.0 (2026-11-23)
+
+> **Beta of the 5.1 line** — not a stable release. Install with `npm i ember-attacher@beta` or `npm i ember-attacher@5.1.0-beta.0`. The npm `latest` dist-tag remained on `5.0.0` until stable `5.1.0`. Previewed the five #1134 slices + tooling bumps from [#1133](https://github.com/tylerturdenpants/ember-attacher/pull/1133).
 
 ## v5.0.0 (2026-11-20)
 
